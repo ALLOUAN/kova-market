@@ -1,0 +1,63 @@
+{{--
+    Main navigation, rendered by the header, the sticky header and the mobile menu.
+    $idSuffix keeps element ids unique between copies; $headingTag avoids duplicate headings;
+    $mobile renders the category mega menu as a simple dropdown.
+--}}
+@php
+    $idSuffix ??= '';
+    $headingTag ??= 'h2';
+    $mobile ??= false;
+@endphp
+<nav class="rbt-mainmenu-nav">
+    <ul @class(['mainmenu', 'has-nav-bg-shape-hover' => ! $mobile])>
+        @foreach ($mainMenu as $item)
+            @switch($item['type'] ?? 'link')
+                @case('categories')
+                    @if ($mobile)
+                        <li class="has-dropdown position-relative">
+                            <a href="#!">{{ $item['label'] }} <i class="fa-regular fa-chevron-down"></i></a>
+                            <ul class="submenu">
+                                @foreach ($categoryTree as $category)
+                                    <li><a href="{{ $category->url() }}">{{ $category->name }}</a></li>
+                                @endforeach
+                            </ul>
+                        </li>
+                    @else
+                        <li class="with-rbt-megamenu has-menu-child-item position-static">
+                            <a href="#!">{{ $item['label'] }} <i class="fa-regular fa-chevron-down"></i></a>
+                            @include('partials.header.mega-menus.categories')
+                        </li>
+                    @endif
+                    @break
+
+                @case('mega')
+                    <li class="with-rbt-megamenu has-menu-child-item position-static">
+                        <a href="#!">{{ $item['label'] }} <i class="fa-regular fa-chevron-down"></i></a>
+                        @include('partials.header.mega-menus.columns', ['columns' => $item['columns']])
+                    </li>
+                    @break
+
+                @case('dropdown')
+                    <li class="has-dropdown position-relative">
+                        <a href="#!">{{ $item['label'] }} <i class="fa-regular fa-chevron-down"></i></a>
+                        <ul class="submenu">
+                            @foreach ($item['links'] as $link)
+                                <li>
+                                    <a href="{{ $link['href'] }}">
+                                        {{ $link['label'] }}
+                                        @isset($link['badge'])
+                                            <div class="rbt-product-badge rbt-product-badge-bg-{{ $link['badge']['variant'] }} border-rounded">{{ $link['badge']['label'] }}</div>
+                                        @endisset
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </li>
+                    @break
+
+                @default
+                    <li class="position-relative"><a href="{{ $item['href'] }}">{{ $item['label'] }}</a></li>
+            @endswitch
+        @endforeach
+    </ul>
+</nav>

@@ -1,0 +1,113 @@
+<?php
+
+namespace App\Models;
+
+use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Route;
+
+#[Fillable([
+    'category_id', 'brand_id', 'name', 'slug', 'price', 'price_max', 'compare_at_price', 'stock', 'sold_count',
+    'rating', 'reviews_count', 'watchers_count', 'free_shipping', 'return_days', 'image', 'hover_image', 'hover_video',
+    'badges', 'colors', 'variants_count', 'specifications', 'sale_ends_at', 'is_active',
+])]
+class Product extends Model
+{
+    /** @use HasFactory<ProductFactory> */
+    use HasFactory;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+            'price_max' => 'decimal:2',
+            'compare_at_price' => 'decimal:2',
+            'stock' => 'integer',
+            'sold_count' => 'integer',
+            'rating' => 'float',
+            'free_shipping' => 'boolean',
+            'badges' => 'array',
+            'colors' => 'array',
+            'specifications' => 'array',
+            'sale_ends_at' => 'datetime',
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class)->withPivot('position');
+    }
+
+    #[Scope]
+    protected function active(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Public page of the product ("#" until the product page route is registered).
+     */
+    public function url(): string
+    {
+        return Route::has('products.show') ? route('products.show', $this) : '#';
+    }
+
+    public function isSoldOut(): bool
+    {
+        return $this->stock === 0;
+    }
+
+    public function hasLimitedStock(): bool
+    {
+        return ! $this->isSoldOut() && $this->stock <= config('storefront.product_card.limited_stock_threshold');
+    }
+
+    public function isOnSale(): bool
+    {
+        return $this->compare_at_price !== null && $this->compare_at_price > $this->price;
+    }
+
+    public function discountPercentage(): ?int
+    {
+        return $this->isOnSale()
+            ? (int) round((1 - $this->price / $this->compare_at_price) * 100)
+            : null;
+    }
+
+    /**
+     * Share of the initial inventory still available, used by the "only N left" progress bar.
+     */
+    public function stockLeftPercentage(): int
+    {
+        $initial = $this->stock + $this->sold_count;
+
+        return $initial === 0 ? 0 : (int) round($this->stock / $initial * 100);
+    }
+
+    public function hasCountdown(): bool
+    {
+        return $this->sale_ends_at?->isFuture() ?? false;
+    }
+}

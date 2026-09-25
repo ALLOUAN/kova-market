@@ -1,0 +1,26 @@
+<x-modal id="welcomebannerModal" dialog-class="modal-dialog-centered xs-size">
+    <div class="rbt-top-folder-shape-wrapper">
+        <div class="rbt-welcome-banner-area rbt-content-trs-portion">
+            <div class="rbt-welcome-banner-content">
+                <div class="rbt-welcome-banner-top position-relative overflow-hidden rbt-rounded--12">
+                    <img src="{{ asset('assets/images/banner-img/welcome-banner-img-01.webp') }}" alt="Ecommerce Banner Image">
+                </div>
+                <div class="rbt-welcome-banner-bottom pt--32">
+                    <h2 class="text-center mb--12">Don’t miss out Offers</h2>
+                    <p class="text-center b1 mb--32">Be the first one to get the new product at early bird prices.</p>
+                    <form id="rbtSubscribe-form" action="#" class="form-newsletter">
+                        <div class="rbt-input-field-grp">
+                            <input class="rbt-input-field" type="email" placeholder="Your Email Address *">
+                        </div>
+                        <button type="submit" class="rbt-btn d-block w-100 mt--24 mb--16 radius-round-6">
+                            Keep me updated
+                        </button>
+                    </form>
+                    <div class="text-center">
+                        <a href="#" data-bs-dismiss="modal" class="rbt-btn rbt-btn-naked radius-round-6 d-block">Not interested</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-modal>
