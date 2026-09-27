@@ -5,10 +5,10 @@
 
             <div class="container">
                 <div class=" flex-column align-items-start">
-                    <h3 class="rbt-title rbt-modal-title h5" id="quickviewSizeGuideModalLabel">Size Guide</h3>
+                    <h3 class="rbt-title rbt-modal-title h5" id="quickviewSizeGuideModalLabel">Guide des tailles</h3>
                     <p class="rbt-modal-description">Masculine Tailored Pants</p>
                     <div class="w-100 d-flex align-items-center justify-content-between">
-                        <p class="rbt-modal-subtitle">Find Your Size</p>
+                        <p class="rbt-modal-subtitle">Trouvez votre taille</p>
                         <div class="rbt-tab rbt-round-shape-tab">
 
                             <ul class="nav nav-tabs rbt-tabs-primary mb--0" id="rbt-sizeTab" role="tablist">
@@ -37,12 +37,12 @@
                                     <table class="rbt-sizeguide-table">
                                         <tbody>
                                             <tr>
-                                                <td>Size</td>
-                                                <td>US Size</td>
-                                                <td>Chest</td>
-                                                <td>Waist</td>
-                                                <td>Low Hip</td>
-                                                <td>Inseam</td>
+                                                <td>Taille</td>
+                                                <td>Taille US</td>
+                                                <td>Poitrine</td>
+                                                <td>Taille</td>
+                                                <td>Hanches</td>
+                                                <td>Entrejambe</td>
                                             </tr>
                                             <tr>
                                                 <td>XS</td>
@@ -85,12 +85,12 @@
                                     <table class="rbt-sizeguide-table">
                                         <tbody>
                                             <tr>
-                                                <td>Size</td>
-                                                <td>US Size</td>
-                                                <td>Chest</td>
-                                                <td>Waist</td>
-                                                <td>Low Hip</td>
-                                                <td>Inseam</td>
+                                                <td>Taille</td>
+                                                <td>Taille US</td>
+                                                <td>Poitrine</td>
+                                                <td>Taille</td>
+                                                <td>Hanches</td>
+                                                <td>Entrejambe</td>
                                             </tr>
                                             <tr>
                                                 <td>XS</td>

@@ -17,7 +17,7 @@
                                 </div>
                             </div>
                             <div class="rbt-banner-btn rbt-scroll-trigger fade_in animation-order-5">
-                                <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="#"><i class="fa-solid fa-arrow-up-right"></i> SHOP <br> NOW</a>
+                                <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="#"><i class="fa-solid fa-arrow-up-right"></i> BOUTIQUE <br> MAINTENANT</a>
                             </div>
                         </div>
                         <div class="rbt-product-banner-img rbt-scroll-trigger zoom_in animation-order-1">

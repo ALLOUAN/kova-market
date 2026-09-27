@@ -5,13 +5,13 @@
                 <div class="content">
                     @include('partials.header.logo')
                     <div class="rbt-btn-close">
-                        <button class="close-button rbt-round-btn" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
+                        <button class="close-button rbt-round-btn" aria-label="Fermer le menu"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
                 <p class="description">{{ config('storefront.description') }}</p>
                 <form action="#" role="search" class="rbt-inner-search-field style-one rbt-search-field-rounded rbt-search-field-sm-width">
-                    <input type="text" name="q" placeholder="Search for products" aria-label="Search">
-                    <button class="rbt-round-btn search-btn rbt-text-color-gray-500" type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <input type="text" name="q" placeholder="Rechercher un produit" aria-label="Rechercher">
+                    <button class="rbt-round-btn search-btn rbt-text-color-gray-500" type="submit" aria-label="Rechercher"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </form>
             </div>
             <div class="rbt-tab rbt-round-shape-tab">
@@ -25,7 +25,7 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="rbt-tab-mobilemenu-2" data-bs-toggle="tab" data-bs-target="#rbt-tab-pane-mobilemenu-2" type="button" role="tab" aria-controls="rbt-tab-pane-mobilemenu-2" aria-selected="false">
                             <i class="fa-sharp fa-regular fa-layer-group"></i>
-                            Categories
+                            Catégories
                         </button>
                     </li>
                 </ul>
@@ -55,7 +55,7 @@
                                                         <div class="row row--12">
                                                             @foreach ($category->children->chunk((int) ceil($category->children->count() / 2)) as $column)
                                                                 <div class="col-lg-12 col-xl-3 col-xxl-3 single-mega-item rbt-scroll-trigger fade_in animation-order-1">
-                                                                    <p class="rbt-short-title h5">{{ $loop->first ? $category->name : 'More '.$category->name }}</p>
+                                                                    <p class="rbt-short-title h5">{{ $loop->first ? $category->name : 'Tout '.$category->name }}</p>
                                                                     <ul class="mega-menu-item">
                                                                         @foreach ($column as $child)
                                                                             <li><a href="{{ $child->url() }}">{{ $child->name }}</a></li>
@@ -72,7 +72,7 @@
                                                                                     <h2 class="title">{{ $category->promo['title'] }}</h2>
                                                                                     <p class="b3 desc">{{ $category->promo['subtitle'] }}</p>
                                                                                 </div>
-                                                                                <a class="rbt-btn rbt-btn-sm rbt-btn-black" href="{{ $category->url() }}">View Details</a>
+                                                                                <a class="rbt-btn rbt-btn-sm rbt-btn-black" href="{{ $category->url() }}">Voir le détail</a>
                                                                                 <a href="{{ $category->url() }}" class="product-img position-bottom mt--24"><img src="{{ asset($category->image) }}" alt="{{ $category->name }}"></a>
                                                                             </div>
                                                                         </div>
@@ -88,7 +88,7 @@
                                 @endforeach
                                 <li>
                                     <a href="#">
-                                        View All Categories
+                                        Toutes les catégories
                                     </a>
                                 </li>
                             </ul>
@@ -98,14 +98,16 @@
             </div>
         </div>
         <div class="mobile-menu-bottom">
+            @if ($socialLinks->isNotEmpty())
             <div class="social-share-wrapper">
-                <span class="rbt-short-title d-block">Find With Us</span>
+                <span class="rbt-short-title d-block">Suivez-nous</span>
                 <ul class="rbt-social-icon-list mt--12">
-                    @foreach (config('storefront.social') as $network)
+                    @foreach ($socialLinks as $network)
                         <li><a href="{{ $network['url'] }}" aria-label="{{ $network['icon'] }}"><i class="fa-brands {{ $network['icon'] }}"></i></a></li>
                     @endforeach
                 </ul>
             </div>
+            @endif
             <ul class="navbar-top-left rbt-information-list justify-content-center">
                 <li>
                     <a href="mailto:{{ $contact['email'] }}"><i class="fa-light fa-envelope"></i>{{ $contact['email'] }}</a>

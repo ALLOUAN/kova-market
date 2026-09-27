@@ -1,6 +1,6 @@
 <div class="rbt-preloader">
     <div class="rbt-preloader-inner">
-        <svg class="rbt-preloader-cart" role="img" aria-label="Shopping cart line animation" viewbox="0 0 128 128" width="128px" height="128px" xmlns="http://www.w3.org/2000/svg">
+        <svg class="rbt-preloader-cart" role="img" aria-label="Animation du panier" viewbox="0 0 128 128" width="128px" height="128px" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8">
                 <g class="rbt-preloader-cart-track" stroke="hsla(0,10%,10%,0.1)">
                     <polyline points="4,4 21,4 26,22 124,22 112,64 35,64 39,80 106,80"></polyline>
@@ -19,8 +19,8 @@
             </g>
         </svg>
         <div class="preloader-text">
-            <p class="preloader-msg">Gearing up something amazing for you…</p>
-            <p class="preloader-msg preloader-msg--last">Still waiting? Magic takes a moment! ✨</p>
+            <p class="preloader-msg">Nous préparons quelque chose pour vous…</p>
+            <p class="preloader-msg preloader-msg--last">Encore un instant, ça arrive ! ✨</p>
         </div>
     </div>
 </div>

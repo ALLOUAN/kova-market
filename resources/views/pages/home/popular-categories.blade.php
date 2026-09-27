@@ -3,9 +3,9 @@
         <div class="row">
             <div class="col-lg-12 pr--0">
                 <div class="rbt-component-section-title d-flex justify-content-between flex-row align-items-center p-0 mb--32 mb_sm--16 border-0">
-                    <h2 class="rbt-title rbt-scroll-trigger fade_in animation-order-1 h4"><span class="rbt-bold--text">Popular By Categories</span></h2>
+                    <h2 class="rbt-title rbt-scroll-trigger fade_in animation-order-1 h4"><span class="rbt-bold--text">Catégories populaires</span></h2>
                     <a class="rbt-btn rbt-btn-secondary rbt-btn-sm-2 rbt-scroll-trigger fade_in animation-order-2 animated-icon-btn defalt-secondary-bg" href="#">
-                        <span class="btn-text">View All Categories</span>
+                        <span class="btn-text">Toutes les catégories</span>
                         <span class="animated-icon ml--4">
                             <x-icons.external-arrow />
                         </span>

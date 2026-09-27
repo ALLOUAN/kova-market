@@ -2,9 +2,9 @@
 
 @php
     $perks = array_filter([
-        $product->sold_count >= 90 ? ['fa-bag-shopping', '90+ Sold Recently'] : null,
-        $product->free_shipping ? ['fa-truck', 'Free shipping'] : null,
-        $product->return_days ? ['fa-rotate-left', $product->return_days.' Days Return Policy'] : null,
+        $product->sold_count >= 90 ? ['fa-bag-shopping', '90+ vendus récemment'] : null,
+        $product->free_shipping ? ['fa-truck', 'Livraison offerte'] : null,
+        $product->return_days ? ['fa-rotate-left', $product->return_days.' jours pour changer d’avis'] : null,
     ]);
 @endphp
 

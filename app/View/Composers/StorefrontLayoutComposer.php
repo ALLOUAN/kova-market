@@ -36,6 +36,8 @@ class StorefrontLayoutComposer
             'sidebarLinks' => $this->navigation->groups('sidebar'),
             'footerLinks' => $this->navigation->groups('footer'),
             'legalLinks' => $this->navigation->links(config('navigation.legal')),
+            // Networks without a real profile url yet ("#") are not displayed.
+            'socialLinks' => collect(config('storefront.social'))->reject(fn (array $network) => $network['url'] === '#')->values(),
             'categoryTree' => $this->catalog->categoryTree(),
             'navBrands' => $this->catalog->brands(),
             'promotions' => $this->catalog->currentPromotions(),

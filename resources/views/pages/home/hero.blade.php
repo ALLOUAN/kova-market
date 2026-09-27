@@ -26,7 +26,7 @@
                                                     </div>
                                                     <div class="rbt-banner-btn">
                                                         <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="#"><i class="fa-solid fa-arrow-up-right"></i>
-                                                            SHOP <br> NOW</a>
+                                                            ACHETER <br> MAINTENANT</a>
                                                     </div>
                                                 </div>
                                             </div>

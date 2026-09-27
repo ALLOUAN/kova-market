@@ -27,8 +27,7 @@
                     <a href="#">{{ $promotion->title }}</a>
                 </h3>
                 <p class="rbt-ofr-card-text mb--12 b1 rbt-text-color-gray-500">{{ $promotion->description }}</p>
-                <a class="rbt-btn rbt-btn-md active" href="#">View
-                    Details</a>
+                <a class="rbt-btn rbt-btn-md active" href="#">Voir le détail</a>
             </div>
         </div>
     </div>

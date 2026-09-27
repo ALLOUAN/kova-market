@@ -22,18 +22,18 @@ class HomePageTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSeeText('Deals of The Day')
-            ->assertSeeText('Today’s best deals')
-            ->assertSeeText('This Week’s Highlights')
-            ->assertSeeText('Featured Products')
+            ->assertSeeText('Offres du jour')
+            ->assertSeeText('Les meilleures offres du jour')
+            ->assertSeeText('Les incontournables de la semaine')
+            ->assertSeeText('Produits vedettes')
             ->assertSeeText('Ultra-Thin Modern Tech Quiet Noise Cancelling Laptop')
-            ->assertSeeText('Smartphone Mega Fest')
+            ->assertSeeText('Méga fête du smartphone')
             ->assertSee('assets/images/brands/brand-a-01.webp', false);
     }
 
     public function test_collection_products_are_listed_in_curated_order(): void
     {
-        $collection = Collection::create(['name' => 'Deals of The Day', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
+        $collection = Collection::create(['name' => 'Offres du jour', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
         $second = Product::factory()->create(['name' => 'Second Deal']);
         $first = Product::factory()->create(['name' => 'First Deal']);
         $collection->products()->attach([$second->id => ['position' => 2], $first->id => ['position' => 1]]);
@@ -43,7 +43,7 @@ class HomePageTest extends TestCase
 
     public function test_inactive_products_are_hidden(): void
     {
-        $collection = Collection::create(['name' => 'Deals of The Day', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
+        $collection = Collection::create(['name' => 'Offres du jour', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
         $collection->products()->attach(Product::factory()->create(['name' => 'Retired Gadget', 'is_active' => false]));
 
         $this->get('/')->assertOk()->assertDontSeeText('Retired Gadget');
@@ -51,35 +51,35 @@ class HomePageTest extends TestCase
 
     public function test_sold_out_product_offers_a_restock_notification_instead_of_add_to_cart(): void
     {
-        $collection = Collection::create(['name' => 'Deals of The Day', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
+        $collection = Collection::create(['name' => 'Offres du jour', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
         $collection->products()->attach(Product::factory()->soldOut()->create());
 
         $this->get('/')
             ->assertOk()
             ->assertSee('rbt-stock-out-product-card', false)
-            ->assertSeeText('Sold Out')
-            ->assertSeeText('Notify Me');
+            ->assertSeeText('Épuisé')
+            ->assertSeeText('Me prévenir');
     }
 
     public function test_discounted_product_shows_compare_price_and_rounded_discount(): void
     {
-        $collection = Collection::create(['name' => 'Deals of The Day', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
-        $collection->products()->attach(Product::factory()->onSale(price: 179.98, compareAt: 295)->create(['stock' => 12]));
+        $collection = Collection::create(['name' => 'Offres du jour', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
+        $collection->products()->attach(Product::factory()->onSale(price: 108000, compareAt: 177000)->create(['stock' => 12]));
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('<del class="price-text">$295.00</del>', false)
+            ->assertSee("<del class=\"price-text\">177\u{00A0}000\u{00A0}FCFA</del>", false)
             ->assertSeeText('-39%')
-            ->assertSeeText('12 in Stock');
+            ->assertSeeText('12 en stock');
     }
 
     public function test_low_stock_is_flagged_as_limited(): void
     {
         config(['storefront.product_card.limited_stock_threshold' => 3]);
-        $collection = Collection::create(['name' => 'Deals of The Day', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
+        $collection = Collection::create(['name' => 'Offres du jour', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
         $collection->products()->attach(Product::factory()->create(['stock' => 2]));
 
-        $this->get('/')->assertOk()->assertSeeText('Limited Stock')->assertDontSeeText('2 in Stock');
+        $this->get('/')->assertOk()->assertSeeText('Stock limité')->assertDontSeeText('2 en stock');
     }
 
     public function test_expired_promotions_are_not_listed_in_special_offers(): void
@@ -114,7 +114,7 @@ class HomePageTest extends TestCase
     public function test_product_card_actions_follow_the_store_configuration(): void
     {
         config(['storefront.product_card.quick_view' => 'sidenav', 'storefront.product_card.cart_action' => 'popup']);
-        $collection = Collection::create(['name' => 'Deals of The Day', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
+        $collection = Collection::create(['name' => 'Offres du jour', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
         $collection->products()->attach(Product::factory()->create());
 
         $this->get('/')
@@ -122,5 +122,27 @@ class HomePageTest extends TestCase
             ->assertSee('rbt-quickview-sidenav-activation', false)
             ->assertSee('rbt-quickview-sidenav-area', false)
             ->assertSee('data-bs-target="#popup-cartModal"', false);
+    }
+
+    public function test_currency_and_language_switchers_are_hidden_with_a_single_option(): void
+    {
+        $this->get('/')->assertOk()->assertDontSee('currency-menu', false)->assertDontSee('switcher-language', false);
+
+        config(['storefront.currencies' => [['code' => 'XOF', 'label' => 'FCFA'], ['code' => 'EUR', 'label' => 'EUR']]]);
+
+        $this->get('/')->assertOk()->assertSee('currency-menu', false);
+    }
+
+    public function test_social_networks_without_a_profile_url_are_hidden(): void
+    {
+        config(['storefront.social' => [
+            ['icon' => 'fa-facebook-f', 'url' => 'https://facebook.com/kovamarket'],
+            ['icon' => 'fa-tiktok', 'url' => '#'],
+        ]]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('https://facebook.com/kovamarket', false)
+            ->assertDontSee('aria-label="fa-tiktok"', false);
     }
 }

@@ -15,7 +15,7 @@
                                 <h3 class="rbt-secondery-subtitle mb-0">{{ $banner['tagline'] }}</h3>
                             </div>
                             <div class="rbt-banner-btn rbt-magnet-area rbt-banner-btn rbt-scroll-trigger fade_in animation-order-2">
-                                <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="#"><i class="fa-solid fa-arrow-up-right"></i> SHOP <br> NOW</a>
+                                <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="#"><i class="fa-solid fa-arrow-up-right"></i> BOUTIQUE <br> MAINTENANT</a>
                             </div>
                         </div>
                     </div>
@@ -29,7 +29,7 @@
                     <x-section-title class="rbt-border-color-primary rbt-bg-color-gray-light" accent="primary">{{ $bestDeals->name }}</x-section-title>
                     @if ($bestDeals->ends_at?->isFuture())
                         <div class="rbt-offer-countdown-section rbt-offer-countdown-section-primary">
-                            <h2 class="rbt-sm-title h6">Hurry up! Offer ends in</h2>
+                            <h2 class="rbt-sm-title h6">Vite ! L’offre se termine dans</h2>
                             <div class="rbt-countdown-section d-flex justify-content-center align-items-center">
                                 <div class="rbt-countdown-one bg-variation-black">
                                     <x-countdown :date="$bestDeals->ends_at" />

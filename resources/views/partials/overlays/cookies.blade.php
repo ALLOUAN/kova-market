@@ -1,18 +1,18 @@
     <div class="rbt-cookies">
     <div class="rbt-icon">
-        <img src="{{ asset('assets/images/icons/cookie.svg') }}" alt="Icon">
+        <img src="{{ asset('assets/images/icons/cookie.svg') }}" alt="Icône">
     </div>
     <div class="rbt-content">
         <div class="rbt-cookie-info">
-            <p class="b2 mb--4 rbt-text-bold rbt-text-color-heading">We Care About Your Privacy</p>
+            <p class="b2 mb--4 rbt-text-bold rbt-text-color-heading">Nous respectons votre vie privée</p>
             <p class="b4 mb--0 rbt-text-color-gray-600">
-                We use cookies & similar technologies to provide the
-                best experience on our website. <a href="#!" class="rbt-btn-link rbt-text-color-heading rbt-text-bold b4">Privacy Policy</a>
+                Nous utilisons des cookies et technologies similaires pour vous offrir la
+                meilleure expérience sur notre site. <a href="#!" class="rbt-btn-link rbt-text-color-heading rbt-text-bold b4">Politique de confidentialité</a>
             </p>
         </div>
         <div class="rbt-gap--8 rbt-btn-group">
-            <button class="rbt-btn rbt-btn-md rbt-btn-gray-light rbt-cookies-decline-btn">Decline</button>
-            <button class="rbt-btn rbt-btn-md rbt-cookies-accept-btn">Accept</button>
+            <button class="rbt-btn rbt-btn-md rbt-btn-gray-light rbt-cookies-decline-btn">Refuser</button>
+            <button class="rbt-btn rbt-btn-md rbt-cookies-accept-btn">Accepter</button>
         </div>
     </div>
     <button class="rbt-close-btn">

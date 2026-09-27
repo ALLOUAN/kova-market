@@ -5,10 +5,10 @@
 
                 <div class="rbt-sidebar-top sticky-top-0 rbt-bg-color-white">
                     <h3 class="rbt-sidebar-title mb--0 h-auto"><i class="fa-sharp fa-regular fa-filter-list mr--4"></i>
-                        Special Offers
+                        Offres spéciales
                     </h3>
 
-                    <button class="rbt-sidebar-close-btn" id="btn_filtersideNavClose" aria-label="Close">
+                    <button class="rbt-sidebar-close-btn" id="btn_filtersideNavClose" aria-label="Fermer">
                         <i class="fa-sharp fa-solid fa-xmark"></i>
                     </button>
                 </div>

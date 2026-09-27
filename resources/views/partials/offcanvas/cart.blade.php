@@ -3,7 +3,7 @@
         <div class="inner-top">
             <div class="rbt-cart-header">
                 <div class="title-section">
-                    <h2 class="title mb--0 h6"><i class="fa-sharp fa-regular fa-cart-shopping mr--12"></i> Your cart
+                    <h2 class="title mb--0 h6"><i class="fa-sharp fa-regular fa-cart-shopping mr--12"></i> Votre panier
                     </h2>
                 </div>
                 <div class="rbt-quick-info-tag d-flex mt--16 rbt-flash-animation">
@@ -18,7 +18,7 @@
                             </lineargradient>
                         </defs>
                     </svg>
-                    <p>Limited Item, <strong>checkout within <span class="rbt-countdown-cart">10m 00s</span></strong>
+                    <p>Stock limité, <strong>commandez d’ici <span class="rbt-countdown-cart">10m 00s</span></strong>
                     </p>
                 </div>
                 <div class="rbt-btn-close" id="btn_sideNavClose">
@@ -30,13 +30,13 @@
                     <li class="minicart-item">
                         <div class="thumbnail">
                             <a href="#">
-                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-10-a-1-hover.webp') }}" alt="Product Image">
+                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-10-a-1-hover.webp') }}" alt="Image du produit">
                             </a>
                         </div>
                         <div class="product-content">
                             <h3 class="title h6"><a href="#">JBL PartyBox 100W Speaker</a>
                             </h3>
-                            <span class="quantity">1x <span class="price">$359.00</span></span>
+                            <span class="quantity">1x <span class="price">215 500 FCFA</span></span>
                             <div class="bottom-part">
                                 <div class="rbt-qty-area">
                                     <button class="qty-item-btn qty-item-btn-decr"><i class="fa-solid fa-minus"></i></button>
@@ -55,12 +55,12 @@
                     <li class="minicart-item">
                         <div class="thumbnail">
                             <a href="#">
-                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-04-a-1-hover.webp') }}" alt="Product Image">
+                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-04-a-1-hover.webp') }}" alt="Image du produit">
                             </a>
                         </div>
                         <div class="product-content">
                             <h3 class="title h6"><a href="#">Apple Watch Ultra 2</a></h3>
-                            <span class="quantity">1x <span class="price">$359.00</span></span>
+                            <span class="quantity">1x <span class="price">215 500 FCFA</span></span>
                             <div class="bottom-part">
                                 <div class="rbt-qty-area">
                                     <button class="qty-item-btn qty-item-btn-decr"><i class="fa-solid fa-minus"></i></button>
@@ -79,14 +79,14 @@
                     <li class="minicart-item">
                         <div class="thumbnail">
                             <a href="#">
-                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-01-a-1-hover.webp') }}" alt="Product Image">
+                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-01-a-1-hover.webp') }}" alt="Image du produit">
                             </a>
                         </div>
                         <div class="product-content">
                             <h3 class="title h6"><a href="#">PlayStation Wireless
                                     Headphone</a>
                             </h3>
-                            <span class="quantity">1x <span class="price">$759.00</span></span>
+                            <span class="quantity">1x <span class="price">455 500 FCFA</span></span>
                             <div class="bottom-part">
                                 <div class="rbt-qty-area">
                                     <button class="qty-item-btn qty-item-btn-decr"><i class="fa-solid fa-minus"></i></button>
@@ -105,13 +105,13 @@
                     <li class="minicart-item">
                         <div class="thumbnail">
                             <a href="#">
-                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-02-a-1-hover.webp') }}" alt="Product Image">
+                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-02-a-1-hover.webp') }}" alt="Image du produit">
                             </a>
                         </div>
                         <div class="product-content">
                             <h3 class="title h6"><a href="#">Awei CL-115M USB 2.4A Cable </a>
                             </h3>
-                            <span class="quantity">1x <span class="price">$459.00</span></span>
+                            <span class="quantity">1x <span class="price">275 500 FCFA</span></span>
                             <div class="bottom-part">
                                 <div class="rbt-qty-area">
                                     <button class="qty-item-btn qty-item-btn-decr"><i class="fa-solid fa-minus"></i></button>
@@ -130,13 +130,13 @@
                     <li class="minicart-item">
                         <div class="thumbnail">
                             <a href="#">
-                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-03-a-1-hover.webp') }}" alt="Product Image">
+                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-03-a-1-hover.webp') }}" alt="Image du produit">
                             </a>
                         </div>
                         <div class="product-content">
                             <h3 class="title h6"><a href="#">MaxGreen 45W Power Adapter</a>
                             </h3>
-                            <span class="quantity">1x <span class="price">$999.00</span></span>
+                            <span class="quantity">1x <span class="price">599 500 FCFA</span></span>
                             <div class="bottom-part">
                                 <div class="rbt-qty-area">
                                     <button class="qty-item-btn qty-item-btn-decr"><i class="fa-solid fa-minus"></i></button>
@@ -155,12 +155,12 @@
                     <li class="minicart-item">
                         <div class="thumbnail">
                             <a href="#">
-                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-05-a-1-hover.webp') }}" alt="Product Image">
+                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-05-a-1-hover.webp') }}" alt="Image du produit">
                             </a>
                         </div>
                         <div class="product-content">
                             <h3 class="title h6"><a href="#">Havit PB90 Power Bank </a></h3>
-                            <span class="quantity">1x <span class="price">$288.00</span></span>
+                            <span class="quantity">1x <span class="price">173 000 FCFA</span></span>
                             <div class="bottom-part">
                                 <div class="rbt-qty-area">
                                     <button class="qty-item-btn qty-item-btn-decr"><i class="fa-solid fa-minus"></i></button>
@@ -184,16 +184,16 @@
                     <span class="hr-sepator"></span>
                     <a href="#" class="single-quick-access rbt-shipping-btn">
                         <span class="icon"><i class="fa-regular fa-truck-fast"></i></span>
-                        <span class="text">Shipping</span>
+                        <span class="text">Livraison</span>
                     </a>
                     <span class="hr-sepator"></span>
                     <a href="#" class="single-quick-access rbt-coupon-btn">
                         <span class="icon"><i class="fa-regular fa-ticket"></i></span>
-                        <span class="text">Coupon</span>
+                        <span class="text">Code promo</span>
                     </a>
                 </div>
                 <div class="minicart-inc-items-area mt--12">
-                    <h3 class="title h6 positin-top">You May Also Like</h3>
+                    <h3 class="title h6 positin-top">Vous aimerez aussi</h3>
                     <div class="bottom-area">
                         <div class="swiper rbt-dot-top-right inc-item-swiper-activation rbt-minicart-wrapper overflow-hidden">
                             <div class="swiper-wrapper">
@@ -202,16 +202,16 @@
                                     <div class="minicart-item">
                                         <div class="thumbnail">
                                             <a href="#">
-                                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-08-a-1-hover.webp') }}" alt="Product Image">
+                                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-08-a-1-hover.webp') }}" alt="Image du produit">
                                             </a>
                                         </div>
                                         <div class="product-content">
                                             <h3 class="title h6"><a href="#">Keurig K-Duo 4K
-                                                    Waterproof Action
+                                                    Action étanche
                                                     Video Camera </a></h3>
-                                            <span class="quantity"><span class="price">$345.00</span></span>
+                                            <span class="quantity"><span class="price">207 000 FCFA</span></span>
                                         </div>
-                                        <a href="#!" class="add-itembtn tooltips" data-bs-toggle="modal" data-bs-target="#addedcartModal" data-tooltip="Add to Cart"><i class="fa-regular fa-cart-plus"></i></a>
+                                        <a href="#!" class="add-itembtn tooltips" data-bs-toggle="modal" data-bs-target="#addedcartModal" data-tooltip="Ajouter au panier"><i class="fa-regular fa-cart-plus"></i></a>
                                     </div>
                                 </div>
 
@@ -219,16 +219,16 @@
                                     <div class="minicart-item">
                                         <div class="thumbnail">
                                             <a href="#">
-                                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-06-a-1-hover.webp') }}" alt="Product Image">
+                                                <img src="{{ asset('assets/images/product-img/electronics/electronics-bg-trans-06-a-1-hover.webp') }}" alt="Image du produit">
                                             </a>
                                         </div>
                                         <div class="product-content">
                                             <h3 class="title h6"><a href="#">Full Amoled HD
                                                     Streaming Webcam</a>
                                             </h3>
-                                            <span class="quantity"><span class="price">$189.00</span></span>
+                                            <span class="quantity"><span class="price">113 500 FCFA</span></span>
                                         </div>
-                                        <a href="#!" class="add-itembtn tooltips" data-bs-toggle="modal" data-bs-target="#addedcartModal" data-tooltip="Add to Cart"><i class="fa-regular fa-cart-plus"></i></a>
+                                        <a href="#!" class="add-itembtn tooltips" data-bs-toggle="modal" data-bs-target="#addedcartModal" data-tooltip="Ajouter au panier"><i class="fa-regular fa-cart-plus"></i></a>
                                     </div>
                                 </div>
                             </div>
@@ -241,33 +241,33 @@
         <div class="rbt-minicart-footer">
             <hr class="mb--0 mt--16">
             <div class="rbt-cart-subttotal">
-                <p>Subtotal (2 items)</p>
-                <p class="price">$758.00</p>
+                <p>Sous-total (2 articles)</p>
+                <p class="price">455 000 FCFA</p>
             </div>
             <div class="rbt-cart-subttotal">
-                <p>Shipping</p>
-                <p class="price">$10.00</p>
+                <p>Livraison</p>
+                <p class="price">6 000 FCFA</p>
             </div>
             <hr class="mb--0">
             <div class="rbt-cart-subttotal">
                 <p class="subtotal"><strong>Total</strong></p>
-                <p class="price">$768.00</p>
+                <p class="price">461 000 FCFA</p>
             </div>
             <div class="offer-progress-area">
-                <p class="offer-text">Add <strong>$248.00</strong> More To Get <strong>Free Shipping</strong></p>
-                <div class="progress" role="progressbar" aria-label="Shipping-progress" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                <p class="offer-text">Ajouter <strong>149 000 FCFA</strong> Plus que <strong>Livraison offerte</strong></p>
+                <div class="progress" role="progressbar" aria-label="Progression vers la livraison offerte" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
                     <div class="progress-bar w-75"></div>
                 </div>
             </div>
             <div class="rbt-minicart-bottom mt--24">
                 <div class="checkout-btn mt--20">
                     <a class="rbt-btn w-100 text-center" href="#">
-                        <span class="btn-text">Checkout</span>
+                        <span class="btn-text">Commander</span>
                     </a>
                 </div>
                 <div class="share-btn-grp rbt-link-hover">
-                    <a href="#" class="share-btn"><i class="fa-regular fa-pen mr--4"></i> View Cart</a>
-                    <button data-bs-toggle="modal" data-bs-target="#socialShareModal" type="button" class="share-btn"><i class="fa-sharp fa-solid fa-link mr--4"></i> Share Cart</button>
+                    <a href="#" class="share-btn"><i class="fa-regular fa-pen mr--4"></i> Voir le panier</a>
+                    <button data-bs-toggle="modal" data-bs-target="#socialShareModal" type="button" class="share-btn"><i class="fa-sharp fa-solid fa-link mr--4"></i> Partager le panier</button>
                 </div>
             </div>
         </div>
@@ -278,15 +278,15 @@
         <div class="rbt-offcanvas-card-inner">
             <h3 class="rbt-title rbt-text-bold h6">
                 <span class="mr--4"><i class="fa-regular fa-pen"></i></span>
-                Add note for seller
+                Ajouter une note pour le vendeur
             </h3>
             <form>
                 <div class="rbt-input-field-grp mb--12">
-                    <textarea class="rbt-text-field" name="message" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
+                    <textarea class="rbt-text-field" name="message" placeholder="Précisions sur votre commande, par exemple pour la livraison."></textarea>
                 </div>
                 <div class="rbt-btn-group mt--16">
-                    <button class="rbt-btn rbt-btn-md rbt-btn-primary d-block w-100">Apply</button>
-                    <button class="rbt-btn rbt-btn-md rbt-btn-naked d-block w-100 mt--8 mb--8 rbt-popup-close-btn">Cancel</button>
+                    <button class="rbt-btn rbt-btn-md rbt-btn-primary d-block w-100">Appliquer</button>
+                    <button class="rbt-btn rbt-btn-md rbt-btn-naked d-block w-100 mt--8 mb--8 rbt-popup-close-btn">Annuler</button>
                 </div>
             </form>
         </div>
@@ -297,38 +297,38 @@
         <div class="rbt-offcanvas-card-inner">
             <h3 class="rbt-title rbt-text-bold h6">
                 <span class="mr--4"><i class="fa-light fa-truck-fast"></i></span>
-                Estimate shipping rates
+                Estimer les frais de livraison
             </h3>
             <form>
                 <div class="rbt-input-field-grp mb--12">
                     <div class="rbt-dropdown-select filter-select rbt-modern-select search-by-category">
-                        <select class="w-100 rbt-select-activation" data-live-search="true" data-live-search-placeholder="Search City">
-                            <option>Select your City</option>
-                            <option>New York</option>
-                            <option>London</option>
-                            <option>Paris</option>
-                            <option>Tokyo</option>
-                            <option>Dubai</option>
-                            <option>Singapore</option>
-                            <option>Sydney</option>
-                            <option>Berlin</option>
-                            <option>Toronto</option>
-                            <option>Los Angeles</option>
+                        <select class="w-100 rbt-select-activation" data-live-search="true" data-live-search-placeholder="Rechercher une commune">
+                            <option>Choisissez votre commune</option>
+                            <option>Cocody</option>
+                            <option>Plateau</option>
+                            <option>Marcory</option>
+                            <option>Treichville</option>
+                            <option>Adjamé</option>
+                            <option>Yopougon</option>
+                            <option>Abobo</option>
+                            <option>Koumassi</option>
+                            <option>Port-Bouët</option>
+                            <option>Bingerville</option>
                         </select>
                     </div>
                 </div>
                 <div class="rbt-input-field-grp mb--12">
-                    <input type="text" placeholder="State / County">
+                    <input type="text" placeholder="Quartier">
                 </div>
                 <div class="rbt-input-field-grp mb--12">
-                    <input type="text" placeholder="City">
+                    <input type="text" placeholder="Commune">
                 </div>
                 <div class="rbt-input-field-grp">
-                    <input type="text" placeholder="Postcode / ZIP">
+                    <input type="text" placeholder="Repère">
                 </div>
                 <div class="rbt-btn-group mt--16">
-                    <button class="rbt-btn rbt-btn-md rbt-btn-primary d-block w-100">Calculate shipping rates</button>
-                    <button class="rbt-btn rbt-btn-md rbt-btn-naked d-block w-100 mt--8 mb--8 rbt-popup-close-btn">Cancel</button>
+                    <button class="rbt-btn rbt-btn-md rbt-btn-primary d-block w-100">Calculer les frais de livraison</button>
+                    <button class="rbt-btn rbt-btn-md rbt-btn-naked d-block w-100 mt--8 mb--8 rbt-popup-close-btn">Annuler</button>
                 </div>
             </form>
         </div>
@@ -339,7 +339,7 @@
         <div class="rbt-offcanvas-card-inner">
             <h3 class="rbt-title rbt-text-bold h6">
                 <span class="mr--4"><i class="fa-regular fa-ticket"></i></span>
-                Select or input Coupon
+                Choisir ou saisir un code promo
             </h3>
             <div class="rbt-coupon-wrapper rbt-bg-color-white">
                 <div class="rbt-coupon">
@@ -348,14 +348,14 @@
                             <input type="text" value="WELCOME100" readonly="" class="rbt-coupon-code-text rbt-has-right-shepe-border rbt-copy-value-field">
                         </div>
                         <div class="coupon-details">
-                            <h2 class="rbt-coupon-info-title b1">UP TO 30% OFF</h2>
-                            <p class="rbt-coupon-info-sub-title b3 mt--4">For orders over $9.90</p>
+                            <h2 class="rbt-coupon-info-title b1">JUSQU’À -30 %</h2>
+                            <p class="rbt-coupon-info-sub-title b3 mt--4">Dès 6 000 FCFA d’achat</p>
                             <ul class="rbt-coupon-info-list mt--12">
                                 <li><span>12/18/2023 14:00 ~ 12/25/2023 14:00</span></li>
-                                <li><span>The minimum spend for this coupon <strong>$200.00</strong></span></li>
+                                <li><span>Montant minimum pour ce coupon <strong>120 000 FCFA</strong></span></li>
                             </ul>
                         </div>
-                        <button class="copy-icon rbt-round-btn rbt-bg-primary rbt-copy-btn" data-tooltip="Copy">
+                        <button class="copy-icon rbt-round-btn rbt-bg-primary rbt-copy-btn" data-tooltip="Copier">
                             <i class="fa-sharp fa-regular fa-copy"></i>
                         </button>
                     </div>
@@ -366,14 +366,14 @@
                             <input type="text" value="WELCOME100" readonly="" class="rbt-coupon-code-text rbt-has-right-shepe-border rbt-copy-value-field">
                         </div>
                         <div class="coupon-details">
-                            <h2 class="rbt-coupon-info-title b1">UP TO 30% OFF</h2>
-                            <p class="rbt-coupon-info-sub-title b3 mt--4">For orders over $9.90</p>
+                            <h2 class="rbt-coupon-info-title b1">JUSQU’À -30 %</h2>
+                            <p class="rbt-coupon-info-sub-title b3 mt--4">Dès 6 000 FCFA d’achat</p>
                             <ul class="rbt-coupon-info-list mt--12">
                                 <li><span>12/18/2023 14:00 ~ 12/25/2023 14:00</span></li>
-                                <li><span>The minimum spend for this coupon <strong>$200.00</strong></span></li>
+                                <li><span>Montant minimum pour ce coupon <strong>120 000 FCFA</strong></span></li>
                             </ul>
                         </div>
-                        <button class="copy-icon rbt-round-btn rbt-bg-primary rbt-copy-btn" data-tooltip="Copy">
+                        <button class="copy-icon rbt-round-btn rbt-bg-primary rbt-copy-btn" data-tooltip="Copier">
                             <i class="fa-sharp fa-regular fa-copy"></i>
                         </button>
                     </div>
@@ -381,12 +381,12 @@
             </div>
             <form>
                 <div class="rbt-input-field-grp mt--24">
-                    <p class="b1 mb--12 rbt-text-color-gray-600">If you have coupon code, please apply it below.</p>
-                    <input type="text" placeholder="Coupon code">
+                    <p class="b1 mb--12 rbt-text-color-gray-600">Vous avez un code promo ? Saisissez-le ci-dessous.</p>
+                    <input type="text" placeholder="Code promo">
                 </div>
                 <div class="rbt-btn-group mt--16">
-                    <button class="rbt-btn rbt-btn-md rbt-btn-primary d-block w-100">Apply</button>
-                    <button class="rbt-btn rbt-btn-md rbt-btn-naked d-block w-100 mt--8 mb--8 rbt-popup-close-btn">Cancel</button>
+                    <button class="rbt-btn rbt-btn-md rbt-btn-primary d-block w-100">Appliquer</button>
+                    <button class="rbt-btn rbt-btn-md rbt-btn-naked d-block w-100 mt--8 mb--8 rbt-popup-close-btn">Annuler</button>
                 </div>
             </form>
         </div>

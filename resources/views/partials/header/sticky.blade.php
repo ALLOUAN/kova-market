@@ -11,7 +11,7 @@
                                         <div class="swiper-slide">
                                             <div class="rbt-fancy-item fancy-menu-text fancy-menu-center">
                                                 <p class="rbt-fancy-text rbt-text-color-white">{{ $message }}
-                                                    <a class="rbt-text-color-white" href="#">Shop Now</a>
+                                                    <a class="rbt-text-color-white" href="#">Acheter</a>
                                                 </p>
                                             </div>
                                         </div>
@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="icon-close position-right">
-            <button class="rbt-round-btn btn-white-off bgsection-activation" aria-label="Close Button">
+            <button class="rbt-round-btn btn-white-off bgsection-activation" aria-label="Fermer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -62,41 +62,41 @@
 
             <div class="header-right">
                 <ul class="rbt-quick-access rbt-gap--12">
-                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 tooltips tooltip-distance-lg" data-tooltip="Search" data-tooltip-position="bottom">
-                        <a class="rbt-round-btn has-rbt-md-fsize rbt-common-search-trigger-active rbt-modern-close-btn" href="#" aria-label="Search">
+                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 tooltips tooltip-distance-lg" data-tooltip="Rechercher" data-tooltip-position="bottom">
+                        <a class="rbt-round-btn has-rbt-md-fsize rbt-common-search-trigger-active rbt-modern-close-btn" href="#" aria-label="Rechercher">
                             <i class="fa-regular fa-search search-icon"></i>
                             <div class="modern-close-wrapper"></div>
                         </a>
                     </li>
 
-                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Sign In" data-tooltip-position="bottom">
-                        <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#signinModal" aria-label="Sign In">
+                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Se connecter" data-tooltip-position="bottom">
+                        <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#signinModal" aria-label="Se connecter">
                             <i class="fa-regular fa-user"></i>
                         </a>
                     </li>
 
-                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-4 tooltips tooltip-distance-lg  d-none d-lg-flex" data-tooltip="Compare" data-tooltip-position="bottom">
-                        <a class="rbt-round-btn has-rbt-md-fsize" href="#" data-bs-toggle="modal" data-bs-target="#compareviewModal" aria-label="Compare">
+                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-4 tooltips tooltip-distance-lg  d-none d-lg-flex" data-tooltip="Comparer" data-tooltip-position="bottom">
+                        <a class="rbt-round-btn has-rbt-md-fsize" href="#" data-bs-toggle="modal" data-bs-target="#compareviewModal" aria-label="Comparer">
                             <i class="fa-regular fa-code-compare"></i>
-                            <div class="access-box-count">6</div>
+                            <div class="access-box-count">0</div>
                         </a>
                     </li>
 
-                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-5 rbt-wishlist d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Wishlist" data-tooltip-position="bottom">
-                        <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#wishlistModal" aria-label="Wishlist">
+                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-5 rbt-wishlist d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Favoris" data-tooltip-position="bottom">
+                        <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#wishlistModal" aria-label="Favoris">
                             <i class="fa-regular fa-heart"></i>
-                            <div class="access-box-count">7</div>
+                            <div class="access-box-count">0</div>
                         </a>
                     </li>
 
-                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-5 rbt-access-box-has-bg-hover rbt-mini-cart tooltips tooltip-distance-lg" data-tooltip="Cart" data-tooltip-position="bottom">
-                        <a class="rbt-cart-sidenav-activation" href="#!" aria-label="Cart">
+                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-5 rbt-access-box-has-bg-hover rbt-mini-cart tooltips tooltip-distance-lg" data-tooltip="Panier" data-tooltip-position="bottom">
+                        <a class="rbt-cart-sidenav-activation" href="#!" aria-label="Panier">
                             <span class="rbt-round-btn has-rbt-md-fsize">
                                 <i class="fa-regular fa-bag-shopping"></i>
-                                <span class="access-box-count rbt-shiny">3</span>
+                                <span class="access-box-count rbt-shiny">0</span>
                             </span>
                             <div class="content ml--4">
-                                <span class="title-text">$2390</span>
+                                <span class="title-text">0 FCFA</span>
                             </div>
                         </a>
                     </li>

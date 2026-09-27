@@ -11,8 +11,8 @@
             @endforeach
         </ul>
         @if ($product->variants_count > count($product->colors))
-            <a class="prd-link-text" href="{{ $product->url() }}">+{{ $product->variants_count - count($product->colors) }} More
-                Items</a>
+            <a class="prd-link-text" href="{{ $product->url() }}">+{{ $product->variants_count - count($product->colors) }} autres
+                articles</a>
         @endif
     </div>
 @endif

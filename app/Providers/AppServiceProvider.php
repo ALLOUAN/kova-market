@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('layouts.storefront', StorefrontLayoutComposer::class);
 
-        // @money($amount) formats an amount in the store currency, e.g. "$179.98".
-        Blade::directive('money', fn (string $amount) => "<?php echo e(\\Illuminate\\Support\\Number::currency($amount, in: config('storefront.currency'))); ?>");
+        // @money($amount) formats an amount in the store currency, e.g. "15 000 FCFA".
+        Blade::directive('money', fn (string $amount) => "<?php echo e(\\App\\Support\\Money::format($amount)); ?>");
     }
 }

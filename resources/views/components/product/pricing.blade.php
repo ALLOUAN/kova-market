@@ -11,10 +11,10 @@
     @if ($stock && ! $product->isSoldOut())
         @if ($product->hasLimitedStock())
             <div class="rbt-badge rbt-badge-bg-danger rbt-badge-border rbt-badge-small rbt-badge-rounded rbt-shiny">
-                🔥 Limited Stock</div>
+                🔥 Stock limité</div>
         @else
             <div class="rbt-badge rbt-badge-bg-green rbt-badge-border rbt-badge-small rbt-badge-rounded">
-                {{ $product->stock }} in Stock</div>
+                {{ $product->stock }} en stock</div>
         @endif
     @endif
 </div>

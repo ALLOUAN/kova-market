@@ -18,7 +18,7 @@
                 </div>
             @endif
             <div class="modal-header">
-                <button type="button" class="rbt-round-btn rbt-modal-dis-btn" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="rbt-round-btn rbt-modal-dis-btn" data-bs-dismiss="modal" aria-label="Fermer">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>

@@ -26,7 +26,7 @@
                                         <div class="row row--8">
                                             @foreach ($category->children->chunk((int) ceil($category->children->count() / 3)) as $column)
                                                 <div class="col-xl-4 single-mega-item rbt-scroll-trigger fade_in animation-order-{{ $loop->iteration }}">
-                                                    <p class="rbt-short-title h5">{{ $loop->first ? $category->name : ($loop->last ? 'More' : 'Popular') }}</p>
+                                                    <p class="rbt-short-title h5">{{ $loop->first ? $category->name : ($loop->last ? 'Et aussi' : 'Populaires') }}</p>
                                                     <ul class="mega-menu-item">
                                                         @foreach ($column as $child)
                                                             <li><a href="{{ $child->url() }}">{{ $child->name }}</a></li>
@@ -46,7 +46,7 @@
                                                             <{{ $headingTag }} class="h5 mb--4">{{ $category->promo['title'] }}
                                                                 {{ $category->promo['subtitle'] }}</{{ $headingTag }}>
                                                         </div>
-                                                        <a class="rbt-btn rbt-bg-color-secondary rbt-btn-sm" href="{{ $category->url() }}">Shop Collection</a>
+                                                        <a class="rbt-btn rbt-bg-color-secondary rbt-btn-sm" href="{{ $category->url() }}">Voir la collection</a>
                                                     </div>
                                                 </div>
                                             </div>

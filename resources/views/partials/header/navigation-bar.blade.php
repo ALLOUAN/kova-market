@@ -12,10 +12,10 @@
                         <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-1 rbt-access-box-link ">
                             <a href="#" class="text-portion header-info rbt-special-offprds-offcanvas-activation">
                                 <i class="fa-regular fa-badge-percent"></i>
-                                <span>Special Offers</span>
+                                <span>Offres spéciales</span>
                             </a>
                             <a href="#" class="text-portion  header-info" data-bs-toggle="modal" data-bs-target="#recent-viewModal">
-                                <span>Recent Viewed</span>
+                                <span>Récemment consultés</span>
                             </a>
                         </li>
                     </ul>

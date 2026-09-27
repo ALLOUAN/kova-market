@@ -25,7 +25,7 @@ class ProductFactory extends Factory
             'category_id' => Category::factory(),
             'name' => $name,
             'slug' => Str::slug($name),
-            'price' => fake()->randomFloat(2, 10, 500),
+            'price' => fake()->numberBetween(10, 500) * 500,
             'stock' => fake()->numberBetween(10, 100),
             'rating' => 5,
             'reviews_count' => fake()->numberBetween(0, 100),
@@ -33,7 +33,7 @@ class ProductFactory extends Factory
         ];
     }
 
-    public function onSale(float $price = 179.98, float $compareAt = 295): static
+    public function onSale(int $price = 108000, int $compareAt = 177000): static
     {
         return $this->state(['price' => $price, 'compare_at_price' => $compareAt]);
     }

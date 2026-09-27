@@ -6,7 +6,7 @@
                     <div class="rbt-sidebar-left-content-head">
                         <div class="rbt-categories-sidebar-top-content mb--24">
                             @include('partials.header.logo')
-                            <button class="rbt-sidebar-close-btn" aria-label="Close">
+                            <button class="rbt-sidebar-close-btn" aria-label="Fermer">
                                 <i class="fa-sharp fa-solid fa-xmark"></i>
                             </button>
                         </div>
@@ -16,8 +16,8 @@
                                     <i class="fa-regular fa-user"></i>
                                 </div>
                                 <div class="content">
-                                    <p>Log in/Sign Up</p>
-                                    <span>Access Account</span>
+                                    <p>Connexion / Inscription</p>
+                                    <span>Accéder au compte</span>
                                 </div>
                             </a>
                         </div>
@@ -78,11 +78,10 @@
                         <div class="rbt-sidebar-contact-area">
                             <div class="rbt-sidebar-contact-inner rbt-link-hover">
                                 <p class="rbt-contact-text">{{ $contact['address'] }}</p>
-                                <a class="rbt-contact-links" href="{{ $contact['phone_href'] }}">{{ $contact['phone'] }} (the call is
-                                    free)</a>
+                                <a class="rbt-contact-links" href="{{ $contact['phone_href'] }}">{{ $contact['phone'] }}</a>
                                 <p class="rbt-contact-text mt--12">{{ $contact['opening_hours'] }}</p>
                                 <a class="rbt-contact-links" href="mailto:{{ $contact['email'] }}">{{ $contact['email'] }}</a>
-                                <a class="rbt-contact-links d-block" href="#">View on map</a>
+                                <a class="rbt-contact-links d-block" href="#">Voir sur la carte</a>
                             </div>
                         </div>
                     </div>
@@ -106,7 +105,7 @@
                                                     @forelse ($child->children as $leaf)
                                                         <li><a href="{{ $leaf->url() }}">{{ $leaf->name }}</a></li>
                                                     @empty
-                                                        <li><a href="{{ $child->url() }}">View All</a></li>
+                                                        <li><a href="{{ $child->url() }}">Tout voir</a></li>
                                                     @endforelse
                                                 </ul>
                                             </div>
@@ -123,7 +122,7 @@
                                                 </p>
                                                 <h2 class="rbt-sidebar-banner-titile h4">{{ $category->promo['title'] }} <span class="rbt-text-regular">{{ $category->promo['subtitle'] }}</span>
                                                 </h2>
-                                                <a href="{{ $category->url() }}" class="rbt-btn rbt-btn-sm">Know More</a>
+                                                <a href="{{ $category->url() }}" class="rbt-btn rbt-btn-sm">En savoir plus</a>
                                             </div>
                                         </div>
                                     @endif

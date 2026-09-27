@@ -2,7 +2,7 @@
     <div class="rbt-top-folder-shape-wrapper">
         <div class="rbt-recent-view-prd-area rbt-content-trs-portion rbt-scroll-vertical-wrapper">
 
-            <h3 class="rbt-title mb--16 rbt-text-bold h6">Recently Viewed Items</h3>
+            <h3 class="rbt-title mb--16 rbt-text-bold h6">Produits récemment consultés</h3>
             <div class="rbt-scroll-vertical">
                 <div class="row row--12 mt_dec--24 rbt-card-row-has-top-separator rbt-two-align-card-row">
                     @foreach ($recentlyViewedProducts as $product)

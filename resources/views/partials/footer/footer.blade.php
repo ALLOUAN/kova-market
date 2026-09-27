@@ -7,15 +7,15 @@
                         @include('partials.header.logo')
                         <p class="description pr--140 pr_sm--0">{{ config('storefront.about') }}</p>
                         <div class="rbt-quick-contact-info">
-                            <p class="b2 title">Free from fixed and mobile phones.</p>
+                            <p class="b2 title">Appel depuis un fixe ou un mobile.</p>
                             <a class="contact-link has-lg-fsize" href="{{ $contact['toll_free_href'] }}">{{ $contact['toll_free'] }}</a>
                         </div>
                         <div class="rbt-quick-contact-info">
-                            <p class="b2 title">Call Center hours</p>
+                            <p class="b2 title">Horaires du service client</p>
                             <p class="text-inf">{{ $contact['opening_hours'] }}</p>
                         </div>
                         <div class="rbt-quick-contact-info d-flex rbt-gap--4 align-items-center">
-                            <p class="b2 title mb--0">Email : </p>
+                            <p class="b2 title mb--0">E-mail : </p>
                             <a class="contact-link" href="mailto:{{ $contact['email'] }}"> {{ $contact['email'] }}</a>
                         </div>
                     </div>
@@ -57,17 +57,19 @@
             <div class="row row--12 align-items-center mt_dec--24">
                 <div class="col-lg-6 mt--24">
                     <div class="rbt-footer-social-area justify-content-center justify-content-lg-start">
-                        <p class="title">Follow Us :</p>
+                        @if ($socialLinks->isNotEmpty())
+                        <p class="title">Suivez-nous :</p>
                         <ul class="social-icon social-icon-md rbt-social-default with-bg-primary justify-content-start justify-content-lg-end">
-                            @foreach (config('storefront.social') as $network)
+                            @foreach ($socialLinks as $network)
                                 <li><a href="{{ $network['url'] }}" aria-label="{{ $network['icon'] }}"><i class="fa-brands {{ $network['icon'] }}"></i></a></li>
                             @endforeach
                         </ul>
+                        @endif
                     </div>
                 </div>
                 <div class="col-lg-6 mt--20">
                     <div class="rbt-app-store-area justify-content-center justify-content-lg-end">
-                        <p class="title">Download App :</p>
+                        <p class="title">Téléchargez l’app :</p>
                         <ul class="rbt-app-store-list">
                             @foreach (config('storefront.app_stores') as $store)
                                 <li><a href="{{ $store['url'] }}"><img src="{{ asset($store['image']) }}" alt="{{ $store['label'] }}"></a>
@@ -92,7 +94,7 @@
             </div>
             <div class="col-xxl-4 col-xl-4 col-lg-6 col-md-12 col-12 mt--24">
                 <ul class="payment-img-link">
-                    <li><a href="#"><img src="{{ asset(config('storefront.payment_methods_image')) }}" alt="Accepted payment methods"></a>
+                    <li><a href="#"><img src="{{ asset(config('storefront.payment_methods_image')) }}" alt="Moyens de paiement acceptés"></a>
                     </li>
                 </ul>
             </div>

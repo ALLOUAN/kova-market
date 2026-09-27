@@ -9,7 +9,7 @@
             </div>
             <div class="rbt-content">
                 <span class="discount-text">{{ $brand->promo_label }}</span>
-                <span class="prd-text">Total <span class="prd-number">{{ $brand->products_count }}</span> Products</span>
+                <span class="prd-text">Total <span class="prd-number">{{ $brand->products_count }}</span> Produits</span>
             </div>
         </div>
     </a>

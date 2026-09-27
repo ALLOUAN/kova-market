@@ -1,9 +1,9 @@
 @extends('layouts.storefront')
 
-@section('title', 'Home Electronics')
+@section('title', 'Accueil')
 
 @section('content')
-    <h1 class="visually-hidden">{{ config('storefront.name') }} - Home Electronics</h1>
+    <h1 class="visually-hidden">{{ config('storefront.name') }} - Boutique en ligne à Abidjan</h1>
 
     @include('pages.home.hero')
     @include('pages.home.popular-categories')

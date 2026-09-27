@@ -19,22 +19,22 @@
             <li>
                 <span class="icon"><i class="fa-sharp fa-regular fa-truck"></i></span>
                 <div class="right-content">
-                    <span class="rbt-bold--text">Ships :</span>
+                    <span class="rbt-bold--text">Livraison :</span>
                     <span class="text">{{ config('storefront.shipping.delay') }}</span>
                     <br>
-                    <a href="#" class="shipment-quick-link rbt-btn-link">Get delivery dates</a>
+                    <a href="#" class="shipment-quick-link rbt-btn-link">Voir les délais de livraison</a>
                 </div>
             </li>
             <li>
                 <span class="icon"><i class="fa-regular fa-bag-shopping"></i></span>
                 <div class="right-content">
-                    <span class="rbt-bold--text">Pickup :</span>
-                    <a href="#" class="shipment-quick-link rbt-btn-link">Check Availability</a>
+                    <span class="rbt-bold--text">Retrait :</span>
+                    <a href="#" class="shipment-quick-link rbt-btn-link">Vérifier la disponibilité</a>
                 </div>
             </li>
         </ul>
     </div>
     <div class="rbt-show-more-btn-area">
-        <button class="rbt-show-more-btn">Show More</button>
+        <button class="rbt-show-more-btn">Voir plus</button>
     </div>
 </div>

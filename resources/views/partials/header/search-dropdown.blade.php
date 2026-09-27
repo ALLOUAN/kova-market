@@ -3,8 +3,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="rbt-component-section-title border-0 p-0 text-center">
-                    <h2 class="rbt-title text-start text-md-center"><span class="rbt-bold--text">Search For
-                            Products</span></h2>
+                    <h2 class="rbt-title text-start text-md-center"><span class="rbt-bold--text">Rechercher un produit</span></h2>
                 </div>
             </div>
         </div>
@@ -12,36 +11,35 @@
             <div class="col-lg-12">
                 <form class="rbt-search-form">
                     <div class="input-sectition position-relative w-100 mr--12 mr_sm--4">
-                        <input class="search-input" type="text" placeholder="What Are You Looking For?">
+                        <input class="search-input" type="text" placeholder="Que recherchez-vous ?">
                         <i class="fa-sharp fa-regular inner-search-icon fa-magnifying-glass"></i>
                         <button class="media-search-btn media-search-popupactivation">
                             <i class="fa-sharp fa-regular fa-camera"></i>
                         </button>
                     </div>
                     <div class="submit-btn">
-                        <a class="rbt-btn btn-md" href="#">Search</a>
+                        <a class="rbt-btn btn-md" href="#">Rechercher</a>
                     </div>
                     <div class="rbt-media-search-section">
                         <div class="rbt-media-wrapper">
-                            <div class="section-title"><span class="title b1">Find product inspiration with Image
-                                    Search</span></div>
+                            <div class="section-title"><span class="title b1">Trouvez l’inspiration grâce à la recherche par image</span></div>
                             <div class="rbt-file-upload-container">
                                 <input type="file" class="fileInput" multiple="" hidden="">
                                 <div class="file-upload-area fileUploadArea">
                                     <div class="file-upload-content">
                                         <span class="rbt-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span>
-                                        <p class="rbt-title">Drag & Drop Files Here <span class="rbt-text-color-gray-400">Or</span></p>
-                                        <button class="browseFilesButton rbt-btn rbt-btn-sm">Browse Files</button>
+                                        <p class="rbt-title">Glissez-déposez vos fichiers ici <span class="rbt-text-color-gray-400">Ou</span></p>
+                                        <button class="browseFilesButton rbt-btn rbt-btn-sm">Choisir des fichiers</button>
                                     </div>
                                     <div class="fileList file-list"></div>
                                 </div>
-                                <p class="fileCount">0 of 10</p>
+                                <p class="fileCount">0 sur 10</p>
                             </div>
                             <div class="rbt-copy-link-part rbt-text-copy-activation">
                                 <input class="rbt-copy-value-field" type="text" value="{{ url('/') }}/wishlist" readonly="">
-                                <button class="rbt-btn rbt-btn-xs has-left-icon rbt-copy-btn" data-tooltip="Copy">
+                                <button class="rbt-btn rbt-btn-xs has-left-icon rbt-copy-btn" data-tooltip="Copier">
                                     <i class="fa-regular fa-copy"></i>
-                                    <span class="rbt-btn-text">Copy</span>
+                                    <span class="rbt-btn-text">Copier</span>
                                 </button>
                             </div>
                             <button type="button" class="rbt-round-btn rbt-ms-dismiss-btn">
@@ -58,7 +56,7 @@
                 <div class="row row--0">
                     <div class="col-lg-12">
                         <div class="border-0 p-0 text-left title-sm-fsize">
-                            <h2 class="title"><span class="rbt-bold--text">Popular searches</span></h2>
+                            <h2 class="title"><span class="rbt-bold--text">Recherches populaires</span></h2>
                         </div>
                     </div>
 
@@ -76,7 +74,7 @@
                 <div class="row row--0">
                     <div class="col-lg-12">
                         <div class="border-0 p-0 text-left title-sm-fsize">
-                            <h2 class="title"><span class="rbt-bold--text">Trending Products</span></h2>
+                            <h2 class="title"><span class="rbt-bold--text">Produits tendance</span></h2>
                         </div>
                     </div>
                 </div>

@@ -9,7 +9,7 @@
 | page does not exist yet have neither and render as "#"; give them a route
 | once the page is built. ":store" is replaced by the store name.
 |
-| The "Shop" mega menu, the mobile "Categories" tab and the category side
+| The "Boutique" mega menu, the mobile "Catégories" tab and the category side
 | panel are generated from the category tree stored in the database.
 |
 */
@@ -17,132 +17,120 @@
 return [
 
     'main' => [
-        ['label' => 'Home', 'route' => 'home'],
-        ['label' => 'Shop', 'type' => 'categories'],
+        ['label' => 'Accueil', 'route' => 'home'],
+        ['label' => 'Boutique', 'type' => 'categories'],
         [
             'label' => 'Pages',
             'type' => 'mega',
             'columns' => [
                 [
-                    'title' => 'Shop',
+                    'title' => 'Boutique',
                     'links' => [
-                        ['label' => 'All Products', 'badge' => ['label' => 'SHOP', 'variant' => 'green']],
-                        ['label' => 'Categories List'],
-                        ['label' => 'Shop by Brands'],
-                        ['label' => 'Special Offers', 'badge' => ['label' => 'HOT', 'variant' => 'danger']],
-                        ['label' => 'Compare Products'],
-                        ['label' => 'Find A Store'],
+                        ['label' => 'Tous les produits', 'badge' => ['label' => 'SHOP', 'variant' => 'green']],
+                        ['label' => 'Toutes les catégories'],
+                        ['label' => 'Par marque'],
+                        ['label' => 'Offres spéciales', 'badge' => ['label' => 'PROMO', 'variant' => 'danger']],
+                        ['label' => 'Comparer des produits'],
+                        ['label' => 'Nous trouver'],
                     ],
                 ],
                 [
-                    'title' => 'My Account',
+                    'title' => 'Mon compte',
                     'links' => [
-                        ['label' => 'Sign In'],
-                        ['label' => 'Sign Up'],
-                        ['label' => 'Personal info'],
-                        ['label' => 'Order History'],
-                        ['label' => 'Wishlist'],
-                        ['label' => 'Payment Methods'],
+                        ['label' => 'Se connecter'],
+                        ['label' => 'Créer un compte'],
+                        ['label' => 'Mes informations'],
+                        ['label' => 'Mes commandes'],
+                        ['label' => 'Ma liste de souhaits'],
+                        ['label' => 'Moyens de paiement'],
                         ['label' => 'Notifications'],
                     ],
                 ],
                 [
-                    'title' => 'Orders & Checkout',
+                    'title' => 'Commandes',
                     'links' => [
-                        ['label' => 'Cart'],
-                        ['label' => 'Checkout'],
-                        ['label' => 'Track Your Order'],
-                        ['label' => 'Return Policy', 'badge' => ['label' => 'New', 'variant' => 'yellow']],
+                        ['label' => 'Panier'],
+                        ['label' => 'Commander'],
+                        ['label' => 'Suivre ma commande'],
+                        ['label' => 'Retours et remboursements', 'badge' => ['label' => 'Nouveau', 'variant' => 'yellow']],
                     ],
                 ],
                 [
-                    'title' => 'Help',
+                    'title' => 'Aide',
                     'links' => [
-                        ['label' => 'Help Center'],
-                        ['label' => 'FAQs'],
-                        ['label' => 'Contact Us'],
-                        ['label' => 'Privacy Policy'],
-                        ['label' => 'Terms and conditions'],
+                        ['label' => 'Centre d’aide'],
+                        ['label' => 'Questions fréquentes'],
+                        ['label' => 'Nous contacter'],
+                        ['label' => 'Politique de confidentialité'],
+                        ['label' => 'Conditions générales de vente'],
                     ],
                 ],
                 [
-                    'title' => 'Company',
+                    'title' => 'À propos',
                     'links' => [
-                        ['label' => 'About Us'],
-                        ['label' => 'Our Team'],
-                        ['label' => 'Blog'],
-                        ['label' => 'Careers'],
+                        ['label' => 'Qui sommes-nous ?'],
+                        ['label' => 'Livraison'],
+                        ['label' => 'Paiement'],
                     ],
                 ],
             ],
         ],
         [
-            'label' => 'Help',
+            'label' => 'Aide',
             'type' => 'dropdown',
             'links' => [
-                ['label' => 'Help Center'],
-                ['label' => 'FAQs'],
-                ['label' => 'Shipping & Delivery'],
-                ['label' => 'Returns & Refunds'],
-                ['label' => 'Contact Us', 'badge' => ['label' => '24/7', 'variant' => 'green']],
+                ['label' => 'Centre d’aide'],
+                ['label' => 'Questions fréquentes'],
+                ['label' => 'Livraison'],
+                ['label' => 'Retours et remboursements'],
+                ['label' => 'Nous contacter', 'badge' => ['label' => 'WhatsApp', 'variant' => 'green']],
             ],
         ],
     ],
 
     'sidebar' => [
-        'Quick Links' => [
-            ['label' => 'About us'],
-            ['label' => 'Reviews'],
-            ['label' => 'Delivery & payment'],
-            ['label' => 'Blog Articles'],
+        'Liens utiles' => [
+            ['label' => 'Qui sommes-nous ?'],
+            ['label' => 'Avis clients'],
+            ['label' => 'Livraison et paiement'],
         ],
-        'More Links' => [
-            ['label' => 'Contacts'],
-            ['label' => 'Information'],
-            ['label' => 'Terms & Conditions'],
+        'Plus d’infos' => [
+            ['label' => 'Contact'],
+            ['label' => 'Questions fréquentes'],
+            ['label' => 'Conditions générales de vente'],
         ],
     ],
 
     'footer' => [
-        'Let Us Help You' => [
-            ['label' => 'Account Info'],
-            ['label' => 'Your Orders'],
-            ['label' => 'Returns & Replacements'],
-            ['label' => 'Shipping Rates & Policies'],
-            ['label' => 'Refund and Returns Policy'],
-            ['label' => 'Privacy Policy'],
-            ['label' => 'Terms and Conditions'],
-            ['label' => 'Cookie Settings'],
-            ['label' => 'Help Center'],
+        'Besoin d’aide ?' => [
+            ['label' => 'Mon compte'],
+            ['label' => 'Mes commandes'],
+            ['label' => 'Suivre ma commande'],
+            ['label' => 'Livraison et tarifs'],
+            ['label' => 'Retours et remboursements'],
+            ['label' => 'Questions fréquentes'],
+            ['label' => 'Nous contacter'],
         ],
-        'Make Money with Us' => [
-            ['label' => 'Sell on :store'],
-            ['label' => 'Sell Your Services on :store'],
-            ['label' => 'Sell on :store Business'],
-            ['label' => 'Sell Your Apps on :store'],
-            ['label' => 'Become an Affiliate'],
-            ['label' => 'Advertise Your Products'],
-            ['label' => 'Sell-Publish with Us'],
-            ['label' => 'Become a :store Vendor'],
-            ['label' => ':store Affiliation Program'],
+        'Paiement et livraison' => [
+            ['label' => 'Orange Money'],
+            ['label' => 'MTN MoMo'],
+            ['label' => 'Moov Money'],
+            ['label' => 'Wave'],
+            ['label' => 'Paiement à la livraison'],
+            ['label' => 'Zones de livraison'],
         ],
-        'Get to Know Us' => [
-            ['label' => 'Careers at :store'],
-            ['label' => 'About :store'],
-            ['label' => 'Investor Relations'],
-            ['label' => ':store Devices'],
-            ['label' => 'Customer reviews'],
-            ['label' => 'Social Responsibility'],
-            ['label' => 'Store Locations'],
-            ['label' => ':store Near Me'],
-            ['label' => ':store Dealership'],
+        'À propos' => [
+            ['label' => 'Qui sommes-nous ?'],
+            ['label' => 'Avis clients'],
+            ['label' => 'Professionnels et revendeurs'],
+            ['label' => 'Gestion des cookies'],
         ],
     ],
 
     'legal' => [
-        ['label' => 'Refund policy'],
-        ['label' => 'Privacy policy'],
-        ['label' => 'Term & conditions'],
+        ['label' => 'Retours et remboursements'],
+        ['label' => 'Politique de confidentialité'],
+        ['label' => 'Conditions générales de vente'],
     ],
 
 ];

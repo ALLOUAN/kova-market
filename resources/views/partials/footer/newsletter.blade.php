@@ -10,9 +10,9 @@
             </div>
             <div class="col-lg-4 mt--24 d-flex justify-content-center justify-content-md-end text-center text-md-left d-flex">
                 <form action="#" class="rbt-newsletter-form-one rbt-max-w-full w-100 radius-round">
-                    <input type="email" name="email" placeholder="Enter your email address" aria-label="Email address">
+                    <input type="email" name="email" placeholder="Votre adresse e-mail" aria-label="Adresse e-mail">
                     <button type="submit" class="rbt-btn rbt-btn-md">
-                        Subscribe
+                        S’abonner
                     </button>
                     <div class="icon"><i class="fa-regular fa-envelope"></i></div>
                 </form>
