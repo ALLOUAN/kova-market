@@ -36,7 +36,8 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::authenticateUsing(function (Request $request): ?User {
             $user = User::findByLogin($request->input(Fortify::username()));
 
-            return $user && Hash::check((string) $request->input('password'), $user->password) ? $user : null;
+            // A suspended account (courier, staff) is refused like a wrong password.
+            return $user && ! $user->isSuspended() && Hash::check((string) $request->input('password'), $user->password) ? $user : null;
         });
 
         Fortify::createUsersUsing(CreateNewUser::class);

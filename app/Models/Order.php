@@ -42,7 +42,32 @@ class Order extends Model
             'total' => 'integer',
             'marketing_opt_in' => 'boolean',
             'terms_accepted_at' => 'datetime',
+            'assigned_at' => 'datetime',
+            'delivery_date' => 'date',
+            'cash_collected' => 'integer',
+            'cash_settled_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Courier delivering the order (F-123); set by the dispatch, never by a form.
+     */
+    public function courier(): BelongsTo
+    {
+        return $this->belongsTo(Courier::class);
+    }
+
+    public function cashSettledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cash_settled_by');
+    }
+
+    /**
+     * Cash the courier must collect at the door (F-125): the total of an unpaid cash-on-delivery order.
+     */
+    public function amountToCollect(): int
+    {
+        return $this->payment_method === PaymentMethod::CashOnDelivery && $this->payment_status !== PaymentStatus::Paid ? $this->total : 0;
     }
 
     public function getRouteKeyName(): string

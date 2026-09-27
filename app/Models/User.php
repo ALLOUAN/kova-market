@@ -47,6 +47,8 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'marketing_opt_in' => 'boolean',
+            'suspended_at' => 'datetime',
+            'must_change_password' => 'boolean',
             'app_authentication_secret' => 'encrypted',
             'app_authentication_recovery_codes' => 'encrypted:array',
         ];
@@ -89,7 +91,28 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasAnyRole(array_map(fn (Role $role) => $role->value, Role::panelRoles()));
+        return ! $this->isSuspended() && $this->hasAnyRole(array_map(fn (Role $role) => $role->value, Role::panelRoles()));
+    }
+
+    /**
+     * A suspended account cannot sign in anywhere (F-122).
+     */
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
+    }
+
+    public function courier(): HasOne
+    {
+        return $this->hasOne(Courier::class);
+    }
+
+    /**
+     * Phone number used by the SMS channel.
+     */
+    public function routeNotificationForSms(): ?string
+    {
+        return $this->phone;
     }
 
     public function addresses(): HasMany

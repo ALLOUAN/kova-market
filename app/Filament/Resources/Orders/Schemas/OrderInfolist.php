@@ -43,6 +43,14 @@ class OrderInfolist
                         TextEntry::make('district')->label('Quartier'),
                         TextEntry::make('landmark')->label('Repère')->placeholder('—'),
                         TextEntry::make('note')->label('Note du client')->placeholder('—'),
+                        TextEntry::make('courier.user.name')
+                            ->label('Livreur')
+                            ->placeholder('Dans la file de la zone')
+                            ->belowContent(fn (Order $record) => $record->courier ? $record->courier->formattedPhone().' · depuis le '.$record->assigned_at?->format('d/m/Y H:i') : null),
+                        TextEntry::make('cash_collected')
+                            ->label('Encaissé par le livreur')
+                            ->formatStateUsing(fn (Order $record) => Money::format($record->cash_collected).($record->cash_settled_at ? ' — reversé le '.$record->cash_settled_at->format('d/m/Y') : ' — à reverser'))
+                            ->visible(fn (Order $record) => $record->cash_collected !== null),
                     ]),
                 Section::make('Articles')
                     ->columnSpan(3)

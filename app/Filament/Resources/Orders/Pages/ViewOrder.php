@@ -4,13 +4,18 @@ namespace App\Filament\Resources\Orders\Pages;
 
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
+use App\Enums\Permission;
 use App\Filament\Resources\Orders\OrderResource;
+use App\Models\Courier;
 use App\Models\Order;
+use App\Services\Delivery\DeliveryDispatcher;
+use App\Services\Delivery\DispatchException;
 use App\Services\Orders\OrderStatusException;
 use App\Services\Orders\OrderStatusManager;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -38,7 +43,43 @@ class ViewOrder extends ViewRecord
                 ->reject(fn (OrderStatus $status) => $status === OrderStatus::Received)
                 ->map(fn (OrderStatus $status) => $this->stepAction($status, $statuses))
                 ->all(),
+            // F-123: the back-office can always give the delivery to another courier, or put it back in the queue.
+            Action::make('assignCourier')
+                ->label(fn (Order $record) => $record->courier_id ? 'Changer de livreur' : 'Confier à un livreur')
+                ->icon('heroicon-o-truck')
+                ->color('gray')
+                ->visible(fn (Order $record) => in_array($record->status, Courier::OPEN_STATUSES, true) && auth()->user()->can(Permission::ManageOrders->value))
+                ->schema(fn (Order $record) => [
+                    Select::make('courier_id')
+                        ->label('Livreur')
+                        ->helperText('Les livreurs de la zone de la commande sont proposés en premier.')
+                        ->options(fn () => $this->courierOptions($record))
+                        ->searchable()
+                        ->required(),
+                ])
+                ->action(function (Order $record, array $data): void {
+                    try {
+                        app(DeliveryDispatcher::class)->assign($record, Courier::findOrFail($data['courier_id']), auth()->user());
+                    } catch (DispatchException $exception) {
+                        Notification::make()->title($exception->getMessage())->danger()->send();
+
+                        return;
+                    }
+
+                    Notification::make()->title("Livraison confiée à {$record->fresh()->courier->name()}")->success()->send();
+                }),
             ActionGroup::make([
+                Action::make('releaseCourier')
+                    ->label('Retirer au livreur')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('gray')
+                    ->visible(fn (Order $record) => $record->courier_id !== null && in_array($record->status, Courier::OPEN_STATUSES, true) && auth()->user()->can(Permission::ManageOrders->value))
+                    ->requiresConfirmation()
+                    ->modalDescription('La commande repasse dans la file de sa zone.')
+                    ->action(function (Order $record): void {
+                        app(DeliveryDispatcher::class)->release($record, auth()->user());
+                        Notification::make()->title('Commande remise dans la file de la zone')->success()->send();
+                    }),
                 Action::make('slip')
                     ->label('Bon de commande (PDF)')
                     ->icon('heroicon-o-document-arrow-down')
@@ -84,6 +125,25 @@ class ViewOrder extends ViewRecord
                 : null),
             default => $action,
         };
+    }
+
+    /**
+     * Active couriers, those of the order's zone first.
+     *
+     * @return array<string, array<int, string>>
+     */
+    private function courierOptions(Order $order): array
+    {
+        $zone = $order->commune?->delivery_zone_id;
+        $couriers = Courier::query()->available()->with(['user', 'zones'])->withCount('openOrders')->get();
+        $label = fn (Courier $courier) => "{$courier->name()} ({$courier->open_orders_count} en cours)";
+
+        [$ofZone, $others] = $couriers->partition(fn (Courier $courier) => $courier->zones->contains('id', $zone));
+
+        return array_filter([
+            'Zone de la commande' => $ofZone->mapWithKeys(fn (Courier $courier) => [$courier->id => $label($courier)])->all(),
+            'Autres livreurs' => $others->mapWithKeys(fn (Courier $courier) => [$courier->id => $label($courier)])->all(),
+        ]);
     }
 
     private function run(callable $change): void

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureCourier;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,7 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // The storefront has no login page: guests land on the home page with the sign-in modal open,
         // then come back to the page they asked for (Fortify redirects to the intended URL).
-        $middleware->redirectGuestsTo(fn () => route('home', ['connexion' => 1]));
+        // Couriers have their own sign-in page.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('livreur', 'livreur/*')
+            ? route('courier.login')
+            : route('home', ['connexion' => 1]));
+
+        $middleware->alias(['courier' => EnsureCourier::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

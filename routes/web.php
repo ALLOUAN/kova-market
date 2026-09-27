@@ -6,6 +6,10 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Courier\AppController as CourierAppController;
+use App\Http\Controllers\Courier\AuthController as CourierAuthController;
+use App\Http\Controllers\Courier\DeliveryController;
+use App\Http\Controllers\Courier\PasswordController as CourierPasswordController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderTrackingController;
@@ -71,3 +75,25 @@ Route::get('/faq', FaqController::class)->name('faq');
 // Contact page (F-080), sending throttled against abuse.
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
+
+// Courier area (F-122 to F-125): its own sign-in, installable on the phone (manifest and service worker).
+Route::prefix('livreur')->name('courier.')->group(function () {
+    Route::get('/manifest.webmanifest', [CourierAppController::class, 'manifest'])->name('manifest');
+    Route::get('/sw.js', [CourierAppController::class, 'serviceWorker'])->name('service-worker');
+
+    Route::get('/connexion', [CourierAuthController::class, 'show'])->name('login');
+    Route::post('/connexion', [CourierAuthController::class, 'store'])->middleware('throttle:20,1')->name('authenticate');
+
+    Route::middleware(['auth', 'courier'])->group(function () {
+        Route::post('/deconnexion', [CourierAuthController::class, 'destroy'])->name('logout');
+        Route::get('/mot-de-passe', [CourierPasswordController::class, 'edit'])->name('password.edit');
+        Route::put('/mot-de-passe', [CourierPasswordController::class, 'update'])->name('password.update');
+
+        Route::get('/', [DeliveryController::class, 'index'])->name('home');
+        Route::get('/commandes/{order:number}', [DeliveryController::class, 'show'])->name('orders.show');
+        Route::post('/commandes/{order:number}/prendre', [DeliveryController::class, 'accept'])->name('orders.accept');
+        Route::post('/commandes/{order:number}/en-route', [DeliveryController::class, 'start'])->name('orders.start');
+        Route::post('/commandes/{order:number}/livree', [DeliveryController::class, 'deliver'])->name('orders.deliver');
+        Route::post('/commandes/{order:number}/echec', [DeliveryController::class, 'fail'])->name('orders.fail');
+    });
+});

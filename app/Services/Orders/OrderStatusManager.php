@@ -30,6 +30,13 @@ class OrderStatusManager
         [OrderStatus::Preparing, OrderStatus::Shipped],
     ];
 
+    /** Steps a courier may take on their own deliveries: on the way, delivered, failed (F-125). */
+    private const COURIER_STEPS = [
+        [OrderStatus::Shipped, OrderStatus::OutForDelivery],
+        [OrderStatus::OutForDelivery, OrderStatus::Delivered],
+        [OrderStatus::OutForDelivery, OrderStatus::Cancelled],
+    ];
+
     public function __construct(private StockManager $stock) {}
 
     /**
@@ -41,7 +48,7 @@ class OrderStatusManager
     {
         return array_values(array_filter(
             $order->status->next(),
-            fn (OrderStatus $to) => $this->mayMove($user, $order->status, $to),
+            fn (OrderStatus $to) => $this->mayMove($user, $order, $to),
         ));
     }
 
@@ -54,7 +61,7 @@ class OrderStatusManager
             throw new OrderStatusException("Une commande « {$order->status->getLabel()} » ne peut pas passer à « {$to->getLabel()} ».");
         }
 
-        if (! $this->mayMove($user, $order->status, $to)) {
+        if (! $this->mayMove($user, $order, $to)) {
             throw new OrderStatusException('Vous n’avez pas le droit d’effectuer ce changement de statut.');
         }
 
@@ -102,10 +109,19 @@ class OrderStatusManager
         });
     }
 
-    private function mayMove(User $user, OrderStatus $from, OrderStatus $to): bool
+    private function mayMove(User $user, Order $order, OrderStatus $to): bool
     {
+        $from = $order->status;
+
         if ($user->can(Permission::ManageOrders->value)) {
             return true;
+        }
+
+        // Couriers only move the deliveries given to them (F-124).
+        if ($user->hasRole(Role::Courier->value)) {
+            return $order->courier_id !== null
+                && $order->courier_id === $user->courier?->getKey()
+                && in_array([$from, $to], self::COURIER_STEPS, true);
         }
 
         return $user->can(Permission::PrepareOrders->value) && in_array([$from, $to], self::PICKER_STEPS, true);

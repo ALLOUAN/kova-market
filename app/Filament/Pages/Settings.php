@@ -4,9 +4,11 @@ namespace App\Filament\Pages;
 
 use App\Enums\Permission;
 use App\Models\Setting;
+use App\Services\Delivery\DeliveryDispatcher;
 use App\Services\Storefront\StoreSettings;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -48,7 +50,10 @@ class Settings extends Page
         $this->form->fill([
             'contact' => $settings->contact(),
             'social' => $settings->socialLinks()->pluck('url', 'key')->all(),
-            'delivery' => ['free_shipping_threshold' => Setting::get('delivery.free_shipping_threshold')],
+            'delivery' => [
+                'free_shipping_threshold' => Setting::get('delivery.free_shipping_threshold'),
+                'assignment_mode' => app(DeliveryDispatcher::class)->mode(),
+            ],
             'payment' => ['cash_on_delivery_limit' => Setting::get('payment.cash_on_delivery_limit')],
         ]);
     }
@@ -80,6 +85,14 @@ class Settings extends Page
                             ->integer()
                             ->minValue(0)
                             ->suffix('FCFA'),
+                        Select::make('delivery.assignment_mode')
+                            ->label('Attribution des livraisons')
+                            ->helperText('À la confirmation d’une commande.')
+                            ->options([
+                                DeliveryDispatcher::FIRST_TO_ACCEPT => 'Le premier livreur de la zone qui accepte',
+                                DeliveryDispatcher::AUTOMATIC => 'Automatique : le livreur de la zone le moins chargé',
+                            ])
+                            ->required(),
                     ]),
                 Section::make('Paiement')
                     ->schema([
@@ -124,6 +137,7 @@ class Settings extends Page
             ...collect($state['contact'] ?? [])->mapWithKeys(fn ($value, $field) => ["contact.{$field}" => $value])->all(),
             ...collect($state['social'] ?? [])->mapWithKeys(fn ($value, $network) => ["social.{$network}" => $value])->all(),
             'delivery.free_shipping_threshold' => $state['delivery']['free_shipping_threshold'] ?? null,
+            'delivery.assignment_mode' => $state['delivery']['assignment_mode'] ?? null,
             'payment.cash_on_delivery_limit' => $state['payment']['cash_on_delivery_limit'] ?? null,
         ]);
 

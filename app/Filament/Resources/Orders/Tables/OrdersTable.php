@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Orders\Tables;
 
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Models\Courier;
 use App\Models\Order;
 use App\Support\Money;
 use Filament\Actions\ViewAction;
@@ -32,8 +33,15 @@ class OrdersTable
                 TextColumn::make('total')->label('Total')->formatStateUsing(fn (int $state) => Money::format($state))->sortable(),
                 TextColumn::make('payment_status')->label('Paiement')->badge(),
                 TextColumn::make('status')->label('Statut')->badge(),
+                TextColumn::make('courier.user.name')->label('Livreur')->placeholder('—')->toggleable(),
             ])
             ->filters([
+                SelectFilter::make('courier_id')
+                    ->label('Livreur')
+                    ->relationship('courier.user', 'name'),
+                Filter::make('unassigned')
+                    ->label('Sans livreur (à livrer)')
+                    ->query(fn (Builder $query) => $query->whereNull('courier_id')->whereIn('status', Courier::OPEN_STATUSES)),
                 SelectFilter::make('status')->label('Statut')->options(OrderStatus::class)->multiple(),
                 SelectFilter::make('payment_status')->label('Paiement')->options(PaymentStatus::class),
                 SelectFilter::make('zone_name')
