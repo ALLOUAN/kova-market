@@ -53,6 +53,9 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            // Back-office alerts (new and cancelled orders), refreshed every 30 seconds.
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->navigationGroups(['Ventes', 'Catalogue', 'Promotions', 'Livraison', 'Contenus', 'Administration'])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

@@ -52,6 +52,15 @@ return [
 
     'channels' => [
 
+        // SMS written by the "log" SMS driver instead of being sent (config/services.php, "sms").
+        'sms' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/sms.log'),
+            'level' => 'info',
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', (string) env('LOG_STACK', 'single')),

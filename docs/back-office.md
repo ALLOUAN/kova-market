@@ -71,6 +71,24 @@ Capacité…) are managed under **Catalogue › Attributs de variantes**.
 switched on (**Livraison › Zones de livraison**). The free-delivery threshold is under **Paramètres de la boutique**.
 Locally, `DemoDeliveryFeesSeeder` sets demo fees (1 500 / 2 000 / 3 000 / 5 000 FCFA) and a 100 000 FCFA threshold.
 
+## Notifications
+
+Orders and stock send notifications through queued listeners (`app/Listeners`), so a worker must run:
+`php artisan queue:work` (locally too, since `QUEUE_CONNECTION=database`).
+
+| Event | Customer | Staff |
+|---|---|---|
+| Order placed | SMS + e-mail | e-mail + bell alert (`commandes.gerer`) |
+| Confirmed, delivered, cancelled | SMS + e-mail | bell alert on cancellation |
+| Preparing | e-mail | — |
+| Shipped, out for delivery | SMS | — |
+| Stock reaches the alert threshold | — | e-mail (`catalogue.gerer`) |
+
+The customer gets e-mails only when the order carries an address. Steps taken back by a super-admin are not
+announced. SMS go through `App\Services\Sms\SmsGateway`, chosen by `SMS_DRIVER`: `log` writes them to
+`storage/logs/sms-*.log`, `null` discards them (tests). A real provider is a new class added to the match in
+`AppServiceProvider`. E-mails use the `MAIL_*` settings (`MAIL_MAILER=log` writes them to `laravel.log`).
+
 ## Not in the back-office yet
 
 Customers, couriers, coupons and CSV import arrive with their modules (see the

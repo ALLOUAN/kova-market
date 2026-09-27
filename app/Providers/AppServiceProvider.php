@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\Enums\Role;
 use App\Models\User;
 use App\Services\Cart\CartManager;
+use App\Services\Sms\LogSmsGateway;
+use App\Services\Sms\NullSmsGateway;
+use App\Services\Sms\SmsGateway;
 use App\Services\Storefront\CatalogService;
 use App\Services\Storefront\NavigationService;
 use App\View\Composers\StorefrontLayoutComposer;
@@ -15,6 +18,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use InvalidArgumentException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +30,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(CatalogService::class);
         $this->app->scoped(NavigationService::class);
         $this->app->scoped(CartManager::class);
+
+        // SMS provider chosen by configuration (F-131); real providers are added to this match.
+        $this->app->singleton(SmsGateway::class, fn () => match (config('services.sms.driver')) {
+            'log' => new LogSmsGateway(config('services.sms.sender')),
+            // env() turns SMS_DRIVER=null into a real null.
+            'null', null => new NullSmsGateway,
+            default => throw new InvalidArgumentException('Fournisseur SMS inconnu : '.config('services.sms.driver')),
+        });
     }
 
     /**

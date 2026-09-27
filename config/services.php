@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // SMS notifications (F-131). "log" writes them to storage/logs/sms.log, "null" discards them (tests);
+    // add a provider class for real sending.
+    'sms' => [
+        'driver' => env('SMS_DRIVER', 'log'),
+        'sender' => env('SMS_SENDER', 'KOVA'),
+    ],
+
 ];

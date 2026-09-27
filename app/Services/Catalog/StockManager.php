@@ -3,6 +3,7 @@
 namespace App\Services\Catalog;
 
 use App\Enums\StockMovementReason;
+use App\Events\StockLow;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\StockMovement;
@@ -32,8 +33,14 @@ class StockManager
                 throw new InsufficientStock($locked, abs($quantity));
             }
 
+            $stockBefore = $locked->stock;
             $locked->forceFill(['stock' => $stockAfter])->save();
             $variant->setRawAttributes($locked->getAttributes(), true);
+
+            // Alert once, when the stock crosses the threshold going down (not on every later sale).
+            if ($stockBefore > $locked->lowStockThreshold() && $stockAfter <= $locked->lowStockThreshold()) {
+                StockLow::dispatch($locked);
+            }
 
             return $locked->stockMovements()->create([
                 'quantity' => $quantity,
