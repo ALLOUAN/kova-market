@@ -9,94 +9,53 @@
                         </a>
                     </div>
                     <h3 class="rbt-title rbt-text-bold mb--16 h6" id="signupModalLabel">Créer un compte</h3>
-                    <p class="description">Je souhaite être livré à :</p>
-                    <ul class="rbt-signup-radio-list">
-                        <li class="rbt-check-grp ml--0">
-                            <input id="modal-rbt-signup-radio-1" type="radio" name="modal-rbt-signup-radio">
-                            <label for="modal-rbt-signup-radio-1">
-                                <span class="rbt-lable-text">Accueil</span>
-                            </label>
-                        </li>
-                        <li class="rbt-check-grp ml--0">
-                            <input id="modal-rbt-signup-radio-2" type="radio" name="modal-rbt-signup-radio">
-                            <label for="modal-rbt-signup-radio-2">
-                                <span class="rbt-lable-text">Bureau</span>
-                            </label>
-                        </li>
-                        <li class="rbt-check-grp ml--0">
-                            <input id="modal-rbt-signup-radio-3" type="radio" name="modal-rbt-signup-radio">
-                            <label for="modal-rbt-signup-radio-3">
-                                <span class="rbt-lable-text">Professionnels</span>
-                            </label>
-                        </li>
-                        <li class="rbt-check-grp ml--0">
-                            <input id="modal-rbt-signup-radio-4" type="radio" name="modal-rbt-signup-radio">
-                            <label for="modal-rbt-signup-radio-4">
-                                <span class="rbt-lable-text">Autres</span>
-                            </label>
-                        </li>
-                    </ul>
-                    <div class="rbt-tab rbt-round-shape-tab">
+                    {{-- Phone number required, e-mail optional (decision C-08). --}}
+                    <form method="POST" action="{{ route('register.store') }}" novalidate>
+                        @csrf
+                        <input type="hidden" name="_form" value="signup">
+                        @php($signup = old('_form') === 'signup')
 
-                        <ul class="nav nav-tabs" id="modal_signinTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="rbt-form-tab-id-3" data-bs-toggle="tab" data-bs-target="#rbt-form-tab-pane-3" type="button" role="tab" aria-controls="rbt-form-tab-pane-3" aria-selected="true">
-                                    <i class="fa-sharp fa-regular fa-phone"></i>
-                                    Numéro de téléphone
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="rbt-form-tab-id-4" data-bs-toggle="tab" data-bs-target="#rbt-form-tab-pane-4" type="button" role="tab" aria-controls="rbt-form-tab-pane-4" aria-selected="false">
-                                    <i class="fa-sharp fa-regular fa-envelope"></i>
-                                    E-mail
-                                </button>
-                            </li>
-                        </ul>
+                        <div class="rbt-input-field-grp">
+                            <label class="rbt-field-label" for="modal_register_name">Nom complet<span class="rbt-text-color-danger">*</span></label>
+                            <input class="rbt-input-field" type="text" id="modal_register_name" name="name" value="{{ $signup ? old('name') : '' }}" autocomplete="name" required>
+                            @if ($signup)
+                                @error('name')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
+                            @endif
+                        </div>
+                        <div class="rbt-input-field-grp mt--16">
+                            <label class="rbt-field-label" for="modal_register_number">Numéro de téléphone<span class="rbt-text-color-danger">*</span></label>
+                            <input class="rbt-input-field" placeholder="07 01 02 03 04" type="tel" id="modal_register_number" name="phone" value="{{ $signup ? old('phone') : '' }}" autocomplete="tel" required>
+                            @if ($signup)
+                                @error('phone')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
+                            @endif
+                        </div>
+                        <div class="rbt-input-field-grp mt--16">
+                            <label class="rbt-field-label" for="modal_register_email">E-mail <span class="b4">(facultatif)</span></label>
+                            <input class="rbt-input-field" placeholder="vous@exemple.ci" type="email" id="modal_register_email" name="email" value="{{ $signup ? old('email') : '' }}" autocomplete="email">
+                            @if ($signup)
+                                @error('email')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
+                            @endif
+                        </div>
+                        <div class="rbt-input-field-grp mt--16">
+                            <label class="rbt-field-label" for="modal_register_password">Mot de passe (8 caractères minimum)<span class="rbt-text-color-danger">*</span></label>
+                            <input class="rbt-input-field" type="password" id="modal_register_password" name="password" autocomplete="new-password" required>
+                            @if ($signup)
+                                @error('password')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
+                            @endif
+                        </div>
+                        <div class="rbt-input-field-grp mt--16">
+                            <label class="rbt-field-label" for="modal_register_password_confirmation">Confirmer le mot de passe<span class="rbt-text-color-danger">*</span></label>
+                            <input class="rbt-input-field" type="password" id="modal_register_password_confirmation" name="password_confirmation" autocomplete="new-password" required>
+                        </div>
 
-                        <form>
-                            <div class="tab-content" id="modal_signinTabContent">
-                                <div class="tab-pane fade show active" id="rbt-form-tab-pane-3" role="tabpanel" aria-labelledby="rbt-form-tab-id-3" tabindex="0">
-                                    <div class="rbt-input-field-grp">
-                                        <label class="rbt-field-label" for="modal_register_number">Votre numéro<span class="rbt-text-color-danger">*</span></label>
-                                        <input class="rbt-input-field" placeholder="Numéro" type="text" id="modal_register_number">
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="rbt-form-tab-pane-4" role="tabpanel" aria-labelledby="rbt-form-tab-id-4" tabindex="0">
-                                    <div class="rbt-input-field-grp">
-                                        <label class="rbt-field-label" for="modal_register_email">Votre e-mail<span class="rbt-text-color-danger">*</span></label>
-                                        <input class="rbt-input-field" placeholder="E-mail" type="email" id="modal_register_email">
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="rbt-btn d-block w-100 mt--24 mb--16">
-                                Continuer
-                            </button>
-                            <div class="rbt-check-group">
-                                <input id="modal_signup_login_checked2" type="checkbox" name="login">
-                                <label for="modal_signup_login_checked2">Rester connecté</label>
-                            </div>
-                        </form>
-
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-center mb--24 mt--24">
-                        <hr class="rbt-separator rbt-bg-color-gray-light mb--0">
-                        <span class="pl--8 pr--8 b4 rbt-text-medium">OU</span>
-                        <hr class="rbt-separator rbt-bg-color-gray-light mb--0">
-                    </div>
-
-                    <button type="submit" class="rbt-btn rbt-btn-border rbt-social-login-btn d-block w-100 mb--16 rbt-social-login-btn">
-                        <img class="icon" src="{{ asset('assets/images/icons/fb-icon.webp') }}" alt="Icône">
-                        Continuer avec Facebook
-                    </button>
-                    <button type="submit" class="rbt-btn rbt-btn-border rbt-social-login-btn d-block w-100 rbt-social-login-btn">
-                        <img class="icon" src="{{ asset('assets/images/icons/google-icon.webp') }}" alt="Icône">
-                        Continuer avec Google
-                    </button>
+                        <button type="submit" class="rbt-btn d-block w-100 mt--24 mb--16">
+                            Créer mon compte
+                        </button>
+                    </form>
 
                     <div class="rbt-login-system-switch rbt-link-hover">
                         Déjà client ?
-                        <button class="rbt-switch-btn" data-bs-toggle="modal" data-bs-target="#signinModal" data-bs-dismiss="modal" aria-label="Fermer"><span>Se connecter</span></button>
+                        <button class="rbt-switch-btn" data-bs-toggle="modal" data-bs-target="#signinModal" data-bs-dismiss="modal" aria-label="Se connecter"><span>Se connecter</span></button>
                     </div>
                 </div>
 

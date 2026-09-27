@@ -11,15 +11,27 @@
                             </button>
                         </div>
                         <div class="rbt-access-box rbt-scroll-trigger fade_in animation-order-1 rbt-access-box-has-bg-hover rbt-access-box-has-bg-hover-white d-inline-block">
-                            <a href="#!" class="rbt-access-box-wrapper" data-bs-toggle="modal" data-bs-target="#signinModal">
-                                <div class="rbt-round-btn rbt-bg-color-brand-300 rbt-text-color-primary has-rbt-sm-fsize">
-                                    <i class="fa-regular fa-user"></i>
-                                </div>
-                                <div class="content">
-                                    <p>Connexion / Inscription</p>
-                                    <span>Accéder au compte</span>
-                                </div>
-                            </a>
+                            @auth
+                                <a href="#" class="rbt-access-box-wrapper" data-logout>
+                                    <div class="rbt-round-btn rbt-bg-color-brand-300 rbt-text-color-primary has-rbt-sm-fsize">
+                                        <i class="fa-regular fa-user"></i>
+                                    </div>
+                                    <div class="content">
+                                        <p>Bonjour, {{ Str::before(auth()->user()->name, ' ') }}</p>
+                                        <span>Se déconnecter</span>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="#!" class="rbt-access-box-wrapper" data-bs-toggle="modal" data-bs-target="#signinModal">
+                                    <div class="rbt-round-btn rbt-bg-color-brand-300 rbt-text-color-primary has-rbt-sm-fsize">
+                                        <i class="fa-regular fa-user"></i>
+                                    </div>
+                                    <div class="content">
+                                        <p>Connexion / Inscription</p>
+                                        <span>Accéder au compte</span>
+                                    </div>
+                                </a>
+                            @endauth
                         </div>
                     </div>
 

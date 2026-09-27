@@ -70,9 +70,15 @@
                     </li>
 
                     <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Se connecter" data-tooltip-position="bottom">
-                        <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#signinModal" aria-label="Se connecter">
-                            <i class="fa-regular fa-user"></i>
-                        </a>
+                        @auth
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="#" data-logout aria-label="Se déconnecter">
+                                <i class="fa-regular fa-right-from-bracket"></i>
+                            </a>
+                        @else
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#signinModal" aria-label="Se connecter">
+                                <i class="fa-regular fa-user"></i>
+                            </a>
+                        @endauth
                     </li>
 
                     <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-4 tooltips tooltip-distance-lg  d-none d-lg-flex" data-tooltip="Comparer" data-tooltip-position="bottom">

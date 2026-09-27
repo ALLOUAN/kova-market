@@ -72,8 +72,12 @@
 
     @include('partials.footer.newsletter')
     @include('partials.footer.footer')
-    @include('partials.modals.sign-in')
-    @include('partials.modals.sign-up')
+    @guest
+        @include('partials.modals.sign-in')
+        @include('partials.modals.sign-up')
+    @else
+        <form id="logout-form" method="POST" action="{{ route('logout') }}" class="d-none">@csrf</form>
+    @endguest
     @include('partials.footer.mobile-toolbar')
     @include('partials.overlays.feedback')
 
@@ -86,6 +90,16 @@
     ] as $script)
         <script src="{{ asset('assets/js/'.$script) }}"></script>
     @endforeach
+    <script>
+        // A failed sign-in / sign-up comes back as a full page: reopen the form so its error messages are seen.
+        @if (in_array(old('_form'), ['signin', 'signup'], true) && $errors->any())
+            document.addEventListener('DOMContentLoaded', () => bootstrap.Modal.getOrCreateInstance(document.getElementById(@json(old('_form') === 'signin' ? 'signinModal' : 'signupModal'))).show());
+        @endif
+        document.querySelectorAll('[data-logout]').forEach((link) => link.addEventListener('click', (event) => {
+            event.preventDefault();
+            document.getElementById('logout-form')?.submit();
+        }));
+    </script>
     @stack('scripts')
 </body>
 </html>

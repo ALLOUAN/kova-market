@@ -59,15 +59,27 @@
                         </a>
                     </li>
                     <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 rbt-access-box-has-bg-hover d-none d-lg-flex">
-                        <a href="#!" class="rbt-access-box-wrapper" data-bs-toggle="modal" data-bs-target="#signinModal">
-                            <div class="rbt-round-btn rbt-bg-static-gray">
-                                <i class="fa-regular fa-user"></i>
-                            </div>
-                            <div class="content">
-                                <p>Connexion / Inscription</p>
-                                <span>Accéder au compte</span>
-                            </div>
-                        </a>
+                        @auth
+                            <a href="#" class="rbt-access-box-wrapper" data-logout>
+                                <div class="rbt-round-btn rbt-bg-static-gray">
+                                    <i class="fa-regular fa-user"></i>
+                                </div>
+                                <div class="content">
+                                    <p>Bonjour, {{ Str::before(auth()->user()->name, ' ') }}</p>
+                                    <span>Se déconnecter</span>
+                                </div>
+                            </a>
+                        @else
+                            <a href="#!" class="rbt-access-box-wrapper" data-bs-toggle="modal" data-bs-target="#signinModal">
+                                <div class="rbt-round-btn rbt-bg-static-gray">
+                                    <i class="fa-regular fa-user"></i>
+                                </div>
+                                <div class="content">
+                                    <p>Connexion / Inscription</p>
+                                    <span>Accéder au compte</span>
+                                </div>
+                            </a>
+                        @endauth
                     </li>
                     <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 rbt-access-box-has-bg-hover d-flex d-lg-none">
                         <a class="search-trigger-active rbt-round-btn rbt-bg-static-gray rbt-modern-close-btn" href="#" aria-label="Rechercher">

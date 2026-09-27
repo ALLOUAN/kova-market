@@ -9,68 +9,35 @@
                         </a>
                     </div>
                     <h3 class="rbt-title rbt-text-bold mb--16 h6" id="signinModalLabel">Se connecter pour continuer</h3>
-                    <div class="rbt-tab rbt-round-shape-tab">
+                    {{-- Customers log in with their phone number or their e-mail address (F-070). --}}
+                    <form method="POST" action="{{ route('login.store') }}" novalidate>
+                        @csrf
+                        <input type="hidden" name="_form" value="signin">
 
-                        <ul class="nav nav-tabs" id="registerFormTab1" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="rbt-form-tab-id-1" data-bs-toggle="tab" data-bs-target="#rbt-form-tab-pane-1" type="button" role="tab" aria-controls="rbt-form-tab-pane-1" aria-selected="true">
-                                    <i class="fa-sharp fa-regular fa-phone"></i>
-                                    Numéro de téléphone
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="rbt-form-tab-id-2" data-bs-toggle="tab" data-bs-target="#rbt-form-tab-pane-2" type="button" role="tab" aria-controls="rbt-form-tab-pane-2" aria-selected="false">
-                                    <i class="fa-sharp fa-regular fa-envelope"></i>
-                                    E-mail
-                                </button>
-                            </li>
-                        </ul>
+                        <div class="rbt-input-field-grp">
+                            <label class="rbt-field-label" for="modal_signin_login">Téléphone ou e-mail<span class="rbt-text-color-danger">*</span></label>
+                            <input class="rbt-input-field" placeholder="07 01 02 03 04 ou vous@exemple.ci" type="text" id="modal_signin_login" name="login" value="{{ old('_form') === 'signin' ? old('login') : '' }}" autocomplete="username" required>
+                            @if (old('_form') === 'signin')
+                                @error('login')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
+                            @endif
+                        </div>
+                        <div class="rbt-input-field-grp mt--16">
+                            <label class="rbt-field-label" for="modal_signin_password">Mot de passe<span class="rbt-text-color-danger">*</span></label>
+                            <input class="rbt-input-field" type="password" id="modal_signin_password" name="password" autocomplete="current-password" required>
+                        </div>
 
-                        <form>
-
-                            <div class="tab-content" id="registerFormTab1Content">
-                                <div class="tab-pane fade show active" id="rbt-form-tab-pane-1" role="tabpanel" aria-labelledby="rbt-form-tab-id-1" tabindex="0">
-                                    <div class="rbt-input-field-grp">
-                                        <label class="rbt-field-label" for="modal_signin_number">Votre numéro<span class="rbt-text-color-danger">*</span></label>
-                                        <input class="rbt-input-field" placeholder="Numéro" type="text" id="modal_signin_number">
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="rbt-form-tab-pane-2" role="tabpanel" aria-labelledby="rbt-form-tab-id-2" tabindex="0">
-                                    <div class="rbt-input-field-grp">
-                                        <label class="rbt-field-label" for="modal_signin_email">Votre e-mail<span class="rbt-text-color-danger">*</span></label>
-                                        <input class="rbt-input-field" placeholder="E-mail" type="email" id="modal_signin_email">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="rbt-btn d-block w-100 mt--24 mb--16">
-                                Continuer
-                            </button>
-                            <div class="rbt-check-group">
-                                <input id="modal_login_checked1" type="checkbox" name="login">
-                                <label for="modal_login_checked1">Rester connecté</label>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-center mb--24 mt--24">
-                        <hr class="rbt-separator rbt-bg-color-gray-light mb--0">
-                        <span class="pl--8 pr--8 b4 rbt-text-medium">OU</span>
-                        <hr class="rbt-separator rbt-bg-color-gray-light mb--0">
-                    </div>
-
-                    <button type="submit" class="rbt-btn rbt-btn-border rbt-social-login-btn d-block w-100 mb--16 rbt-social-login-btn">
-                        <img class="icon" src="{{ asset('assets/images/icons/fb-icon.webp') }}" alt="Icône">
-                        Continuer avec Facebook
-                    </button>
-                    <button type="submit" class="rbt-btn rbt-btn-border rbt-social-login-btn d-block w-100 rbt-social-login-btn">
-                        <img class="icon" src="{{ asset('assets/images/icons/google-icon.webp') }}" alt="Icône">
-                        Continuer avec Google
-                    </button>
+                        <button type="submit" class="rbt-btn d-block w-100 mt--24 mb--16">
+                            Se connecter
+                        </button>
+                        <div class="rbt-check-group">
+                            <input id="modal_login_checked1" type="checkbox" name="remember" value="1">
+                            <label for="modal_login_checked1">Rester connecté</label>
+                        </div>
+                    </form>
 
                     <div class="rbt-login-system-switch rbt-link-hover">
                         Pas encore de compte ?
-                        <button class="rbt-switch-btn" data-bs-toggle="modal" data-bs-target="#signupModal" data-bs-dismiss="modal" aria-label="Fermer"><span>Créer un compte</span></button>
+                        <button class="rbt-switch-btn" data-bs-toggle="modal" data-bs-target="#signupModal" data-bs-dismiss="modal" aria-label="Créer un compte"><span>Créer un compte</span></button>
                     </div>
                 </div>
 

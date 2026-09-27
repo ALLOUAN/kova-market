@@ -35,10 +35,17 @@
                     </li>
 
                     <li class="rbt-access-box">
-                        <a href="#!" class="rbt-round-btn has-rbt-md-fsize" data-bs-toggle="modal" data-bs-target="#signinModal">
-                            <i class="fa-regular fa-user"></i>
-                            <span class="rbt-toolbar-label"> Profil</span>
-                        </a>
+                        @auth
+                            <a href="#" class="rbt-round-btn has-rbt-md-fsize" data-logout>
+                                <i class="fa-regular fa-right-from-bracket"></i>
+                                <span class="rbt-toolbar-label"> Déconnexion</span>
+                            </a>
+                        @else
+                            <a href="#!" class="rbt-round-btn has-rbt-md-fsize" data-bs-toggle="modal" data-bs-target="#signinModal">
+                                <i class="fa-regular fa-user"></i>
+                                <span class="rbt-toolbar-label"> Profil</span>
+                            </a>
+                        @endauth
                     </li>
                 </ul>
             </div>

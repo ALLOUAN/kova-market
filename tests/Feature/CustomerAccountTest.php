@@ -69,6 +69,40 @@ class CustomerAccountTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_visitors_get_the_sign_in_and_sign_up_forms(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('action="'.route('login.store').'"', false)
+            ->assertSee('action="'.route('register.store').'"', false)
+            ->assertSee('name="login"', false)
+            ->assertSee('name="phone"', false)
+            ->assertDontSee('id="logout-form"', false);
+    }
+
+    public function test_a_failed_sign_in_reopens_the_form_with_its_error(): void
+    {
+        $this->from('/')->post('/login', ['_form' => 'signin', 'login' => '0799999999', 'password' => 'mauvais']);
+
+        $this->get('/')
+            ->assertSeeText('Ces identifiants ne correspondent pas à nos enregistrements.')
+            ->assertSee('getElementById("signinModal")', false);
+    }
+
+    public function test_signed_in_customers_see_their_name_and_can_log_out(): void
+    {
+        $user = User::factory()->customer()->create(['name' => 'Aya Kouassi']);
+
+        $this->actingAs($user)->get('/')
+            ->assertOk()
+            ->assertSeeText('Bonjour, Aya')
+            ->assertSee('id="logout-form"', false)
+            ->assertDontSee('id="signinModal"', false);
+
+        $this->post('/logout')->assertRedirect('/');
+        $this->assertGuest();
+    }
+
     public function test_a_wrong_password_or_unknown_login_is_refused(): void
     {
         User::factory()->customer()->create(['phone' => '0501020304']);
