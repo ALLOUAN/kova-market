@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
+use App\Http\Middleware\EnsureTwoFactorForSensitiveRoles;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -27,10 +30,18 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path(config('admin.path'))
-            ->login()
+            ->brandName(config('storefront.name'))
+            ->favicon(asset(config('storefront.favicon')))
+            ->login(Login::class)
+            ->profile()
+            // Authenticator-app codes, mandatory for super-admins and managers (F-100). The requirement is
+            // switched on for the panel; the middleware narrows it down to those roles.
+            ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)
+            ->multiFactorAuthenticationRequiredMiddlewareName(EnsureTwoFactorForSensitiveRoles::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->navigationGroups(['Catalogue', 'Promotions', 'Contenus', 'Administration'])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

@@ -11,12 +11,29 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Route;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable(['parent_id', 'name', 'slug', 'icon', 'tagline', 'badge_label', 'badge_variant', 'image', 'promo', 'is_featured', 'position'])]
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    protected static function booted(): void
+    {
+        // An untouched promo block from the back-office form means "no promo", not an empty one.
+        static::saving(function (Category $category): void {
+            if (is_array($category->promo) && array_filter($category->promo, filled(...)) === []) {
+                $category->promo = null;
+            }
+        });
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logFillable()->logOnlyDirty()->dontLogEmptyChanges();
+    }
 
     /**
      * Get the attributes that should be cast.

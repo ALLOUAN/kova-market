@@ -38,6 +38,17 @@ return [
             'report' => false,
         ],
 
+        // Storefront images: the template assets and back-office uploads (under "uploads/") share the
+        // public directory, so stored paths such as "assets/images/..." render with asset() everywhere.
+        'storefront' => [
+            'driver' => 'local',
+            'root' => public_path(),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/'),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -31,6 +32,24 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Back-office staff member with the given role, two-factor authentication already set up.
+     */
+    public function staff(Role $role): static
+    {
+        return $this->withAppAuthentication()->afterCreating(fn (User $user) => $user->assignRole($role->value));
+    }
+
+    /**
+     * Indicate that the user has set up an authenticator app for the back-office.
+     */
+    public function withAppAuthentication(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'app_authentication_secret' => 'JBSWY3DPEHPK3PXP',
+        ]);
     }
 
     /**
