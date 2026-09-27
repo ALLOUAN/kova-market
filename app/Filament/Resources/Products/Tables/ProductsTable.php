@@ -19,7 +19,8 @@ class ProductsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['category', 'brand']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['category', 'brand'])
+                ->withCount(['stockAlerts as waiting_alerts_count' => fn (Builder $query) => $query->whereNull('notified_at')]))
             ->defaultSort('updated_at', 'desc')
             ->columns([
                 ImageColumn::make('image')
@@ -49,6 +50,15 @@ class ProductsTable
                         default => 'success',
                     })
                     ->sortable(),
+                // Visitors waiting for a restock (EX-17): a demand signal for sold-out products.
+                TextColumn::make('waiting_alerts_count')
+                    ->label('Alertes')
+                    ->tooltip('Personnes qui attendent le retour en stock')
+                    ->badge()
+                    ->color('warning')
+                    ->formatStateUsing(fn (int $state) => $state ?: null)
+                    ->placeholder('—')
+                    ->sortable(),
                 TextColumn::make('sold_count')
                     ->label('Ventes')
                     ->sortable()
@@ -76,6 +86,9 @@ class ProductsTable
                 Filter::make('sold_out')
                     ->label('En rupture')
                     ->query(fn (Builder $query) => $query->where('stock', 0)),
+                Filter::make('awaited')
+                    ->label('Attendus par des clients')
+                    ->query(fn (Builder $query) => $query->whereHas('stockAlerts', fn (Builder $query) => $query->whereNull('notified_at'))),
                 Filter::make('low_stock')
                     ->label('Stock bas')
                     ->query(fn (Builder $query) => $query->whereBetween('stock', [1, config('storefront.product_card.limited_stock_threshold')])),

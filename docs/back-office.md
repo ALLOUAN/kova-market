@@ -85,6 +85,10 @@ Orders and stock send notifications through queued listeners (`app/Listeners`), 
 | Stock reaches the alert threshold | — | e-mail (`catalogue.gerer`) |
 | Sold-out variant back in stock | SMS or e-mail, once, to visitors who asked ("Me prévenir") | — |
 
+Waiting back-in-stock alerts show as the **Alertes** column and the **Attendus par des clients** filter of the product
+list, and in the **Alertes de réassort** tab of a product (count on the tab). Catalog managers can delete an alert when
+a customer asks for it.
+
 The customer gets e-mails only when the order carries an address. Steps taken back by a super-admin are not
 announced. SMS go through `App\Services\Sms\SmsGateway`, chosen by `SMS_DRIVER`: `log` writes them to
 `storage/logs/sms-*.log`, `null` discards them (tests). A real provider is a new class added to the match in

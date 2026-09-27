@@ -7,6 +7,7 @@ use App\Filament\Concerns\AuthorizesWithPermission;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Filament\Resources\Products\RelationManagers\StockAlertsRelationManager;
 use App\Filament\Resources\Products\RelationManagers\StockMovementsRelationManager;
 use App\Filament\Resources\Products\RelationManagers\VariantsRelationManager;
 use App\Filament\Resources\Products\Schemas\ProductForm;
@@ -62,6 +63,7 @@ class ProductResource extends Resource
         return [
             VariantsRelationManager::class,
             StockMovementsRelationManager::class,
+            StockAlertsRelationManager::class,
         ];
     }
 

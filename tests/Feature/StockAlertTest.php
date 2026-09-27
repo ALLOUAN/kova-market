@@ -2,16 +2,24 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Role;
 use App\Enums\StockMovementReason;
+use App\Filament\Resources\Products\Pages\EditProduct;
+use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Filament\Resources\Products\RelationManagers\StockAlertsRelationManager;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\StockAlert;
+use App\Models\User;
 use App\Notifications\BackInStockForCustomer;
 use App\Services\Catalog\StockManager;
+use Database\Seeders\RolesAndPermissionsSeeder;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Testing\TestResponse;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class StockAlertTest extends TestCase
@@ -88,6 +96,41 @@ class StockAlertTest extends TestCase
         $this->get('/boutique')->assertOk()
             ->assertSee('data-product-id="'.$product->id.'"', false)
             ->assertSee('data-stock-alert-name', false);
+    }
+
+    public function test_the_back_office_shows_who_is_waiting_for_a_product(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $awaited = Product::factory()->create(['name' => 'Casque Bose', 'stock' => 0]);
+        $other = Product::factory()->create(['name' => 'Enceinte JBL', 'stock' => 0]);
+        $this->alert($awaited, '0701020304');
+        $this->alert($awaited, 'awa@exemple.ci');
+        $sent = StockAlert::create(['product_id' => $awaited->id, 'email' => 'deja@exemple.ci']);
+        $sent->forceFill(['notified_at' => now()])->save();
+
+        $this->actingAs(User::factory()->staff(Role::Picker)->create());
+
+        Livewire::test(ListProducts::class)
+            ->assertTableColumnStateSet('waiting_alerts_count', 2, $awaited)
+            ->filterTable('awaited')
+            ->assertCanSeeTableRecords([$awaited])
+            ->assertCanNotSeeTableRecords([$other]);
+
+        $this->assertSame('2', StockAlertsRelationManager::getBadge($awaited, EditProduct::class));
+
+        // Waiting alerts by default; a picker only reads them.
+        Livewire::test(StockAlertsRelationManager::class, ['ownerRecord' => $awaited, 'pageClass' => EditProduct::class])
+            ->assertCanSeeTableRecords(StockAlert::whereNull('notified_at')->get())
+            ->assertCanNotSeeTableRecords([$sent])
+            ->assertSeeText('07 01 02 03 04')
+            ->assertActionHidden(TestAction::make('delete')->table(StockAlert::first()));
+
+        // A catalog manager deletes an alert when the customer asks for it.
+        $this->actingAs(User::factory()->staff(Role::Manager)->create());
+        Livewire::test(StockAlertsRelationManager::class, ['ownerRecord' => $awaited, 'pageClass' => EditProduct::class])
+            ->callAction(TestAction::make('delete')->table(StockAlert::first()));
+
+        $this->assertSame(1, $awaited->stockAlerts()->whereNull('notified_at')->count());
     }
 
     private function alert(Product $product, string $contact): TestResponse

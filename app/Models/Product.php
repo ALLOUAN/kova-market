@@ -92,6 +92,11 @@ class Product extends Model
         return $this->belongsToMany(Collection::class)->withPivot('position');
     }
 
+    public function stockAlerts(): HasMany
+    {
+        return $this->hasMany(StockAlert::class);
+    }
+
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class)->orderByDesc('is_default')->orderBy('position')->orderBy('id');
