@@ -39,7 +39,7 @@
                                     <a href="#" class="rbt-access-link">Notre adresse</a>
                                 </div>
                                 <div class="header-info">
-                                    <a href="#" class="rbt-access-link">Suivre ma commande</a>
+                                    <a href="{{ route('tracking.show') }}" class="rbt-access-link">Suivre ma commande</a>
                                 </div>
                                 {{-- Switchers are only shown when there is something to switch to. --}}
                                 @if ($currencies->count() > 1)

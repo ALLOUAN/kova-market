@@ -109,6 +109,9 @@
         // A failed sign-in / sign-up comes back as a full page: reopen the form so its error messages are seen.
         @if (in_array(old('_form'), ['signin', 'signup'], true) && $errors->any())
             document.addEventListener('DOMContentLoaded', () => bootstrap.Modal.getOrCreateInstance(document.getElementById(@json(old('_form') === 'signin' ? 'signinModal' : 'signupModal'))).show());
+        @elseif (request()->boolean('connexion') && auth()->guest())
+            // Sent here by a page that needs an account.
+            document.addEventListener('DOMContentLoaded', () => bootstrap.Modal.getOrCreateInstance(document.getElementById('signinModal')).show());
         @endif
         @if (session('cart_open'))
             // Right after an "add to cart" from a product card: show the mini-cart (same classes as the theme's opener).

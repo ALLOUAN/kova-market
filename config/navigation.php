@@ -40,8 +40,8 @@ return [
                     'links' => [
                         ['label' => 'Se connecter'],
                         ['label' => 'Créer un compte'],
-                        ['label' => 'Mes informations'],
-                        ['label' => 'Mes commandes'],
+                        ['label' => 'Mes informations', 'route' => 'account.show'],
+                        ['label' => 'Mes commandes', 'route' => 'account.orders'],
                         ['label' => 'Ma liste de souhaits'],
                         ['label' => 'Moyens de paiement'],
                         ['label' => 'Notifications'],
@@ -52,7 +52,7 @@ return [
                     'links' => [
                         ['label' => 'Panier', 'route' => 'cart.show'],
                         ['label' => 'Commander', 'route' => 'checkout.show'],
-                        ['label' => 'Suivre ma commande'],
+                        ['label' => 'Suivre ma commande', 'route' => 'tracking.show'],
                         ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements'], 'badge' => ['label' => 'Nouveau', 'variant' => 'yellow']],
                     ],
                 ],
@@ -104,9 +104,9 @@ return [
 
     'footer' => [
         'Besoin d’aide ?' => [
-            ['label' => 'Mon compte'],
-            ['label' => 'Mes commandes'],
-            ['label' => 'Suivre ma commande'],
+            ['label' => 'Mon compte', 'route' => 'account.show'],
+            ['label' => 'Mes commandes', 'route' => 'account.orders'],
+            ['label' => 'Suivre ma commande', 'route' => 'tracking.show'],
             ['label' => 'Livraison et tarifs', 'route' => 'pages.show', 'parameters' => ['page' => 'livraison']],
             ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements']],
             ['label' => 'Questions fréquentes', 'route' => 'faq'],

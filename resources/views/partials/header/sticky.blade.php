@@ -71,8 +71,8 @@
 
                     <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Se connecter" data-tooltip-position="bottom">
                         @auth
-                            <a class="rbt-round-btn has-rbt-md-fsize" href="#" data-logout aria-label="Se déconnecter">
-                                <i class="fa-regular fa-right-from-bracket"></i>
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="{{ route('account.show') }}" aria-label="Mon compte">
+                                <i class="fa-regular fa-user"></i>
                             </a>
                         @else
                             <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#signinModal" aria-label="Se connecter">

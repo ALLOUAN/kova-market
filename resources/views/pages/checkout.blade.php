@@ -44,6 +44,20 @@
 
                         <fieldset class="mb--32">
                             <legend class="h5 mb--16">Livraison</legend>
+                            @if ($addresses->isNotEmpty())
+                                {{-- Picking a saved address fills the fields below (F-071). --}}
+                                <label class="rbt-field-label" for="saved_address">Mes adresses enregistrées</label>
+                                <select id="saved_address" class="form-select mb--16" data-saved-address>
+                                    <option value="">Saisir une autre adresse</option>
+                                    @foreach ($addresses as $address)
+                                        <option value="{{ $address->id }}" @selected($address->is_default && ! old('_token'))
+                                            data-recipient="{{ $address->recipient_name }}" data-phone="{{ \App\Support\PhoneNumber::format($address->phone) }}"
+                                            data-commune="{{ $address->commune_id }}" data-district="{{ $address->district }}" data-landmark="{{ $address->landmark }}">
+                                            {{ $address->label }} — {{ $address->summary() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @endif
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="rbt-field-label" for="commune_id">Commune<span class="rbt-text-color-danger">*</span></label>
@@ -75,6 +89,14 @@
                                     <textarea class="rbt-text-field" id="note" name="note" rows="3">{{ $field('note') }}</textarea>
                                     @error('note')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
                                 </div>
+                                @auth
+                                    <div class="col-12">
+                                        <div class="rbt-check-group">
+                                            <input type="checkbox" id="save_address" name="save_address" value="1" @checked(old('save_address'))>
+                                            <label for="save_address">Enregistrer cette adresse dans mon carnet</label>
+                                        </div>
+                                    </div>
+                                @endauth
                             </div>
                         </fieldset>
 
@@ -162,6 +184,19 @@
 
             select.addEventListener('change', render);
             render();
+
+            document.querySelector('[data-saved-address]')?.addEventListener('change', (event) => {
+                const option = event.target.selectedOptions[0];
+                if (!option.value) {
+                    return;
+                }
+                document.getElementById('customer_name').value = option.dataset.recipient;
+                document.getElementById('phone').value = option.dataset.phone;
+                document.getElementById('district').value = option.dataset.district;
+                document.getElementById('landmark').value = option.dataset.landmark || '';
+                select.value = option.dataset.commune;
+                render();
+            });
         })();
     </script>
 @endpush

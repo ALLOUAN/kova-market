@@ -12,13 +12,13 @@
                         </div>
                         <div class="rbt-access-box rbt-scroll-trigger fade_in animation-order-1 rbt-access-box-has-bg-hover rbt-access-box-has-bg-hover-white d-inline-block">
                             @auth
-                                <a href="#" class="rbt-access-box-wrapper" data-logout>
+                                <a href="{{ route('account.show') }}" class="rbt-access-box-wrapper">
                                     <div class="rbt-round-btn rbt-bg-color-brand-300 rbt-text-color-primary has-rbt-sm-fsize">
                                         <i class="fa-regular fa-user"></i>
                                     </div>
                                     <div class="content">
                                         <p>Bonjour, {{ Str::before(auth()->user()->name, ' ') }}</p>
-                                        <span>Se déconnecter</span>
+                                        <span>Mon compte</span>
                                     </div>
                                 </a>
                             @else

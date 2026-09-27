@@ -13,7 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // The storefront has no login page: guests land on the home page with the sign-in modal open,
+        // then come back to the page they asked for (Fortify redirects to the intended URL).
+        $middleware->redirectGuestsTo(fn () => route('home', ['connexion' => 1]));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

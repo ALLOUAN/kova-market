@@ -36,9 +36,9 @@
 
                     <li class="rbt-access-box">
                         @auth
-                            <a href="#" class="rbt-round-btn has-rbt-md-fsize" data-logout>
-                                <i class="fa-regular fa-right-from-bracket"></i>
-                                <span class="rbt-toolbar-label"> Déconnexion</span>
+                            <a href="{{ route('account.show') }}" class="rbt-round-btn has-rbt-md-fsize">
+                                <i class="fa-regular fa-user"></i>
+                                <span class="rbt-toolbar-label"> Mon compte</span>
                             </a>
                         @else
                             <a href="#!" class="rbt-round-btn has-rbt-md-fsize" data-bs-toggle="modal" data-bs-target="#signinModal">

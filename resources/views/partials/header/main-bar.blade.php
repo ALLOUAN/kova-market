@@ -60,13 +60,13 @@
                     </li>
                     <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 rbt-access-box-has-bg-hover d-none d-lg-flex">
                         @auth
-                            <a href="#" class="rbt-access-box-wrapper" data-logout>
+                            <a href="{{ route('account.show') }}" class="rbt-access-box-wrapper">
                                 <div class="rbt-round-btn rbt-bg-static-gray">
                                     <i class="fa-regular fa-user"></i>
                                 </div>
                                 <div class="content">
                                     <p>Bonjour, {{ Str::before(auth()->user()->name, ' ') }}</p>
-                                    <span>Se déconnecter</span>
+                                    <span>Mon compte</span>
                                 </div>
                             </a>
                         @else
