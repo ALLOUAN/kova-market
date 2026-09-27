@@ -2,6 +2,7 @@
 
 namespace App\View\Composers;
 
+use App\Services\Cart\CartManager;
 use App\Services\Storefront\CatalogService;
 use App\Services\Storefront\NavigationService;
 use App\Services\Storefront\StoreSettings;
@@ -20,6 +21,7 @@ class StorefrontLayoutComposer
         private CatalogService $catalog,
         private NavigationService $navigation,
         private StoreSettings $settings,
+        private CartManager $cart,
     ) {}
 
     public function compose(View $view): void
@@ -39,6 +41,7 @@ class StorefrontLayoutComposer
             'footerLinks' => $this->navigation->groups('footer'),
             'legalLinks' => $this->navigation->links(config('navigation.legal')),
             'socialLinks' => $this->settings->socialLinks(),
+            'cartSummary' => $this->cart->summary(),
             'categoryTree' => $this->catalog->categoryTree(),
             'navBrands' => $this->catalog->brands(),
             'promotions' => $this->catalog->currentPromotions(),

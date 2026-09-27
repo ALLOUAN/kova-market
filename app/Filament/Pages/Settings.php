@@ -48,6 +48,7 @@ class Settings extends Page
         $this->form->fill([
             'contact' => $settings->contact(),
             'social' => $settings->socialLinks()->pluck('url', 'key')->all(),
+            'delivery' => ['free_shipping_threshold' => Setting::get('delivery.free_shipping_threshold')],
         ]);
     }
 
@@ -69,6 +70,15 @@ class Settings extends Page
                         TextInput::make('contact.email')->label('E-mail de contact')->email()->maxLength(255),
                         TextInput::make('contact.opening_hours')->label('Horaires')->maxLength(255),
                         TextInput::make('contact.address')->label('Adresse')->maxLength(255)->columnSpanFull(),
+                    ]),
+                Section::make('Livraison')
+                    ->schema([
+                        TextInput::make('delivery.free_shipping_threshold')
+                            ->label('Livraison offerte à partir de')
+                            ->helperText('Montant du panier (hors livraison). Vide : pas de livraison offerte.')
+                            ->integer()
+                            ->minValue(0)
+                            ->suffix('FCFA'),
                     ]),
                 Section::make('Réseaux sociaux')
                     ->description('Laisser vide pour masquer l’icône du réseau.')
@@ -103,6 +113,7 @@ class Settings extends Page
         Setting::store([
             ...collect($state['contact'] ?? [])->mapWithKeys(fn ($value, $field) => ["contact.{$field}" => $value])->all(),
             ...collect($state['social'] ?? [])->mapWithKeys(fn ($value, $network) => ["social.{$network}" => $value])->all(),
+            'delivery.free_shipping_threshold' => $state['delivery']['free_shipping_threshold'] ?? null,
         ]);
 
         activity()->causedBy(auth()->user())->withProperties(['keys' => array_keys($state)])->log('Paramètres de la boutique modifiés');

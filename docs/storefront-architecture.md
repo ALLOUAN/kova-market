@@ -62,6 +62,7 @@ together), sorting (`?tri=`) and 24 products per page, all kept in the query str
 
 ## Not wired yet
 
-Cart, wishlist, compare and newsletter forms are UI shells from the template (static content in their partials); the
-product page buttons stay disabled until the cart exists. "Recently viewed" shows the weekly highlights until
+The cart is wired (`AppServicesCartCartManager`, page `/panier`, mini-cart panel, header counters). Wishlist,
+compare and newsletter forms are UI shells from the template (static content in their partials); the "Commander" button
+of the cart waits for the checkout. "Recently viewed" shows the weekly highlights until
 per-visitor history is implemented. Sign-in and sign-up modals are wired (phone or e-mail).

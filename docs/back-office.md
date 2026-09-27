@@ -24,6 +24,7 @@ is requested at first login) plus the demo catalog and banners.
 | Catalogue (modification) | ✓ | ✓ | | |
 | Campagnes promotionnelles | ✓ | ✓ | | |
 | Contenus (bannières, pages, FAQ) | ✓ | ✓ | | |
+| Zones et tarifs de livraison | ✓ | ✓ | | |
 | Paramètres de la boutique | ✓ | | | |
 | Équipe (comptes du back-office) | ✓ | | | |
 | Journal d'audit | ✓ | | | |
@@ -59,8 +60,15 @@ Stock only changes through `App\Services\Catalog\StockManager`, which locks the 
 variant (inventory count, return) and the read-only **Mouvements de stock** tab. Attributes and their values (Couleur,
 Capacité…) are managed under **Catalogue › Attributs de variantes**.
 
+## Delivery zones
+
+`DeliverySeeder` (run by `db:seed`, production included) installs the zones and communes proposed by the specification,
+**closed and without fee**: the specification gives no prices. A zone is offered in the cart once it has a fee and is
+switched on (**Livraison › Zones de livraison**). The free-delivery threshold is under **Paramètres de la boutique**.
+Locally, `DemoDeliveryFeesSeeder` sets demo fees (1 500 / 2 000 / 3 000 / 5 000 FCFA) and a 100 000 FCFA threshold.
+
 ## Not in the back-office yet
 
-Orders, customers, delivery zones and couriers, coupons and CSV import arrive with their modules (see the
+Orders, customers, couriers, coupons and CSV import arrive with their modules (see the
 specification). Products are switched off rather than deleted until soft deletes land with orders. The storefront still
 shows the colour swatches typed on the product; they switch to the variants with the product page.

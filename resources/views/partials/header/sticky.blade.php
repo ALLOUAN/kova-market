@@ -99,10 +99,10 @@
                         <a class="rbt-cart-sidenav-activation" href="#!" aria-label="Panier">
                             <span class="rbt-round-btn has-rbt-md-fsize">
                                 <i class="fa-regular fa-bag-shopping"></i>
-                                <span class="access-box-count rbt-shiny">0</span>
+                                <span class="access-box-count rbt-shiny">{{ $cartSummary->count() }}</span>
                             </span>
                             <div class="content ml--4">
-                                <span class="title-text">0 FCFA</span>
+                                <span class="title-text">@money($cartSummary->total())</span>
                             </div>
                         </a>
                     </li>

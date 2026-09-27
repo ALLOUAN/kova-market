@@ -47,6 +47,20 @@
     @include('partials.modals.recently-viewed')
 
     <main>
+        {{-- Result of the last cart action. --}}
+        @foreach (['cart_status' => 'success', 'cart_error' => 'danger'] as $key => $type)
+            @if (session($key))
+                <div class="container mt--24">
+                    <div class="alert alert-{{ $type }} d-flex justify-content-between align-items-center gap-3 mb-0" role="{{ $type === 'danger' ? 'alert' : 'status' }}">
+                        <span>{{ session($key) }}</span>
+                        @if ($key === 'cart_status' && ! request()->routeIs('cart.show'))
+                            <a class="rbt-btn rbt-btn-sm" href="{{ route('cart.show') }}">Voir le panier</a>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        @endforeach
+
         @yield('content')
     </main>
 
@@ -95,6 +109,13 @@
         // A failed sign-in / sign-up comes back as a full page: reopen the form so its error messages are seen.
         @if (in_array(old('_form'), ['signin', 'signup'], true) && $errors->any())
             document.addEventListener('DOMContentLoaded', () => bootstrap.Modal.getOrCreateInstance(document.getElementById(@json(old('_form') === 'signin' ? 'signinModal' : 'signupModal'))).show());
+        @endif
+        @if (session('cart_open'))
+            // Right after an "add to cart" from a product card: show the mini-cart (same classes as the theme's opener).
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelector('.rbt-cart-side-menu')?.classList.add('side-menu-active');
+                document.body.classList.add('cart-sidenav-menu-active');
+            });
         @endif
         document.querySelectorAll('[data-logout]').forEach((link) => link.addEventListener('click', (event) => {
             event.preventDefault();

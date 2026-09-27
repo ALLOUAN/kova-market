@@ -113,15 +113,21 @@ class HomePageTest extends TestCase
 
     public function test_product_card_actions_follow_the_store_configuration(): void
     {
-        config(['storefront.product_card.quick_view' => 'sidenav', 'storefront.product_card.cart_action' => 'popup']);
+        config(['storefront.product_card.quick_view' => 'sidenav', 'storefront.product_card.cart_action' => 'sidenav']);
         $collection = Collection::create(['name' => 'Offres du jour', 'slug' => HomePageService::DEALS_OF_THE_DAY]);
-        $collection->products()->attach(Product::factory()->create());
+        $product = Product::factory()->create();
+        $collection->products()->attach($product);
 
         $this->get('/')
             ->assertOk()
             ->assertSee('rbt-quickview-sidenav-activation', false)
             ->assertSee('rbt-quickview-sidenav-area', false)
-            ->assertSee('data-bs-target="#popup-cartModal"', false);
+            ->assertSee('<input type="hidden" name="product_id" value="'.$product->id.'">', false)
+            ->assertSee('<input type="hidden" name="open" value="sidenav">', false);
+
+        // After adding from a card, the next page slides the mini-cart open.
+        $this->post('/panier/articles', ['product_id' => $product->id, 'open' => 'sidenav']);
+        $this->get('/')->assertSee("classList.add('side-menu-active')", false);
     }
 
     public function test_currency_and_language_switchers_are_hidden_with_a_single_option(): void

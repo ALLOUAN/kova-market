@@ -50,7 +50,7 @@ return [
                 [
                     'title' => 'Commandes',
                     'links' => [
-                        ['label' => 'Panier'],
+                        ['label' => 'Panier', 'route' => 'cart.show'],
                         ['label' => 'Commander'],
                         ['label' => 'Suivre ma commande'],
                         ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements'], 'badge' => ['label' => 'Nouveau', 'variant' => 'yellow']],

@@ -11,6 +11,7 @@ enum Permission: string
     case ManageCatalog = 'catalogue.gerer';
     case ManagePromotions = 'promotions.gerer';
     case ManageContent = 'contenus.gerer';
+    case ManageDelivery = 'livraison.gerer';
     case ManageSettings = 'parametres.gerer';
     case ManageStaff = 'utilisateurs.gerer';
     case ViewActivityLog = 'journal.consulter';

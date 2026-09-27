@@ -91,15 +91,15 @@
                         @endforeach
                     @endif
 
-                    <div class="d-flex flex-wrap align-items-center gap-3 mt--24">
+                    {{-- F-036: the selected variant goes to the cart; "Acheter maintenant" continues to the cart page. --}}
+                    <form method="POST" action="{{ route('cart.items.store') }}" class="d-flex flex-wrap align-items-center gap-3 mt--24">
+                        @csrf
                         <input type="hidden" name="variant_id" value="{{ $default?->id }}" data-variant-id>
                         <label class="visually-hidden" for="product-quantity">Quantité</label>
                         <input id="product-quantity" class="rbt-input-field text-center" type="number" name="quantity" value="1" min="1" max="{{ max(1, $default?->stock ?? 1) }}" style="width: 90px" data-quantity>
-                        {{-- The cart arrives with the next module (F-040): the buttons are shown but not active yet. --}}
-                        <button type="button" class="rbt-btn" disabled data-buy>Ajouter au panier</button>
-                        <button type="button" class="rbt-btn rbt-btn-border" disabled data-buy>Acheter maintenant</button>
-                    </div>
-                    <p class="b4 mt--8 rbt-text-color-secondary">La commande en ligne ouvre très bientôt.</p>
+                        <button type="submit" class="rbt-btn" data-buy @disabled(! $default || $default->stock === 0)>Ajouter au panier</button>
+                        <button type="submit" name="buy_now" value="1" class="rbt-btn rbt-btn-border" data-buy @disabled(! $default || $default->stock === 0)>Acheter maintenant</button>
+                    </form>
 
                     <div class="mt--24">
                         <x-product.perks :product="$product" />
@@ -174,8 +174,11 @@
 
                 if (!variant) {
                     $('[data-stock]').textContent = 'Cette combinaison n’est pas disponible.';
+                    buy.forEach((button) => button.disabled = true);
                     return;
                 }
+
+                buy.forEach((button) => button.disabled = variant.stock === 0);
 
                 $('[data-price]').textContent = money(variant.price);
                 $('[data-compare]').hidden = !variant.compare_at_price;

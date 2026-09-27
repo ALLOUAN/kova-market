@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([RolesAndPermissionsSeeder::class, ContentSeeder::class]);
+        $this->call([RolesAndPermissionsSeeder::class, ContentSeeder::class, DeliverySeeder::class]);
 
         // Demo data never reaches production: the real catalog is imported by the client.
         if (app()->isProduction()) {
@@ -28,6 +28,6 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ])->assignRole(Role::SuperAdmin->value);
 
-        $this->call([CatalogSeeder::class, BannerSeeder::class]);
+        $this->call([CatalogSeeder::class, BannerSeeder::class, DemoDeliveryFeesSeeder::class]);
     }
 }
