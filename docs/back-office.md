@@ -70,6 +70,31 @@ discount badge and countdown disappear. Cart and checkout always compute the cur
 (`ProductVariant::currentPrice()`); the price kept on the product for lists and sorting is refreshed every minute by
 `catalog:refresh-sale-prices`, so the scheduler must run (`php artisan schedule:work` locally).
 
+## CSV import
+
+**Catalogue › Importer (CSV)** (`catalogue.gerer`, F-104): **Analyser le fichier** runs the whole import in a
+rolled-back transaction and shows what it would do and the refused lines; **Importer** then saves every valid line,
+each on its own. **Télécharger le modèle** gives the columns:
+
+| Column | Content |
+| --- | --- |
+| `sku` * | Variant reference, the update key |
+| `produit` * | Product name |
+| `slug` | Product address; derived from the name when empty. Lines sharing a slug are variants of one product |
+| `categorie` | Category name or slug (required for a new product) |
+| `marque` | Brand name or slug |
+| `prix` * | Price in whole FCFA ("15 000" accepted) |
+| `prix_barre`, `promo_debut`, `promo_fin` | Sale: crossed-out price and dates (`31/12/2026` or `31/12/2026 18:00`) |
+| `stock` | Counted stock; changed through an "ajustement" movement noted "Import CSV", left as is when empty |
+| `seuil_alerte` | Low-stock threshold of the variant |
+| `description`, `actif` (`oui`/`non`) | Product text and visibility |
+| `image` | Path of a file already on the site (`uploads/products/…`) or a web address, downloaded at import |
+| `attribut:<Nom>` | Variant value for an existing attribute (e.g. `attribut:Couleur`); new values are created |
+
+A known SKU updates its variant and product (empty cells clear the sale and threshold); a new SKU creates the
+product, or adds a variant to the product of the same slug (attributes required, same product name). Files may be
+UTF-8 or Windows-1252, separated by `;` or `,`, 5 000 lines at most. Each import is recorded in the audit log.
+
 ## Delivery zones
 
 `DeliverySeeder` (run by `db:seed`, production included) installs the zones and communes proposed by the specification,
@@ -129,6 +154,6 @@ phone number, or by account), on the whole catalog or on chosen categories (sub-
 
 ## Not in the back-office yet
 
-Customers, couriers and CSV import arrive with their modules (see the
+Couriers arrive with their module (see the
 specification). Products are switched off rather than deleted until soft deletes land with orders. The storefront still
 shows the colour swatches typed on the product; they switch to the variants with the product page.
