@@ -9,9 +9,9 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <form class="rbt-search-form">
+                <form class="rbt-search-form" action="{{ route('shop.index') }}" method="GET" role="search">
                     <div class="input-sectition position-relative w-100 mr--12 mr_sm--4">
-                        <input class="search-input" type="text" placeholder="Que recherchez-vous ?">
+                        <input class="search-input" type="text" name="q" placeholder="Que recherchez-vous ?" aria-label="Rechercher">
                         <i class="fa-sharp fa-regular inner-search-icon fa-magnifying-glass"></i>
                         <button class="media-search-btn media-search-popupactivation">
                             <i class="fa-sharp fa-regular fa-camera"></i>

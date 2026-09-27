@@ -21,7 +21,7 @@
             </a>
             <x-product.badges :product="$product" />
             @if ($product->watchers_count)
-                <div class="rbt-discount-badge right--corner-style tooltips" data-tooltip="👁️ {{ $product->watchers_count }} People are Watching This Item" data-tooltip-position="bottom">
+                <div class="rbt-discount-badge right--corner-style tooltips" data-tooltip="👁️ {{ $product->watchers_count }} personnes regardent ce produit" data-tooltip-position="bottom">
                     <span><i class="fa-regular fa-eye"></i>{{ $product->watchers_count }}</span>
                 </div>
             @endif

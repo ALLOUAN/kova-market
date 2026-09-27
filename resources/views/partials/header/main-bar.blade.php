@@ -17,7 +17,7 @@
             <div class="rbt-header-content d-none d-xl-block">
                 <div class="header-info">
                     <div class="rbt-search-with-category uni-header-swc-one">
-                        <form action="#" role="search">
+                        <form action="{{ route('shop.index') }}" method="GET" role="search">
                             <div class="rbt-inner-search-field border-0">
                                 <div class="rbt-search-input-section has-left-catagory-section rbt-inner-search-label-animate-activation">
                                     <div class="filter-select rbt-modern-select search-by-category">

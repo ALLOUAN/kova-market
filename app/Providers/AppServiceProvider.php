@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Storefront\CatalogService;
 use App\Services\Storefront\NavigationService;
 use App\View\Composers\StorefrontLayoutComposer;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -29,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('layouts.storefront', StorefrontLayoutComposer::class);
+
+        // The storefront theme is built on Bootstrap 5.
+        Paginator::useBootstrapFive();
 
         // Super-admins hold every back-office permission, including the ones added later.
         Gate::before(fn (User $user) => $user->hasRole(Role::SuperAdmin->value) ? true : null);

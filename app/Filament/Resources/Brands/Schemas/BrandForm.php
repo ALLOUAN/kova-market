@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Brands\Schemas;
 
+use App\Filament\Support\SeoFields;
 use App\Filament\Support\SlugInput;
 use App\Filament\Support\StorefrontImage;
 use Filament\Forms\Components\TextInput;
@@ -33,6 +34,7 @@ class BrandForm
                             ->required()
                             ->columnSpanFull(),
                     ]),
+                SeoFields::section(),
             ]);
     }
 }

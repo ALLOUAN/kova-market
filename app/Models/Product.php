@@ -14,18 +14,39 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Route;
+use Laravel\Scout\Searchable;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
-    'category_id', 'brand_id', 'name', 'slug', 'price', 'price_max', 'compare_at_price', 'stock', 'sold_count',
+    'category_id', 'brand_id', 'name', 'slug', 'description', 'meta_title', 'meta_description', 'price', 'price_max', 'compare_at_price', 'stock', 'sold_count',
     'rating', 'reviews_count', 'watchers_count', 'free_shipping', 'return_days', 'image', 'hover_image', 'hover_video',
     'badges', 'colors', 'variants_count', 'specifications', 'sale_ends_at', 'is_active',
 ])]
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, Searchable;
+
+    /**
+     * Fields searched by the storefront search (F-022). With the database engine they must be product columns.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->getKey(),
+            'name' => $this->name,
+            'description' => strip_tags((string) $this->description),
+        ];
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        // Not loaded yet right after creation: the column defaults to active.
+        return $this->is_active ?? true;
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

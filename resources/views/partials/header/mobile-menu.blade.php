@@ -9,7 +9,7 @@
                     </div>
                 </div>
                 <p class="description">{{ config('storefront.description') }}</p>
-                <form action="#" role="search" class="rbt-inner-search-field style-one rbt-search-field-rounded rbt-search-field-sm-width">
+                <form action="{{ route('shop.index') }}" method="GET" role="search" class="rbt-inner-search-field style-one rbt-search-field-rounded rbt-search-field-sm-width">
                     <input type="text" name="q" placeholder="Rechercher un produit" aria-label="Rechercher">
                     <button class="rbt-round-btn search-btn rbt-text-color-gray-500" type="submit" aria-label="Rechercher"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </form>

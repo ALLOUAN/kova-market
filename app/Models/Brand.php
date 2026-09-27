@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['name', 'slug', 'logo', 'promo_label', 'position'])]
+#[Fillable(['name', 'slug', 'logo', 'promo_label', 'position', 'meta_title', 'meta_description'])]
 class Brand extends Model
 {
     /** @use HasFactory<BrandFactory> */

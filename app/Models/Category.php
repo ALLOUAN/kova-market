@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['parent_id', 'name', 'slug', 'icon', 'tagline', 'badge_label', 'badge_variant', 'image', 'promo', 'is_featured', 'position'])]
+#[Fillable(['parent_id', 'name', 'slug', 'icon', 'tagline', 'badge_label', 'badge_variant', 'image', 'promo', 'is_featured', 'position', 'meta_title', 'meta_description'])]
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
@@ -61,6 +61,40 @@ class Category extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    /**
+     * Ids of the category and of all its sub-categories (the tree has three levels at most).
+     *
+     * @return list<int>
+     */
+    public function descendantIds(): array
+    {
+        $ids = [$this->getKey()];
+        $level = [$this->getKey()];
+
+        while ($level !== []) {
+            $level = static::query()->whereIn('parent_id', $level)->pluck('id')->all();
+            $ids = [...$ids, ...$level];
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Root-first chain of ancestors, the category included (breadcrumb).
+     *
+     * @return list<Category>
+     */
+    public function ancestry(): array
+    {
+        $chain = [$this];
+
+        while ($chain[0]->parent) {
+            array_unshift($chain, $chain[0]->parent);
+        }
+
+        return $chain;
     }
 
     /**

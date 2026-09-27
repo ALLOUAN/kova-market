@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Filament\Support\BadgeVariant;
+use App\Filament\Support\SeoFields;
 use App\Filament\Support\SlugInput;
 use App\Filament\Support\StorefrontImage;
 use App\Models\Product;
@@ -12,6 +13,7 @@ use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -149,6 +151,19 @@ class ProductForm
                             ->minValue(0)
                             ->default(0),
                     ]),
+                Section::make('Description')
+                    ->columnSpan(3)
+                    ->schema([
+                        RichEditor::make('description')
+                            ->hiddenLabel()
+                            ->toolbarButtons([
+                                ['bold', 'italic', 'underline', 'link'],
+                                ['h2', 'h3'],
+                                ['bulletList', 'orderedList'],
+                                ['undo', 'redo'],
+                            ]),
+                    ]),
+                SeoFields::section(),
                 Section::make('Caractéristiques')
                     ->columnSpan(3)
                     ->collapsed()

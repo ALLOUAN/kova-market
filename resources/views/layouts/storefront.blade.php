@@ -31,6 +31,7 @@
         <link rel="stylesheet" href="{{ asset('assets/css/plugins/'.$stylesheet) }}">
     @endforeach
     <link rel="stylesheet" href="{{ asset('assets/css/style.min.css') }}">
+    @stack('meta')
     @stack('styles')
 </head>
 

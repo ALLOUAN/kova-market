@@ -47,8 +47,21 @@ Product cards derive their state from the data: "Sold Out" + "Notify Me" when `s
 3. Give menu entries a `route` in `config/navigation.php`. Product, category and brand links switch from
    `#` to real URLs automatically once the `products.show`, `categories.show` and `brands.show` routes exist.
 
+## Catalog pages
+
+| Route | Page |
+| --- | --- |
+| `shop.index` `/boutique` | All products and search results (`?q=`); `?category=` from the header search redirects to the category page |
+| `categories.show` `/categorie/{slug}` | Category and all its sub-categories |
+| `brands.show` `/marque/{slug}` | Brand |
+| `products.show` `/produit/{slug}` | Product page: gallery with zoom, variant selector, description, specifications, sharing, recommendations |
+
+The lists share `App\Services\Storefront\ProductListing`: Scout search (database engine, Meilisearch later), filters
+(price, availability, brands, sub-categories, attribute values: alternatives within an attribute, all attributes
+together), sorting (`?tri=`) and 24 products per page, all kept in the query string.
+
 ## Not wired yet
 
-Cart, wishlist, compare, authentication and newsletter forms are UI shells from the template
-(static content in their partials). "Recently viewed" shows the weekly highlights until per-visitor
-history is implemented.
+Cart, wishlist, compare and newsletter forms are UI shells from the template (static content in their partials); the
+product page buttons stay disabled until the cart exists. "Recently viewed" shows the weekly highlights until
+per-visitor history is implemented. Sign-in and sign-up modals are wired (phone or e-mail).

@@ -27,8 +27,8 @@ return [
                 [
                     'title' => 'Boutique',
                     'links' => [
-                        ['label' => 'Tous les produits', 'badge' => ['label' => 'SHOP', 'variant' => 'green']],
-                        ['label' => 'Toutes les catégories'],
+                        ['label' => 'Tous les produits', 'route' => 'shop.index', 'badge' => ['label' => 'SHOP', 'variant' => 'green']],
+                        ['label' => 'Toutes les catégories', 'route' => 'shop.index'],
                         ['label' => 'Par marque'],
                         ['label' => 'Offres spéciales', 'badge' => ['label' => 'PROMO', 'variant' => 'danger']],
                         ['label' => 'Comparer des produits'],

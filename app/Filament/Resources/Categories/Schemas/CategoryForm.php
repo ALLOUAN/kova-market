@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Categories\Schemas;
 
 use App\Filament\Support\BadgeVariant;
+use App\Filament\Support\SeoFields;
 use App\Filament\Support\SlugInput;
 use App\Filament\Support\StorefrontImage;
 use App\Models\Category;
@@ -68,6 +69,7 @@ class CategoryForm
                             ->options(BadgeVariant::options())
                             ->requiredWith('badge_label'),
                     ]),
+                SeoFields::section(),
                 Section::make('Encart promotionnel du menu')
                     ->description('Affiché dans le méga-menu et le panneau des catégories.')
                     ->columns(2)
