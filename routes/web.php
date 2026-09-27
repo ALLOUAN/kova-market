@@ -5,6 +5,7 @@ use App\Http\Controllers\Account\AddressController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderTrackingController;
@@ -66,3 +67,7 @@ Route::middleware('auth')->prefix('compte')->name('account.')->group(function ()
 
 Route::get('/page/{page:slug}', PageController::class)->name('pages.show');
 Route::get('/faq', FaqController::class)->name('faq');
+
+// Contact page (F-080), sending throttled against abuse.
+Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');

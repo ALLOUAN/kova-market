@@ -30,6 +30,20 @@ class StoreSettings
     }
 
     /**
+     * WhatsApp chat with the store (F-081), the message typed in advance; null while no number is set.
+     */
+    public function whatsappUrl(?string $text = null): ?string
+    {
+        $number = preg_replace('/\D/', '', (string) ($this->contact()['whatsapp'] ?? ''));
+
+        if ($number === '') {
+            return null;
+        }
+
+        return "https://wa.me/{$number}".(filled($text) ? '?text='.rawurlencode($text) : '');
+    }
+
+    /**
      * Social networks with a real profile url (a "#" url means "not set yet" and hides the icon).
      *
      * @return Collection<int, array<string, string>>

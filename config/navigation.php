@@ -61,7 +61,7 @@ return [
                     'links' => [
                         ['label' => 'Centre d’aide'],
                         ['label' => 'Questions fréquentes', 'route' => 'faq'],
-                        ['label' => 'Nous contacter'],
+                        ['label' => 'Nous contacter', 'route' => 'contact.show'],
                         ['label' => 'Politique de confidentialité', 'route' => 'pages.show', 'parameters' => ['page' => 'politique-de-confidentialite']],
                         ['label' => 'Conditions générales de vente', 'route' => 'pages.show', 'parameters' => ['page' => 'conditions-generales-de-vente']],
                     ],
@@ -84,7 +84,7 @@ return [
                 ['label' => 'Questions fréquentes', 'route' => 'faq'],
                 ['label' => 'Livraison', 'route' => 'pages.show', 'parameters' => ['page' => 'livraison']],
                 ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements']],
-                ['label' => 'Nous contacter', 'badge' => ['label' => 'WhatsApp', 'variant' => 'green']],
+                ['label' => 'Nous contacter', 'route' => 'contact.show', 'badge' => ['label' => 'WhatsApp', 'variant' => 'green']],
             ],
         ],
     ],
@@ -96,7 +96,7 @@ return [
             ['label' => 'Livraison et paiement'],
         ],
         'Plus d’infos' => [
-            ['label' => 'Contact'],
+            ['label' => 'Contact', 'route' => 'contact.show'],
             ['label' => 'Questions fréquentes', 'route' => 'faq'],
             ['label' => 'Conditions générales de vente', 'route' => 'pages.show', 'parameters' => ['page' => 'conditions-generales-de-vente']],
         ],
@@ -110,7 +110,7 @@ return [
             ['label' => 'Livraison et tarifs', 'route' => 'pages.show', 'parameters' => ['page' => 'livraison']],
             ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements']],
             ['label' => 'Questions fréquentes', 'route' => 'faq'],
-            ['label' => 'Nous contacter'],
+            ['label' => 'Nous contacter', 'route' => 'contact.show'],
         ],
         'Paiement et livraison' => [
             ['label' => 'Orange Money'],

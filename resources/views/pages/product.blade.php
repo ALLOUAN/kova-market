@@ -12,6 +12,7 @@
 @endphp
 
 @section('title', $product->meta_title ?: $product->name)
+@section('whatsapp_message', 'Bonjour, je suis intéressé(e) par « '.$product->name.' » ('.Money::format($product->price).') : '.$product->url())
 @section('description', $description)
 
 @push('meta')

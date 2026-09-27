@@ -108,6 +108,16 @@ for that account. "Total dépensé" sums paid orders. The page of a customer lis
 orders. **Exporter (CSV)** downloads the customers shown (search and filters applied) and records who exported what
 in the audit log.
 
+## Contact messages and WhatsApp
+
+Messages from `/contact` (F-080) land in **Ventes › Messages** (`commandes.gerer`, badge = messages to handle), with a
+bell alert and a copy e-mailed to the contact address of **Paramètres de la boutique**. Answer by WhatsApp, e-mail or
+phone from the message page, then **Marquer comme traité**. Robots are stopped by a hidden field, a minimum filling
+time and a throttle; Cloudflare Turnstile is added once `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are set.
+
+The floating WhatsApp button (F-081) appears on every page once **Numéro WhatsApp** is filled in the settings. Its
+message is prefilled by the page (`@section('whatsapp_message', …)`): product viewed, order summary after checkout.
+
 ## Promo codes
 
 **Promotions › Codes promo** (`promotions.gerer`): fixed amount, percentage (rounded to the franc) or free delivery,

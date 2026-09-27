@@ -42,4 +42,10 @@ return [
         'sender' => env('SMS_SENDER', 'KOVA'),
     ],
 
+    // Cloudflare Turnstile on the public forms (F-080), active once both keys are set.
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

@@ -93,6 +93,7 @@
     @endguest
     @include('partials.footer.mobile-toolbar')
     @include('partials.overlays.feedback')
+    @include('partials.overlays.whatsapp')
 
     @foreach ([
         'vendor/modernizr.min.js', 'vendor/jquery.js', 'vendor/bootstrap.min.js', 'vendor/swiper.js', 'vendor/jquery-appear.js',
