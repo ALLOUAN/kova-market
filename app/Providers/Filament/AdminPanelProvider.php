@@ -2,9 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\AppAuthentication;
 use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\EnsureTwoFactorForSensitiveRoles;
-use Filament\Auth\MultiFactor\App\AppAuthentication;
+use Filament\Forms\Components\OneTimeCodeInput;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -23,6 +24,18 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
+    public function register(): void
+    {
+        parent::register();
+
+        // Local testing aid: show the current code of the local test secret on every 6-digit code field.
+        if ($this->app->isLocal()) {
+            OneTimeCodeInput::configureUsing(fn (OneTimeCodeInput $input) => $input
+                ->hint(fn () => 'Code de test (local) : '.app(AppAuthentication::class)->getCurrentTestCode())
+                ->hintColor('warning'));
+        }
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel
