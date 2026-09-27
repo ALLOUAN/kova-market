@@ -9,12 +9,18 @@ use App\Filament\Resources\Collections\Pages\EditCollection;
 use App\Filament\Resources\Collections\RelationManagers\ProductsRelationManager;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
+use App\Filament\Resources\Products\RelationManagers\VariantsRelationManager;
+use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Models\ProductAttribute;
+use App\Models\ProductVariant;
 use App\Models\User;
+use App\Services\Catalog\StockManager;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Filament\Actions\AttachAction;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,6 +67,8 @@ class CatalogManagementTest extends TestCase
         $product = Product::where('slug', 'televiseur-55-pouces')->firstOrFail();
         $this->assertSame(250000, (int) $product->price);
         $this->assertSame(17, $product->discountPercentage());
+        $this->assertSame([250000, 8], [$product->defaultVariant->price, $product->defaultVariant->stock]);
+        $this->assertTrue($product->stockMovements()->sole()->user->is($this->manager));
     }
 
     public function test_prices_must_be_whole_amounts_and_the_compare_price_above_the_price(): void
@@ -79,15 +87,19 @@ class CatalogManagementTest extends TestCase
             ->assertHasFormErrors(['price', 'compare_at_price']);
     }
 
-    public function test_an_existing_product_is_saved_unchanged_with_its_whole_fcfa_price(): void
+    public function test_saving_a_product_leaves_its_prices_and_stock_to_the_variants(): void
     {
-        $product = Product::factory()->create(['price' => 108000]);
+        $product = Product::factory()->create(['price' => 108000, 'stock' => 7]);
         Storage::disk('storefront')->put($product->image, 'image');
 
         Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
-            ->assertSchemaStateSet(['price' => 108000])
+            ->fillForm(['price' => 1, 'stock' => 999])
             ->call('save')
             ->assertHasNoFormErrors();
+
+        $product->refresh();
+        $this->assertSame(108000, $product->price);
+        $this->assertSame(7, $product->stock);
     }
 
     public function test_changes_are_recorded_in_the_audit_log_with_their_author(): void
@@ -96,13 +108,13 @@ class CatalogManagementTest extends TestCase
         Storage::disk('storefront')->put($product->image, 'image');
 
         Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
-            ->fillForm(['price' => 99000])
+            ->fillForm(['name' => 'Téléviseur 65 pouces'])
             ->call('save')
             ->assertHasNoFormErrors();
 
         $activity = Activity::where('subject_type', $product->getMorphClass())->where('event', 'updated')->latest('id')->firstOrFail();
         $this->assertTrue($activity->causer->is($this->manager));
-        $this->assertEquals(99000, $activity->attribute_changes['attributes']['price']);
+        $this->assertSame('Téléviseur 65 pouces', $activity->attribute_changes['attributes']['name']);
     }
 
     public function test_an_empty_menu_promo_is_saved_as_no_promo(): void
@@ -136,5 +148,69 @@ class CatalogManagementTest extends TestCase
             ->callAction(TestAction::make(AttachAction::getDefaultName())->table(), ['recordId' => $added->getKey()]);
 
         $this->assertSame(2, $collection->products()->whereKey($added->getKey())->first()->pivot->position);
+    }
+
+    public function test_a_manager_adds_a_variant_with_its_characteristics_and_opening_stock(): void
+    {
+        $product = Product::factory()->create(['price' => 400000, 'stock' => 2]);
+        [$black, $capacity] = $this->attributeValues();
+
+        Livewire::test(VariantsRelationManager::class, ['ownerRecord' => $product, 'pageClass' => EditProduct::class])
+            ->callAction(TestAction::make(CreateAction::getDefaultName())->table(), [
+                'attributeValues' => [$black->id, $capacity->id],
+                'sku' => 'IPHONE-NOIR-256',
+                'price' => 520000,
+                'opening_stock' => 5,
+            ])
+            ->assertHasNoActionErrors();
+
+        $variant = ProductVariant::where('sku', 'IPHONE-NOIR-256')->firstOrFail();
+        $this->assertSame('Couleur : Noir, Capacité : 256 Go', $variant->label());
+        $this->assertSame(5, $variant->stock);
+        $this->assertSame([7, 520000], [$product->fresh()->stock, $product->fresh()->price_max]);
+    }
+
+    public function test_the_same_combination_or_two_values_of_one_attribute_are_refused(): void
+    {
+        $product = Product::factory()->create();
+        [$black, $capacity, $white] = $this->attributeValues();
+        app(StockManager::class)->createVariant($product, ['sku' => 'EXISTANTE', 'price' => 1000])->attributeValues()->attach([$black->id, $capacity->id]);
+        foreach ([[$capacity->id, $black->id], [$black->id, $white->id]] as $values) {
+            Livewire::test(VariantsRelationManager::class, ['ownerRecord' => $product, 'pageClass' => EditProduct::class])
+                ->callAction(TestAction::make(CreateAction::getDefaultName())->table(), ['attributeValues' => $values, 'sku' => 'DOUBLON', 'price' => 1000, 'opening_stock' => 0])
+                ->assertHasActionErrors(['attributeValues']);
+        }
+
+        $this->assertDatabaseMissing('product_variants', ['sku' => 'DOUBLON']);
+    }
+
+    public function test_adjusting_the_stock_records_a_movement_and_the_default_variant_cannot_be_deleted(): void
+    {
+        $product = Product::factory()->create(['stock' => 10]);
+        $variant = $product->defaultVariant;
+
+        Livewire::test(VariantsRelationManager::class, ['ownerRecord' => $product, 'pageClass' => EditProduct::class])
+            ->callAction(TestAction::make('adjustStock')->table($variant), ['counted' => 6, 'reason' => 'ajustement', 'note' => 'Inventaire'])
+            ->assertActionHidden(TestAction::make(DeleteAction::getDefaultName())->table($variant));
+
+        $movement = $variant->stockMovements()->first();
+        $this->assertSame([-4, 6, 'Inventaire'], [$movement->quantity, $movement->stock_after, $movement->note]);
+        $this->assertTrue($movement->user->is($this->manager));
+        $this->assertSame(6, $product->fresh()->stock);
+    }
+
+    /**
+     * @return array{0: AttributeValue, 1: AttributeValue, 2: AttributeValue}
+     */
+    private function attributeValues(): array
+    {
+        $color = ProductAttribute::create(['name' => 'Couleur', 'slug' => 'couleur', 'position' => 0]);
+        $storage = ProductAttribute::create(['name' => 'Capacité', 'slug' => 'capacite', 'position' => 1]);
+
+        return [
+            $color->values()->create(['value' => 'Noir']),
+            $storage->values()->create(['value' => '256 Go']),
+            $color->values()->create(['value' => 'Blanc']),
+        ];
     }
 }

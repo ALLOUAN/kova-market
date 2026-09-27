@@ -48,7 +48,19 @@ An account is locked for 15 minutes after 5 failed logins (`App\Filament\Pages\A
 | Home banners | `banners` table; a slot without a live banner shows its default from `config/homepage.php` |
 | Audit trail | `activity_log` table (Spatie Activitylog), screen **Journal d'audit** |
 
+## Variants and stock
+
+Every product sells through at least one variant (the default one, `KM-000123`), each with its SKU, prices in whole
+FCFA, stock and optional alert threshold. Prices and stock are edited in the product's **Variantes** tab; the product
+row keeps a summary (total stock, cheapest price, highest price, variant count) refreshed by `Product::syncFromVariants()`.
+
+Stock only changes through `App\Services\Catalog\StockManager`, which locks the variant row and records a
+`stock_movements` line (reason, signed quantity, stock after, author). In the back-office: **Ajuster le stock** on a
+variant (inventory count, return) and the read-only **Mouvements de stock** tab. Attributes and their values (Couleur,
+Capacité…) are managed under **Catalogue › Attributs de variantes**.
+
 ## Not in the back-office yet
 
-Orders, customers, delivery zones and couriers, coupons, stock movements and CSV import arrive with their modules
-(see the specification). Products are switched off rather than deleted until soft deletes land with orders.
+Orders, customers, delivery zones and couriers, coupons and CSV import arrive with their modules (see the
+specification). Products are switched off rather than deleted until soft deletes land with orders. The storefront still
+shows the colour swatches typed on the product; they switch to the variants with the product page.

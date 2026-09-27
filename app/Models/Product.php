@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Route;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
@@ -66,6 +69,46 @@ class Product extends Model
     public function collections(): BelongsToMany
     {
         return $this->belongsToMany(Collection::class)->withPivot('position');
+    }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)->orderByDesc('is_default')->orderBy('position')->orderBy('id');
+    }
+
+    public function defaultVariant(): HasOne
+    {
+        return $this->hasOne(ProductVariant::class)->where('is_default', true);
+    }
+
+    public function stockMovements(): HasManyThrough
+    {
+        return $this->hasManyThrough(StockMovement::class, ProductVariant::class);
+    }
+
+    /**
+     * Refreshes the storefront summary kept on the product from its variants: total stock, cheapest price
+     * (with its compare price), highest price for the "from … to …" range and number of variants.
+     * Saved quietly: the change itself is already logged on the variant.
+     */
+    public function syncFromVariants(): void
+    {
+        $variants = $this->variants()->get(['price', 'compare_at_price', 'stock']);
+
+        if ($variants->isEmpty()) {
+            return;
+        }
+
+        $cheapest = $variants->sortBy('price')->first();
+        $highest = $variants->max('price');
+
+        $this->forceFill([
+            'stock' => $variants->sum('stock'),
+            'price' => $cheapest->price,
+            'compare_at_price' => $cheapest->compare_at_price,
+            'price_max' => $highest > $cheapest->price ? $highest : null,
+            'variants_count' => $variants->count() > 1 ? $variants->count() : 0,
+        ])->saveQuietly();
     }
 
     #[Scope]

@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\Catalog\StockManager;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -31,6 +32,14 @@ class ProductFactory extends Factory
             'reviews_count' => fake()->numberBetween(0, 100),
             'image' => 'assets/images/product-img/electronics/electronics-bg-trans-10-a-1.webp',
         ];
+    }
+
+    /**
+     * Like every product, factory products sell through their default variant.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(fn (Product $product) => app(StockManager::class)->createDefaultVariant($product));
     }
 
     public function onSale(int $price = 108000, int $compareAt = 177000): static

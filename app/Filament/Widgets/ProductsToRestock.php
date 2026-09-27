@@ -4,13 +4,14 @@ namespace App\Filament\Widgets;
 
 use App\Enums\Permission;
 use App\Filament\Resources\Products\ProductResource;
-use App\Models\Product;
+use App\Models\ProductVariant;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Online products out of stock or under the "limited stock" threshold, lowest stock first.
+ * Variants of online products at or under their stock alert threshold, lowest stock first (F-103).
  */
 class ProductsToRestock extends TableWidget
 {
@@ -28,19 +29,22 @@ class ProductsToRestock extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn () => Product::active()
-                ->with('category')
-                ->where('stock', '<=', config('storefront.product_card.limited_stock_threshold'))
+            ->query(fn () => ProductVariant::query()
+                ->with(['product', 'attributeValues'])
+                ->whereHas('product', fn (Builder $query) => $query->active())
+                ->whereRaw('stock <= COALESCE(low_stock_threshold, ?)', [config('storefront.product_card.limited_stock_threshold')])
                 ->orderBy('stock'))
             ->columns([
-                TextColumn::make('name')->label('Produit')->limit(60),
-                TextColumn::make('category.name')->label('Catégorie'),
+                TextColumn::make('product.name')->label('Produit')->limit(50),
+                TextColumn::make('variant')->label('Variante')->state(fn (ProductVariant $record) => $record->label()),
+                TextColumn::make('sku')->label('Référence'),
                 TextColumn::make('stock')
                     ->label('Stock')
                     ->badge()
-                    ->color(fn (int $state) => $state === 0 ? 'danger' : 'warning'),
+                    ->color(fn (int $state) => $state === 0 ? 'danger' : 'warning')
+                    ->description(fn (ProductVariant $record) => 'seuil : '.$record->lowStockThreshold()),
             ])
-            ->recordUrl(fn (Product $record) => ProductResource::canEdit($record) ? ProductResource::getUrl('edit', ['record' => $record]) : null)
+            ->recordUrl(fn (ProductVariant $record) => ProductResource::canEdit($record->product) ? ProductResource::getUrl('edit', ['record' => $record->product]) : null)
             ->emptyStateHeading('Aucun produit à réapprovisionner')
             ->paginated([5, 10, 25]);
     }

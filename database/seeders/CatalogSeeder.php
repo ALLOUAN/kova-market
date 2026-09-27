@@ -6,7 +6,9 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Models\ProductAttribute;
 use App\Models\Promotion;
+use App\Services\Catalog\StockManager;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -38,6 +40,11 @@ class CatalogSeeder extends Seeder
             'brand_id' => isset($product['brand']) ? $brands[$product['brand']]->id : null,
             'sale_ends_at' => isset($product['sale_ends_in_days']) ? now()->addDays($product['sale_ends_in_days']) : null,
         ]));
+
+        // Every product sells through at least its default variant (same rule as for migrated products).
+        $products->each(fn (Product $product) => app(StockManager::class)->createDefaultVariant($product));
+
+        $this->seedAttributes();
 
         foreach ($data['collections'] as $slug => $collection) {
             Collection::create([
@@ -86,5 +93,24 @@ class CatalogSeeder extends Seeder
         }
 
         return $created;
+    }
+
+    /**
+     * Demo variant attributes, ready to be combined into variants from the back-office.
+     */
+    private function seedAttributes(): void
+    {
+        $attributes = [
+            'Couleur' => ['Noir' => '#2B2B2B', 'Blanc' => '#FFFFFF', 'Bleu' => '#215ADA', 'Rouge' => '#E0301E'],
+            'Capacité' => ['64 Go' => null, '128 Go' => null, '256 Go' => null],
+        ];
+
+        foreach (array_keys($attributes) as $position => $name) {
+            $attribute = ProductAttribute::create(['name' => $name, 'slug' => Str::slug($name), 'position' => $position]);
+
+            foreach (array_keys($attributes[$name]) as $valuePosition => $value) {
+                $attribute->values()->create(['value' => $value, 'color_hex' => $attributes[$name][$value], 'position' => $valuePosition]);
+            }
+        }
     }
 }

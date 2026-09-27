@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Filament\Resources\Brands\BrandResource;
 use App\Filament\Resources\Categories\CategoryResource;
 use App\Filament\Resources\Collections\CollectionResource;
+use App\Filament\Resources\ProductAttributes\ProductAttributeResource;
 use App\Filament\Resources\Products\ProductResource;
 use App\Filament\Resources\Promotions\PromotionResource;
 use App\Models\User;
@@ -63,6 +64,7 @@ class AdminAccessTest extends TestCase
             'catégories' => [CategoryResource::class],
             'marques' => [BrandResource::class],
             'collections' => [CollectionResource::class],
+            'attributs' => [ProductAttributeResource::class],
         ];
     }
 

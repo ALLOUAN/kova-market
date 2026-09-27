@@ -6,6 +6,8 @@ use App\Filament\Support\BadgeVariant;
 use App\Filament\Support\SlugInput;
 use App\Filament\Support\StorefrontImage;
 use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Support\Money;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Placeholder;
@@ -14,7 +16,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class ProductForm
@@ -52,32 +53,50 @@ class ProductForm
                             ->content(fn (?Product $record) => $record->sold_count ?? 0)
                             ->helperText('Mis à jour par les ventes payées.'),
                     ]),
-                Section::make('Prix (FCFA)')
+                // On creation these fields make the default variant; afterwards prices and stock live on the
+                // variants (tab "Variantes") and the product only shows their summary.
+                Section::make('Prix et stock')
                     ->columnSpan(2)
                     ->columns(2)
                     ->schema([
-                        self::amount('price', 'Prix de vente')->required(),
+                        self::amount('price', 'Prix de vente')->required()->visibleOn('create'),
                         self::amount('compare_at_price', 'Prix barré')
                             ->helperText('Prix avant remise. Laisser vide s’il n’y a pas de promotion.')
-                            ->gt('price'),
-                        self::amount('price_max', 'Prix maximum')
-                            ->helperText('Pour afficher une fourchette « de … à … ».')
-                            ->gte('price'),
-                        DateTimePicker::make('sale_ends_at')
-                            ->label('Fin de la promotion')
-                            ->helperText('Affiche un compte à rebours sur la carte produit.')
-                            ->seconds(false)
-                            ->visible(fn (Get $get) => filled($get('compare_at_price'))),
-                    ]),
-                Section::make('Stock et livraison')
-                    ->columnSpan(1)
-                    ->schema([
+                            ->gt('price')
+                            ->visibleOn('create'),
                         TextInput::make('stock')
-                            ->label('Quantité en stock')
+                            ->label('Stock initial')
                             ->integer()
                             ->minValue(0)
                             ->default(0)
-                            ->required(),
+                            ->required()
+                            ->visibleOn('create'),
+                        TextInput::make('sku')
+                            ->label('Référence (SKU)')
+                            ->helperText('Laisser vide pour une référence automatique (KM-000123).')
+                            ->maxLength(64)
+                            ->alphaDash()
+                            ->unique(ProductVariant::class, 'sku')
+                            ->dehydrated(fn (?string $state) => filled($state))
+                            ->visibleOn('create'),
+                        Placeholder::make('price_summary')
+                            ->label('Prix')
+                            ->content(fn (?Product $record) => $record ? self::priceSummary($record) : null)
+                            ->helperText('Les prix se modifient dans l’onglet « Variantes » ci-dessous.')
+                            ->visibleOn('edit'),
+                        Placeholder::make('stock_summary')
+                            ->label('Stock total')
+                            ->content(fn (?Product $record) => $record?->stock)
+                            ->helperText('Le stock se modifie variante par variante (« Ajuster le stock »).')
+                            ->visibleOn('edit'),
+                        DateTimePicker::make('sale_ends_at')
+                            ->label('Fin de la promotion')
+                            ->helperText('Affiche un compte à rebours sur la carte produit.')
+                            ->seconds(false),
+                    ]),
+                Section::make('Livraison')
+                    ->columnSpan(1)
+                    ->schema([
                         Toggle::make('free_shipping')
                             ->label('Livraison offerte'),
                         TextInput::make('return_days')
@@ -145,6 +164,17 @@ class ProductForm
                             ->defaultItems(0),
                     ]),
             ]);
+    }
+
+    private static function priceSummary(Product $record): string
+    {
+        $price = Money::format($record->price);
+
+        if ($record->price_max) {
+            $price = 'de '.$price.' à '.Money::format($record->price_max);
+        }
+
+        return $record->isOnSale() ? $price.' (au lieu de '.Money::format($record->compare_at_price).')' : $price;
     }
 
     private static function amount(string $field, string $label): TextInput
