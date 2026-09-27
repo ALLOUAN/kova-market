@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('description');
             $table->string('image');
             $table->string('location_label')->default('All Outlet');
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->dateTime('starts_at');
+            $table->dateTime('ends_at');
             $table->timestamps();
 
             $table->index(['starts_at', 'ends_at']);
