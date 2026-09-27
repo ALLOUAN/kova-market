@@ -47,8 +47,8 @@
     @include('partials.modals.recently-viewed')
 
     <main>
-        {{-- Result of the last cart action. --}}
-        @foreach (['cart_status' => 'success', 'cart_error' => 'danger'] as $key => $type)
+        {{-- Result of the last cart action or other storefront form (notice). --}}
+        @foreach (['cart_status' => 'success', 'notice' => 'success', 'cart_error' => 'danger', 'notice_error' => 'danger'] as $key => $type)
             @if (session($key))
                 <div class="container mt--24">
                     <div class="alert alert-{{ $type }} d-flex justify-content-between align-items-center gap-3 mb-0" role="{{ $type === 'danger' ? 'alert' : 'status' }}">
@@ -80,7 +80,7 @@
     @include('partials.modals.compare')
     @include('partials.modals.social-share')
 
-    {{-- Page specific modals (size guide, restock, coupons, ...) --}}
+    {{-- Page specific modals (size guide, coupons, ...) --}}
     @stack('modals')
 
     @include('partials.footer.newsletter')

@@ -1,0 +1,97 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Enums\StockMovementReason;
+use App\Models\Product;
+use App\Models\ProductAttribute;
+use App\Models\StockAlert;
+use App\Notifications\BackInStockForCustomer;
+use App\Services\Catalog\StockManager;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\TestResponse;
+use Tests\TestCase;
+
+class StockAlertTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_a_visitor_leaves_a_phone_or_an_email_on_a_sold_out_product(): void
+    {
+        $product = Product::factory()->create(['name' => 'Casque Bose', 'stock' => 0]);
+
+        $this->alert($product, '07 01 02 03 04')->assertSessionHas('notice', 'C’est noté : nous vous prévenons dès que « Casque Bose » est de nouveau disponible.');
+        $this->alert($product, 'Awa@Exemple.ci')->assertSessionHas('notice');
+        // Asking twice keeps a single alert.
+        $this->alert($product, '+225 0701020304');
+
+        $this->assertSame([['+2250701020304', null], [null, 'awa@exemple.ci']], StockAlert::orderBy('id')->get()->map(fn ($alert) => [$alert->phone, $alert->email])->all());
+
+        $this->alert($product, '12345')->assertSessionHas('notice_error', 'Indiquez un numéro à 10 chiffres (07 01 02 03 04) ou une adresse e-mail valide.');
+        $this->assertSame(2, StockAlert::count());
+    }
+
+    public function test_an_available_product_needs_no_alert(): void
+    {
+        $product = Product::factory()->create(['stock' => 5]);
+
+        $this->alert($product, '0701020304')->assertSessionHas('notice', 'Bonne nouvelle : ce produit est disponible, vous pouvez le commander dès maintenant.');
+        $this->assertSame(0, StockAlert::count());
+    }
+
+    public function test_the_restock_sends_the_alerts_once(): void
+    {
+        Notification::fake();
+        $product = Product::factory()->create(['name' => 'Casque Bose', 'stock' => 0]);
+        $this->alert($product, '0701020304');
+        $this->alert($product, 'awa@exemple.ci');
+
+        $stock = app(StockManager::class);
+        $stock->adjust($product->defaultVariant, 3, StockMovementReason::Adjustment);
+        $stock->adjust($product->defaultVariant, 2, StockMovementReason::Adjustment);
+
+        $sent = collect(Notification::sentNotifications()[AnonymousNotifiable::class] ?? [])->flatten(2);
+        $this->assertCount(2, $sent);
+        Notification::assertSentOnDemand(BackInStockForCustomer::class, fn ($notification, array $channels, object $notifiable) => $notifiable->routes === ['sms' => '+2250701020304']
+            && $notification->toSms($notifiable) === 'KOVA MARKET : « Casque Bose » est de nouveau disponible. '.$product->url());
+        $this->assertSame(0, StockAlert::whereNull('notified_at')->count());
+    }
+
+    public function test_a_variant_alert_waits_for_that_variant(): void
+    {
+        Notification::fake();
+        $product = Product::factory()->create(['name' => 'Coque', 'stock' => 0]);
+        $color = ProductAttribute::create(['name' => 'Couleur', 'slug' => 'couleur']);
+        $product->defaultVariant->attributeValues()->attach($color->values()->create(['value' => 'Noir']));
+        $red = app(StockManager::class)->createVariant($product, ['sku' => 'COQUE-ROUGE', 'price' => 5000]);
+        $red->attributeValues()->attach($color->values()->create(['value' => 'Rouge']));
+
+        $this->post('/alertes-stock', ['product_id' => $product->id, 'variant_id' => $red->id, 'contact' => '0701020304']);
+
+        app(StockManager::class)->adjust($product->defaultVariant, 4, StockMovementReason::Adjustment);
+        Notification::assertNothingSent();
+
+        app(StockManager::class)->adjust($red, 1, StockMovementReason::Adjustment);
+        Notification::assertSentOnDemand(BackInStockForCustomer::class, fn ($notification, array $channels, object $notifiable) => str_contains($notification->toSms($notifiable), '« Coque (Couleur : Rouge) »'));
+    }
+
+    public function test_sold_out_products_offer_the_alert_on_their_page_and_card(): void
+    {
+        $product = Product::factory()->create(['name' => 'Montre GT', 'slug' => 'montre-gt', 'stock' => 0]);
+
+        $this->get('/produit/montre-gt')->assertOk()
+            ->assertSeeText('Épuisé : soyez prévenu de son retour')
+            ->assertSee('action="'.route('stock-alerts.store').'"', false);
+
+        $this->get('/boutique')->assertOk()
+            ->assertSee('data-product-id="'.$product->id.'"', false)
+            ->assertSee('data-stock-alert-name', false);
+    }
+
+    private function alert(Product $product, string $contact): TestResponse
+    {
+        return $this->post('/alertes-stock', ['product_id' => $product->id, 'contact' => $contact]);
+    }
+}

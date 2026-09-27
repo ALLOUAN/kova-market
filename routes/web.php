@@ -10,6 +10,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StockAlertController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -20,6 +21,9 @@ Route::get('/categorie/{category:slug}', [CatalogController::class, 'category'])
 Route::get('/marque/{brand:slug}', [CatalogController::class, 'brand'])->name('brands.show');
 Route::get('/produit/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/produit/{product:slug}/apercu', [ProductController::class, 'quickView'])->name('products.quick-view');
+
+// Back-in-stock alerts (EX-17), throttled against abuse.
+Route::post('/alertes-stock', [StockAlertController::class, 'store'])->middleware('throttle:10,1')->name('stock-alerts.store');
 
 // Cart (F-040 to F-044). Changes are throttled per visitor.
 Route::get('/panier', [CartController::class, 'show'])->name('cart.show');

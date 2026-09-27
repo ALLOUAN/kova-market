@@ -83,6 +83,7 @@ Orders and stock send notifications through queued listeners (`app/Listeners`), 
 | Preparing | e-mail | — |
 | Shipped, out for delivery | SMS | — |
 | Stock reaches the alert threshold | — | e-mail (`catalogue.gerer`) |
+| Sold-out variant back in stock | SMS or e-mail, once, to visitors who asked ("Me prévenir") | — |
 
 The customer gets e-mails only when the order carries an address. Steps taken back by a super-admin are not
 announced. SMS go through `App\Services\Sms\SmsGateway`, chosen by `SMS_DRIVER`: `log` writes them to

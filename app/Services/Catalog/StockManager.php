@@ -3,6 +3,7 @@
 namespace App\Services\Catalog;
 
 use App\Enums\StockMovementReason;
+use App\Events\BackInStock;
 use App\Events\StockLow;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -40,6 +41,10 @@ class StockManager
             // Alert once, when the stock crosses the threshold going down (not on every later sale).
             if ($stockBefore > $locked->lowStockThreshold() && $stockAfter <= $locked->lowStockThreshold()) {
                 StockLow::dispatch($locked);
+            }
+
+            if ($stockBefore === 0 && $stockAfter > 0) {
+                BackInStock::dispatch($locked);
             }
 
             return $locked->stockMovements()->create([

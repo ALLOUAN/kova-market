@@ -1,3 +1,4 @@
+{{-- Back-in-stock alert from a sold-out product card (EX-17); storefront.js fills in the product. --}}
 <x-modal id="notifyModal" dialog-class="xxs-size modal-dialog-centered" labelled>
     <div class="rbt-top-folder-shape-wrapper">
         <div class="rbt-bg-color-white rbt-content-trs-portion">
@@ -9,12 +10,9 @@
                 <div class="rbt-info-wrapper d-flex mt--8 rbt-gap--12">
                     <div class="rbt-info-box rbt-notify-box w-100">
                         <p class="b1 mb--16">
-                            Voulez-vous être prévenu du retour en stock de ce produit ?
+                            Voulez-vous être prévenu du retour en stock de <strong data-stock-alert-name>ce produit</strong> ?
                         </p>
-                        <div class="rbt-input-field-grp">
-                            <input class="rbt-input-field rbt-bg-color-white shadow-none plr--24" type="email" placeholder="Votre e-mail">
-                        </div>
-                        <button class="rbt-btn rbt-btn-rounded w-100 mt--12">Me prévenir</button>
+                        <x-product.stock-alert-form prefix="notify" />
                     </div>
                 </div>
             </div>

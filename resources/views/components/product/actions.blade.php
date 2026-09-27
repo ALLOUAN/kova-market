@@ -3,7 +3,7 @@
 {{-- "Add to cart" (or "Notify me" when sold out, "Choose" when several variants) and "Add to compare" buttons. --}}
 <div class="prd-btn-grp">
     @if ($product->isSoldOut())
-        <a class="rbt-btn rbt-btn-border rbt-btn-sm rbt-square-btn d-block has-left-icon" href="#!" data-bs-toggle="modal" data-bs-target="#notifyModal"><i class="fa-regular fa-bell"></i> Me prévenir</a>
+        <a class="rbt-btn rbt-btn-border rbt-btn-sm rbt-square-btn d-block has-left-icon" href="#!" data-bs-toggle="modal" data-bs-target="#notifyModal" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}"><i class="fa-regular fa-bell"></i> Me prévenir</a>
     @elseif ($product->variants_count > 1)
         <a class="rbt-btn rbt-btn-border rbt-btn-sm rbt-square-btn d-block has-left-icon" href="{{ $product->url() }}"><i class="fa-regular fa-sliders"></i> Choisir une option</a>
     @else

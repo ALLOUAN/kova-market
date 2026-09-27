@@ -18,13 +18,24 @@
             const variant = variants.find((item) => item.values.length === chosen.length && chosen.every((id) => item.values.includes(id)));
             const buy = root.querySelectorAll('[data-buy]');
 
+            const alert = find('[data-stock-alert]');
+
             if (!variant) {
                 find('[data-stock]').textContent = 'Cette combinaison n’est pas disponible.';
                 buy.forEach((button) => button.disabled = true);
+                if (alert) {
+                    alert.hidden = true;
+                }
                 return;
             }
 
             buy.forEach((button) => button.disabled = variant.stock === 0);
+
+            // A sold-out variant offers the back-in-stock alert for that very variant (EX-17).
+            if (alert) {
+                alert.hidden = variant.stock !== 0;
+                alert.querySelector('[data-stock-alert-variant]').value = variant.id;
+            }
             find('[data-price]').textContent = money(variant.price);
             find('[data-compare]').hidden = !variant.compare_at_price;
             find('[data-compare]').textContent = variant.compare_at_price ? money(variant.compare_at_price) : '';
@@ -76,6 +87,16 @@
         if (button) {
             loadQuickView(button);
         }
+    });
+
+    // "Me prévenir" on a sold-out product card: the alert window is shared, the button tells which product.
+    document.getElementById('notifyModal')?.addEventListener('show.bs.modal', (event) => {
+        const button = event.relatedTarget;
+        const modal = event.currentTarget;
+
+        modal.querySelector('[data-stock-alert-product]').value = button?.dataset.productId || '';
+        modal.querySelector('[data-stock-alert-variant]').value = '';
+        modal.querySelector('[data-stock-alert-name]').textContent = button?.dataset.productName ? `« ${button.dataset.productName} »` : 'ce produit';
     });
 
     document.querySelectorAll('[data-purchase]').forEach(initPurchase);

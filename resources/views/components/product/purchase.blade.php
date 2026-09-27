@@ -43,4 +43,10 @@
         <button type="submit" class="rbt-btn" data-buy @disabled(! $default || $default->stock === 0)>Ajouter au panier</button>
         <button type="submit" name="buy_now" value="1" class="rbt-btn rbt-btn-border" data-buy @disabled(! $default || $default->stock === 0)>Acheter maintenant</button>
     </form>
+
+    {{-- Shown while the selected variant is sold out (EX-17). --}}
+    <div class="rbt-bg-color-gray-light rbt-radius p-3 mt--16" data-stock-alert @if (! $default || $default->stock > 0) hidden @endif>
+        <p class="b2 rbt-text-bold mb--8"><i class="fa-regular fa-bell mr--4"></i> Épuisé : soyez prévenu de son retour</p>
+        <x-product.stock-alert-form :product="$product" :variant-id="$default?->id" :prefix="$prefix.'-stock-alert'" />
+    </div>
 </div>

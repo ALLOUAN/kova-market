@@ -42,7 +42,7 @@ Product cards derive their state from the data: "Sold Out" + "Notify Me" when `s
 ## Adding a page
 
 1. Add a route and a controller; return a view that `@extends('layouts.storefront')`.
-2. Push page-only modals with `@push('modals')` (ready partials: `size-guide`, `restock`, `coupons`,
+2. Push page-only modals with `@push('modals')` (ready partials: `size-guide`, `coupons`,
    `find-store`, `instagram`).
 3. Give menu entries a `route` in `config/navigation.php`. Product, category and brand links switch from
    `#` to real URLs automatically once the `products.show`, `categories.show` and `brands.show` routes exist.
@@ -68,7 +68,10 @@ lock, when the order is placed; public codes are listed in the `coupons` modal o
 of the product cards loads `products.quick-view` (`/produit/{slug}/apercu`) into its modal or side panel through
 `public/assets/js/storefront.js`; it shares the `x-product.purchase` block (variants, quantity, cart buttons) with the
 product page. The template's "popup cart" and "edit cart" modals were removed: the mini-cart and `/panier` replace
-them. Wishlist,
+them. "Me prévenir" (back-in-stock alerts, `stock-alerts.store`) is offered by the `notify` modal of sold-out cards and
+inside the purchase block when the chosen variant is sold out; `StockManager` raises `BackInStock` when a stock goes
+from 0 to more, and each alert is sent once. The template's "restock" modal (a sample "welcome back" product) was
+removed. Wishlist,
 compare and newsletter forms are UI shells from the template (static content in their partials). Checkout: `/commande` (cash on delivery). "Recently viewed" shows the weekly highlights until
 per-visitor history is implemented. Sign-in and sign-up modals are wired (phone or e-mail); pages needing an account send guests to `/?connexion=1`, which
 opens the sign-in modal, then back to the page they asked for.

@@ -8,5 +8,5 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Expired guest carts (30 days without activity) are deleted every night.
+// Expired guest carts (30 days without activity) and old back-in-stock alerts are deleted every night.
 Schedule::command('model:prune')->daily();
