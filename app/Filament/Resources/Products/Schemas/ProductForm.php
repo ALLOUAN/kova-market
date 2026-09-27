@@ -151,8 +151,6 @@ class ProductForm
     {
         return TextInput::make($field)
             ->label($label)
-            // Prices are still stored as decimals until the whole-FCFA columns land (step 3.2).
-            ->formatStateUsing(fn ($state) => $state === null ? null : (int) round((float) $state))
             ->integer()
             ->minValue(0)
             ->suffix('FCFA');

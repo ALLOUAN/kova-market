@@ -79,7 +79,7 @@ class CatalogManagementTest extends TestCase
             ->assertHasFormErrors(['price', 'compare_at_price']);
     }
 
-    public function test_a_product_edit_shows_decimal_prices_as_whole_fcfa(): void
+    public function test_an_existing_product_is_saved_unchanged_with_its_whole_fcfa_price(): void
     {
         $product = Product::factory()->create(['price' => 108000]);
         Storage::disk('storefront')->put($product->image, 'image');

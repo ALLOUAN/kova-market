@@ -37,9 +37,10 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'price' => 'decimal:2',
-            'price_max' => 'decimal:2',
-            'compare_at_price' => 'decimal:2',
+            // Whole FCFA.
+            'price' => 'integer',
+            'price_max' => 'integer',
+            'compare_at_price' => 'integer',
             'stock' => 'integer',
             'sold_count' => 'integer',
             'rating' => 'float',
