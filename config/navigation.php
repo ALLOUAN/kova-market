@@ -7,7 +7,8 @@
 |
 | Every link accepts either a "route" (named route) or a "url". Links whose
 | page does not exist yet have neither and render as "#"; give them a route
-| once the page is built. ":store" is replaced by the store name.
+| once the page is built ("parameters" feeds route parameters). ":store" is
+| replaced by the store name.
 |
 | The "Boutique" mega menu, the mobile "Catégories" tab and the category side
 | panel are generated from the category tree stored in the database.
@@ -52,24 +53,24 @@ return [
                         ['label' => 'Panier'],
                         ['label' => 'Commander'],
                         ['label' => 'Suivre ma commande'],
-                        ['label' => 'Retours et remboursements', 'badge' => ['label' => 'Nouveau', 'variant' => 'yellow']],
+                        ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements'], 'badge' => ['label' => 'Nouveau', 'variant' => 'yellow']],
                     ],
                 ],
                 [
                     'title' => 'Aide',
                     'links' => [
                         ['label' => 'Centre d’aide'],
-                        ['label' => 'Questions fréquentes'],
+                        ['label' => 'Questions fréquentes', 'route' => 'faq'],
                         ['label' => 'Nous contacter'],
-                        ['label' => 'Politique de confidentialité'],
-                        ['label' => 'Conditions générales de vente'],
+                        ['label' => 'Politique de confidentialité', 'route' => 'pages.show', 'parameters' => ['page' => 'politique-de-confidentialite']],
+                        ['label' => 'Conditions générales de vente', 'route' => 'pages.show', 'parameters' => ['page' => 'conditions-generales-de-vente']],
                     ],
                 ],
                 [
                     'title' => 'À propos',
                     'links' => [
                         ['label' => 'Qui sommes-nous ?'],
-                        ['label' => 'Livraison'],
+                        ['label' => 'Livraison', 'route' => 'pages.show', 'parameters' => ['page' => 'livraison']],
                         ['label' => 'Paiement'],
                     ],
                 ],
@@ -80,9 +81,9 @@ return [
             'type' => 'dropdown',
             'links' => [
                 ['label' => 'Centre d’aide'],
-                ['label' => 'Questions fréquentes'],
-                ['label' => 'Livraison'],
-                ['label' => 'Retours et remboursements'],
+                ['label' => 'Questions fréquentes', 'route' => 'faq'],
+                ['label' => 'Livraison', 'route' => 'pages.show', 'parameters' => ['page' => 'livraison']],
+                ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements']],
                 ['label' => 'Nous contacter', 'badge' => ['label' => 'WhatsApp', 'variant' => 'green']],
             ],
         ],
@@ -96,8 +97,8 @@ return [
         ],
         'Plus d’infos' => [
             ['label' => 'Contact'],
-            ['label' => 'Questions fréquentes'],
-            ['label' => 'Conditions générales de vente'],
+            ['label' => 'Questions fréquentes', 'route' => 'faq'],
+            ['label' => 'Conditions générales de vente', 'route' => 'pages.show', 'parameters' => ['page' => 'conditions-generales-de-vente']],
         ],
     ],
 
@@ -106,9 +107,9 @@ return [
             ['label' => 'Mon compte'],
             ['label' => 'Mes commandes'],
             ['label' => 'Suivre ma commande'],
-            ['label' => 'Livraison et tarifs'],
-            ['label' => 'Retours et remboursements'],
-            ['label' => 'Questions fréquentes'],
+            ['label' => 'Livraison et tarifs', 'route' => 'pages.show', 'parameters' => ['page' => 'livraison']],
+            ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements']],
+            ['label' => 'Questions fréquentes', 'route' => 'faq'],
             ['label' => 'Nous contacter'],
         ],
         'Paiement et livraison' => [
@@ -128,9 +129,9 @@ return [
     ],
 
     'legal' => [
-        ['label' => 'Retours et remboursements'],
-        ['label' => 'Politique de confidentialité'],
-        ['label' => 'Conditions générales de vente'],
+        ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements']],
+        ['label' => 'Politique de confidentialité', 'route' => 'pages.show', 'parameters' => ['page' => 'politique-de-confidentialite']],
+        ['label' => 'Conditions générales de vente', 'route' => 'pages.show', 'parameters' => ['page' => 'conditions-generales-de-vente']],
     ],
 
 ];

@@ -34,7 +34,7 @@
                                 <h3 class="rbt-secondery-subtitle mb-0">{{ $banner['tagline'] }}</h3>
                             </div>
                             <div class="rbt-banner-btn rbt-scroll-trigger fade_in animation-order-2">
-                                <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="#"><i class="fa-solid fa-arrow-up-right"></i> BOUTIQUE <br> MAINTENANT</a>
+                                <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="{{ $banner['url'] ?? '#' }}"><i class="fa-solid fa-arrow-up-right"></i> ACHETER <br> MAINTENANT</a>
                             </div>
                         </div>
                     </div>

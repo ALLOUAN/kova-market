@@ -17,15 +17,19 @@
                                                 <div class="rbt-content-section">
                                                     <p class="rbt-banner-subtitle mb-0">{{ $slide['subtitle'] }}</p>
                                                     <h2 class="rbt-banner-title rbt-banner-title-lg mb-0"><span class="rbt-bold--text">{{ $slide['highlight'] }}</span> {{ $slide['title'] }}</h2>
+                                                    @if (filled($slide['price']))
                                                     <div class="rbt-pricing-part">
+                                                        @if (filled($slide['compare_at_price']))
                                                         <del class="rbt-dis-price-text">@money($slide['compare_at_price'])</del>
+                                                        @endif
                                                         <span class="d-flex align-items-center rbt-gap--8">
                                                             <span class="rbt-price-text offer-price">@money($slide['price'])</span>
                                                             <span class="rbt-offer-badge">{{ $slide['badge'] }}</span>
                                                         </span>
                                                     </div>
+                                                    @endif
                                                     <div class="rbt-banner-btn">
-                                                        <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="#"><i class="fa-solid fa-arrow-up-right"></i>
+                                                        <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="{{ $slide['url'] ?? '#' }}"><i class="fa-solid fa-arrow-up-right"></i>
                                                             ACHETER <br> MAINTENANT</a>
                                                     </div>
                                                 </div>

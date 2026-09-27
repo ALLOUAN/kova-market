@@ -136,8 +136,8 @@ class HomePageTest extends TestCase
     public function test_social_networks_without_a_profile_url_are_hidden(): void
     {
         config(['storefront.social' => [
-            ['icon' => 'fa-facebook-f', 'url' => 'https://facebook.com/kovamarket'],
-            ['icon' => 'fa-tiktok', 'url' => '#'],
+            ['key' => 'facebook', 'icon' => 'fa-facebook-f', 'url' => 'https://facebook.com/kovamarket'],
+            ['key' => 'tiktok', 'icon' => 'fa-tiktok', 'url' => '#'],
         ]]);
 
         $this->get('/')

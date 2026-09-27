@@ -34,6 +34,8 @@ return [
     'contact' => [
         'phone' => env('STORE_PHONE', '+225 07 00 00 00 00'),
         'toll_free' => env('STORE_TOLL_FREE', '+225 07 00 00 00 00'),
+        // WhatsApp number used for the floating button and pre-filled messages (F-081).
+        'whatsapp' => env('STORE_WHATSAPP', ''),
         'email' => env('STORE_EMAIL', 'contact@kovamarket.ci'),
         'address' => env('STORE_ADDRESS', 'Abidjan, Côte d’Ivoire'),
         'opening_hours' => 'Lun - Sam : 08h00 - 19h00',
@@ -50,11 +52,11 @@ return [
 
     // Icons whose url is "#" are hidden until the real profile is set.
     'social' => [
-        ['icon' => 'fa-facebook-f', 'url' => env('STORE_FACEBOOK_URL', '#')],
-        ['icon' => 'fa-instagram', 'url' => env('STORE_INSTAGRAM_URL', '#')],
-        ['icon' => 'fa-tiktok', 'url' => env('STORE_TIKTOK_URL', '#')],
-        ['icon' => 'fa-whatsapp', 'url' => env('STORE_WHATSAPP_URL', '#')],
-        ['icon' => 'fa-youtube', 'url' => env('STORE_YOUTUBE_URL', '#')],
+        ['key' => 'facebook', 'icon' => 'fa-facebook-f', 'url' => env('STORE_FACEBOOK_URL', '#')],
+        ['key' => 'instagram', 'icon' => 'fa-instagram', 'url' => env('STORE_INSTAGRAM_URL', '#')],
+        ['key' => 'tiktok', 'icon' => 'fa-tiktok', 'url' => env('STORE_TIKTOK_URL', '#')],
+        ['key' => 'whatsapp', 'icon' => 'fa-whatsapp', 'url' => env('STORE_WHATSAPP_URL', '#')],
+        ['key' => 'youtube', 'icon' => 'fa-youtube', 'url' => env('STORE_YOUTUBE_URL', '#')],
     ],
 
     'app_stores' => [

@@ -22,6 +22,9 @@ class RolesAndPermissionsSeeder extends Seeder
             PermissionModel::findOrCreate($permission->value);
         }
 
+        // The registrar caches the permission list on first lookup: reload it so the new ones can be granted.
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
         foreach (Role::cases() as $role) {
             RoleModel::findOrCreate($role->value)->syncPermissions(
                 array_map(fn (Permission $permission) => $permission->value, $role->permissions()),

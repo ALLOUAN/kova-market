@@ -55,7 +55,7 @@ class NavigationService
     private function href(array $link): string
     {
         if (isset($link['route']) && Route::has($link['route'])) {
-            return route($link['route']);
+            return route($link['route'], $link['parameters'] ?? []);
         }
 
         return $link['url'] ?? '#';

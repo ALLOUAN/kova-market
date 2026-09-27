@@ -4,6 +4,7 @@ namespace App\View\Composers;
 
 use App\Services\Storefront\CatalogService;
 use App\Services\Storefront\NavigationService;
+use App\Services\Storefront\StoreSettings;
 use Illuminate\View\View;
 
 /**
@@ -18,13 +19,14 @@ class StorefrontLayoutComposer
     public function __construct(
         private CatalogService $catalog,
         private NavigationService $navigation,
+        private StoreSettings $settings,
     ) {}
 
     public function compose(View $view): void
     {
         $collections = $this->catalog->collections([self::TRENDING, self::RECENTLY_VIEWED]);
 
-        $contact = config('storefront.contact');
+        $contact = $this->settings->contact();
 
         $view->with([
             'contact' => [
@@ -36,8 +38,7 @@ class StorefrontLayoutComposer
             'sidebarLinks' => $this->navigation->groups('sidebar'),
             'footerLinks' => $this->navigation->groups('footer'),
             'legalLinks' => $this->navigation->links(config('navigation.legal')),
-            // Networks without a real profile url yet ("#") are not displayed.
-            'socialLinks' => collect(config('storefront.social'))->reject(fn (array $network) => $network['url'] === '#')->values(),
+            'socialLinks' => $this->settings->socialLinks(),
             'categoryTree' => $this->catalog->categoryTree(),
             'navBrands' => $this->catalog->brands(),
             'promotions' => $this->catalog->currentPromotions(),

@@ -31,11 +31,11 @@
                         <div class="inner">
                             <div class="content">
                                 <p class="subtitle rbt-scroll-trigger fade_in animation-order-1">{{ $banner['subtitle'] }}</p>
-                                <h2 class="rbt-title rbt-scroll-trigger fade_in animation-order-2 h4"><a href="#"><span class="rbt-bold--text">{{ $banner['highlight'] }}</span> {{ $banner['title'] }}</a></h2>
+                                <h2 class="rbt-title rbt-scroll-trigger fade_in animation-order-2 h4"><a href="{{ $banner['url'] ?? '#' }}"><span class="rbt-bold--text">{{ $banner['highlight'] }}</span> {{ $banner['title'] }}</a></h2>
                                 <h3 class="secondary-title rbt-scroll-trigger fade_in animation-order-3">{{ $banner['tagline'] }}</h3>
                             </div>
                             <div class="rbt-image-portion">
-                                <a href="#">
+                                <a href="{{ $banner['url'] ?? '#' }}">
                                     <img class="rbt-scroll-trigger zoom_in animation-order-4" src="{{ asset($banner['image']) }}" alt="{{ $banner['highlight'] }}">
                                 </a>
                             </div>
