@@ -21,6 +21,7 @@
                 </ul>
                 <dl class="border-top pt-3 mb--24">
                     <div class="d-flex justify-content-between mb--8"><dt class="fw-normal">Sous-total</dt><dd class="mb-0">@money($order->subtotal)</dd></div>
+                    @if ($order->discount > 0)<div class="d-flex justify-content-between mb--8"><dt class="fw-normal">Remise ({{ $order->coupon_code }})</dt><dd class="mb-0">−@money($order->discount)</dd></div>@endif
                     <div class="d-flex justify-content-between mb--8"><dt class="fw-normal">Livraison</dt><dd class="mb-0">{{ $order->shipping_fee === 0 ? 'Offerte' : \App\Support\Money::format($order->shipping_fee) }}</dd></div>
                     <div class="d-flex justify-content-between border-top pt-2 mt-2"><dt class="h6 mb-0">Total</dt><dd class="h6 mb-0">@money($order->total)</dd></div>
                 </dl>

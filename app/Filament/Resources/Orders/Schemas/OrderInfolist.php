@@ -64,6 +64,8 @@ class OrderInfolist
                                 TextEntry::make('line_total')->formatStateUsing($money),
                             ]),
                         TextEntry::make('subtotal')->label('Sous-total')->formatStateUsing($money)->inlineLabel(),
+                        TextEntry::make('coupon_code')->label('Code promo')->badge()->inlineLabel()->visible(fn ($record) => filled($record->coupon_code)),
+                        TextEntry::make('discount')->label('Remise')->formatStateUsing(fn (int $state) => '−'.Money::format($state))->inlineLabel()->visible(fn ($record) => $record->discount > 0),
                         TextEntry::make('shipping_fee')->label('Livraison')->formatStateUsing(fn (int $state) => $state === 0 ? 'Offerte' : Money::format($state))->inlineLabel(),
                         TextEntry::make('total')->label('Total')->formatStateUsing($money)->weight('bold')->inlineLabel(),
                     ]),

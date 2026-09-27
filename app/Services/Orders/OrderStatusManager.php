@@ -18,8 +18,9 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Moves orders through their life cycle (F-121). Every change is checked (allowed step, permission), recorded
- * with its author and reason, and has its effects: a cancellation puts the stock back, a delivery marks a
- * cash-on-delivery order as paid and counts the sales. Only a super-admin can go back one step, with a reason.
+ * with its author and reason, and has its effects: a cancellation puts the stock and the promo code use back,
+ * a delivery marks a cash-on-delivery order as paid and counts the sales. Only a super-admin can go back one
+ * step, with a reason.
  */
 class OrderStatusManager
 {
@@ -139,6 +140,12 @@ class OrderStatusManager
             ->each(fn (OrderItem $item) => $this->stock->adjust(
                 $item->variant, $item->quantity, StockMovementReason::Release, $user, "Annulation {$order->number}",
             ));
+
+        // The promo code use is given back: it counts again for the global and per-customer caps.
+        if ($usage = $order->couponUsage) {
+            $usage->coupon()->where('times_used', '>', 0)->decrement('times_used');
+            $usage->delete();
+        }
 
         $order->payment_status = PaymentStatus::Cancelled;
     }

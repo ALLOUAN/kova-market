@@ -2,6 +2,7 @@
 
 namespace App\Services\Checkout;
 
+use App\Enums\CouponType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
@@ -10,24 +11,30 @@ use App\Events\OrderPlaced;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Commune;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\Catalog\InsufficientStock;
 use App\Services\Catalog\StockManager;
+use App\Services\Promotions\CouponException;
+use App\Services\Promotions\CouponValidator;
 use App\Support\Money;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Turns the cart into an order (F-050 to F-055), all or nothing: the stock of every line is taken under a
- * row lock (no overselling), prices are read again from the variants and frozen on the order lines, and the
- * cart is emptied. If one line cannot be served, nothing is recorded and the customer goes back to the cart.
+ * row lock (no overselling), prices are read again from the variants and frozen on the order lines, the promo
+ * code is checked a last time and its use recorded (F-042), and the cart is emptied. If one line or the code
+ * cannot be served, nothing is recorded and the customer goes back to the cart.
  */
 class PlaceOrder
 {
     public function __construct(
         private StockManager $stock,
         private OrderNumberGenerator $numbers,
+        private CouponValidator $coupons,
     ) {}
 
     /**
@@ -44,7 +51,7 @@ class PlaceOrder
         }
 
         $order = DB::transaction(function () use ($cart, $details, $user, $source, $commune): Order {
-            $items = $cart->items()->with('variant.product', 'variant.attributeValues.attribute')->get();
+            $items = $cart->items()->with('variant.product.category', 'variant.attributeValues.attribute')->get();
 
             if ($items->isEmpty()) {
                 throw new CheckoutException('Votre panier est vide.');
@@ -54,8 +61,11 @@ class PlaceOrder
             $lines = $items->map(fn (CartItem $item) => $this->takeStock($item, $number, $user));
 
             $subtotal = $lines->sum('line_total');
-            $shippingFee = $this->shippingFee($commune, $subtotal);
-            $total = $subtotal + $shippingFee;
+            $coupon = $cart->coupon_id ? Coupon::lockForUpdate()->find($cart->coupon_id) : null;
+            $discount = $coupon ? $this->couponDiscount($coupon, $items, $details['phone'], $user) : 0;
+            $regularShippingFee = $this->shippingFee($commune, $subtotal);
+            $shippingFee = $coupon?->type === CouponType::FreeShipping ? 0 : $regularShippingFee;
+            $total = $subtotal - $discount + $shippingFee;
             $method = PaymentMethod::from($details['payment_method']);
             $this->ensureMethodAllowed($method, $total);
 
@@ -77,6 +87,8 @@ class PlaceOrder
                 'note' => $details['note'] ?? null,
                 'subtotal' => $subtotal,
                 'shipping_fee' => $shippingFee,
+                'discount' => $discount,
+                'coupon_code' => $coupon?->code,
                 'total' => $total,
                 'marketing_opt_in' => $details['marketing_opt_in'],
                 'terms_accepted_at' => now(),
@@ -85,7 +97,18 @@ class PlaceOrder
             $order->items()->createMany($lines->all());
             $order->statusHistory()->create(['to_status' => OrderStatus::Received, 'user_id' => $user?->getKey()]);
 
+            if ($coupon) {
+                $coupon->increment('times_used');
+                $coupon->usages()->create([
+                    'order_id' => $order->getKey(),
+                    'user_id' => $user?->getKey(),
+                    'phone' => $order->phone,
+                    'amount' => $discount + ($regularShippingFee - $shippingFee),
+                ]);
+            }
+
             $cart->items()->delete();
+            $cart->update(['coupon_id' => null]);
 
             return $order;
         });
@@ -130,6 +153,23 @@ class PlaceOrder
             'quantity' => $item->quantity,
             'line_total' => $variant->price * $item->quantity,
         ];
+    }
+
+    /**
+     * Last check of the cart's promo code, the code row being locked: two orders cannot both take the
+     * last allowed use. The per-customer cap is checked with the phone typed in the form.
+     *
+     * @param  EloquentCollection<int, CartItem>  $items
+     */
+    private function couponDiscount(Coupon $coupon, EloquentCollection $items, string $phone, ?User $user): int
+    {
+        $basket = $items->map(fn (CartItem $item) => ['product' => $item->variant->product, 'amount' => $item->variant->price * $item->quantity]);
+
+        try {
+            return $this->coupons->discount($coupon, $basket->toBase(), $phone, $user);
+        } catch (CouponException $exception) {
+            throw new CheckoutException("Code promo {$coupon->code} : {$exception->getMessage()} Retirez-le du panier pour commander sans remise.");
+        }
     }
 
     private function shippingFee(Commune $commune, int $subtotal): int

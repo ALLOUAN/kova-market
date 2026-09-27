@@ -140,13 +140,19 @@
                                     <dt class="fw-normal">Sous-total</dt>
                                     <dd class="mb-0">@money($summary->subtotal)</dd>
                                 </div>
+                                @if ($summary->discount > 0)
+                                    <div class="d-flex justify-content-between mb--8">
+                                        <dt class="fw-normal">Remise ({{ $summary->coupon->code }})</dt>
+                                        <dd class="mb-0">−@money($summary->discount)</dd>
+                                    </div>
+                                @endif
                                 <div class="d-flex justify-content-between mb--8">
-                                    <dt class="fw-normal">Livraison</dt>
+                                    <dt class="fw-normal">Livraison{{ $summary->hasFreeShippingCoupon() ? " ({$summary->coupon->code})" : '' }}</dt>
                                     <dd class="mb-0" data-shipping>Choisissez votre commune</dd>
                                 </div>
                                 <div class="d-flex justify-content-between border-top pt-2 mt-2">
                                     <dt class="h6 mb-0">Total</dt>
-                                    <dd class="h6 mb-0" data-total>@money($summary->subtotal)</dd>
+                                    <dd class="h6 mb-0" data-total>@money($summary->subtotal - $summary->discount)</dd>
                                 </div>
                             </dl>
                             <button type="submit" class="rbt-btn w-100 mt--24">Valider ma commande</button>
@@ -164,6 +170,8 @@
         // Shows the delivery fee and total of the chosen commune; the server computes them again on validation.
         (() => {
             const subtotal = {{ $summary->subtotal }};
+            const discount = {{ $summary->discount }};
+            const freeShippingCoupon = @json($summary->hasFreeShippingCoupon());
             const threshold = @json($summary->freeShippingThreshold);
             const money = (amount) => new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount).replace(/\s/g, ' ') + ' FCFA';
             const select = document.querySelector('[data-commune]');
@@ -172,13 +180,13 @@
                 const option = select.selectedOptions[0];
                 if (!option || !option.dataset.fee) {
                     document.querySelector('[data-shipping]').textContent = 'Choisissez votre commune';
-                    document.querySelector('[data-total]').textContent = money(subtotal);
+                    document.querySelector('[data-total]').textContent = money(subtotal - discount);
                     document.querySelector('[data-delay-text]').textContent = '';
                     return;
                 }
-                const fee = threshold !== null && subtotal >= threshold ? 0 : Number(option.dataset.fee);
+                const fee = freeShippingCoupon || (threshold !== null && subtotal >= threshold) ? 0 : Number(option.dataset.fee);
                 document.querySelector('[data-shipping]').textContent = fee === 0 ? 'Offerte' : money(fee);
-                document.querySelector('[data-total]').textContent = money(subtotal + fee);
+                document.querySelector('[data-total]').textContent = money(subtotal - discount + fee);
                 document.querySelector('[data-delay-text]').textContent = option.dataset.delay ? 'Délai indicatif : ' + option.dataset.delay : '';
             };
 

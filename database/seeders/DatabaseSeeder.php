@@ -28,6 +28,6 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ])->assignRole(Role::SuperAdmin->value);
 
-        $this->call([CatalogSeeder::class, BannerSeeder::class, DemoDeliveryFeesSeeder::class]);
+        $this->call([CatalogSeeder::class, BannerSeeder::class, DemoDeliveryFeesSeeder::class, DemoCouponsSeeder::class]);
     }
 }

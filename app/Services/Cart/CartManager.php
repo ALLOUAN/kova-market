@@ -2,13 +2,19 @@
 
 namespace App\Services\Cart;
 
+use App\Enums\CouponType;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Commune;
+use App\Models\Coupon;
+use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\Promotions\CouponException;
+use App\Services\Promotions\CouponValidator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -27,6 +33,8 @@ class CartManager
 
     /** Request the cached cart belongs to: the instance may outlive a request (tests, long-running workers). */
     private ?int $resolvedFor = null;
+
+    public function __construct(private CouponValidator $coupons) {}
 
     public function current(): ?Cart
     {
@@ -124,6 +132,48 @@ class CartManager
     }
 
     /**
+     * Attaches a promo code to the cart once it passes every check on the current contents (F-042).
+     * A cart holds one code: a new code replaces the previous one.
+     *
+     * @throws CartException|CouponException
+     */
+    public function applyCoupon(Coupon $coupon): void
+    {
+        $summary = $this->summary();
+
+        if ($summary->count() === 0) {
+            throw new CartException('Ajoutez des articles au panier avant de saisir un code promo.');
+        }
+
+        $user = $this->request()->user();
+        $this->coupons->discount($coupon, $this->basket($summary->lines), $user?->phone, $user);
+
+        $summary->cart->update(['coupon_id' => $coupon->getKey()]);
+        $this->touch($summary->cart);
+    }
+
+    public function removeCoupon(): void
+    {
+        if ($cart = $this->current()) {
+            $cart->update(['coupon_id' => null]);
+            $this->touch($cart);
+        }
+    }
+
+    /**
+     * Goods lines as the promo code sees them: the product and what its available units cost.
+     *
+     * @param  Collection<int, CartLine>  $lines
+     * @return Collection<int, array{product: Product, amount: int}>
+     */
+    public function basket(Collection $lines): Collection
+    {
+        return $lines->filter->available
+            ->map(fn (CartLine $line) => ['product' => $line->product, 'amount' => $line->total()])
+            ->values();
+    }
+
+    /**
      * At sign-in, the guest cart joins the customer's cart (quantities added, capped to the stock).
      */
     public function mergeGuestCartInto(User $user): void
@@ -149,7 +199,10 @@ class CartManager
                 $line->save();
             }
 
-            $owned->update(['commune_id' => $owned->commune_id ?? $guest->commune_id]);
+            $owned->update([
+                'commune_id' => $owned->commune_id ?? $guest->commune_id,
+                'coupon_id' => $owned->coupon_id ?? $guest->coupon_id,
+            ]);
             $guest->delete();
         });
 
@@ -160,24 +213,40 @@ class CartManager
     public function summary(): CartSummary
     {
         $cart = $this->current();
-        $cart?->load(['items.variant.product', 'items.variant.attributeValues.attribute', 'commune.zone']);
+        $cart?->load(['items.variant.product.category', 'items.variant.attributeValues.attribute', 'commune.zone', 'coupon']);
 
         $lines = collect($cart?->items ?? [])->map(fn (CartItem $item) => new CartLine($item));
         $subtotal = $lines->sum(fn (CartLine $line) => $line->total());
+
+        // The code is checked again on every display, so the discount follows each change of the cart.
+        [$coupon, $discount, $issue] = [$cart?->coupon, 0, null];
+
+        if ($coupon && $subtotal > 0) {
+            try {
+                $user = $this->request()->user();
+                $discount = $this->coupons->discount($coupon, $this->basket($lines), $user?->phone, $user);
+            } catch (CouponException $exception) {
+                $issue = $exception->getMessage();
+            }
+        }
 
         $threshold = Setting::get('delivery.free_shipping_threshold');
         $threshold = filled($threshold) ? (int) $threshold : null;
         $commune = $cart?->commune?->isDeliverable() ? $cart->commune : null;
         $free = $threshold !== null && $subtotal >= $threshold && $subtotal > 0;
+        $freeByCoupon = $coupon !== null && $issue === null && $coupon->type === CouponType::FreeShipping;
 
         return new CartSummary(
             cart: $cart,
             lines: $lines,
             subtotal: $subtotal,
             commune: $commune,
-            shippingFee: $commune ? ($free ? 0 : $commune->zone->fee) : null,
+            shippingFee: $commune ? ($free || $freeByCoupon ? 0 : $commune->zone->fee) : null,
             freeShipping: $free,
             freeShippingThreshold: $threshold,
+            coupon: $coupon,
+            discount: $discount,
+            couponIssue: $issue,
         );
     }
 

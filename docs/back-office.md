@@ -89,8 +89,17 @@ announced. SMS go through `App\Services\Sms\SmsGateway`, chosen by `SMS_DRIVER`:
 `storage/logs/sms-*.log`, `null` discards them (tests). A real provider is a new class added to the match in
 `AppServiceProvider`. E-mails use the `MAIL_*` settings (`MAIL_MAILER=log` writes them to `laravel.log`).
 
+## Promo codes
+
+**Promotions › Codes promo** (`promotions.gerer`): fixed amount, percentage (rounded to the franc) or free delivery,
+with dates, a minimum order excluding delivery, a total cap and a per-customer cap (the customer is recognised by
+phone number, or by account), on the whole catalog or on chosen categories (sub-categories included) or products.
+"Affiché dans la boutique" lists the code in the cart's "Codes promo" window. Each use is listed under
+**Utilisations**; a cancelled order gives its use back. A used code cannot be deleted, only switched off. Locally,
+`DemoCouponsSeeder` creates BIENVENUE10, LIVRAISON and MOINS5000.
+
 ## Not in the back-office yet
 
-Customers, couriers, coupons and CSV import arrive with their modules (see the
+Customers, couriers and CSV import arrive with their modules (see the
 specification). Products are switched off rather than deleted until soft deletes land with orders. The storefront still
 shows the colour swatches typed on the product; they switch to the variants with the product page.

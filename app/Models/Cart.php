@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Shopping cart of a guest (cookie token) or of a customer (F-040). Guest carts expire after 30 days
  * without activity and are pruned by the scheduler.
  */
-#[Fillable(['token', 'user_id', 'commune_id', 'expires_at'])]
+#[Fillable(['token', 'user_id', 'commune_id', 'coupon_id', 'expires_at'])]
 class Cart extends Model
 {
     use Prunable;
@@ -45,6 +45,11 @@ class Cart extends Model
     public function commune(): BelongsTo
     {
         return $this->belongsTo(Commune::class);
+    }
+
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(Coupon::class);
     }
 
     /**

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Commune;
+use App\Models\Coupon;
 use App\Models\ProductVariant;
 use App\Services\Cart\CartException;
 use App\Services\Cart\CartManager;
+use App\Services\Promotions\CouponException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -22,6 +24,7 @@ class CartController extends Controller
         return view('pages.cart', [
             'summary' => $this->cart->summary(),
             'communes' => Commune::deliverable()->with('zone')->get()->groupBy(fn (Commune $commune) => $commune->zone->name),
+            'publicCoupons' => Coupon::listed()->get(),
         ]);
     }
 
@@ -85,5 +88,33 @@ class CartController extends Controller
         }
 
         return redirect()->route('cart.show');
+    }
+
+    /**
+     * "Code promo" (F-042): one code per cart, each refusal gives its cause.
+     */
+    public function applyCoupon(Request $request): RedirectResponse
+    {
+        $data = $request->validate(['code' => ['required', 'string', 'max:40']], [], ['code' => 'code promo']);
+        $coupon = Coupon::findByCode($data['code']);
+
+        if (! $coupon) {
+            return redirect()->route('cart.show')->withInput()->with('coupon_error', 'Ce code promo n’existe pas.');
+        }
+
+        try {
+            $this->cart->applyCoupon($coupon);
+        } catch (CartException|CouponException $exception) {
+            return redirect()->route('cart.show')->withInput()->with('coupon_error', $exception->getMessage());
+        }
+
+        return redirect()->route('cart.show')->with('cart_status', "Le code promo {$coupon->code} a été appliqué.");
+    }
+
+    public function removeCoupon(): RedirectResponse
+    {
+        $this->cart->removeCoupon();
+
+        return redirect()->route('cart.show')->with('cart_status', 'Le code promo a été retiré.');
     }
 }

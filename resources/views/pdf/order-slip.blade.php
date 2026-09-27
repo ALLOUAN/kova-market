@@ -60,6 +60,7 @@
 
     <table class="totals">
         <tr><td class="right">Sous-total</td><td class="right" style="width: 120px">@money($order->subtotal)</td></tr>
+        @if ($order->discount > 0)<tr><td class="right">Remise ({{ $order->coupon_code }})</td><td class="right">-@money($order->discount)</td></tr>@endif
         <tr><td class="right">Livraison</td><td class="right">{{ $order->shipping_fee === 0 ? 'Offerte' : \App\Support\Money::format($order->shipping_fee) }}</td></tr>
         <tr><td class="right"><strong>Total</strong></td><td class="right"><strong>@money($order->total)</strong></td></tr>
         <tr><td class="right muted">{{ $order->payment_method->getLabel() }}</td><td class="right muted">{{ $order->payment_status->getLabel() }}</td></tr>

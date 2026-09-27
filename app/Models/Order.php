@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable([
     'number', 'user_id', 'status', 'payment_method', 'payment_status', 'source',
     'customer_name', 'phone', 'email', 'commune_id', 'commune_name', 'zone_name', 'district', 'landmark', 'note',
-    'subtotal', 'shipping_fee', 'discount', 'total', 'marketing_opt_in', 'terms_accepted_at',
+    'subtotal', 'shipping_fee', 'discount', 'coupon_code', 'total', 'marketing_opt_in', 'terms_accepted_at',
 ])]
 class Order extends Model
 {
@@ -67,6 +68,11 @@ class Order extends Model
     public function commune(): BelongsTo
     {
         return $this->belongsTo(Commune::class);
+    }
+
+    public function couponUsage(): HasOne
+    {
+        return $this->hasOne(CouponUsage::class);
     }
 
     public function formattedPhone(): string

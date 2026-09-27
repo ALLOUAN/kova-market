@@ -80,11 +80,51 @@
                                 @endif
                             </form>
 
+                            {{-- F-042: one promo code per cart, checked again at every change. --}}
+                            <div class="mb--16">
+                                @if ($summary->coupon)
+                                    <div class="d-flex justify-content-between align-items-center gap-2">
+                                        <p class="b3 mb-0">Code <strong>{{ $summary->coupon->code }}</strong> · {{ $summary->coupon->benefitLabel() }}</p>
+                                        <form method="POST" action="{{ route('cart.coupon.destroy') }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="b3 p-0 border-0 bg-transparent text-decoration-underline">Retirer</button>
+                                        </form>
+                                    </div>
+                                    @if ($summary->couponIssue)
+                                        <p class="b4 mt--4 mb-0 rbt-text-color-danger">{{ $summary->couponIssue }}</p>
+                                    @endif
+                                @else
+                                    <form method="POST" action="{{ route('cart.coupon.store') }}">
+                                        @csrf
+                                        <label for="coupon-code" class="b3 mb--8 d-block">Code promo</label>
+                                        <div class="d-flex gap-2">
+                                            <input id="coupon-code" name="code" type="text" class="form-control text-uppercase" value="{{ old('code') }}" maxlength="40" autocomplete="off" required>
+                                            <button type="submit" class="rbt-btn rbt-btn-sm">Appliquer</button>
+                                        </div>
+                                    </form>
+                                @endif
+                                @if (session('coupon_error'))
+                                    <p class="b4 mt--8 mb-0 rbt-text-color-danger" role="alert">{{ session('coupon_error') }}</p>
+                                @endif
+                                @if ($publicCoupons->isNotEmpty())
+                                    <button type="button" class="b4 mt--8 p-0 border-0 bg-transparent text-decoration-underline" data-bs-toggle="modal" data-bs-target="#couponCollectionModal">
+                                        Voir les codes disponibles ({{ $publicCoupons->count() }})
+                                    </button>
+                                @endif
+                            </div>
+
                             <dl class="mb-0">
                                 <div class="d-flex justify-content-between mb--8">
                                     <dt class="fw-normal">Sous-total ({{ $summary->count() }} {{ Str::plural('article', $summary->count()) }})</dt>
                                     <dd class="mb-0">@money($summary->subtotal)</dd>
                                 </div>
+                                @if ($summary->discount > 0)
+                                    <div class="d-flex justify-content-between mb--8">
+                                        <dt class="fw-normal">Remise ({{ $summary->coupon->code }})</dt>
+                                        <dd class="mb-0">−@money($summary->discount)</dd>
+                                    </div>
+                                @endif
                                 <div class="d-flex justify-content-between mb--8">
                                     <dt class="fw-normal">Livraison</dt>
                                     <dd class="mb-0">
@@ -119,3 +159,9 @@
         </div>
     </div>
 @endsection
+
+@if ($publicCoupons->isNotEmpty())
+    @push('modals')
+        @include('partials.modals.coupons', ['coupons' => $publicCoupons])
+    @endpush
+@endif

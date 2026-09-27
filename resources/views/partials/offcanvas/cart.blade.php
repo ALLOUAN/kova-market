@@ -59,6 +59,12 @@
                     <p>Sous-total ({{ $cartSummary->count() }} {{ Str::plural('article', $cartSummary->count()) }})</p>
                     <p class="price">@money($cartSummary->subtotal)</p>
                 </div>
+                @if ($cartSummary->discount > 0)
+                    <div class="rbt-cart-subttotal">
+                        <p>Remise ({{ $cartSummary->coupon->code }})</p>
+                        <p class="price">−@money($cartSummary->discount)</p>
+                    </div>
+                @endif
                 <div class="rbt-cart-subttotal">
                     <p>Livraison</p>
                     <p class="price">

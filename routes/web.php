@@ -27,7 +27,11 @@ Route::middleware('throttle:60,1')->group(function () {
     Route::patch('/panier/articles/{item}', [CartController::class, 'update'])->whereNumber('item')->name('cart.items.update');
     Route::delete('/panier/articles/{item}', [CartController::class, 'destroy'])->whereNumber('item')->name('cart.items.destroy');
     Route::post('/panier/commune', [CartController::class, 'commune'])->name('cart.commune');
+    Route::delete('/panier/code-promo', [CartController::class, 'removeCoupon'])->name('cart.coupon.destroy');
 });
+
+// Promo codes (F-042): tries are throttled harder against guessing.
+Route::post('/panier/code-promo', [CartController::class, 'applyCoupon'])->middleware('throttle:10,1')->name('cart.coupon.store');
 
 // Checkout (F-050 to F-056): guests allowed, order placement throttled.
 Route::get('/commande', [CheckoutController::class, 'show'])->name('checkout.show');
