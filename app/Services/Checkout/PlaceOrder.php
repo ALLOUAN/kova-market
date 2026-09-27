@@ -149,9 +149,9 @@ class PlaceOrder
             'variant_label' => $variant->attributeValues->isEmpty() ? null : $variant->label(),
             'sku' => $variant->sku,
             'image' => $product->image,
-            'unit_price' => $variant->price,
+            'unit_price' => $variant->currentPrice(),
             'quantity' => $item->quantity,
-            'line_total' => $variant->price * $item->quantity,
+            'line_total' => $variant->currentPrice() * $item->quantity,
         ];
     }
 
@@ -163,7 +163,7 @@ class PlaceOrder
      */
     private function couponDiscount(Coupon $coupon, EloquentCollection $items, string $phone, ?User $user): int
     {
-        $basket = $items->map(fn (CartItem $item) => ['product' => $item->variant->product, 'amount' => $item->variant->price * $item->quantity]);
+        $basket = $items->map(fn (CartItem $item) => ['product' => $item->variant->product, 'amount' => $item->variant->currentPrice() * $item->quantity]);
 
         try {
             return $this->coupons->discount($coupon, $basket->toBase(), $phone, $user);

@@ -78,6 +78,8 @@ class StockManager
                 'sku' => $sku ?: self::defaultSku($product),
                 'price' => $product->price,
                 'compare_at_price' => $product->compare_at_price,
+                'sale_starts_at' => $product->sale_starts_at,
+                'sale_ends_at' => $product->sale_ends_at,
                 'is_default' => true,
             ]);
 

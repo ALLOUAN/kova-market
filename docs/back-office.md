@@ -64,6 +64,12 @@ Stock only changes through `App\Services\Catalog\StockManager`, which locks the 
 variant (inventory count, return) and the read-only **Mouvements de stock** tab. Attributes and their values (Couleur,
 Capacité…) are managed under **Catalogue › Attributs de variantes**.
 
+Sale prices (F-090): a variant is on sale when its "Prix de vente" is below its "Prix barré". Optional dates
+("Promotion à partir du / jusqu'au") limit the sale; outside them the customer pays the crossed-out price and the
+discount badge and countdown disappear. Cart and checkout always compute the current price
+(`ProductVariant::currentPrice()`); the price kept on the product for lists and sorting is refreshed every minute by
+`catalog:refresh-sale-prices`, so the scheduler must run (`php artisan schedule:work` locally).
+
 ## Delivery zones
 
 `DeliverySeeder` (run by `db:seed`, production included) installs the zones and communes proposed by the specification,

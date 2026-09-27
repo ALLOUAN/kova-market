@@ -16,7 +16,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * The stock column is not fillable: it only changes through App\Services\Catalog\StockManager,
  * which records a stock movement every time.
  */
-#[Fillable(['product_id', 'sku', 'price', 'compare_at_price', 'low_stock_threshold', 'is_default', 'position'])]
+#[Fillable(['product_id', 'sku', 'price', 'compare_at_price', 'sale_starts_at', 'sale_ends_at', 'low_stock_threshold', 'is_default', 'position'])]
 class ProductVariant extends Model
 {
     use LogsActivity;
@@ -43,6 +43,8 @@ class ProductVariant extends Model
         return [
             'price' => 'integer',
             'compare_at_price' => 'integer',
+            'sale_starts_at' => 'datetime',
+            'sale_ends_at' => 'datetime',
             'stock' => 'integer',
             'low_stock_threshold' => 'integer',
             'is_default' => 'boolean',
@@ -72,6 +74,40 @@ class ProductVariant extends Model
         $values = $this->attributeValues->sortBy(fn (AttributeValue $value) => $value->attribute->position);
 
         return $values->isEmpty() ? 'Modèle unique' : $values->map->label()->implode(', ');
+    }
+
+    /**
+     * Whether a reduced price is set ("price" below "compare_at_price"), whatever its dates.
+     */
+    public function hasSale(): bool
+    {
+        return $this->compare_at_price !== null && $this->compare_at_price > $this->price;
+    }
+
+    /**
+     * Whether the reduced price applies now (F-090): no dates means a sale without limit.
+     */
+    public function saleIsRunning(): bool
+    {
+        return $this->hasSale()
+            && ($this->sale_starts_at === null || ! $this->sale_starts_at->isFuture())
+            && ($this->sale_ends_at === null || $this->sale_ends_at->isFuture());
+    }
+
+    /**
+     * Price the customer pays now: the reduced price during its window, the normal price outside it.
+     */
+    public function currentPrice(): int
+    {
+        return $this->hasSale() && ! $this->saleIsRunning() ? $this->compare_at_price : $this->price;
+    }
+
+    /**
+     * Crossed-out price shown next to the current price, only while the sale runs.
+     */
+    public function currentComparePrice(): ?int
+    {
+        return $this->saleIsRunning() ? $this->compare_at_price : null;
     }
 
     public function lowStockThreshold(): int

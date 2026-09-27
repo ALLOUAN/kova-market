@@ -39,7 +39,7 @@ class CartLine
 
     public function unitPrice(): int
     {
-        return $this->variant->price;
+        return $this->variant->currentPrice();
     }
 
     public function total(): int

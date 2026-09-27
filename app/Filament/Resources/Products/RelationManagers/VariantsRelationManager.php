@@ -13,6 +13,7 @@ use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -72,10 +73,21 @@ class VariantsRelationManager extends RelationManager
                     ->default(fn () => $this->getOwnerRecord()->defaultVariant?->price),
                 TextInput::make('compare_at_price')
                     ->label('Prix barré')
+                    ->helperText('Prix normal. Le prix de vente devient alors un prix promotionnel.')
                     ->integer()
                     ->minValue(0)
                     ->suffix('FCFA')
                     ->gt('price'),
+                // F-090: outside these dates the customer pays the crossed-out (normal) price.
+                DateTimePicker::make('sale_starts_at')
+                    ->label('Promotion à partir du')
+                    ->helperText('Vide : dès maintenant.')
+                    ->seconds(false),
+                DateTimePicker::make('sale_ends_at')
+                    ->label('Promotion jusqu’au')
+                    ->helperText('Vide : sans fin. Après cette date, le prix barré s’applique.')
+                    ->seconds(false)
+                    ->after('sale_starts_at'),
                 TextInput::make('opening_stock')
                     ->label('Stock initial')
                     ->integer()
@@ -95,9 +107,16 @@ class VariantsRelationManager extends RelationManager
                 TextColumn::make('sku')->label('Référence')->searchable(),
                 TextColumn::make('label')->label('Variante')->state(fn (ProductVariant $record) => $record->label()),
                 TextColumn::make('price')
-                    ->label('Prix')
+                    ->label('Prix actuel')
+                    ->state(fn (ProductVariant $record) => $record->currentPrice())
                     ->formatStateUsing(fn (int $state) => Money::format($state))
-                    ->description(fn (ProductVariant $record) => $record->compare_at_price ? 'au lieu de '.Money::format($record->compare_at_price) : null),
+                    ->description(fn (ProductVariant $record) => match (true) {
+                        ! $record->hasSale() => null,
+                        $record->saleIsRunning() => 'Promo, au lieu de '.Money::format($record->compare_at_price)
+                            .($record->sale_ends_at ? ' jusqu’au '.$record->sale_ends_at->format('d/m/Y H:i') : ''),
+                        (bool) $record->sale_starts_at?->isFuture() => 'Promo à '.Money::format($record->price).' dès le '.$record->sale_starts_at->format('d/m/Y H:i'),
+                        default => 'Promo terminée',
+                    }),
                 TextColumn::make('stock')
                     ->label('Stock')
                     ->badge()

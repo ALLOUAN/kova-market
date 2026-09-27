@@ -8,8 +8,8 @@
      with the selected variant. Used by the product page and the quick view, hence the id prefix. --}}
 <div data-purchase data-variants='@json($variants)' data-limited-stock="{{ config('storefront.product_card.limited_stock_threshold') }}">
     <div class="pricing-part mb--16" data-product-price>
-        <del class="price-text" data-compare @if (! $default?->compare_at_price) hidden @endif>{{ $default?->compare_at_price ? \App\Support\Money::format($default->compare_at_price) : '' }}</del>
-        <span class="price-text h4" data-price>{{ \App\Support\Money::format($default?->price ?? $product->price) }}</span>
+        <del class="price-text" data-compare @if (! $default?->currentComparePrice()) hidden @endif>{{ $default?->currentComparePrice() ? \App\Support\Money::format($default->currentComparePrice()) : '' }}</del>
+        <span class="price-text h4" data-price>{{ \App\Support\Money::format($default?->currentPrice() ?? $product->price) }}</span>
     </div>
     <p class="b3 mb--8" data-stock></p>
     <p class="b4 mb--24">Réf. : <span data-sku>{{ $default?->sku }}</span></p>

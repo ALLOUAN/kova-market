@@ -84,17 +84,25 @@ class ProductForm
                         Placeholder::make('price_summary')
                             ->label('Prix')
                             ->content(fn (?Product $record) => $record ? self::priceSummary($record) : null)
-                            ->helperText('Les prix se modifient dans l’onglet « Variantes » ci-dessous.')
+                            ->helperText('Les prix et les dates de promotion se modifient dans l’onglet « Variantes » ci-dessous.')
                             ->visibleOn('edit'),
                         Placeholder::make('stock_summary')
                             ->label('Stock total')
                             ->content(fn (?Product $record) => $record?->stock)
                             ->helperText('Le stock se modifie variante par variante (« Ajuster le stock »).')
                             ->visibleOn('edit'),
+                        // F-090: the reduced price only applies between these dates, then the crossed-out price.
+                        DateTimePicker::make('sale_starts_at')
+                            ->label('Début de la promotion')
+                            ->helperText('Vide : dès maintenant.')
+                            ->seconds(false)
+                            ->visibleOn('create'),
                         DateTimePicker::make('sale_ends_at')
                             ->label('Fin de la promotion')
-                            ->helperText('Affiche un compte à rebours sur la carte produit.')
-                            ->seconds(false),
+                            ->helperText('Après cette date, le prix barré s’applique. Affiche un compte à rebours sur la carte produit.')
+                            ->seconds(false)
+                            ->after('sale_starts_at')
+                            ->visibleOn('create'),
                     ]),
                 Section::make('Livraison')
                     ->columnSpan(1)

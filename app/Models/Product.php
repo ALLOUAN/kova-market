@@ -21,7 +21,7 @@ use Spatie\Activitylog\Support\LogOptions;
 #[Fillable([
     'category_id', 'brand_id', 'name', 'slug', 'description', 'meta_title', 'meta_description', 'price', 'price_max', 'compare_at_price', 'stock', 'sold_count',
     'rating', 'reviews_count', 'watchers_count', 'free_shipping', 'return_days', 'image', 'hover_image', 'hover_video',
-    'badges', 'colors', 'variants_count', 'specifications', 'sale_ends_at', 'is_active',
+    'badges', 'colors', 'variants_count', 'specifications', 'sale_starts_at', 'sale_ends_at', 'is_active',
 ])]
 class Product extends Model
 {
@@ -72,6 +72,7 @@ class Product extends Model
             'badges' => 'array',
             'colors' => 'array',
             'specifications' => 'array',
+            'sale_starts_at' => 'datetime',
             'sale_ends_at' => 'datetime',
             'is_active' => 'boolean',
         ];
@@ -119,20 +120,23 @@ class Product extends Model
      */
     public function syncFromVariants(): void
     {
-        $variants = $this->variants()->get(['price', 'compare_at_price', 'stock']);
+        $variants = $this->variants()->get(['price', 'compare_at_price', 'sale_starts_at', 'sale_ends_at', 'stock']);
 
         if ($variants->isEmpty()) {
             return;
         }
 
-        $cheapest = $variants->sortBy('price')->first();
-        $highest = $variants->max('price');
+        // Prices as they apply right now (F-090); the scheduler runs this again when a sale window opens or closes.
+        $cheapest = $variants->sortBy(fn (ProductVariant $variant) => $variant->currentPrice())->first();
+        $highest = $variants->max(fn (ProductVariant $variant) => $variant->currentPrice());
 
         $this->forceFill([
             'stock' => $variants->sum('stock'),
-            'price' => $cheapest->price,
-            'compare_at_price' => $cheapest->compare_at_price,
-            'price_max' => $highest > $cheapest->price ? $highest : null,
+            'price' => $cheapest->currentPrice(),
+            'compare_at_price' => $cheapest->currentComparePrice(),
+            'sale_starts_at' => $cheapest->hasSale() ? $cheapest->sale_starts_at : null,
+            'sale_ends_at' => $cheapest->hasSale() ? $cheapest->sale_ends_at : null,
+            'price_max' => $highest > $cheapest->currentPrice() ? $highest : null,
             'variants_count' => $variants->count() > 1 ? $variants->count() : 0,
         ])->saveQuietly();
     }
@@ -183,8 +187,11 @@ class Product extends Model
         return $initial === 0 ? 0 : (int) round($this->stock / $initial * 100);
     }
 
+    /**
+     * Countdown to the end of a running sale (F-094).
+     */
     public function hasCountdown(): bool
     {
-        return $this->sale_ends_at?->isFuture() ?? false;
+        return $this->isOnSale() && ($this->sale_ends_at?->isFuture() ?? false);
     }
 }

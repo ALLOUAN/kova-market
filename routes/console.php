@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Expired guest carts (30 days without activity) and old back-in-stock alerts are deleted every night.
 Schedule::command('model:prune')->daily();
+
+// Dated sale prices (F-090): product prices follow the opening and closing of sale windows.
+Schedule::command('catalog:refresh-sale-prices')->everyMinute()->withoutOverlapping();
