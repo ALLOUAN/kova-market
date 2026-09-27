@@ -60,6 +60,21 @@ enum OrderStatus: string implements HasColor, HasLabel
         };
     }
 
+    /**
+     * Step before this one in the normal flow (target of a super-admin correction).
+     */
+    public function previous(): ?self
+    {
+        return match ($this) {
+            self::Confirmed => self::Received,
+            self::Preparing => self::Confirmed,
+            self::Shipped => self::Preparing,
+            self::OutForDelivery => self::Shipped,
+            self::Delivered => self::OutForDelivery,
+            self::Received, self::Cancelled => null,
+        };
+    }
+
     public function canBecome(self $status): bool
     {
         return in_array($status, $this->next(), true);

@@ -22,7 +22,7 @@ enum StockMovementReason: string implements HasLabel
             self::Adjustment => 'Ajustement',
             self::Return => 'Retour client',
             self::Sale => 'Vente',
-            self::Release => 'Libération (commande non payée)',
+            self::Release => 'Remise en stock (commande annulée)',
         };
     }
 

@@ -51,9 +51,9 @@ enum Role: string
             self::SuperAdmin => Permission::cases(),
             self::Manager => [
                 Permission::ViewCatalog, Permission::ManageCatalog, Permission::ManagePromotions, Permission::ManageContent,
-                Permission::ManageDelivery,
+                Permission::ManageDelivery, Permission::ViewOrders, Permission::ManageOrders,
             ],
-            self::Picker => [Permission::ViewCatalog],
+            self::Picker => [Permission::ViewCatalog, Permission::ViewOrders, Permission::PrepareOrders],
             self::Courier => [],
         };
     }

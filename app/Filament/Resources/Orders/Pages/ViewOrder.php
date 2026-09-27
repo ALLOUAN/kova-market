@@ -1,0 +1,102 @@
+<?php
+
+namespace App\Filament\Resources\Orders\Pages;
+
+use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
+use App\Filament\Resources\Orders\OrderResource;
+use App\Models\Order;
+use App\Services\Orders\OrderStatusException;
+use App\Services\Orders\OrderStatusManager;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ViewRecord;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+/**
+ * Order page: one button per step the user may take next (F-121), the order slip (F-107)
+ * and, for super-admins, going back one step with a reason.
+ */
+class ViewOrder extends ViewRecord
+{
+    protected static string $resource = OrderResource::class;
+
+    public function getTitle(): string
+    {
+        return "Commande {$this->getRecord()->number}";
+    }
+
+    protected function getHeaderActions(): array
+    {
+        $statuses = app(OrderStatusManager::class);
+
+        return [
+            ...collect(OrderStatus::cases())
+                ->reject(fn (OrderStatus $status) => $status === OrderStatus::Received)
+                ->map(fn (OrderStatus $status) => $this->stepAction($status, $statuses))
+                ->all(),
+            ActionGroup::make([
+                Action::make('slip')
+                    ->label('Bon de commande (PDF)')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->action(fn (Order $record): StreamedResponse => response()->streamDownload(
+                        fn () => print (Pdf::loadView('pdf.order-slip', ['order' => $record->load('items')])->output()),
+                        "bon-de-commande-{$record->number}.pdf",
+                    )),
+                Action::make('rollBack')
+                    ->label('Revenir à l’étape précédente')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('gray')
+                    ->visible(fn (Order $record) => $statuses->mayRollBack($record, auth()->user()))
+                    ->modalDescription(fn (Order $record) => 'La commande repassera à « '.$record->status->previous()?->getLabel().' ». Cette correction est tracée.')
+                    ->schema([Textarea::make('note')->label('Motif')->required()->maxLength(255)])
+                    ->action(fn (Order $record, array $data) => $this->run(fn () => $statuses->rollBack($record, auth()->user(), $data['note']))),
+            ])->label('Plus')->button()->color('gray'),
+        ];
+    }
+
+    private function stepAction(OrderStatus $status, OrderStatusManager $statuses): Action
+    {
+        $action = Action::make('to_'.$status->value)
+            ->label(match ($status) {
+                OrderStatus::Confirmed => 'Confirmer',
+                OrderStatus::Preparing => 'Mettre en préparation',
+                OrderStatus::Shipped => 'Marquer expédiée',
+                OrderStatus::OutForDelivery => 'Mettre en livraison',
+                OrderStatus::Delivered => 'Marquer livrée',
+                OrderStatus::Cancelled => 'Annuler',
+                default => $status->getLabel(),
+            })
+            ->color($status === OrderStatus::Cancelled ? 'danger' : 'primary')
+            ->visible(fn (Order $record) => in_array($status, $statuses->availableSteps($record, auth()->user()), true))
+            ->requiresConfirmation()
+            ->action(fn (Order $record, array $data) => $this->run(fn () => $statuses->move($record, $status, auth()->user(), $data['note'] ?? null)));
+
+        return match ($status) {
+            OrderStatus::Cancelled => $action
+                ->modalDescription('Le stock des articles sera remis en vente.')
+                ->schema([Textarea::make('note')->label('Motif de l’annulation')->required()->maxLength(255)]),
+            OrderStatus::Delivered => $action->modalDescription(fn (Order $record) => $record->payment_method === PaymentMethod::CashOnDelivery
+                ? 'Le paiement à la livraison sera enregistré comme reçu.'
+                : null),
+            default => $action,
+        };
+    }
+
+    private function run(callable $change): void
+    {
+        try {
+            $order = $change();
+        } catch (OrderStatusException $exception) {
+            Notification::make()->title($exception->getMessage())->danger()->send();
+
+            return;
+        }
+
+        Notification::make()->title("Commande « {$order->status->getLabel()} »")->success()->send();
+        $this->refreshFormData(['status', 'payment_status']);
+    }
+}

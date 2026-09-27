@@ -20,6 +20,10 @@ is requested at first login) plus the demo catalog and banners.
 
 | Permission | Super-admin | Gestionnaire | Préparateur | Livreur |
 | --- | --- | --- | --- | --- |
+| Commandes (consultation, bon de commande) | ✓ | ✓ | ✓ | |
+| Commandes : préparation et expédition | ✓ | ✓ | ✓ | |
+| Commandes : confirmation, livraison, annulation | ✓ | ✓ | | |
+| Commandes : retour à l’étape précédente | ✓ | | | |
 | Catalogue (lecture) | ✓ | ✓ | ✓ | |
 | Catalogue (modification) | ✓ | ✓ | | |
 | Campagnes promotionnelles | ✓ | ✓ | | |
@@ -69,6 +73,6 @@ Locally, `DemoDeliveryFeesSeeder` sets demo fees (1 500 / 2 000 / 3 000 / 5 000 
 
 ## Not in the back-office yet
 
-Orders, customers, couriers, coupons and CSV import arrive with their modules (see the
+Customers, couriers, coupons and CSV import arrive with their modules (see the
 specification). Products are switched off rather than deleted until soft deletes land with orders. The storefront still
 shows the colour swatches typed on the product; they switch to the variants with the product page.
