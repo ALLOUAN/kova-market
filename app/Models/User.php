@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Role;
+use App\Support\PhoneNumber;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
@@ -11,9 +12,11 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use SensitiveParameter;
@@ -21,7 +24,7 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'phone', 'password'])]
 #[Hidden([
     'password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes',
     'app_authentication_secret', 'app_authentication_recovery_codes',
@@ -48,7 +51,37 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['name', 'email'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['name', 'email', 'phone'])->logOnlyDirty()->dontLogEmptyChanges();
+    }
+
+    /**
+     * Stored in international form ("+2250701020304") whatever the way it was typed.
+     */
+    protected function phone(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => PhoneNumber::normalize($value) ?? (filled($value) ? $value : null),
+        );
+    }
+
+    /**
+     * Account matching a login identifier: an e-mail address or a phone number (F-070).
+     */
+    public static function findByLogin(?string $login): ?self
+    {
+        $login = trim((string) $login);
+
+        if ($login === '') {
+            return null;
+        }
+
+        if (str_contains($login, '@')) {
+            return static::where('email', Str::lower($login))->first();
+        }
+
+        $phone = PhoneNumber::normalize($login);
+
+        return $phone === null ? null : static::where('phone', $phone)->first();
     }
 
     public function canAccessPanel(Panel $panel): bool
@@ -74,7 +107,7 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
 
     public function getAppAuthenticationHolderName(): string
     {
-        return $this->email;
+        return $this->email ?? $this->phone ?? $this->name;
     }
 
     /**

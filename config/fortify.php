@@ -45,7 +45,8 @@ return [
     |
     */
 
-    'username' => 'email',
+    // Customers log in with their e-mail address or their phone number (F-070), see FortifyServiceProvider.
+    'username' => 'login',
 
     'email' => 'email',
 

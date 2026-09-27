@@ -4,6 +4,9 @@ namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\Role;
 use App\Models\User;
+use App\Rules\IvorianPhoneNumber;
+use App\Support\PhoneNumber;
+use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -22,6 +25,23 @@ class UserForm
                     ->schema([
                         TextInput::make('name')->label('Nom complet')->required()->maxLength(255),
                         TextInput::make('email')->label('E-mail de connexion')->email()->required()->maxLength(255)->unique(ignoreRecord: true),
+                        TextInput::make('phone')
+                            ->label('Téléphone')
+                            ->tel()
+                            ->placeholder('07 01 02 03 04')
+                            ->formatStateUsing(fn (?string $state) => $state ? PhoneNumber::format($state) : null)
+                            ->rule(new IvorianPhoneNumber)
+                            // Compared in stored form: "07 01 02 03 04" and "+2250701020304" are the same number.
+                            ->rule(fn (?User $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
+                                $taken = User::query()
+                                    ->where('phone', PhoneNumber::normalize($value))
+                                    ->when($record, fn (Builder $query) => $query->whereKeyNot($record->getKey()))
+                                    ->exists();
+
+                                if ($taken) {
+                                    $fail('Un compte existe déjà avec ce numéro de téléphone.');
+                                }
+                            }),
                         Select::make('roles')
                             ->label('Rôle')
                             ->relationship(

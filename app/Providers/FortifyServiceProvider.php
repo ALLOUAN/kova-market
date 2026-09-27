@@ -6,8 +6,11 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Models\User;
+use App\Support\PhoneNumber;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -29,6 +32,13 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // "login" holds either an e-mail address or a phone number, typed in any usual Ivorian format.
+        Fortify::authenticateUsing(function (Request $request): ?User {
+            $user = User::findByLogin($request->input(Fortify::username()));
+
+            return $user && Hash::check((string) $request->input('password'), $user->password) ? $user : null;
+        });
+
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
@@ -36,7 +46,9 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            // Same key for "07 01 02 03 04" and "+2250701020304": retyping a number differently does not reset the count.
+            $login = (string) $request->input(Fortify::username());
+            $throttleKey = Str::transliterate((PhoneNumber::normalize($login) ?? Str::lower($login)).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });

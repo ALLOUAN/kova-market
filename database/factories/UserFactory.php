@@ -35,6 +35,18 @@ class UserFactory extends Factory
     }
 
     /**
+     * Customer who signed up with a phone number and no e-mail address.
+     */
+    public function customer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email' => null,
+            'email_verified_at' => null,
+            'phone' => '07'.fake()->unique()->numerify('########'),
+        ]);
+    }
+
+    /**
      * Back-office staff member with the given role, two-factor authentication already set up.
      */
     public function staff(Role $role): static

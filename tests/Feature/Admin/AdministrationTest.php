@@ -74,6 +74,25 @@ class AdministrationTest extends TestCase
         $this->assertTrue(User::where('email', 'awa@kovamarket.ci')->firstOrFail()->hasRole(Role::Manager->value));
     }
 
+    public function test_staff_phone_numbers_are_stored_normalized_and_unique(): void
+    {
+        $this->actingAs($this->superAdmin);
+        User::factory()->customer()->create(['phone' => '0701020304']);
+        $manager = RoleModel::findByName(Role::Manager->value)->getKey();
+
+        Livewire::test(CreateUser::class)
+            ->fillForm(['name' => 'Doublon', 'email' => 'doublon@kovamarket.ci', 'phone' => '+225 07 01 02 03 04', 'roles' => [$manager], 'password' => 'un-mot-de-passe-solide'])
+            ->call('create')
+            ->assertHasFormErrors(['phone']);
+
+        Livewire::test(CreateUser::class)
+            ->fillForm(['name' => 'Koffi', 'email' => 'koffi@kovamarket.ci', 'phone' => '05 06 07 08 09', 'roles' => [$manager], 'password' => 'un-mot-de-passe-solide'])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('+2250506070809', User::where('email', 'koffi@kovamarket.ci')->value('phone'));
+    }
+
     public function test_the_super_admin_cannot_delete_their_own_account(): void
     {
         $this->actingAs($this->superAdmin);
