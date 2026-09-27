@@ -121,7 +121,8 @@ class CatalogPagesTest extends TestCase
             ->assertSeeText('Mémoire')
             ->assertSeeTextInOrder(['Couleur', 'Bleu'])
             ->assertSee('<meta name="description" content="Écran 6,2 pouces.">', false)
-            ->assertSee('"sku":"S25-BLEU"', false)
+            ->assertSee('data-purchase', false)
+            ->assertSee('S25-BLEU')
             ->assertSee('property="og:title" content="Galaxy S25"', false)
             ->assertSeeText('Vous aimerez aussi')
             ->assertSeeText('Galaxy A56');
@@ -132,6 +133,42 @@ class CatalogPagesTest extends TestCase
         Product::factory()->create(['slug' => 'retire', 'is_active' => false]);
 
         $this->get('/produit/retire')->assertNotFound();
+        $this->get('/produit/retire/apercu')->assertNotFound();
+    }
+
+    public function test_the_quick_view_shows_the_real_product_and_adds_it_to_the_cart(): void
+    {
+        $product = Product::factory()->create(['name' => 'Enceinte Flip 6', 'slug' => 'enceinte-flip-6', 'price' => 65000]);
+        $color = ProductAttribute::create(['name' => 'Couleur', 'slug' => 'couleur']);
+        $product->defaultVariant->attributeValues()->attach($color->values()->create(['value' => 'Noir']));
+        $red = app(StockManager::class)->createVariant($product, ['sku' => 'FLIP6-ROUGE', 'price' => 67000], 4);
+        $red->attributeValues()->attach($color->values()->create(['value' => 'Rouge']));
+
+        // Product cards point their quick view button at the product's fragment.
+        $this->get('/boutique')->assertOk()->assertSee('data-quick-view-url="'.route('products.quick-view', $product).'"', false);
+
+        $this->get('/produit/enceinte-flip-6/apercu')
+            ->assertOk()
+            ->assertHeader('X-Robots-Tag', 'noindex')
+            ->assertDontSee('<html', false)
+            ->assertSeeText('Enceinte Flip 6')
+            ->assertSeeText("65\u{00A0}000\u{00A0}FCFA")
+            ->assertSeeTextInOrder(['Couleur', 'Noir', 'Rouge'])
+            ->assertSee('FLIP6-ROUGE')
+            ->assertSee('action="'.route('cart.items.store').'"', false)
+            ->assertSee('id="quick-view-quantity"', false)
+            ->assertSeeText('Voir la fiche complète');
+
+        $this->post('/panier/articles', ['variant_id' => $red->id, 'quantity' => 2, 'open' => 'sidenav'])
+            ->assertSessionHas('cart_open', true);
+    }
+
+    public function test_the_template_cart_popup_and_its_sample_codes_are_gone(): void
+    {
+        $this->get('/')->assertOk()
+            ->assertDontSee('popup-cartModal', false)
+            ->assertDontSee('WELCOME100')
+            ->assertSee('data-quick-view-body', false);
     }
 
     /**

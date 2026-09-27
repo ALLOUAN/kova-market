@@ -73,14 +73,12 @@
     {{-- Shopping modals triggered from product cards, the header and the side panels --}}
     @include('partials.modals.added-comparison')
     @include('partials.modals.quick-view')
-    @include('partials.modals.popup-cart')
     @include('partials.modals.notify')
     @include('partials.modals.added-cart')
     @include('partials.overlays.cookies')
     @include('partials.modals.wishlist')
     @include('partials.modals.compare')
     @include('partials.modals.social-share')
-    @include('partials.modals.edit-cart')
 
     {{-- Page specific modals (size guide, restock, coupons, ...) --}}
     @stack('modals')
@@ -101,7 +99,7 @@
         'vendor/fancybox.min.js', 'vendor/animation.js', 'vendor/text-type.js', 'vendor/odometer.js', 'vendor/backtotop.js',
         'vendor/jquery-ui.js', 'vendor/bootstrap-select.min.js', 'vendor/countdown.js', 'vendor/progressbar.min.js',
         'vendor/isotope.pkgd.min.js', 'vendor/imageloaded.js', 'vendor/jquery.waypoints.min.js', 'plugins/color-swatches.js',
-        'vendor/bootstrap-datepicker.min.js', 'main.min.js',
+        'vendor/bootstrap-datepicker.min.js', 'main.min.js', 'storefront.js',
     ] as $script)
         <script src="{{ asset('assets/js/'.$script) }}"></script>
     @endforeach

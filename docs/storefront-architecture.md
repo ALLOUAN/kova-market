@@ -64,8 +64,11 @@ together), sorting (`?tri=`) and 24 products per page, all kept in the query str
 
 The cart is wired (`App\Services\Cart\CartManager`, page `/panier`, mini-cart panel, header counters), with one
 promo code per cart checked by `App\Services\Promotions\CouponValidator` on every display and once more, under a
-lock, when the order is placed; public codes are listed in the `coupons` modal of the cart page. The "popup cart"
-and quick-view modals still hold template coupons and products. Wishlist,
+lock, when the order is placed; public codes are listed in the `coupons` modal of the cart page. The quick view
+of the product cards loads `products.quick-view` (`/produit/{slug}/apercu`) into its modal or side panel through
+`public/assets/js/storefront.js`; it shares the `x-product.purchase` block (variants, quantity, cart buttons) with the
+product page. The template's "popup cart" and "edit cart" modals were removed: the mini-cart and `/panier` replace
+them. Wishlist,
 compare and newsletter forms are UI shells from the template (static content in their partials). Checkout: `/commande` (cash on delivery). "Recently viewed" shows the weekly highlights until
 per-visitor history is implemented. Sign-in and sign-up modals are wired (phone or e-mail); pages needing an account send guests to `/?connexion=1`, which
 opens the sign-in modal, then back to the page they asked for.

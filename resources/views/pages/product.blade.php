@@ -3,7 +3,6 @@
 @php
     use App\Support\Money;
 
-    $default = $product->variants->first();
     $images = collect([$product->image, $product->hover_image])
         ->merge(collect($product->colors ?? [])->pluck('image'))
         ->filter()->unique()->values();
@@ -64,42 +63,7 @@
                         </div>
                     @endif
 
-                    {{-- Price, stock and SKU of the selected variant (updated by the script below). --}}
-                    <div class="pricing-part mb--16" data-product-price>
-                        <del class="price-text" data-compare @if (! $default?->compare_at_price) hidden @endif>{{ $default?->compare_at_price ? Money::format($default->compare_at_price) : '' }}</del>
-                        <span class="price-text h4" data-price>{{ Money::format($default?->price ?? $product->price) }}</span>
-                    </div>
-                    <p class="b3 mb--8" data-stock></p>
-                    <p class="b4 mb--24">Réf. : <span data-sku>{{ $default?->sku }}</span></p>
-
-                    @if ($options->isNotEmpty())
-                        @foreach ($options as $attribute => $values)
-                            <fieldset class="mb--16">
-                                <legend class="b2 rbt-text-bold mb--8">{{ $attribute }}</legend>
-                                <div class="d-flex flex-wrap gap-2">
-                                    @foreach ($values as $value)
-                                        <input type="radio" class="btn-check" name="attribute-{{ $value->attribute_id }}" id="value-{{ $value->id }}" value="{{ $value->id }}" data-variant-option @checked($default?->attributeValues->contains($value))>
-                                        <label class="rbt-btn rbt-btn-border rbt-btn-sm" for="value-{{ $value->id }}">
-                                            @if ($value->color_hex)
-                                                <span class="d-inline-block rounded-circle border align-middle mr--4" style="width: 14px; height: 14px; background: {{ $value->color_hex }}"></span>
-                                            @endif
-                                            {{ $value->value }}
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </fieldset>
-                        @endforeach
-                    @endif
-
-                    {{-- F-036: the selected variant goes to the cart; "Acheter maintenant" continues to the cart page. --}}
-                    <form method="POST" action="{{ route('cart.items.store') }}" class="d-flex flex-wrap align-items-center gap-3 mt--24">
-                        @csrf
-                        <input type="hidden" name="variant_id" value="{{ $default?->id }}" data-variant-id>
-                        <label class="visually-hidden" for="product-quantity">Quantité</label>
-                        <input id="product-quantity" class="rbt-input-field text-center" type="number" name="quantity" value="1" min="1" max="{{ max(1, $default?->stock ?? 1) }}" style="width: 90px" data-quantity>
-                        <button type="submit" class="rbt-btn" data-buy @disabled(! $default || $default->stock === 0)>Ajouter au panier</button>
-                        <button type="submit" name="buy_now" value="1" class="rbt-btn rbt-btn-border" data-buy @disabled(! $default || $default->stock === 0)>Acheter maintenant</button>
-                    </form>
+                    <x-product.purchase :product="$product" :variants="$variants" :options="$options" />
 
                     <div class="mt--24">
                         <x-product.perks :product="$product" />
@@ -157,46 +121,9 @@
 
 @push('scripts')
     <script>
-        (() => {
-            const variants = @json($variants);
-            const money = (amount) => new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount).replace(/\s/g, ' ') + ' FCFA';
-            const $ = (selector) => document.querySelector(selector);
-
-            // The selected variant is the one carrying exactly the chosen attribute values.
-            const selected = () => {
-                const chosen = [...document.querySelectorAll('[data-variant-option]:checked')].map((input) => Number(input.value));
-                return variants.find((variant) => variant.values.length === chosen.length && chosen.every((id) => variant.values.includes(id)));
-            };
-
-            const render = () => {
-                const variant = selected();
-                const buy = document.querySelectorAll('[data-buy]');
-
-                if (!variant) {
-                    $('[data-stock]').textContent = 'Cette combinaison n’est pas disponible.';
-                    buy.forEach((button) => button.disabled = true);
-                    return;
-                }
-
-                buy.forEach((button) => button.disabled = variant.stock === 0);
-
-                $('[data-price]').textContent = money(variant.price);
-                $('[data-compare]').hidden = !variant.compare_at_price;
-                $('[data-compare]').textContent = variant.compare_at_price ? money(variant.compare_at_price) : '';
-                $('[data-sku]').textContent = variant.sku;
-                $('[data-variant-id]').value = variant.id;
-                $('[data-quantity]').max = Math.max(1, variant.stock);
-                $('[data-stock]').textContent = variant.stock === 0
-                    ? 'Épuisé'
-                    : (variant.stock <= {{ config('storefront.product_card.limited_stock_threshold') }} ? `Plus que ${variant.stock} en stock` : 'En stock');
-            };
-
-            document.querySelectorAll('[data-variant-option]').forEach((input) => input.addEventListener('change', render));
-            document.querySelector('[data-copy-link]')?.addEventListener('click', (event) => {
-                navigator.clipboard?.writeText(event.currentTarget.dataset.copyLink);
-                event.currentTarget.setAttribute('aria-label', 'Lien copié');
-            });
-            render();
-        })();
+        document.querySelector('[data-copy-link]')?.addEventListener('click', (event) => {
+            navigator.clipboard?.writeText(event.currentTarget.dataset.copyLink);
+            event.currentTarget.setAttribute('aria-label', 'Lien copié');
+        });
     </script>
 @endpush

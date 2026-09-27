@@ -19,6 +19,7 @@ Route::get('/boutique', [CatalogController::class, 'index'])->name('shop.index')
 Route::get('/categorie/{category:slug}', [CatalogController::class, 'category'])->name('categories.show');
 Route::get('/marque/{brand:slug}', [CatalogController::class, 'brand'])->name('brands.show');
 Route::get('/produit/{product:slug}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/produit/{product:slug}/apercu', [ProductController::class, 'quickView'])->name('products.quick-view');
 
 // Cart (F-040 to F-044). Changes are throttled per visitor.
 Route::get('/panier', [CartController::class, 'show'])->name('cart.show');

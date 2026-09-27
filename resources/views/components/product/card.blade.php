@@ -25,7 +25,7 @@
                     <span><i class="fa-regular fa-eye"></i>{{ $product->watchers_count }}</span>
                 </div>
             @endif
-            <x-product.quick-actions />
+            <x-product.quick-actions :product="$product" />
             @if ($product->hasCountdown())
                 <div class="rbt-countdown-wrap rbt-content-bottom-center rbt-countdown-one bg-variation-black cd-border-style">
                     <x-countdown :date="$product->sale_ends_at" />
