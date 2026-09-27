@@ -107,9 +107,11 @@
                                 <p class="b4 mt--16 mb-0">Plus que <strong>@money($missing)</strong> d’achats pour la livraison offerte.</p>
                             @endif
 
-                            {{-- The order form (checkout, F-050) is the next module. --}}
-                            <button type="button" class="rbt-btn w-100 mt--24" disabled>Commander</button>
-                            <p class="b4 mt--8 mb-0 text-center">La validation de commande arrive très bientôt.</p>
+                            @if ($summary->count() > 0)
+                                <a class="rbt-btn w-100 mt--24 text-center" href="{{ route('checkout.show') }}">Commander</a>
+                            @else
+                                <button type="button" class="rbt-btn w-100 mt--24" disabled>Commander</button>
+                            @endif
                         </div>
                     </aside>
                 </div>

@@ -49,6 +49,7 @@ class Settings extends Page
             'contact' => $settings->contact(),
             'social' => $settings->socialLinks()->pluck('url', 'key')->all(),
             'delivery' => ['free_shipping_threshold' => Setting::get('delivery.free_shipping_threshold')],
+            'payment' => ['cash_on_delivery_limit' => Setting::get('payment.cash_on_delivery_limit')],
         ]);
     }
 
@@ -76,6 +77,15 @@ class Settings extends Page
                         TextInput::make('delivery.free_shipping_threshold')
                             ->label('Livraison offerte à partir de')
                             ->helperText('Montant du panier (hors livraison). Vide : pas de livraison offerte.')
+                            ->integer()
+                            ->minValue(0)
+                            ->suffix('FCFA'),
+                    ]),
+                Section::make('Paiement')
+                    ->schema([
+                        TextInput::make('payment.cash_on_delivery_limit')
+                            ->label('Paiement à la livraison jusqu’à')
+                            ->helperText('Montant total maximum d’une commande payée à la livraison. Vide : pas de plafond.')
                             ->integer()
                             ->minValue(0)
                             ->suffix('FCFA'),
@@ -114,6 +124,7 @@ class Settings extends Page
             ...collect($state['contact'] ?? [])->mapWithKeys(fn ($value, $field) => ["contact.{$field}" => $value])->all(),
             ...collect($state['social'] ?? [])->mapWithKeys(fn ($value, $network) => ["social.{$network}" => $value])->all(),
             'delivery.free_shipping_threshold' => $state['delivery']['free_shipping_threshold'] ?? null,
+            'payment.cash_on_delivery_limit' => $state['payment']['cash_on_delivery_limit'] ?? null,
         ]);
 
         activity()->causedBy(auth()->user())->withProperties(['keys' => array_keys($state)])->log('Paramètres de la boutique modifiés');

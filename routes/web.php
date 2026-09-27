@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
@@ -24,6 +25,11 @@ Route::middleware('throttle:60,1')->group(function () {
     Route::delete('/panier/articles/{item}', [CartController::class, 'destroy'])->whereNumber('item')->name('cart.items.destroy');
     Route::post('/panier/commune', [CartController::class, 'commune'])->name('cart.commune');
 });
+
+// Checkout (F-050 to F-056): guests allowed, order placement throttled.
+Route::get('/commande', [CheckoutController::class, 'show'])->name('checkout.show');
+Route::post('/commande', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
+Route::get('/commande/{order:number}/merci', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::get('/page/{page:slug}', PageController::class)->name('pages.show');
 Route::get('/faq', FaqController::class)->name('faq');
