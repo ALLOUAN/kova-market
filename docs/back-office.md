@@ -100,6 +100,14 @@ announced. SMS go through `App\Services\Sms\SmsGateway`, chosen by `SMS_DRIVER`:
 `storage/logs/sms-*.log`, `null` discards them (tests). A real provider is a new class added to the match in
 `AppServiceProvider`. E-mails use the `MAIL_*` settings (`MAIL_MAILER=log` writes them to `laravel.log`).
 
+## Customers
+
+**Ventes › Clients** (`commandes.gerer`, personal data): customer accounts (users without a staff role) and guests
+grouped by phone number, read from the `customers` SQL view. A guest order placed with the phone of an account counts
+for that account. "Total dépensé" sums paid orders. The page of a customer lists their details, addresses and last 50
+orders. **Exporter (CSV)** downloads the customers shown (search and filters applied) and records who exported what
+in the audit log.
+
 ## Promo codes
 
 **Promotions › Codes promo** (`promotions.gerer`): fixed amount, percentage (rounded to the franc) or free delivery,
