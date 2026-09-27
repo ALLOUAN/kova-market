@@ -8,11 +8,13 @@ use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Enums\StockMovementReason;
 use App\Events\OrderPlaced;
+use App\Models\BundleItem;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Commune;
 use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\Catalog\InsufficientStock;
@@ -147,12 +149,31 @@ class PlaceOrder
             'product_id' => $product->getKey(),
             'product_name' => $product->name,
             'variant_label' => $variant->attributeValues->isEmpty() ? null : $variant->label(),
+            'bundle_contents' => $product->is_bundle ? $this->packContents($product) : null,
             'sku' => $variant->sku,
             'image' => $product->image,
             'unit_price' => $variant->currentPrice(),
             'quantity' => $item->quantity,
             'line_total' => $variant->currentPrice() * $item->quantity,
         ];
+    }
+
+    /**
+     * What a pack holds, frozen on the order line (F-093): the pack may change later, the order must not.
+     *
+     * @return list<array{name: string, variant: ?string, sku: string, quantity: int}>
+     */
+    private function packContents(Product $pack): array
+    {
+        return $pack->bundleItems()->with('variant.product', 'variant.attributeValues.attribute')->get()
+            ->map(fn (BundleItem $item) => [
+                'name' => $item->variant->product->name,
+                'variant' => $item->variant->attributeValues->isEmpty() ? null : $item->variant->label(),
+                'sku' => $item->variant->sku,
+                'quantity' => $item->quantity,
+            ])
+            ->values()
+            ->all();
     }
 
     /**

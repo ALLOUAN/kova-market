@@ -143,6 +143,15 @@ time and a throttle; Cloudflare Turnstile is added once `TURNSTILE_SITE_KEY` and
 The floating WhatsApp button (F-081) appears on every page once **Numéro WhatsApp** is filled in the settings. Its
 message is prefilled by the page (`@section('whatsapp_message', …)`): product viewed, order summary after checkout.
 
+## Packs
+
+**Promotions › Packs** (`promotions.gerer`, F-093): a pack is a product (`is_bundle`) sold at one price through its
+own variant (`PACK-000123`), made of variants of other products with a quantity each. Its stock is not counted: it
+is the number of whole packs the components allow (none while a component is off sale), refreshed by
+`StockManager` whenever a component's stock changes. Selling a pack takes each component's quantity (movements
+noted "pack « … »"), cancelling gives them back. Order lines keep the pack contents as ordered (slip, customer area,
+back-office). Packs are left out of **Catalogue › Produits** and of the CSV import.
+
 ## Promo codes
 
 **Promotions › Codes promo** (`promotions.gerer`): fixed amount, percentage (rounded to the franc) or free delivery,

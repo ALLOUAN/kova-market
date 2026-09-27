@@ -41,6 +41,7 @@
         @endif
 
         <x-product.purchase :product="$product" :variants="$variants" :options="$options" prefix="quick-view" :open="config('storefront.product_card.cart_action')" />
+        <x-product.bundle-contents :product="$product" />
 
         <a class="d-inline-block b3 mt--24" href="{{ $product->url() }}">Voir la fiche complète <i class="fa-regular fa-arrow-right ml--4"></i></a>
     </div>

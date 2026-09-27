@@ -18,6 +18,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class ProductResource extends Resource
@@ -56,6 +57,14 @@ class ProductResource extends Resource
     public static function table(Table $table): Table
     {
         return ProductsTable::configure($table);
+    }
+
+    /**
+     * Packs have their own screen (Promotions › Packs): their stock comes from their components.
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('is_bundle', false);
     }
 
     public static function getRelations(): array

@@ -65,6 +65,7 @@
                     @endif
 
                     <x-product.purchase :product="$product" :variants="$variants" :options="$options" />
+                    <x-product.bundle-contents :product="$product" />
 
                     <div class="mt--24">
                         <x-product.perks :product="$product" />

@@ -127,6 +127,12 @@ class CatalogImporter
     {
         $data = $this->validate($row);
         $variant = ProductVariant::with('product')->where('sku', $data['sku'])->first();
+        $product = $variant?->product ?? Product::where('slug', $data['slug'])->first();
+
+        // A pack's stock is its components': it is managed in Promotions › Packs only.
+        if ($product?->is_bundle) {
+            throw new ImportException('Les packs ne s’importent pas : gérez-les dans Promotions › Packs.');
+        }
 
         if ($variant) {
             $this->updateVariant($variant, $data, $user, $report->preview);
@@ -134,8 +140,6 @@ class CatalogImporter
 
             return;
         }
-
-        $product = Product::where('slug', $data['slug'])->first();
 
         if ($product) {
             $this->addVariant($product, $data, $user);

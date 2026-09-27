@@ -21,7 +21,7 @@ class ProductController extends Controller
     {
         abort_unless($product->is_active, 404);
 
-        $product->load(['category.parent.parent', 'brand', 'variants.attributeValues.attribute']);
+        $product->load(['category.parent.parent', 'brand', 'variants.attributeValues.attribute', 'bundleItems.variant.product', 'bundleItems.variant.attributeValues.attribute']);
 
         return view('pages.product', [
             'product' => $product,
@@ -38,7 +38,7 @@ class ProductController extends Controller
     {
         abort_unless($product->is_active, 404);
 
-        $product->load(['brand', 'variants.attributeValues.attribute']);
+        $product->load(['brand', 'variants.attributeValues.attribute', 'bundleItems.variant.product', 'bundleItems.variant.attributeValues.attribute']);
 
         return response()
             ->view('partials.product-quick-view', ['product' => $product, ...$this->purchase($product)])

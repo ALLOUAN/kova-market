@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Catalog\StockManager;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -21,12 +22,22 @@ use Spatie\Activitylog\Support\LogOptions;
 #[Fillable([
     'category_id', 'brand_id', 'name', 'slug', 'description', 'meta_title', 'meta_description', 'price', 'price_max', 'compare_at_price', 'stock', 'sold_count',
     'rating', 'reviews_count', 'watchers_count', 'free_shipping', 'return_days', 'image', 'hover_image', 'hover_video',
-    'badges', 'colors', 'variants_count', 'specifications', 'sale_starts_at', 'sale_ends_at', 'is_active',
+    'badges', 'colors', 'variants_count', 'specifications', 'sale_starts_at', 'sale_ends_at', 'is_active', 'is_bundle',
 ])]
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
     use HasFactory, LogsActivity, Searchable;
+
+    protected static function booted(): void
+    {
+        // A product going on or off sale changes how many packs its variants allow (F-093).
+        static::updated(function (Product $product): void {
+            if ($product->wasChanged('is_active') && ! $product->is_bundle) {
+                app(StockManager::class)->refreshPacksOf($product);
+            }
+        });
+    }
 
     /**
      * Fields searched by the storefront search (F-022). With the database engine they must be product columns.
@@ -75,6 +86,7 @@ class Product extends Model
             'sale_starts_at' => 'datetime',
             'sale_ends_at' => 'datetime',
             'is_active' => 'boolean',
+            'is_bundle' => 'boolean',
         ];
     }
 
@@ -91,6 +103,14 @@ class Product extends Model
     public function collections(): BelongsToMany
     {
         return $this->belongsToMany(Collection::class)->withPivot('position');
+    }
+
+    /**
+     * Components of a pack (F-093), in display order.
+     */
+    public function bundleItems(): HasMany
+    {
+        return $this->hasMany(BundleItem::class, 'bundle_id')->orderBy('position')->orderBy('id');
     }
 
     public function stockAlerts(): HasMany

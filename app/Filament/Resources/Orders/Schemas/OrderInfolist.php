@@ -57,7 +57,7 @@ class OrderInfolist
                                 RepeatableEntry\TableColumn::make('Total'),
                             ])
                             ->schema([
-                                TextEntry::make('product_name')->belowContent(fn ($record) => $record->variant_label),
+                                TextEntry::make('product_name')->belowContent(fn ($record) => collect([$record->variant_label, $record->contentsSummary()])->filter()->join(' · ') ?: null),
                                 TextEntry::make('sku'),
                                 TextEntry::make('unit_price')->formatStateUsing($money),
                                 TextEntry::make('quantity'),

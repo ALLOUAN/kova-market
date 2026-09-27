@@ -5,10 +5,12 @@ namespace App\Services\Catalog;
 use App\Enums\StockMovementReason;
 use App\Events\BackInStock;
 use App\Events\StockLow;
+use App\Models\BundleItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\StockMovement;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -24,6 +26,11 @@ class StockManager
      */
     public function adjust(ProductVariant $variant, int $quantity, StockMovementReason $reason, ?User $user = null, ?string $note = null): StockMovement
     {
+        // A pack has no stock of its own: its units are taken from, or given back to, its components (F-093).
+        if ($variant->loadMissing('product')->product?->is_bundle) {
+            return $this->adjustPack($variant, $quantity, $reason, $user, $note);
+        }
+
         return DB::transaction(function () use ($variant, $quantity, $reason, $user, $note): StockMovement {
             /** @var ProductVariant $locked */
             $locked = ProductVariant::query()->lockForUpdate()->findOrFail($variant->getKey());
@@ -47,13 +54,98 @@ class StockManager
                 BackInStock::dispatch($locked);
             }
 
-            return $locked->stockMovements()->create([
+            $movement = $locked->stockMovements()->create([
                 'quantity' => $quantity,
                 'stock_after' => $stockAfter,
                 'reason' => $reason,
                 'note' => $note,
                 'user_id' => $user?->getKey(),
             ]);
+
+            $this->refreshPacksContaining($locked);
+
+            return $movement;
+        });
+    }
+
+    /**
+     * Stock of a pack: the number of whole packs its components allow (F-093). Stored on the pack's variant so
+     * the cart and the lists read it like any stock; it is derived, hence without stock movement of its own.
+     */
+    public function refreshPack(Product $pack): void
+    {
+        $variant = $pack->variants()->first();
+
+        if (! $variant) {
+            return;
+        }
+
+        $items = $pack->bundleItems()->with('variant.product')->get();
+        $available = $items->isEmpty() ? 0 : $items->min(fn (BundleItem $item) => $item->packsAvailable());
+        $before = $variant->stock;
+
+        if ($available === $before) {
+            return;
+        }
+
+        $variant->forceFill(['stock' => $available])->save();
+
+        if ($before === 0 && $available > 0) {
+            BackInStock::dispatch($variant);
+        }
+    }
+
+    /**
+     * Packs holding a variant of this product, refreshed when it goes on or off sale.
+     */
+    public function refreshPacksOf(Product $product): void
+    {
+        $this->refreshPacks(BundleItem::whereIn('product_variant_id', $product->variants()->select('id'))->select('bundle_id'));
+    }
+
+    private function refreshPacksContaining(ProductVariant $component): void
+    {
+        $this->refreshPacks(BundleItem::where('product_variant_id', $component->getKey())->select('bundle_id'));
+    }
+
+    /**
+     * @param  Builder<BundleItem>  $bundleIds
+     */
+    private function refreshPacks(Builder $bundleIds): void
+    {
+        Product::query()->whereIn('id', $bundleIds)->each(fn (Product $pack) => $this->refreshPack($pack));
+    }
+
+    /**
+     * Takes (negative) or gives back (positive) packs by moving each component's stock, all or nothing: the
+     * components are locked together first, so two orders cannot both take the last pack.
+     *
+     * @throws InsufficientStock on the pack's variant, its stock being what the components allow
+     */
+    private function adjustPack(ProductVariant $variant, int $quantity, StockMovementReason $reason, ?User $user, ?string $note): StockMovement
+    {
+        return DB::transaction(function () use ($variant, $quantity, $reason, $user, $note): StockMovement {
+            $pack = $variant->product;
+            $items = $pack->bundleItems()->orderBy('product_variant_id')->get();
+
+            if ($items->isEmpty()) {
+                throw new InsufficientStock($variant->forceFill(['stock' => 0]), abs($quantity));
+            }
+
+            ProductVariant::query()->whereKey($items->pluck('product_variant_id'))->orderBy('id')->lockForUpdate()->get();
+            $items->load('variant.product');
+            $available = $items->min(fn (BundleItem $item) => $item->packsAvailable());
+
+            if ($quantity < 0 && $available < abs($quantity)) {
+                throw new InsufficientStock($variant->forceFill(['stock' => $available]), abs($quantity));
+            }
+
+            $note = ($note ? "{$note} — " : '')."pack « {$pack->name} »";
+            $movements = $items->map(fn (BundleItem $item) => $this->adjust($item->variant, $quantity * $item->quantity, $reason, $user, $note));
+
+            $variant->refresh();
+
+            return $movements->first();
         });
     }
 
