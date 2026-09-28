@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Mes commandes')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <x-account-layout title="Mes commandes">

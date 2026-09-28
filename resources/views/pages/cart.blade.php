@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Panier')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <x-page-header title="Votre panier" />

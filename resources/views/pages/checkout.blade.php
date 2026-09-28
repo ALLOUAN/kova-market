@@ -7,6 +7,7 @@
 @endphp
 
 @section('title', 'Commande')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <x-page-header title="Finaliser ma commande" :trail="['Panier' => route('cart.show')]" />

@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Commande '.$order->number)
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <x-account-layout :title="'Commande '.$order->number">

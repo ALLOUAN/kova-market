@@ -6,10 +6,13 @@ use App\Http\Middleware\UseApiGuard;
 use App\Services\Cart\CartException;
 use App\Services\Checkout\CheckoutException;
 use App\Services\Promotions\CouponException;
+use App\Support\SlugRedirector;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -35,6 +38,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // A product, category, brand or page asked with a former slug is redirected to its current address (F-150).
+        $exceptions->render(fn (NotFoundHttpException $exception, Request $request) => $exception->getPrevious() instanceof ModelNotFoundException && ! $request->is('api/*')
+            ? SlugRedirector::respond($request, $exception->getPrevious())
+            : null);
 
         // Business refusals (stock, commune, promo code...) reach API clients as 422 with their message;
         // the storefront controllers catch them to show the message on the page.

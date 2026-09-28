@@ -6,6 +6,16 @@
     <title>@hasSection('title')@yield('title') - @endif{{ config('storefront.name') }}</title>
     <meta name="robots" content="@yield('robots', 'index, follow')">
     <meta name="description" content="@yield('description', config('storefront.description'))">
+    {{-- Canonical address and link previews (F-152, F-153); pages override the defaults with sections. --}}
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <meta property="og:site_name" content="{{ config('storefront.name') }}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:title" content="@hasSection('title')@yield('title')@else{{ config('storefront.name') }}@endif">
+    <meta property="og:description" content="@yield('description', config('storefront.description'))">
+    <meta property="og:url" content="@yield('canonical', url()->current())">
+    <meta property="og:image" content="@yield('og_image', asset(config('storefront.logo')))">
+    <meta name="twitter:card" content="@yield('twitter_card', 'summary')">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="csrf-token" content="{{ csrf_token() }}">

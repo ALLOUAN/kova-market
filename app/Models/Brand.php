@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RedirectsOldSlugs;
 use Database\Factories\BrandFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -17,7 +18,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class Brand extends Model
 {
     /** @use HasFactory<BrandFactory> */
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, RedirectsOldSlugs;
 
     public function getActivitylogOptions(): LogOptions
     {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RedirectsOldSlugs;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +16,7 @@ use Spatie\Activitylog\Support\LogOptions;
 #[Fillable(['title', 'slug', 'content', 'meta_title', 'meta_description', 'is_published'])]
 class Page extends Model
 {
-    use LogsActivity;
+    use LogsActivity, RedirectsOldSlugs;
 
     public function getActivitylogOptions(): LogOptions
     {

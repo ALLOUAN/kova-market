@@ -13,6 +13,17 @@
 
 @section('title', $seoTitle)
 @section('description', $category?->meta_description ?: $brand?->meta_description ?: $category?->tagline ?: config('storefront.description'))
+{{-- One indexed address per list and page (F-152): searches and filtered lists are followed but not indexed. --}}
+@section('canonical', $products->currentPage() > 1 ? url()->current().'?page='.$products->currentPage() : url()->current())
+@if ($filters['q'] !== '' || $activeFilters)
+    @section('robots', 'noindex, follow')
+@endif
+
+@push('meta')
+    @if ($trail || $category || $brand)
+        <x-json-ld :data="app(\App\Services\Storefront\StructuredData::class)->breadcrumbs([...$trail, $title => url()->current()])" />
+    @endif
+@endpush
 
 @section('content')
     <x-page-header :title="$title" :trail="$trail" />

@@ -1,5 +1,7 @@
 @extends('layouts.storefront')
 
+@inject('structuredData', 'App\Services\Storefront\StructuredData')
+
 @php
     use App\Support\Money;
 
@@ -14,18 +16,16 @@
 @section('title', $product->meta_title ?: $product->name)
 @section('whatsapp_message', 'Bonjour, je suis intéressé(e) par « '.$product->name.' » ('.Money::format($product->price).') : '.$product->url())
 @section('description', $description)
+{{-- Link previews on WhatsApp, Facebook… (F-037, F-153) --}}
+@section('canonical', $product->url())
+@section('og_type', 'product')
+@section('og_image', asset($product->image))
+@section('twitter_card', 'summary_large_image')
 
 @push('meta')
-    {{-- Link previews on WhatsApp, Facebook… (F-037, F-153) --}}
-    <meta property="og:type" content="product">
-    <meta property="og:title" content="{{ $product->name }}">
-    <meta property="og:description" content="{{ $description }}">
-    <meta property="og:image" content="{{ asset($product->image) }}">
-    <meta property="og:url" content="{{ $product->url() }}">
     <meta property="product:price:amount" content="{{ $product->price }}">
     <meta property="product:price:currency" content="{{ config('storefront.currency') }}">
-    <meta name="twitter:card" content="summary_large_image">
-    <link rel="canonical" href="{{ $product->url() }}">
+    <x-json-ld :data="$structuredData->product($product, $trail)" />
 @endpush
 
 @section('content')

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RedirectsOldSlugs;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -18,7 +19,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, RedirectsOldSlugs;
 
     protected static function booted(): void
     {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RedirectsOldSlugs;
 use App\Services\Catalog\StockManager;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -27,7 +28,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory, LogsActivity, Searchable;
+    use HasFactory, LogsActivity, RedirectsOldSlugs, Searchable;
 
     protected static function booted(): void
     {

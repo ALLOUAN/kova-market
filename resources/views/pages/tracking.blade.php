@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Suivre ma commande')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <x-page-header title="Suivre ma commande" />

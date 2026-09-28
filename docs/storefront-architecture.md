@@ -106,3 +106,17 @@ routes too. Guest carts travel in the `X-Cart-Token` header (the cart's `token`)
 sign-in merges it into the account's cart. `CartException`, `CheckoutException` and `CouponException` become `422`
 with their message (`bootstrap/app.php`). Limits: 60 requests a minute (`api` limiter), 10 for sign-up, promo codes,
 orders and tracking, 5 for sign-in. Online payment (CinetPay) will add its own endpoint.
+
+## Search engines
+
+| Concern | Where |
+| --- | --- |
+| Title, description | `@section('title')`, `@section('description')`; products, categories, brands and pages have editable `meta_title` / `meta_description` (back-office "Référencement"), generated values otherwise |
+| Canonical, Open Graph, Twitter Card | layout head, overridden with `@section('canonical')`, `og_type`, `og_image`, `twitter_card` (the product page uses all four) |
+| Indexing | `@section('robots')`: cart, checkout, account, tracking and password pages are `noindex, nofollow`; searches and filtered lists `noindex, follow`; paginated lists are canonical to their own page |
+| Structured data | `App\Services\Storefront\StructuredData` through `<x-json-ld>`: Product + Offer (AggregateOffer when variant prices differ) and BreadcrumbList on product pages, BreadcrumbList on catalog pages, Organization + WebSite (search box) on the home page |
+| Former slugs | `RedirectsOldSlugs` (products, categories, brands, pages) records every old slug in `slug_redirects`; `App\Support\SlugRedirector` answers the old address with a 301 to the current one, query string kept |
+| Sitemap | `seo:sitemap` (scheduled nightly at 03:00) writes `storage/app/private/seo/sitemap.xml`, served at `/sitemap.xml` (generated on first request if missing) |
+| robots.txt | `SeoController::robots`: production disallows the private sections and points to the sitemap; any other environment disallows everything, so a preproduction copy stays out of Google. The back-office path is never listed |
+
+Check a product page with Google's Rich Results Test once the site is online (it cannot reach a local copy).

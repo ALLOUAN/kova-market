@@ -7,6 +7,7 @@
 @endphp
 
 @section('title', 'Mes adresses')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <x-account-layout title="Mes adresses">

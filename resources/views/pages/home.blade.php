@@ -2,6 +2,10 @@
 
 @section('title', 'Accueil')
 
+@push('meta')
+    <x-json-ld :data="app(\App\Services\Storefront\StructuredData::class)->organization()" />
+@endpush
+
 @section('content')
     <h1 class="visually-hidden">{{ config('storefront.name') }} - Boutique en ligne à Abidjan</h1>
 
