@@ -83,6 +83,7 @@ opens the sign-in modal, then back to the page they asked for.
 | `account.show` `/compte` | Recent orders, profile and password (Fortify endpoints), marketing preference, data export and account deletion (anonymisation, refused while an order is open) |
 | `account.orders`, `account.orders.show` | Order history and order detail with its progress |
 | `account.addresses.*` `/compte/adresses` | Address book, one default address, used to prefill the checkout |
+| `password.request` `/mot-de-passe-oublie` | Forgotten password (F-076, `PasswordRecovery`): a phone number gets a 6-digit SMS code (15 min, 5 tries, single use, one SMS a minute), an e-mail a single-use link (`password.reset`, 60 min). Customer accounts only; the answer never tells whether an account exists; the reset signs the account out everywhere. Fortify's own reset routes are off |
 | `tracking.show` `/suivi` | Public tracking by order number + phone (same answer for any mismatch, commune only) |
 
 ## REST API v1

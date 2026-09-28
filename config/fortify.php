@@ -165,7 +165,7 @@ return [
 
     'features' => [
         Features::registration(),
-        Features::resetPasswords(),
+        // Forgotten passwords go through App\Http\Controllers\Account\PasswordResetController (F-076): SMS code or e-mail link.
         // Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),

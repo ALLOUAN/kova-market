@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Account\AccountController;
 use App\Http\Controllers\Account\AddressController;
+use App\Http\Controllers\Account\PasswordResetController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
@@ -51,6 +52,16 @@ Route::get('/commande/{order:number}/merci', [CheckoutController::class, 'confir
 // Public order tracking by number + phone (F-073), throttled against guessing.
 Route::get('/suivi', [OrderTrackingController::class, 'show'])->name('tracking.show');
 Route::post('/suivi', [OrderTrackingController::class, 'search'])->middleware('throttle:10,1')->name('tracking.search');
+
+// Forgotten password (F-076): code by SMS or single-use link by e-mail, throttled against guessing and SMS abuse.
+Route::middleware('guest')->group(function () {
+    Route::get('/mot-de-passe-oublie', [PasswordResetController::class, 'create'])->name('password.request');
+    Route::post('/mot-de-passe-oublie', [PasswordResetController::class, 'store'])->middleware('throttle:5,1')->name('password.send');
+    Route::get('/mot-de-passe-oublie/code', [PasswordResetController::class, 'editWithCode'])->name('password.code');
+    Route::post('/mot-de-passe-oublie/code', [PasswordResetController::class, 'updateWithCode'])->middleware('throttle:10,1')->name('password.code.update');
+    Route::get('/reinitialiser-mot-de-passe/{token}', [PasswordResetController::class, 'editWithToken'])->name('password.reset');
+    Route::post('/reinitialiser-mot-de-passe', [PasswordResetController::class, 'updateWithToken'])->middleware('throttle:10,1')->name('password.reset.update');
+});
 
 // Customer area (F-070 to F-075).
 Route::middleware('auth')->prefix('compte')->name('account.')->group(function () {

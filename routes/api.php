@@ -16,6 +16,8 @@ Route::prefix('v1')->name('api.v1.')->middleware(['api.guard', 'throttle:api'])-
 
     Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:10,1')->name('auth.register');
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth.login');
+    Route::post('/auth/password/forgot', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,1')->name('auth.password.forgot');
+    Route::post('/auth/password/reset', [AuthController::class, 'resetPassword'])->middleware('throttle:10,1')->name('auth.password.reset');
 
     // Catalog and search.
     Route::get('/categories', [CatalogController::class, 'categories'])->name('categories.index');

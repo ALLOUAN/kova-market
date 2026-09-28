@@ -76,6 +76,54 @@ paths:
         '200': { $ref: '#/components/responses/Token' }
         '422': { $ref: '#/components/responses/ValidationError' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/password/forgot:
+    post:
+      tags: [Authentification]
+      summary: Forgotten password
+      description: |
+        A phone number receives a 6-digit code by SMS (valid 15 minutes, 5 tries, one SMS a minute at most);
+        an e-mail address receives a single-use link to the storefront page. Same answer whether or not an
+        account exists. Customer accounts only. 5 requests a minute.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [login]
+              properties:
+                login: { type: string, example: '07 01 02 03 04' }
+      responses:
+        '202':
+          description: Request taken into account
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/password/reset:
+    post:
+      tags: [Authentification]
+      summary: Choose a new password with the SMS code
+      description: Signs out the account everywhere (every token revoked); sign in again with the new password.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, code, password, password_confirmation]
+              properties:
+                phone: { type: string }
+                code: { type: string, example: '482913' }
+                password: { type: string, minLength: 8 }
+                password_confirmation: { type: string }
+      responses:
+        '204': { description: 'Password changed' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
   /auth/logout:
     post:
       tags: [Authentification]

@@ -24,6 +24,7 @@
                         <div class="rbt-input-field-grp mt--16">
                             <label class="rbt-field-label" for="modal_signin_password">Mot de passe<span class="rbt-text-color-danger">*</span></label>
                             <input class="rbt-input-field" type="password" id="modal_signin_password" name="password" autocomplete="current-password" required>
+                            <a class="d-inline-block b4 mt--8" href="{{ route('password.request') }}">Mot de passe oublié ?</a>
                         </div>
 
                         <button type="submit" class="rbt-btn d-block w-100 mt--24 mb--16">
