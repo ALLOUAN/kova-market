@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\StockAlert;
 use App\Rules\IvorianPhoneNumber;
+use App\Rules\PassesTurnstile;
 use App\Support\PhoneNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class StockAlertController extends Controller
             'product_id' => ['required', 'integer', 'exists:products,id'],
             'variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
             'contact' => ['required', 'string', 'max:255'],
+            'cf-turnstile-response' => [new PassesTurnstile],
         ], ['contact.required' => 'Indiquez votre numéro de téléphone ou votre e-mail.']);
 
         $product = Product::with('variants')->findOrFail($data['product_id']);

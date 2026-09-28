@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureCourier;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\UseApiGuard;
 use App\Services\Cart\CartException;
 use App\Services\Checkout\CheckoutException;
@@ -24,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('livreur', 'livreur/*')
             ? route('courier.login')
             : route('home', ['connexion' => 1]));
+
+        // HTTPS, HSTS, content security policy and the other security headers on every response (F-140, F-143).
+        $middleware->append(SecurityHeaders::class);
 
         $middleware->alias(['courier' => EnsureCourier::class, 'api.guard' => UseApiGuard::class]);
     })

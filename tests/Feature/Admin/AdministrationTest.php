@@ -16,6 +16,7 @@ use App\Models\User;
 use Database\Seeders\ContentSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Actions\Testing\TestAction;
 use Filament\Pages\Dashboard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -101,6 +102,24 @@ class AdministrationTest extends TestCase
         Livewire::test(ListUsers::class)
             ->assertActionHidden(TestAction::make(DeleteAction::getDefaultName())->table($this->superAdmin))
             ->assertActionVisible(TestAction::make(DeleteAction::getDefaultName())->table($colleague));
+    }
+
+    public function test_a_removed_account_is_kept_cannot_sign_in_and_can_be_restored(): void
+    {
+        $this->actingAs($this->superAdmin);
+        $colleague = User::factory()->staff(Role::Manager)->create(['email' => 'awa@kova.test']);
+
+        Livewire::test(ListUsers::class)->callAction(TestAction::make(DeleteAction::getDefaultName())->table($colleague));
+
+        $this->assertSoftDeleted($colleague);
+        $this->assertNull(User::findByLogin('awa@kova.test'));
+
+        Livewire::test(ListUsers::class)
+            ->filterTable('trashed', false)
+            ->assertCanSeeTableRecords([$colleague])
+            ->callAction(TestAction::make(RestoreAction::getDefaultName())->table($colleague));
+
+        $this->assertNotSoftDeleted($colleague);
     }
 
     public function test_resetting_two_factor_forces_a_new_set_up(): void

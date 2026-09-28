@@ -87,6 +87,29 @@ class CatalogManagementTest extends TestCase
             ->assertHasFormErrors(['price', 'compare_at_price']);
     }
 
+    public function test_only_real_images_are_accepted_as_product_pictures(): void
+    {
+        $category = Category::factory()->create();
+        $form = ['name' => 'Casque', 'slug' => 'casque', 'category_id' => $category->id, 'price' => 20000, 'stock' => 3];
+
+        // Uploads are typed from their content, not their name: a script renamed "photo.jpg" is seen as PHP...
+        Storage::disk('local')->put('probe/photo.jpg', '<?php echo "pwned";');
+        $this->assertSame('text/x-php', Storage::disk('local')->mimeType('probe/photo.jpg'));
+        Storage::disk('local')->deleteDirectory('probe');
+
+        // ...and refused like a PDF (Livewire tests take the type given here instead of reading the content).
+        $disguisedScript = UploadedFile::fake()->createWithContent('photo.jpg', '<?php echo "pwned";')->mimeType('text/x-php');
+
+        foreach ([$disguisedScript, UploadedFile::fake()->create('notice.pdf', 100, 'application/pdf')] as $file) {
+            Livewire::test(CreateProduct::class)
+                ->fillForm([...$form, 'image' => $file])
+                ->call('create')
+                ->assertHasFormErrors(['image']);
+        }
+
+        $this->assertSame(0, Product::count());
+    }
+
     public function test_saving_a_product_leaves_its_prices_and_stock_to_the_variants(): void
     {
         $product = Product::factory()->create(['price' => 108000, 'stock' => 7]);

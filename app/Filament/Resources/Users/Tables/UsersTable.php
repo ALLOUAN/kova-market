@@ -7,9 +7,11 @@ use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -47,8 +49,13 @@ class UsersTable
 
                         Notification::make()->title('Double authentification réinitialisée')->success()->send();
                     }),
+                // Removed accounts are kept (F-145): they can no longer sign in and can be restored.
                 DeleteAction::make()
                     ->hidden(fn (User $record) => $record->is(auth()->user())),
+                RestoreAction::make(),
+            ])
+            ->filters([
+                TrashedFilter::make()->label('Comptes supprimés'),
             ]);
     }
 }

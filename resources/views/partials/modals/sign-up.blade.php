@@ -48,6 +48,7 @@
                             <input class="rbt-input-field" type="password" id="modal_register_password_confirmation" name="password_confirmation" autocomplete="new-password" required>
                         </div>
 
+                        <x-turnstile class="mt--16" />
                         <button type="submit" class="rbt-btn d-block w-100 mt--24 mb--16">
                             Créer mon compte
                         </button>

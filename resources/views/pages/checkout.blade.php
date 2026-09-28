@@ -155,6 +155,7 @@
                                     <dd class="h6 mb-0" data-total>@money($summary->subtotal - $summary->discount)</dd>
                                 </div>
                             </dl>
+                            <x-turnstile class="mt--24" />
                             <button type="submit" class="rbt-btn w-100 mt--24">Valider ma commande</button>
                             <a class="d-block text-center b3 mt--12" href="{{ route('cart.show') }}">Modifier mon panier</a>
                         </div>

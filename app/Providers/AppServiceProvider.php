@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
@@ -50,6 +51,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Production is served over HTTPS only (F-140): generated links and redirects never fall back to http.
+        URL::forceHttps($this->app->isProduction());
+
         View::composer('layouts.storefront', StorefrontLayoutComposer::class);
 
         // The storefront theme is built on Bootstrap 5.

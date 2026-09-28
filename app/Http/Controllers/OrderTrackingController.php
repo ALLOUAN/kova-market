@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Rules\PassesTurnstile;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -22,6 +23,7 @@ class OrderTrackingController extends Controller
         $data = $request->validate([
             'number' => ['required', 'string', 'max:20'],
             'phone' => ['required', 'string', 'max:30'],
+            'cf-turnstile-response' => [new PassesTurnstile],
         ], [], ['number' => 'numéro de commande', 'phone' => 'téléphone']);
 
         $order = Order::findForTracking($data['number'], $data['phone']);

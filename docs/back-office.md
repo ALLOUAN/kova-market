@@ -184,8 +184,29 @@ phone number, or by account), on the whole catalog or on chosen categories (sub-
 **Utilisations**; a cancelled order gives its use back. A used code cannot be deleted, only switched off. Locally,
 `DemoCouponsSeeder` creates BIENVENUE10, LIVRAISON and MOINS5000.
 
+## Security
+
+- **HTTPS** (F-140): production generates https links only and sends session and cart cookies as `Secure`, `HttpOnly`,
+  `SameSite=Lax`. HSTS (one year, sub-domains) is sent on HTTPS responses; the http → https redirect and the
+  certificate (Let's Encrypt) are set on the web server.
+- **Headers** (F-143): `App\Http\Middleware\SecurityHeaders` adds the content security policy, `nosniff`,
+  `X-Frame-Options`, the referrer policy and a restrictive `Permissions-Policy` to every response. Outside origins
+  allowed by the policy are listed in `config/security.php`: add a new outside service there (analytics, payment
+  page), after trying it with `SECURITY_CSP_REPORT_ONLY=true`.
+- **Robots** (F-141): once `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are set, the contact, sign-up, checkout,
+  tracking and "Me prévenir" forms require the Turnstile check (`x-turnstile` + `App\Rules\PassesTurnstile`). The API
+  cannot show the widget and relies on its rate limits. Every public form and the API are throttled.
+- **Uploads** (F-142): images only (JPG, PNG, WebP, 2 MB), typed from their content, stored under a random name.
+  They are served from `public/uploads` because the storefront shows them; the CSV import stays in `storage/app`.
+- **Passwords** (F-144): 8 characters minimum, hashed (bcrypt).
+- **Deletion** (F-145): nothing the specification protects is erased from the back-office. Products are switched off
+  (reversible), orders are never deleted, customers are anonymised on their own request, and a removed staff account is
+  kept: it can no longer sign in and **Équipe › Comptes supprimés › Restaurer** brings it back.
+- **Dependencies** (F-146): `.github/workflows/ci.yml` runs the tests, `composer audit` and `npm audit` on every push
+  and every Monday; a known vulnerability fails the run. Run `composer audit` before each deployment.
+
 ## Not in the back-office yet
 
 Online payment (CinetPay) arrives with its module (see the
-specification). Products are switched off rather than deleted until soft deletes land with orders. The storefront still
+specification). Products are switched off rather than deleted. The storefront still
 shows the colour swatches typed on the product; they switch to the variants with the product page.

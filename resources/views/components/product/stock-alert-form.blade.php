@@ -12,6 +12,7 @@
     <input type="hidden" name="variant_id" value="{{ $variantId }}" data-stock-alert-variant>
     <label class="b3 mb--8 d-block" for="{{ $prefix }}-contact">Téléphone ou e-mail</label>
     <input id="{{ $prefix }}-contact" class="rbt-input-field rbt-bg-color-white shadow-none plr--24" type="text" name="contact" value="{{ $contact }}" placeholder="07 01 02 03 04 ou vous@exemple.ci" maxlength="255" autocomplete="on" required>
+    <x-turnstile class="mt--12" />
     <button type="submit" class="rbt-btn rbt-btn-rounded w-100 mt--12">Me prévenir</button>
     <p class="b4 mt--8 mb-0">Un seul message, au retour en stock. Vos coordonnées ne servent qu’à cela.</p>
 </form>

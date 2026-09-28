@@ -21,6 +21,7 @@
                             <input class="rbt-input-field" id="phone" name="phone" type="tel" value="{{ old('phone', request('phone')) }}" placeholder="07 01 02 03 04" required>
                             @error('phone')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
                         </div>
+                        <div class="col-12"><x-turnstile /></div>
                         <div class="col-12"><button type="submit" class="rbt-btn">Suivre</button></div>
                     </form>
 

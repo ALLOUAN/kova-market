@@ -59,7 +59,7 @@ class Order extends Model
 
     public function cashSettledBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'cash_settled_by');
+        return $this->belongsTo(User::class, 'cash_settled_by')->withTrashed();
     }
 
     /**

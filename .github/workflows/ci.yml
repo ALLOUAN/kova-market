@@ -1,0 +1,58 @@
+# Tests and dependency audit (F-146) on every push and pull request, and every Monday so that a new advisory
+# on an unchanged dependency is still caught. A failing test or a known vulnerability fails the run.
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, pdo_sqlite, gd, zip, bcmath, exif
+          coverage: none
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare the environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run the tests
+        run: php artisan test --compact
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Audit PHP dependencies
+        run: composer audit --locked --no-interaction
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # No lockfile is committed for the front-end tooling: resolve one to audit what an install would get.
+      - name: Audit JavaScript dependencies
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit
+          npm audit --audit-level=high

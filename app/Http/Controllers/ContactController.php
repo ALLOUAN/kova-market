@@ -8,7 +8,6 @@ use App\Filament\Resources\ContactMessages\ContactMessageResource;
 use App\Http\Requests\ContactRequest;
 use App\Models\ContactMessage;
 use App\Notifications\ContactMessageReceived;
-use App\Services\Security\Turnstile;
 use App\Services\Storefront\StoreSettings;
 use App\Support\PhoneNumber;
 use App\Support\StaffRecipients;
@@ -27,7 +26,7 @@ use Illuminate\View\View;
  */
 class ContactController extends Controller
 {
-    public function show(Request $request, Turnstile $turnstile, StoreSettings $settings): View
+    public function show(Request $request, StoreSettings $settings): View
     {
         $user = $request->user();
 
@@ -36,7 +35,6 @@ class ContactController extends Controller
             'whatsappUrl' => $settings->whatsappUrl('Bonjour '.config('storefront.name').', '),
             'subjects' => ContactSubject::cases(),
             'startedAt' => Crypt::encryptString((string) now()->timestamp),
-            'turnstileKey' => $turnstile->enabled() ? $turnstile->siteKey() : null,
             'defaults' => [
                 'name' => $user?->name,
                 'phone' => $user?->phone ? PhoneNumber::format($user->phone) : null,

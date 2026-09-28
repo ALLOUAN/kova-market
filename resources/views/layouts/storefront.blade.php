@@ -124,6 +124,10 @@
             document.getElementById('logout-form')?.submit();
         }));
     </script>
+    @if (app(\App\Services\Security\Turnstile::class)->enabled())
+        {{-- Anti-robot widgets of the public forms (x-turnstile), F-141. --}}
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
     @stack('scripts')
 </body>
 </html>

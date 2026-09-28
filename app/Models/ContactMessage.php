@@ -34,7 +34,7 @@ class ContactMessage extends Model
 
     public function handler(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'handled_by');
+        return $this->belongsTo(User::class, 'handled_by')->withTrashed();
     }
 
     public function formattedPhone(): string

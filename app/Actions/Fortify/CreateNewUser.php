@@ -4,6 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Models\User;
 use App\Rules\IvorianPhoneNumber;
+use App\Rules\PassesTurnstile;
 use App\Support\PhoneNumber;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -32,6 +33,7 @@ class CreateNewUser implements CreatesNewUsers
             'phone' => ['required', 'string', new IvorianPhoneNumber, Rule::unique(User::class)],
             'email' => ['nullable', 'string', 'email', 'max:255', Rule::unique(User::class)],
             'password' => $this->passwordRules(),
+            'cf-turnstile-response' => [new PassesTurnstile],
         ], [
             'phone.unique' => 'Un compte existe déjà avec ce numéro de téléphone.',
         ])->validate();

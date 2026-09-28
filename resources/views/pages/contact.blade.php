@@ -79,11 +79,9 @@
                                 <textarea class="rbt-input-field" id="message" name="message" rows="6" maxlength="3000" required>{{ old('message') }}</textarea>
                                 @error('message')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
                             </div>
-                            @if ($turnstileKey)
-                                <div class="col-12">
-                                    <div class="cf-turnstile" data-sitekey="{{ $turnstileKey }}" data-language="fr"></div>
-                                </div>
-                            @endif
+                            <div class="col-12">
+                                <x-turnstile />
+                            </div>
                         </div>
 
                         <button type="submit" class="rbt-btn mt--24">Envoyer</button>
@@ -94,9 +92,3 @@
         </div>
     </div>
 @endsection
-
-@if ($turnstileKey)
-    @push('scripts')
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    @endpush
-@endif

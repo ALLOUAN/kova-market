@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\PaymentMethod;
 use App\Rules\IvorianPhoneNumber;
+use App\Rules\PassesTurnstile;
 use App\Support\PhoneNumber;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -30,6 +31,7 @@ class PlaceOrderRequest extends FormRequest
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
             'terms' => ['accepted'],
             'marketing_opt_in' => ['nullable', 'boolean'],
+            'cf-turnstile-response' => [new PassesTurnstile],
         ];
     }
 
@@ -66,7 +68,7 @@ class PlaceOrderRequest extends FormRequest
     public function details(): array
     {
         return [
-            ...$this->safe()->except(['terms', 'marketing_opt_in']),
+            ...$this->safe()->except(['terms', 'marketing_opt_in', 'cf-turnstile-response']),
             'phone' => PhoneNumber::normalize($this->validated('phone')),
             'commune_id' => (int) $this->validated('commune_id'),
             'marketing_opt_in' => $this->boolean('marketing_opt_in'),
