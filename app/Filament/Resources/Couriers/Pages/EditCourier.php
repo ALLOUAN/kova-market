@@ -22,6 +22,7 @@ class EditCourier extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            CourierActions::settleCash(),
             CourierActions::resetPassword(),
             CourierActions::suspend(),
             CourierActions::reactivate(),

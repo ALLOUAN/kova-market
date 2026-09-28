@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Couriers;
 
 use App\Models\Courier;
+use App\Services\Delivery\CashSettlement;
 use App\Services\Delivery\CourierAccounts;
+use App\Support\Money;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
@@ -12,6 +14,26 @@ use Filament\Notifications\Notification;
  */
 class CourierActions
 {
+    /**
+     * F-126: the courier hands over the cash collected; all their delivered orders not settled yet are marked.
+     */
+    public static function settleCash(): Action
+    {
+        return Action::make('settleCash')
+            ->label('Encaissements reçus')
+            ->icon('heroicon-o-banknotes')
+            ->color('warning')
+            ->requiresConfirmation()
+            ->modalHeading(fn (Courier $record) => "Recevoir l’argent de {$record->name()}")
+            ->modalDescription(fn (Courier $record) => 'Confirmez avoir reçu '.Money::format(app(CashSettlement::class)->due($record)).' pour '.CashSettlement::pendingOrders($record)->count().' livraison(s) payée(s) à la livraison.')
+            // The list and the courier page load "cash_due" with the record.
+            ->visible(fn (Courier $record) => (int) ($record->cash_due ?? app(CashSettlement::class)->due($record)) > 0)
+            ->action(function (Courier $record): void {
+                $amount = app(CashSettlement::class)->settle($record, auth()->user());
+                Notification::make()->title(Money::format($amount).' reçus de '.$record->name())->success()->send();
+            });
+    }
+
     public static function resetPassword(): Action
     {
         return Action::make('resetPassword')

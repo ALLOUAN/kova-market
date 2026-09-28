@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Couriers\Tables;
 use App\Filament\Resources\Couriers\CourierActions;
 use App\Models\Courier;
 use App\Models\DeliveryZone;
+use App\Support\Money;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
@@ -29,7 +30,21 @@ class CouriersTable
                     ->description(fn (Courier $record) => $record->formattedPhone()),
                 TextColumn::make('zones.name')->label('Zones')->badge()->color('gray'),
                 TextColumn::make('transport')->label('Transport'),
-                TextColumn::make('open_orders_count')->label('Livraisons en cours')->sortable(),
+                TextColumn::make('open_orders_count')->label('En cours')->sortable(),
+                TextColumn::make('delivered_count')
+                    ->label('Livrées')
+                    ->sortable()
+                    ->description(fn (Courier $record) => ($total = $record->delivered_count + $record->failed_count) > 0
+                        ? round($record->delivered_count * 100 / $total).' % de réussite'
+                        : null),
+                TextColumn::make('failed_count')->label('Échecs')->sortable()->toggleable(),
+                TextColumn::make('cash_due')
+                    ->label('À reverser')
+                    ->formatStateUsing(fn ($state) => Money::format((int) $state))
+                    ->color(fn ($state) => (int) $state > 0 ? 'warning' : null)
+                    ->weight(fn ($state) => (int) $state > 0 ? 'bold' : null)
+                    ->placeholder(Money::format(0))
+                    ->sortable(),
                 TextColumn::make('status')
                     ->label('Compte')
                     ->badge()
@@ -53,6 +68,7 @@ class CouriersTable
             ])
             ->recordActions([
                 EditAction::make(),
+                CourierActions::settleCash(),
                 ActionGroup::make([
                     CourierActions::resetPassword(),
                     CourierActions::suspend(),

@@ -43,7 +43,7 @@ class AccountController extends Controller
         // Another customer's order does not exist, as far as this customer knows.
         abort_unless($order->user_id === $request->user()->getKey(), 404);
 
-        return view('pages.account.order', ['order' => $order->load(['items', 'statusHistory'])]);
+        return view('pages.account.order', ['order' => $order->load(['items', 'statusHistory', 'courier.user'])]);
     }
 
     public function preferences(Request $request): RedirectResponse

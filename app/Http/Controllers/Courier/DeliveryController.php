@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Courier;
 use App\Models\Order;
+use App\Services\Delivery\CashSettlement;
 use App\Services\Delivery\DeliveryDispatcher;
 use App\Services\Delivery\DispatchException;
 use App\Services\Orders\OrderStatusException;
@@ -40,7 +41,7 @@ class DeliveryController extends Controller
                 ->get(),
             'queue' => $this->dispatcher->queueFor($courier)->with('items')->oldest('id')->get(),
             'deliveredToday' => $courier->orders()->where('status', OrderStatus::Delivered)->whereDate('updated_at', today())->count(),
-            'cashToHandOver' => (int) $courier->orders()->whereNotNull('cash_collected')->whereNull('cash_settled_at')->sum('cash_collected'),
+            'cashToHandOver' => app(CashSettlement::class)->due($courier),
         ]);
     }
 

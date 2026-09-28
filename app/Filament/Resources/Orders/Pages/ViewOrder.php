@@ -8,6 +8,8 @@ use App\Enums\Permission;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Courier;
 use App\Models\Order;
+use App\Notifications\DeliveryDateForCustomer;
+use App\Notifications\OrderUpdateForCustomer;
 use App\Services\Delivery\DeliveryDispatcher;
 use App\Services\Delivery\DispatchException;
 use App\Services\Orders\OrderStatusException;
@@ -15,10 +17,12 @@ use App\Services\Orders\OrderStatusManager;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Notification as Notifier;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -69,6 +73,24 @@ class ViewOrder extends ViewRecord
                     Notification::make()->title("Livraison confiée à {$record->fresh()->courier->name()}")->success()->send();
                 }),
             ActionGroup::make([
+                // F-127: the customer is told of the planned date, and of every change.
+                Action::make('deliveryDate')
+                    ->label('Date de livraison prévue')
+                    ->icon('heroicon-o-calendar-days')
+                    ->visible(fn (Order $record) => in_array($record->status, [OrderStatus::Received, ...Courier::OPEN_STATUSES], true) && auth()->user()->can(Permission::ManageOrders->value))
+                    ->fillForm(fn (Order $record) => ['delivery_date' => $record->delivery_date])
+                    ->schema([
+                        DatePicker::make('delivery_date')
+                            ->label('Date prévue')
+                            ->helperText('Le client est prévenu par SMS (et par e-mail s’il en a donné un).')
+                            ->minDate(today())
+                            ->required(),
+                    ])
+                    ->action(function (Order $record, array $data): void {
+                        $record->forceFill(['delivery_date' => $data['delivery_date']])->save();
+                        Notifier::send(OrderUpdateForCustomer::recipientOf($record), new DeliveryDateForCustomer($record));
+                        Notification::make()->title('Date enregistrée, le client est prévenu')->success()->send();
+                    }),
                 Action::make('releaseCourier')
                     ->label('Retirer au livreur')
                     ->icon('heroicon-o-arrow-uturn-left')

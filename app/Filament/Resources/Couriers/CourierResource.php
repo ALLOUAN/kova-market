@@ -2,14 +2,17 @@
 
 namespace App\Filament\Resources\Couriers;
 
+use App\Enums\OrderStatus;
 use App\Enums\Permission;
 use App\Filament\Concerns\AuthorizesWithPermission;
 use App\Filament\Resources\Couriers\Pages\CreateCourier;
 use App\Filament\Resources\Couriers\Pages\EditCourier;
 use App\Filament\Resources\Couriers\Pages\ListCouriers;
+use App\Filament\Resources\Couriers\RelationManagers\DeliveriesRelationManager;
 use App\Filament\Resources\Couriers\Schemas\CourierForm;
 use App\Filament\Resources\Couriers\Tables\CouriersTable;
 use App\Models\Courier;
+use App\Services\Delivery\CashSettlement;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -42,7 +45,15 @@ class CourierResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['user', 'zones'])->withCount('openOrders');
+        // F-126: deliveries, failures (orders cancelled once given to the courier) and cash to hand over.
+        return parent::getEloquentQuery()
+            ->with(['user', 'zones'])
+            ->withCount([
+                'openOrders',
+                'orders as delivered_count' => fn (Builder $query) => $query->where('status', OrderStatus::Delivered),
+                'orders as failed_count' => fn (Builder $query) => $query->where('status', OrderStatus::Cancelled),
+            ])
+            ->withSum(['orders as cash_due' => fn (Builder $query) => CashSettlement::pending($query)], 'cash_collected');
     }
 
     public static function form(Schema $schema): Schema
@@ -53,6 +64,13 @@ class CourierResource extends Resource
     public static function table(Table $table): Table
     {
         return CouriersTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            DeliveriesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

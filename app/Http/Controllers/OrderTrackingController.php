@@ -28,7 +28,7 @@ class OrderTrackingController extends Controller
         $order = Order::query()
             ->where('number', strtoupper(trim($data['number'])))
             ->where('phone', PhoneNumber::normalize($data['phone']) ?? '')
-            ->with(['items', 'statusHistory'])
+            ->with(['items', 'statusHistory', 'courier.user'])
             ->first();
 
         return view('pages.tracking', [

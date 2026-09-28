@@ -169,6 +169,12 @@ delivery the address and landmark, call, WhatsApp, route in Google Maps, amount 
 **Commande livrée** (cash collected typed at the door) or **Livraison impossible** (reason required: the order is
 cancelled and its stock put back).
 
+Tracking (F-126, F-127): the courier list shows deliveries, failures, success rate and the cash to hand over (cash
+of delivered orders not received yet). **Encaissements reçus** marks it all as received, with who received it, in the
+audit log; the courier page lists every delivery with its cash. On the order page, **Date de livraison prévue**
+tells the customer by SMS (and e-mail); the customer's tracking and order pages show that date and, while the order
+is on its way, the courier's name, photo and phone.
+
 ## Promo codes
 
 **Promotions › Codes promo** (`promotions.gerer`): fixed amount, percentage (rounded to the franc) or free delivery,
@@ -180,6 +186,6 @@ phone number, or by account), on the whole catalog or on chosen categories (sub-
 
 ## Not in the back-office yet
 
-Delivery tracking and cash settlement arrive with the next step (see the
+Online payment (CinetPay) arrives with its module (see the
 specification). Products are switched off rather than deleted until soft deletes land with orders. The storefront still
 shows the colour swatches typed on the product; they switch to the variants with the product page.

@@ -34,6 +34,7 @@
                                 <span>du {{ $order->created_at->format('d/m/Y') }}</span>
                             </div>
                             <x-order-timeline :order="$order" />
+                            <x-order-delivery :order="$order" />
                             <p class="b3 mt--16 mb--4">{{ $order->itemCount() }} {{ Str::plural('article', $order->itemCount()) }} · @money($order->total) · {{ $order->payment_method->getLabel() }}</p>
                             {{-- Only the commune: the full address and the e-mail are never shown here. --}}
                             <p class="b3 mb-0">Livraison à {{ $order->commune_name }}.</p>
