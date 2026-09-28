@@ -82,6 +82,22 @@ class HomePageTest extends TestCase
         $this->get('/')->assertOk()->assertSeeText('Stock limité')->assertDontSeeText('2 en stock');
     }
 
+    public function test_best_deals_countdown_runs_while_the_collection_has_not_ended(): void
+    {
+        $collection = Collection::create(['name' => 'Les meilleures offres du jour', 'slug' => HomePageService::BEST_DEALS, 'ends_at' => now()->addDays(2)]);
+        $collection->products()->attach(Product::factory()->create());
+
+        $this->get('/')->assertOk()->assertSeeText('Vite ! L’offre se termine dans');
+    }
+
+    public function test_best_deals_countdown_is_hidden_once_the_collection_has_ended(): void
+    {
+        $collection = Collection::create(['name' => 'Les meilleures offres du jour', 'slug' => HomePageService::BEST_DEALS, 'ends_at' => now()->subMinute()]);
+        $collection->products()->attach(Product::factory()->create());
+
+        $this->get('/')->assertOk()->assertDontSeeText('Vite ! L’offre se termine dans');
+    }
+
     public function test_expired_promotions_are_not_listed_in_special_offers(): void
     {
         Promotion::factory()->create(['title' => 'Running Offer']);

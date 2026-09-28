@@ -150,6 +150,19 @@ class CatalogManagementTest extends TestCase
         $this->assertSame(2, $collection->products()->whereKey($added->getKey())->first()->pivot->position);
     }
 
+    public function test_reordering_a_collection_changes_the_order_on_the_home_page(): void
+    {
+        $collection = Collection::create(['name' => 'Offres du jour', 'slug' => 'deals-of-the-day']);
+        $first = Product::factory()->create(['name' => 'First Deal']);
+        $second = Product::factory()->create(['name' => 'Second Deal']);
+        $collection->products()->attach([$first->id => ['position' => 1], $second->id => ['position' => 2]]);
+
+        Livewire::test(ProductsRelationManager::class, ['ownerRecord' => $collection, 'pageClass' => EditCollection::class])
+            ->call('reorderTable', [(string) $second->id, (string) $first->id]);
+
+        $this->get('/')->assertOk()->assertSeeTextInOrder(['Second Deal', 'First Deal']);
+    }
+
     public function test_a_manager_adds_a_variant_with_its_characteristics_and_opening_stock(): void
     {
         $product = Product::factory()->create(['price' => 400000, 'stock' => 2]);
