@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Database\CustomersView;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,6 +14,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        CustomersView::drop();
+
         Schema::table('users', function (Blueprint $table) {
             $table->dateTime('suspended_at')->nullable()->after('marketing_opt_in');
             $table->boolean('must_change_password')->default(false)->after('suspended_at');
@@ -40,6 +43,8 @@ return new class extends Migration
             $table->dateTime('cash_settled_at')->nullable()->after('cash_collected');
             $table->foreignId('cash_settled_by')->nullable()->after('cash_settled_at')->constrained('users')->nullOnDelete();
         });
+
+        CustomersView::create();
     }
 
     /**
@@ -47,6 +52,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        CustomersView::drop();
+
         Schema::table('orders', function (Blueprint $table) {
             $table->dropConstrainedForeignId('cash_settled_by');
             $table->dropConstrainedForeignId('courier_id');
@@ -59,5 +66,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn(['suspended_at', 'must_change_password']);
         });
+
+        CustomersView::create();
     }
 };

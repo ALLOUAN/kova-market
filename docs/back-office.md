@@ -152,6 +152,23 @@ is the number of whole packs the components allow (none while a component is off
 noted "pack « … »"), cancelling gives them back. Order lines keep the pack contents as ordered (slip, customer area,
 back-office). Packs are left out of **Catalogue › Produits** and of the CSV import.
 
+## Couriers
+
+**Livraison › Livreurs** (`livraison.gerer`, F-122): accounts are created here only. The phone is the login; a
+temporary password is sent by SMS (again with **Nouveau mot de passe**) and must be replaced at the first sign-in.
+**Suspendre** blocks every sign-in and puts the courier's unfinished deliveries back in their zone's queue.
+
+Dispatch (F-123, F-124), chosen in **Paramètres de la boutique › Livraison**: when an order is confirmed it enters the
+queue of its commune's zone, then either goes at once to the zone's courier with the fewest open deliveries
+(automatic) or waits for the first courier of the zone who takes it (the couriers of the zone get an SMS). The order
+page offers **Confier à un livreur** and **Retirer au livreur** at any time. A courier only sees the queue of their
+zones and their own deliveries (404 otherwise); of two couriers accepting at once, one gets it.
+
+Courier area (F-125) at `/livreur` (own sign-in, installable on the phone): my deliveries and the zone queue, then per
+delivery the address and landmark, call, WhatsApp, route in Google Maps, amount to collect, and **Je pars livrer**,
+**Commande livrée** (cash collected typed at the door) or **Livraison impossible** (reason required: the order is
+cancelled and its stock put back).
+
 ## Promo codes
 
 **Promotions › Codes promo** (`promotions.gerer`): fixed amount, percentage (rounded to the franc) or free delivery,
@@ -163,6 +180,6 @@ phone number, or by account), on the whole catalog or on chosen categories (sub-
 
 ## Not in the back-office yet
 
-Couriers arrive with their module (see the
+Delivery tracking and cash settlement arrive with the next step (see the
 specification). Products are switched off rather than deleted until soft deletes land with orders. The storefront still
 shows the colour swatches typed on the product; they switch to the variants with the product page.

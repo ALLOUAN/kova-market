@@ -38,7 +38,7 @@ class DeliveryController extends Controller
                 ->orderByRaw('CASE status WHEN ? THEN 0 WHEN ? THEN 1 ELSE 2 END', [OrderStatus::OutForDelivery->value, OrderStatus::Shipped->value])
                 ->orderBy('assigned_at')
                 ->get(),
-            'queue' => $this->dispatcher->queueFor($courier)->oldest('id')->get(),
+            'queue' => $this->dispatcher->queueFor($courier)->with('items')->oldest('id')->get(),
             'deliveredToday' => $courier->orders()->where('status', OrderStatus::Delivered)->whereDate('updated_at', today())->count(),
             'cashToHandOver' => (int) $courier->orders()->whereNotNull('cash_collected')->whereNull('cash_settled_at')->sum('cash_collected'),
         ]);
@@ -59,7 +59,11 @@ class DeliveryController extends Controller
     public function accept(Request $request, Order $order): RedirectResponse
     {
         $courier = $this->courier($request);
-        $this->ensureVisible($courier, $order);
+
+        // Taken meanwhile by someone else: say so rather than "not found".
+        if ($order->courier_id === null) {
+            $this->ensureVisible($courier, $order);
+        }
 
         try {
             $this->dispatcher->accept($order, $courier);
