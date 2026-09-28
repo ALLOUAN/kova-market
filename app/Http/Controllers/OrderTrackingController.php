@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Support\PhoneNumber;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -25,11 +24,7 @@ class OrderTrackingController extends Controller
             'phone' => ['required', 'string', 'max:30'],
         ], [], ['number' => 'numéro de commande', 'phone' => 'téléphone']);
 
-        $order = Order::query()
-            ->where('number', strtoupper(trim($data['number'])))
-            ->where('phone', PhoneNumber::normalize($data['phone']) ?? '')
-            ->with(['items', 'statusHistory', 'courier.user'])
-            ->first();
+        $order = Order::findForTracking($data['number'], $data['phone']);
 
         return view('pages.tracking', [
             'order' => $order,

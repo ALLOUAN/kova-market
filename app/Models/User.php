@@ -125,6 +125,31 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         return $this->hasOne(Address::class)->where('is_default', true);
     }
 
+    public function canAddAddress(): bool
+    {
+        return $this->addresses()->count() < Address::MAX_PER_CUSTOMER;
+    }
+
+    /**
+     * "Enregistrer cette adresse" at checkout: the order's delivery details join the address book, while there is room.
+     */
+    public function saveAddressFromOrder(Order $order): void
+    {
+        if (! $this->canAddAddress()) {
+            return;
+        }
+
+        $this->addresses()->create([
+            'label' => 'Adresse '.($this->addresses()->count() + 1),
+            'recipient_name' => $order->customer_name,
+            'phone' => $order->phone,
+            'commune_id' => $order->commune_id,
+            'district' => $order->district,
+            'landmark' => $order->landmark,
+            'is_default' => $this->addresses()->doesntExist(),
+        ]);
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class)->latest('id');

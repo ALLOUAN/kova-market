@@ -12,13 +12,18 @@ use App\Services\Storefront\CatalogService;
 use App\Services\Storefront\NavigationService;
 use App\View\Composers\StorefrontLayoutComposer;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
+use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -57,6 +62,13 @@ class AppServiceProvider extends ServiceProvider
 
         // Super-admins hold every back-office permission, including the ones added later.
         Gate::before(fn (User $user) => $user->hasRole(Role::SuperAdmin->value) ? true : null);
+
+        // API v1 (F-160): 60 requests a minute per customer, or per address for guests.
+        RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
+
+        // A suspended account (F-122) loses its API tokens' access like its sessions.
+        Sanctum::authenticateAccessTokensUsing(fn (PersonalAccessToken $token, bool $isValid) => $isValid
+            && ! ($token->tokenable instanceof User && $token->tokenable->isSuspended()));
 
         // @money($amount) formats an amount in the store currency, e.g. "15 000 FCFA".
         Blade::directive('money', fn (string $amount) => "<?php echo e(\\App\\Support\\Money::format($amount)); ?>");

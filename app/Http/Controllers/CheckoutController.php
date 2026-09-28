@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PaymentMethod;
-use App\Http\Controllers\Account\AddressController;
 use App\Http\Requests\PlaceOrderRequest;
 use App\Models\Commune;
 use App\Models\Order;
@@ -73,17 +72,8 @@ class CheckoutController extends Controller
             return redirect()->route('cart.show')->with('cart_error', $exception->getMessage());
         }
 
-        // "Enregistrer cette adresse": the delivery details join the customer's address book.
-        if ($request->user() && $request->boolean('save_address') && $request->user()->addresses()->count() < AddressController::MAX_ADDRESSES) {
-            $request->user()->addresses()->create([
-                'label' => 'Adresse '.($request->user()->addresses()->count() + 1),
-                'recipient_name' => $order->customer_name,
-                'phone' => $order->phone,
-                'commune_id' => $order->commune_id,
-                'district' => $order->district,
-                'landmark' => $order->landmark,
-                'is_default' => $request->user()->addresses()->doesntExist(),
-            ]);
+        if ($request->boolean('save_address')) {
+            $request->user()?->saveAddressFromOrder($order);
         }
 
         $request->session()->push(self::PLACED, $order->number);

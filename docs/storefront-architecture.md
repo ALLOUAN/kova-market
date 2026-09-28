@@ -84,3 +84,24 @@ opens the sign-in modal, then back to the page they asked for.
 | `account.orders`, `account.orders.show` | Order history and order detail with its progress |
 | `account.addresses.*` `/compte/adresses` | Address book, one default address, used to prefill the checkout |
 | `tracking.show` `/suivi` | Public tracking by order number + phone (same answer for any mismatch, commune only) |
+
+## REST API v1
+
+`/api/v1` (F-160) exposes the storefront to the mobile app: catalog and search, cart, order placement, public tracking,
+account and address book. The contract is `docs/api/openapi-v1.yaml`, also served at `/api/v1/openapi.yaml`.
+
+| Concern | Location |
+| --- | --- |
+| Routes | `routes/api.php` (names `api.v1.*`) |
+| Thin controllers | `app/Http/Controllers/Api/V1` |
+| JSON shapes | `app/Http/Resources/Api/V1` |
+| Shared validation | `AddToCartRequest`, `AddressRequest`, `PlaceOrderRequest` (storefront and API) |
+
+The API calls the same services as the storefront (`ProductListing`, `CartManager`, `PlaceOrder`, `AccountEraser`),
+so no business rule is written twice; orders placed through it have `source = mobile`. Customers sign in with a
+Sanctum bearer token (`/auth/login`, same credentials and limiter as the storefront; suspended accounts lose their
+tokens' access). `UseApiGuard` switches every API route to the `sanctum` guard, so a token is recognised on public
+routes too. Guest carts travel in the `X-Cart-Token` header (the cart's `token`) instead of the cookie; sending it at
+sign-in merges it into the account's cart. `CartException`, `CheckoutException` and `CouponException` become `422`
+with their message (`bootstrap/app.php`). Limits: 60 requests a minute (`api` limiter), 10 for sign-up, promo codes,
+orders and tracking, 5 for sign-in. Online payment (CinetPay) will add its own endpoint.

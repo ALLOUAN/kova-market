@@ -75,6 +75,18 @@ class Order extends Model
         return 'number';
     }
 
+    /**
+     * Public tracking (F-073): the order matching a number and the phone given when it was placed, however typed.
+     */
+    public static function findForTracking(string $number, string $phone): ?self
+    {
+        return static::query()
+            ->where('number', strtoupper(trim($number)))
+            ->where('phone', PhoneNumber::normalize($phone) ?? '')
+            ->with(['items', 'statusHistory', 'courier.user'])
+            ->first();
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class)->oldest('id');

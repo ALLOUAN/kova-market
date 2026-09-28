@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Middleware\EnsureCourier;
+use App\Http\Middleware\UseApiGuard;
+use App\Services\Cart\CartException;
+use App\Services\Checkout\CheckoutException;
+use App\Services\Promotions\CouponException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,10 +25,16 @@ return Application::configure(basePath: dirname(__DIR__))
             ? route('courier.login')
             : route('home', ['connexion' => 1]));
 
-        $middleware->alias(['courier' => EnsureCourier::class]);
+        $middleware->alias(['courier' => EnsureCourier::class, 'api.guard' => UseApiGuard::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Business refusals (stock, commune, promo code...) reach API clients as 422 with their message;
+        // the storefront controllers catch them to show the message on the page.
+        $exceptions->render(fn (CartException|CheckoutException|CouponException $exception, Request $request) => $request->is('api/*')
+            ? response()->json(['message' => $exception->getMessage()], 422)
+            : null);
     })->create();

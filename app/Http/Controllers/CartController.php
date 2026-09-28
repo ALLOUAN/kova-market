@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddToCartRequest;
 use App\Models\Commune;
 use App\Models\Coupon;
-use App\Models\ProductVariant;
 use App\Services\Cart\CartException;
 use App\Services\Cart\CartManager;
 use App\Services\Promotions\CouponException;
@@ -28,21 +28,12 @@ class CartController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(AddToCartRequest $request): RedirectResponse
     {
-        // Product pages send the chosen variant; product cards send the product (its single, default variant).
-        $data = $request->validate([
-            'variant_id' => ['required_without:product_id', 'integer', 'exists:product_variants,id'],
-            'product_id' => ['required_without:variant_id', 'integer', 'exists:products,id'],
-            'quantity' => ['nullable', 'integer', 'min:1', 'max:'.CartManager::MAX_QUANTITY],
-        ]);
-
-        $variant = isset($data['variant_id'])
-            ? ProductVariant::with('product')->findOrFail($data['variant_id'])
-            : ProductVariant::with('product')->where('product_id', $data['product_id'])->where('is_default', true)->firstOrFail();
+        $variant = $request->variant();
 
         try {
-            $inCart = $this->cart->add($variant, (int) ($data['quantity'] ?? 1));
+            $inCart = $this->cart->add($variant, $request->quantity());
         } catch (CartException $exception) {
             return back()->with('cart_error', $exception->getMessage());
         }

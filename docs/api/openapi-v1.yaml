@@ -1,0 +1,912 @@
+openapi: 3.1.0
+info:
+  title: KOVA MARKET API
+  version: 1.0.0
+  description: |
+    REST API v1 of the KOVA MARKET store (F-160), for the mobile app. It runs the same business rules as the
+    storefront: prices, stock, promo codes, delivery fees and order checks are never computed by the client.
+
+    - Amounts are whole FCFA (XOF), without decimals.
+    - Messages are in French and can be shown to the customer as they are.
+    - Signed-in customers send `Authorization: Bearer <token>` (token from `/auth/register` or `/auth/login`).
+    - Guests keep their cart with the `X-Cart-Token` header: send back the `token` returned with the cart.
+      Sending it at sign-in merges the guest cart into the account's.
+    - 60 requests a minute per customer (per IP address for guests); sign-in, sign-up, promo codes, orders and
+      tracking have stricter limits. Past the limit the answer is `429`.
+    - Business refusals (sold out, commune not served, promo code refused, empty cart) are `422` with a `message`;
+      form errors are `422` with `message` and `errors` per field.
+  contact:
+    name: KOVA MARKET
+servers:
+  - url: /api/v1
+tags:
+  - name: Authentification
+  - name: Catalogue
+  - name: Panier
+  - name: Commandes
+  - name: Compte
+  - name: Adresses
+paths:
+  /auth/register:
+    post:
+      tags: [Authentification]
+      summary: Create a customer account
+      description: Phone number required (any usual Ivorian format), e-mail optional, password of 8 characters or more.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/CartToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, phone, password, password_confirmation, device_name]
+              properties:
+                name: { type: string, maxLength: 255 }
+                phone: { type: string, example: '07 01 02 03 04' }
+                email: { type: [string, 'null'], format: email }
+                password: { type: string, minLength: 8 }
+                password_confirmation: { type: string }
+                device_name: { type: string, maxLength: 100, example: 'Pixel 8' }
+      responses:
+        '201': { $ref: '#/components/responses/Token' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/login:
+    post:
+      tags: [Authentification]
+      summary: Sign in with a phone number or an e-mail address
+      description: 5 attempts a minute per login and IP address. A suspended account is refused like a wrong password.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/CartToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [login, password, device_name]
+              properties:
+                login: { type: string, example: '+225 07 01 02 03 04' }
+                password: { type: string }
+                device_name: { type: string, maxLength: 100 }
+      responses:
+        '200': { $ref: '#/components/responses/Token' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/logout:
+    post:
+      tags: [Authentification]
+      summary: Revoke the token used for this request
+      responses:
+        '204': { description: 'Token revoked' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /categories:
+    get:
+      tags: [Catalogue]
+      summary: Category tree (3 levels)
+      security: []
+      responses:
+        '200':
+          description: Root categories with their children
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Category' } }
+  /categories/{slug}/products:
+    get:
+      tags: [Catalogue]
+      summary: Products of a category and its sub-categories
+      security: []
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MinPrice'
+        - $ref: '#/components/parameters/MaxPrice'
+        - $ref: '#/components/parameters/InStock'
+        - $ref: '#/components/parameters/Brands'
+        - $ref: '#/components/parameters/Values'
+        - $ref: '#/components/parameters/Categories'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200': { $ref: '#/components/responses/ProductList' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /brands:
+    get:
+      tags: [Catalogue]
+      summary: Brands
+      security: []
+      responses:
+        '200':
+          description: Brands in the store's order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Brand' } }
+  /brands/{slug}/products:
+    get:
+      tags: [Catalogue]
+      summary: Products of a brand
+      security: []
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MinPrice'
+        - $ref: '#/components/parameters/MaxPrice'
+        - $ref: '#/components/parameters/InStock'
+        - $ref: '#/components/parameters/Values'
+        - $ref: '#/components/parameters/Categories'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200': { $ref: '#/components/responses/ProductList' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /products:
+    get:
+      tags: [Catalogue]
+      summary: Whole catalog and search
+      description: Same search, filters, sorting and pagination (24 per page) as the storefront shop page.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MinPrice'
+        - $ref: '#/components/parameters/MaxPrice'
+        - $ref: '#/components/parameters/InStock'
+        - $ref: '#/components/parameters/Brands'
+        - $ref: '#/components/parameters/Values'
+        - $ref: '#/components/parameters/Categories'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200': { $ref: '#/components/responses/ProductList' }
+  /products/{slug}:
+    get:
+      tags: [Catalogue]
+      summary: Product page
+      description: With description, specifications, variants (price and stock of each) and, for a pack, its contents.
+      security: []
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: The product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Product' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /communes:
+    get:
+      tags: [Catalogue]
+      summary: Communes served and their delivery fee
+      security: []
+      responses:
+        '200':
+          description: Deliverable communes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Commune' } }
+
+  /cart:
+    get:
+      tags: [Panier]
+      summary: Current cart and its total
+      security: [{}, { bearer: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CartToken'
+      responses:
+        '200': { $ref: '#/components/responses/Cart' }
+  /cart/items:
+    post:
+      tags: [Panier]
+      summary: Add a product to the cart
+      description: Send the chosen variant, or the product for its default variant. The quantity is capped to the stock.
+      security: [{}, { bearer: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CartToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variant_id: { type: integer }
+                product_id: { type: integer }
+                quantity: { type: integer, minimum: 1, maximum: 99, default: 1 }
+      responses:
+        '201': { $ref: '#/components/responses/Cart' }
+        '422': { $ref: '#/components/responses/BusinessError' }
+  /cart/items/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer }, description: 'Cart line id' }
+      - $ref: '#/components/parameters/CartToken'
+    patch:
+      tags: [Panier]
+      summary: Change a line quantity (0 removes it)
+      security: [{}, { bearer: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity: { type: integer, minimum: 0, maximum: 99 }
+      responses:
+        '200': { $ref: '#/components/responses/Cart' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Panier]
+      summary: Remove a line
+      security: [{}, { bearer: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Cart' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /cart/commune:
+    put:
+      tags: [Panier]
+      summary: Choose the delivery commune (sets the delivery fee)
+      security: [{}, { bearer: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CartToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [commune_id]
+              properties:
+                commune_id: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/Cart' }
+        '422': { $ref: '#/components/responses/BusinessError' }
+  /cart/coupon:
+    parameters:
+      - $ref: '#/components/parameters/CartToken'
+    post:
+      tags: [Panier]
+      summary: Apply a promo code (replaces the previous one)
+      description: 10 attempts a minute. Each refusal gives its cause.
+      security: [{}, { bearer: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, maxLength: 40 }
+      responses:
+        '200': { $ref: '#/components/responses/Cart' }
+        '422': { $ref: '#/components/responses/BusinessError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Panier]
+      summary: Remove the promo code
+      security: [{}, { bearer: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Cart' }
+
+  /orders:
+    post:
+      tags: [Commandes]
+      summary: Place the order from the cart
+      description: |
+        All or nothing: stock taken, prices read again, promo code checked a last time, cart emptied. Guests allowed.
+        The order is marked `source: mobile`. Cash on delivery may be limited to an amount set by the store.
+        Online payment (CinetPay) will be added with its own endpoint.
+      security: [{}, { bearer: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CartToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customer_name, phone, commune_id, district, payment_method, terms]
+              properties:
+                customer_name: { type: string, maxLength: 255 }
+                phone: { type: string, example: '07 01 02 03 04' }
+                email: { type: [string, 'null'], format: email }
+                commune_id: { type: integer }
+                district: { type: string, maxLength: 255 }
+                landmark: { type: [string, 'null'], maxLength: 255 }
+                note: { type: [string, 'null'], maxLength: 1000 }
+                payment_method: { type: string, enum: [paiement_livraison] }
+                terms: { type: boolean, description: 'Terms of sale and privacy policy accepted (must be true)' }
+                marketing_opt_in: { type: boolean, default: false }
+                save_address: { type: boolean, default: false, description: 'Signed-in customers only' }
+      responses:
+        '201':
+          description: Order placed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Order' }
+        '422': { $ref: '#/components/responses/BusinessError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /orders/track:
+    post:
+      tags: [Commandes]
+      summary: Track an order by number and phone
+      description: Shows the progress and the commune only. A wrong number or phone always gets the same 404. 10 attempts a minute.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [number, phone]
+              properties:
+                number: { type: string, example: KM-260927-0001 }
+                phone: { type: string }
+      responses:
+        '200':
+          description: The order's progress
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/TrackedOrder' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /account:
+    get:
+      tags: [Compte]
+      summary: Profile of the signed-in customer
+      responses:
+        '200':
+          description: The customer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+    delete:
+      tags: [Compte]
+      summary: Delete the account
+      description: Personal data are erased; refused while an order is being processed. Every token is revoked.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string }
+      responses:
+        '204': { description: 'Account deleted' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /account/preferences:
+    patch:
+      tags: [Compte]
+      summary: Notification preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [marketing_opt_in]
+              properties:
+                marketing_opt_in: { type: boolean }
+      responses:
+        '200':
+          description: The customer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /account/orders:
+    get:
+      tags: [Compte]
+      summary: The customer's orders, newest first (10 per page)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Order' } }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /account/orders/{number}:
+    get:
+      tags: [Compte]
+      summary: One of the customer's orders
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Order' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /account/data:
+    get:
+      tags: [Compte]
+      summary: Export of the customer's personal data
+      responses:
+        '200':
+          description: Profile, addresses and orders
+          content:
+            application/json:
+              schema: { type: object }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /account/addresses:
+    get:
+      tags: [Adresses]
+      summary: Address book, default address first
+      responses:
+        '200':
+          description: Addresses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Address' } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+    post:
+      tags: [Adresses]
+      summary: Add an address (10 at most; the first one is the default)
+      requestBody: { $ref: '#/components/requestBodies/Address' }
+      responses:
+        '201': { $ref: '#/components/responses/Address' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /account/addresses/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer } }
+    put:
+      tags: [Adresses]
+      summary: Change an address
+      requestBody: { $ref: '#/components/requestBodies/Address' }
+      responses:
+        '200': { $ref: '#/components/responses/Address' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Adresses]
+      summary: Delete an address (the most recent one becomes the default if needed)
+      responses:
+        '204': { description: 'Address deleted' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /account/addresses/{id}/default:
+    post:
+      tags: [Adresses]
+      summary: Make an address the default one
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Address' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+security:
+  - bearer: []
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: Sanctum token returned by /auth/register or /auth/login.
+
+  parameters:
+    CartToken:
+      name: X-Cart-Token
+      in: header
+      required: false
+      description: Guest cart token, as returned in the cart's `token`. Not needed once signed in.
+      schema: { type: string, format: uuid }
+    Search:
+      { name: q, in: query, required: false, schema: { type: string }, description: 'Search words' }
+    Sort:
+      name: tri
+      in: query
+      required: false
+      schema: { type: string, enum: [pertinence, prix-croissant, prix-decroissant, nouveautes, popularite], default: pertinence }
+    MinPrice:
+      { name: prix_min, in: query, required: false, schema: { type: integer } }
+    MaxPrice:
+      { name: prix_max, in: query, required: false, schema: { type: integer } }
+    InStock:
+      { name: en_stock, in: query, required: false, schema: { type: boolean } }
+    Brands:
+      { name: 'marques[]', in: query, required: false, schema: { type: array, items: { type: integer } }, description: 'Brand ids' }
+    Values:
+      name: 'valeurs[]'
+      in: query
+      required: false
+      schema: { type: array, items: { type: integer } }
+      description: Attribute value ids; values of one attribute are alternatives, different attributes all apply.
+    Categories:
+      { name: 'categories[]', in: query, required: false, schema: { type: array, items: { type: integer } }, description: 'Category ids (with their sub-categories)' }
+    Page:
+      { name: page, in: query, required: false, schema: { type: integer, minimum: 1 } }
+
+  requestBodies:
+    Address:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [label, recipient_name, phone, commune_id, district]
+            properties:
+              label: { type: string, maxLength: 50, example: Maison }
+              recipient_name: { type: string, maxLength: 255 }
+              phone: { type: string }
+              commune_id: { type: integer }
+              district: { type: string, maxLength: 255 }
+              landmark: { type: [string, 'null'], maxLength: 255 }
+              is_default: { type: boolean, default: false }
+
+  responses:
+    Token:
+      description: Signed in
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token: { type: string, example: '1|8f3kQ…' }
+              user: { $ref: '#/components/schemas/User' }
+    Cart:
+      description: The whole cart after the change
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: { $ref: '#/components/schemas/Cart' }
+    Address:
+      description: The address
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: { $ref: '#/components/schemas/Address' }
+    ProductList:
+      description: A page of products and the filter choices
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data: { type: array, items: { $ref: '#/components/schemas/Product' } }
+              links: { $ref: '#/components/schemas/PaginationLinks' }
+              meta: { $ref: '#/components/schemas/PaginationMeta' }
+              facets:
+                type: object
+                properties:
+                  categories: { type: array, items: { $ref: '#/components/schemas/Category' } }
+                  brands: { type: array, items: { $ref: '#/components/schemas/Brand' } }
+                  attributes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string, example: Couleur }
+                        values:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id: { type: integer }
+                              value: { type: string }
+                  price:
+                    type: object
+                    properties:
+                      min: { type: integer }
+                      max: { type: integer }
+    BusinessError:
+      description: Refused by a business rule, or invalid form
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Invalid form
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthenticated:
+      description: Missing, revoked or suspended token
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Not found (or not the customer's)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TooManyRequests:
+      description: Too many requests; retry after the delay in the Retry-After header
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, example: Ce produit est épuisé. }
+        errors:
+          type: object
+          additionalProperties: { type: array, items: { type: string } }
+    PaginationLinks:
+      type: object
+      properties:
+        first: { type: [string, 'null'] }
+        last: { type: [string, 'null'] }
+        prev: { type: [string, 'null'] }
+        next: { type: [string, 'null'] }
+    PaginationMeta:
+      type: object
+      properties:
+        current_page: { type: integer }
+        last_page: { type: integer }
+        per_page: { type: integer }
+        total: { type: integer }
+        from: { type: [integer, 'null'] }
+        to: { type: [integer, 'null'] }
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        parent_id: { type: [integer, 'null'] }
+        image: { type: [string, 'null'], format: uri }
+        children: { type: array, items: { $ref: '#/components/schemas/Category' } }
+    Brand:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        logo: { type: [string, 'null'], format: uri }
+    Product:
+      type: object
+      description: Lists give the summary; the product page adds description, specifications, variants and bundle_items.
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        url: { type: string, format: uri, description: 'Storefront page, for sharing' }
+        price: { type: integer, description: 'Cheapest current price' }
+        compare_at_price: { type: [integer, 'null'], description: 'Crossed-out price while on sale' }
+        discount_percentage: { type: [integer, 'null'] }
+        sale_ends_at: { type: string, format: date-time, description: 'Present when a countdown runs' }
+        stock: { type: integer }
+        in_stock: { type: boolean }
+        limited_stock: { type: boolean }
+        image: { type: [string, 'null'], format: uri }
+        rating: { type: [number, 'null'] }
+        free_shipping: { type: boolean }
+        is_bundle: { type: boolean }
+        category:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            slug: { type: string }
+        brand: { $ref: '#/components/schemas/Brand' }
+        description: { type: [string, 'null'], description: 'HTML' }
+        specifications: { type: [object, array, 'null'] }
+        variants: { type: array, items: { $ref: '#/components/schemas/Variant' } }
+        bundle_items:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              variant: { type: [string, 'null'] }
+              quantity: { type: integer }
+    Variant:
+      type: object
+      properties:
+        id: { type: integer }
+        sku: { type: string }
+        label: { type: string, example: 'Couleur : Noir, Capacité : 128 Go' }
+        price: { type: integer }
+        compare_at_price: { type: [integer, 'null'] }
+        stock: { type: integer }
+        is_default: { type: boolean }
+        attributes:
+          type: array
+          items:
+            type: object
+            properties:
+              attribute: { type: string }
+              value_id: { type: integer }
+              value: { type: string }
+    Commune:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        deliverable: { type: boolean }
+        zone:
+          type: [object, 'null']
+          properties:
+            name: { type: string }
+            fee: { type: integer }
+            delay: { type: [string, 'null'], example: J+1 }
+    Cart:
+      type: object
+      properties:
+        token: { type: [string, 'null'], format: uuid, description: 'Guest cart token to send in X-Cart-Token; null for a customer''s cart' }
+        lines:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              variant_id: { type: integer }
+              product:
+                type: object
+                properties:
+                  id: { type: integer }
+                  name: { type: string }
+                  slug: { type: string }
+                  image: { type: [string, 'null'], format: uri }
+              variant_label: { type: [string, 'null'] }
+              unit_price: { type: integer }
+              quantity: { type: integer, description: 'Quantity in the cart' }
+              orderable_quantity: { type: integer, description: 'Quantity that will be ordered (capped to the stock, 0 if unavailable)' }
+              available: { type: boolean }
+              notice: { type: [string, 'null'], description: 'Why the line will not be ordered as it is' }
+              total: { type: integer }
+        item_count: { type: integer }
+        subtotal: { type: integer }
+        coupon:
+          type: [object, 'null']
+          properties:
+            code: { type: string }
+            applies: { type: boolean }
+            issue: { type: [string, 'null'], description: 'Why the code no longer applies' }
+        discount: { type: integer }
+        commune: { oneOf: [{ $ref: '#/components/schemas/Commune' }, { type: 'null' }] }
+        shipping_fee: { type: [integer, 'null'], description: 'Known once a commune is chosen' }
+        free_shipping: { type: boolean }
+        missing_for_free_shipping: { type: [integer, 'null'] }
+        total: { type: integer }
+    Status:
+      type: object
+      properties:
+        code: { type: string, enum: [recue, confirmee, en_preparation, expediee, en_livraison, livree, annulee] }
+        label: { type: string, example: Reçue }
+    TrackedOrder:
+      type: object
+      properties:
+        number: { type: string }
+        placed_at: { type: string, format: date-time }
+        status: { $ref: '#/components/schemas/Status' }
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              status: { type: string }
+              label: { type: string }
+              at: { type: string, format: date-time }
+        item_count: { type: integer }
+        total: { type: integer }
+        payment_method:
+          type: object
+          properties:
+            code: { type: string }
+            label: { type: string }
+        commune_name: { type: string }
+        delivery_date: { type: [string, 'null'], format: date }
+        courier:
+          type: [object, 'null']
+          description: While the order is on its way
+          properties:
+            name: { type: string }
+            phone: { type: string }
+            photo: { type: [string, 'null'], format: uri }
+    Order:
+      allOf:
+        - $ref: '#/components/schemas/TrackedOrder'
+        - type: object
+          properties:
+            payment_status:
+              type: object
+              properties:
+                code: { type: string, enum: [en_attente, paye, annule] }
+                label: { type: string }
+            source: { type: string, enum: [web, mobile] }
+            customer_name: { type: string }
+            phone: { type: string }
+            email: { type: [string, 'null'] }
+            zone_name: { type: string }
+            district: { type: string }
+            landmark: { type: [string, 'null'] }
+            note: { type: [string, 'null'] }
+            subtotal: { type: integer }
+            shipping_fee: { type: integer }
+            discount: { type: integer }
+            coupon_code: { type: [string, 'null'] }
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  product_id: { type: [integer, 'null'] }
+                  product_name: { type: string }
+                  variant_label: { type: [string, 'null'] }
+                  sku: { type: string }
+                  image: { type: [string, 'null'], format: uri }
+                  unit_price: { type: integer }
+                  quantity: { type: integer }
+                  line_total: { type: integer }
+                  bundle_contents: { type: [array, 'null'] }
+    Address:
+      type: object
+      properties:
+        id: { type: integer }
+        label: { type: string }
+        recipient_name: { type: string }
+        phone: { type: string }
+        commune_id: { type: integer }
+        commune: { $ref: '#/components/schemas/Commune' }
+        district: { type: string }
+        landmark: { type: [string, 'null'] }
+        is_default: { type: boolean }
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        phone: { type: [string, 'null'], example: '+2250701020304' }
+        email: { type: [string, 'null'] }
+        marketing_opt_in: { type: boolean }

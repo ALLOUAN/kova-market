@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AddressRequest;
 use App\Models\Address;
 use App\Models\Commune;
-use App\Rules\IvorianPhoneNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -16,8 +16,6 @@ use Illuminate\View\View;
  */
 class AddressController extends Controller
 {
-    public const MAX_ADDRESSES = 10;
-
     public function index(Request $request): View
     {
         return view('pages.account.addresses', [
@@ -38,15 +36,15 @@ class AddressController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(AddressRequest $request): RedirectResponse
     {
         $user = $request->user();
 
-        if ($user->addresses()->count() >= self::MAX_ADDRESSES) {
-            return back()->with('account_error', 'Vous avez atteint le nombre maximum d’adresses ('.self::MAX_ADDRESSES.').');
+        if (! $user->canAddAddress()) {
+            return back()->with('account_error', 'Vous avez atteint le nombre maximum d’adresses ('.Address::MAX_PER_CUSTOMER.').');
         }
 
-        $data = $this->validated($request);
+        $data = $request->details();
         // The first address is the default one.
         $data['is_default'] = $data['is_default'] || $user->addresses()->doesntExist();
 
@@ -55,11 +53,11 @@ class AddressController extends Controller
         return redirect()->route('account.addresses.index')->with('account_status', 'Adresse ajoutée.');
     }
 
-    public function update(Request $request, Address $address): RedirectResponse
+    public function update(AddressRequest $request, Address $address): RedirectResponse
     {
         $this->authorizeOwner($request, $address);
 
-        $data = $this->validated($request);
+        $data = $request->details();
         $data['is_default'] = $data['is_default'] || $address->is_default;
         $address->update($data);
 
@@ -80,30 +78,6 @@ class AddressController extends Controller
         $address->delete();
 
         return redirect()->route('account.addresses.index')->with('account_status', 'Adresse supprimée.');
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function validated(Request $request): array
-    {
-        $data = $request->validate([
-            'label' => ['required', 'string', 'max:50'],
-            'recipient_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', new IvorianPhoneNumber],
-            'commune_id' => ['required', 'integer', 'exists:communes,id'],
-            'district' => ['required', 'string', 'max:255'],
-            'landmark' => ['nullable', 'string', 'max:255'],
-        ], [], [
-            'label' => 'nom de l’adresse',
-            'recipient_name' => 'destinataire',
-            'phone' => 'téléphone',
-            'commune_id' => 'commune',
-            'district' => 'quartier',
-            'landmark' => 'repère',
-        ]);
-
-        return [...$data, 'is_default' => $request->boolean('is_default')];
     }
 
     private function authorizeOwner(Request $request, Address $address): void

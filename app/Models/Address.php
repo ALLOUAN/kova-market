@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['user_id', 'label', 'recipient_name', 'phone', 'commune_id', 'district', 'landmark', 'is_default'])]
 class Address extends Model
 {
+    public const MAX_PER_CUSTOMER = 10;
+
     protected static function booted(): void
     {
         static::saved(function (Address $address): void {

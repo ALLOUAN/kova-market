@@ -20,12 +20,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * The visitor's cart (F-040 to F-044): a guest cart is found through a 30-day cookie, a signed-in customer's
- * cart through the account, and the guest cart joins the account at sign-in. Quantities never exceed the stock.
+ * The visitor's cart (F-040 to F-044): a guest cart is found through a 30-day cookie (the X-Cart-Token header
+ * for the API, F-160), a signed-in customer's cart through the account, and the guest cart joins the account at
+ * sign-in. Quantities never exceed the stock.
  */
 class CartManager
 {
     public const COOKIE = 'kova_cart';
+
+    /** Header carrying the guest cart token for API clients, which keep no cookies. */
+    public const HEADER = 'X-Cart-Token';
 
     public const MAX_QUANTITY = 99;
 
@@ -261,7 +265,7 @@ class CartManager
 
     private function guestCart(): ?Cart
     {
-        $token = $this->request()->cookie(self::COOKIE);
+        $token = $this->request()->cookie(self::COOKIE) ?? $this->request()->header(self::HEADER);
 
         return is_string($token) && Str::isUuid($token)
             ? Cart::where('token', $token)->whereNull('user_id')->where('expires_at', '>=', now())->first()
@@ -289,6 +293,11 @@ class CartManager
 
     private function rememberInCookie(Cart $cart): void
     {
+        // API clients send the token back in a header: it comes with the cart instead.
+        if ($this->request()->is('api/*')) {
+            return;
+        }
+
         Cookie::queue(Cookie::make(self::COOKIE, $cart->token, Cart::LIFETIME_DAYS * 24 * 60, httpOnly: true, sameSite: 'lax'));
     }
 }
