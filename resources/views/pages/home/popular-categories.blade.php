@@ -4,7 +4,7 @@
             <div class="col-lg-12 pr--0">
                 <div class="rbt-component-section-title d-flex justify-content-between flex-row align-items-center p-0 mb--32 mb_sm--16 border-0">
                     <h2 class="rbt-title rbt-scroll-trigger fade_in animation-order-1 h4"><span class="rbt-bold--text">Catégories populaires</span></h2>
-                    <a class="rbt-btn rbt-btn-secondary rbt-btn-sm-2 rbt-scroll-trigger fade_in animation-order-2 animated-icon-btn defalt-secondary-bg" href="#">
+                    <a class="rbt-btn rbt-btn-secondary rbt-btn-sm-2 rbt-scroll-trigger fade_in animation-order-2 animated-icon-btn defalt-secondary-bg" href="{{ route('shop.index') }}">
                         <span class="btn-text">Toutes les catégories</span>
                         <span class="animated-icon ml--4">
                             <x-icons.external-arrow />
@@ -31,11 +31,11 @@
                         <div class="inner">
                             <div class="content">
                                 <p class="subtitle rbt-scroll-trigger fade_in animation-order-1">{{ $banner['subtitle'] }}</p>
-                                <h2 class="rbt-title rbt-scroll-trigger fade_in animation-order-2 h4"><a href="{{ $banner['url'] ?? '#' }}"><span class="rbt-bold--text">{{ $banner['highlight'] }}</span> {{ $banner['title'] }}</a></h2>
+                                <h2 class="rbt-title rbt-scroll-trigger fade_in animation-order-2 h4"><a href="{{ $banner['url'] }}"><span class="rbt-bold--text">{{ $banner['highlight'] }}</span> {{ $banner['title'] }}</a></h2>
                                 <h3 class="secondary-title rbt-scroll-trigger fade_in animation-order-3">{{ $banner['tagline'] }}</h3>
                             </div>
                             <div class="rbt-image-portion">
-                                <a href="{{ $banner['url'] ?? '#' }}">
+                                <a href="{{ $banner['url'] }}">
                                     <img class="rbt-scroll-trigger zoom_in animation-order-4" src="{{ asset($banner['image']) }}" alt="{{ $banner['highlight'] }}">
                                 </a>
                             </div>

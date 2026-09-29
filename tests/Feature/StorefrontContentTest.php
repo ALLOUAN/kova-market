@@ -6,9 +6,12 @@ use App\Enums\BannerPlacement;
 use App\Models\Banner;
 use App\Models\Faq;
 use App\Models\Page;
+use App\Models\Product;
+use App\Models\Promotion;
 use App\Models\Setting;
 use Database\Seeders\ContentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class StorefrontContentTest extends TestCase
@@ -73,6 +76,49 @@ class StorefrontContentTest extends TestCase
         Faq::create(['topic' => 'Paiement', 'question' => 'Question masquée ?', 'answer' => 'Non.', 'is_published' => false]);
 
         $this->get('/faq')->assertOk()->assertSeeText('Paiement')->assertSeeText('Acceptez-vous Wave ?')->assertDontSeeText('Question masquée ?');
+    }
+
+    public function test_home_buttons_never_lead_nowhere(): void
+    {
+        $content = $this->get('/')->assertOk()->getContent();
+
+        // Default banners have no link of their own: they lead to the shop.
+        $this->assertStringNotContainsString('rbt-magnetic-button" href="#"', $content);
+        $this->assertStringContainsString('rbt-magnetic-button" href="'.route('shop.index').'"', $content);
+        $this->assertStringNotContainsString('Ajouter au comparateur', $content);
+    }
+
+    public function test_a_campaign_links_to_its_offer_only_when_it_has_a_link(): void
+    {
+        Promotion::factory()->create(['title' => 'Semaine audio', 'url' => '/categorie/audio']);
+        Promotion::factory()->create(['title' => 'Fête des mères']);
+
+        $content = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString('<a href="/categorie/audio">Semaine audio</a>', $content);
+        $this->assertSame(1, substr_count($content, 'Voir le détail'));
+    }
+
+    public function test_recently_viewed_lists_the_visitors_own_product_pages_most_recent_first(): void
+    {
+        $first = Product::factory()->create(['name' => 'Casque vu en premier', 'slug' => 'casque']);
+        $second = Product::factory()->create(['name' => 'Enceinte vue ensuite', 'slug' => 'enceinte']);
+        Product::factory()->create(['name' => 'Jamais consulté']);
+
+        $this->get('/')->assertSeeText('Les produits que vous consultez apparaîtront ici.');
+
+        $this->get('/produit/casque');
+        $this->get('/produit/enceinte');
+
+        // The modal sits in the layout just before the page's <main>.
+        $modal = Str::between($this->get('/')->getContent(), 'id="recent-viewModal"', '<main');
+        $this->assertStringNotContainsString('Jamais consulté', $modal);
+        $this->assertTrue(strpos($modal, $second->name) < strpos($modal, $first->name));
+    }
+
+    public function test_popular_searches_lead_to_their_results(): void
+    {
+        $this->get('/')->assertSee('href="'.e(route('shop.index', ['q' => 'Smartphones'])).'"', false);
     }
 
     public function test_the_footer_links_to_the_legal_pages_installed_by_the_content_seeder(): void

@@ -4,19 +4,8 @@
             <div class="col-lg-12">
                 <div class="rbt-component-section-title d-flex flex-row justify-content-between align-items-center p-0 mb--32 mb_sm--16 border-0">
                     <h2 class="rbt-title rbt-scroll-trigger fade_in animation-order-1 h4"><span class="rbt-bold--text">{{ $dealsOfTheDay->name }}</span></h2>
-                    <div class="mobile-horizontal-scroll-section">
-                        <div class="rbt-product-nav-section rbt-nav-effect-activation rbt-scroll-trigger fade_in animation-order-2">
-                            <ul class="rbt-product-nav-grp">
-                                @foreach (config('homepage.deals_filters') as $filter)
-                                    <li><a href="#" @class(['rbt-product-nav', 'active' => $loop->first])>{{ $filter }}</a></li>
-                                @endforeach
-                            </ul>
-                            <ul class="rbt-product-nav-grp">
-                                <li><a href="#" class="rbt-product-nav">Tout voir</a></li>
-                            </ul>
-                            <span class="rbt-bg-highlight"></span>
-                        </div>
-                    </div>
+                    {{-- A curated selection: no filter tabs, a link to the whole shop. --}}
+                    <a href="{{ route('shop.index') }}" class="rbt-btn-link rbt-text-bold">Tout voir <i class="fa-regular fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>

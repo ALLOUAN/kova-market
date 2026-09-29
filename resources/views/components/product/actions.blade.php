@@ -15,5 +15,7 @@
             <button class="rbt-btn rbt-btn-border rbt-btn-sm rbt-square-btn d-block has-left-icon w-100" type="submit"><i class="fa-regular fa-cart-shopping"></i> Ajouter au panier</button>
         </form>
     @endif
-    <a class="rbt-btn rbt-btn-border rbt-btn-sm rbt-square-btn d-block rbt-btn-transparent has-left-icon rbt-compare-btn-activation rbt-compare-bottom-sidenav-activation" href="#"><i class="fa-regular fa-file-plus-minus"></i>Ajouter au comparateur</a>
+    @if (config('storefront.features.compare'))
+        <a class="rbt-btn rbt-btn-border rbt-btn-sm rbt-square-btn d-block rbt-btn-transparent has-left-icon rbt-compare-btn-activation rbt-compare-bottom-sidenav-activation" href="#!"><i class="fa-regular fa-file-plus-minus"></i>Ajouter au comparateur</a>
+    @endif
 </div>

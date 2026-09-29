@@ -5,10 +5,9 @@
 | Storefront navigation
 |--------------------------------------------------------------------------
 |
-| Every link accepts either a "route" (named route) or a "url". Links whose
-| page does not exist yet have neither and render as "#"; give them a route
-| once the page is built ("parameters" feeds route parameters). ":store" is
-| replaced by the store name.
+| Every link has a "route" (named route, "parameters" feeds its parameters)
+| or a "url": a link to nowhere is not listed (a test checks it). Add a link
+| here once its page exists. ":store" is replaced by the store name.
 |
 | The "Boutique" mega menu, the mobile "Catégories" tab and the category side
 | panel are generated from the category tree stored in the database.
@@ -28,23 +27,20 @@ return [
                     'title' => 'Boutique',
                     'links' => [
                         ['label' => 'Tous les produits', 'route' => 'shop.index', 'badge' => ['label' => 'SHOP', 'variant' => 'green']],
-                        ['label' => 'Toutes les catégories', 'route' => 'shop.index'],
-                        ['label' => 'Par marque'],
-                        ['label' => 'Offres spéciales', 'badge' => ['label' => 'PROMO', 'variant' => 'danger']],
-                        ['label' => 'Comparer des produits'],
-                        ['label' => 'Nous trouver'],
+                        ['label' => 'Nouveautés', 'route' => 'shop.index', 'parameters' => ['tri' => 'nouveautes'], 'badge' => ['label' => 'Nouveau', 'variant' => 'yellow']],
+                        ['label' => 'Les plus vendus', 'route' => 'shop.index', 'parameters' => ['tri' => 'popularite']],
+                        ['label' => 'Nous trouver', 'route' => 'contact.show'],
                     ],
                 ],
                 [
                     'title' => 'Mon compte',
                     'links' => [
-                        ['label' => 'Se connecter'],
-                        ['label' => 'Créer un compte'],
+                        ['label' => 'Se connecter', 'route' => 'home', 'parameters' => ['connexion' => 1]],
+                        ['label' => 'Créer un compte', 'route' => 'home', 'parameters' => ['inscription' => 1]],
                         ['label' => 'Mes informations', 'route' => 'account.show'],
                         ['label' => 'Mes commandes', 'route' => 'account.orders'],
-                        ['label' => 'Ma liste de souhaits'],
-                        ['label' => 'Moyens de paiement'],
-                        ['label' => 'Notifications'],
+                        ['label' => 'Mes adresses', 'route' => 'account.addresses.index'],
+                        ['label' => 'Moyens de paiement', 'route' => 'pages.show', 'parameters' => ['page' => 'moyens-de-paiement']],
                     ],
                 ],
                 [
@@ -59,7 +55,6 @@ return [
                 [
                     'title' => 'Aide',
                     'links' => [
-                        ['label' => 'Centre d’aide'],
                         ['label' => 'Questions fréquentes', 'route' => 'faq'],
                         ['label' => 'Nous contacter', 'route' => 'contact.show'],
                         ['label' => 'Politique de confidentialité', 'route' => 'pages.show', 'parameters' => ['page' => 'politique-de-confidentialite']],
@@ -69,9 +64,9 @@ return [
                 [
                     'title' => 'À propos',
                     'links' => [
-                        ['label' => 'Qui sommes-nous ?'],
+                        ['label' => 'Qui sommes-nous ?', 'route' => 'pages.show', 'parameters' => ['page' => 'qui-sommes-nous']],
                         ['label' => 'Livraison', 'route' => 'pages.show', 'parameters' => ['page' => 'livraison']],
-                        ['label' => 'Paiement'],
+                        ['label' => 'Paiement', 'route' => 'pages.show', 'parameters' => ['page' => 'moyens-de-paiement']],
                     ],
                 ],
             ],
@@ -80,8 +75,8 @@ return [
             'label' => 'Aide',
             'type' => 'dropdown',
             'links' => [
-                ['label' => 'Centre d’aide'],
                 ['label' => 'Questions fréquentes', 'route' => 'faq'],
+                ['label' => 'Suivre ma commande', 'route' => 'tracking.show'],
                 ['label' => 'Livraison', 'route' => 'pages.show', 'parameters' => ['page' => 'livraison']],
                 ['label' => 'Retours et remboursements', 'route' => 'pages.show', 'parameters' => ['page' => 'retours-et-remboursements']],
                 ['label' => 'Nous contacter', 'route' => 'contact.show', 'badge' => ['label' => 'WhatsApp', 'variant' => 'green']],
@@ -91,9 +86,9 @@ return [
 
     'sidebar' => [
         'Liens utiles' => [
-            ['label' => 'Qui sommes-nous ?'],
-            ['label' => 'Avis clients'],
-            ['label' => 'Livraison et paiement'],
+            ['label' => 'Qui sommes-nous ?', 'route' => 'pages.show', 'parameters' => ['page' => 'qui-sommes-nous']],
+            ['label' => 'Livraison', 'route' => 'pages.show', 'parameters' => ['page' => 'livraison']],
+            ['label' => 'Moyens de paiement', 'route' => 'pages.show', 'parameters' => ['page' => 'moyens-de-paiement']],
         ],
         'Plus d’infos' => [
             ['label' => 'Contact', 'route' => 'contact.show'],

@@ -13,41 +13,11 @@
                     <div class="input-sectition position-relative w-100 mr--12 mr_sm--4">
                         <input class="search-input" type="text" name="q" placeholder="Que recherchez-vous ?" aria-label="Rechercher">
                         <i class="fa-sharp fa-regular inner-search-icon fa-magnifying-glass"></i>
-                        <button class="media-search-btn media-search-popupactivation">
-                            <i class="fa-sharp fa-regular fa-camera"></i>
-                        </button>
                     </div>
+                    {{-- The template's image search (camera, file drop) has no back end: removed. --}}
                     <div class="submit-btn">
-                        <a class="rbt-btn btn-md" href="#">Rechercher</a>
+                        <button type="submit" class="rbt-btn btn-md">Rechercher</button>
                     </div>
-                    <div class="rbt-media-search-section">
-                        <div class="rbt-media-wrapper">
-                            <div class="section-title"><span class="title b1">Trouvez l’inspiration grâce à la recherche par image</span></div>
-                            <div class="rbt-file-upload-container">
-                                <input type="file" class="fileInput" multiple="" hidden="">
-                                <div class="file-upload-area fileUploadArea">
-                                    <div class="file-upload-content">
-                                        <span class="rbt-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span>
-                                        <p class="rbt-title">Glissez-déposez vos fichiers ici <span class="rbt-text-color-gray-400">Ou</span></p>
-                                        <button class="browseFilesButton rbt-btn rbt-btn-sm">Choisir des fichiers</button>
-                                    </div>
-                                    <div class="fileList file-list"></div>
-                                </div>
-                                <p class="fileCount">0 sur 10</p>
-                            </div>
-                            <div class="rbt-copy-link-part rbt-text-copy-activation">
-                                <input class="rbt-copy-value-field" type="text" value="{{ url('/') }}/wishlist" readonly="">
-                                <button class="rbt-btn rbt-btn-xs has-left-icon rbt-copy-btn" data-tooltip="Copier">
-                                    <i class="fa-regular fa-copy"></i>
-                                    <span class="rbt-btn-text">Copier</span>
-                                </button>
-                            </div>
-                            <button type="button" class="rbt-round-btn rbt-ms-dismiss-btn">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <a href="javascript:void(0);" class="rbt-ms-dismiss-outsider"></a>
                 </form>
             </div>
         </div>
@@ -62,7 +32,7 @@
 
                     <div class="rbt-search-list-wrapper rbt-tag-list rbt-tag-list-rounded-lg">
                         @foreach (config('storefront.search.popular') as $term)
-                            <a href="#">{{ $term }}</a>
+                            <a href="{{ route('shop.index', ['q' => $term]) }}">{{ $term }}</a>
                         @endforeach
                     </div>
                 </div>

@@ -11,7 +11,7 @@
                                         <div class="swiper-slide">
                                             <div class="rbt-fancy-item fancy-menu-text fancy-menu-center">
                                                 <p class="rbt-fancy-text rbt-text-color-white">{{ $message }}
-                                                    <a class="rbt-text-color-white" href="#">Acheter</a>
+                                                    <a class="rbt-text-color-white" href="{{ route('shop.index') }}">Acheter</a>
                                                 </p>
                                             </div>
                                         </div>

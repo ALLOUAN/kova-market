@@ -93,7 +93,9 @@
                                 <a class="rbt-contact-links" href="{{ $contact['phone_href'] }}">{{ $contact['phone'] }}</a>
                                 <p class="rbt-contact-text mt--12">{{ $contact['opening_hours'] }}</p>
                                 <a class="rbt-contact-links" href="mailto:{{ $contact['email'] }}">{{ $contact['email'] }}</a>
-                                <a class="rbt-contact-links d-block" href="#">Voir sur la carte</a>
+                                @if (filled($contact['address']))
+                                    <a class="rbt-contact-links d-block" href="https://www.google.com/maps/search/?api=1&amp;query={{ rawurlencode($contact['address']) }}" target="_blank" rel="noopener">Voir sur la carte</a>
+                                @endif
                             </div>
                         </div>
                     </div>

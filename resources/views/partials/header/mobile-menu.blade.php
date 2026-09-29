@@ -87,7 +87,7 @@
                                     @endif
                                 @endforeach
                                 <li>
-                                    <a href="#">
+                                    <a href="{{ route('shop.index') }}">
                                         Toutes les catégories
                                     </a>
                                 </li>

@@ -89,9 +89,22 @@ class HomePageService
     {
         $slides = $this->liveBanners()->where('placement', BannerPlacement::Hero);
 
-        return $slides->isEmpty()
+        $slides = $slides->isEmpty()
             ? config('homepage.hero')
             : $slides->map(fn (Banner $banner) => $banner->toStorefront())->values()->all();
+
+        return array_map(fn (array $slide) => $this->withLink($slide), $slides);
+    }
+
+    /**
+     * A banner without a link leads to the shop rather than nowhere.
+     *
+     * @param  array<string, mixed>  $banner
+     * @return array<string, mixed>
+     */
+    private function withLink(array $banner): array
+    {
+        return [...$banner, 'url' => filled($banner['url'] ?? null) ? $banner['url'] : route('shop.index')];
     }
 
     /**
@@ -102,9 +115,9 @@ class HomePageService
     private function banners(): array
     {
         return collect(config('homepage.banners'))
-            ->map(fn (array $default, string $slot) => $this->liveBanners()
+            ->map(fn (array $default, string $slot) => $this->withLink($this->liveBanners()
                 ->firstWhere('placement', BannerPlacement::from($slot))
-                ?->toStorefront() ?? $default)
+                ?->toStorefront() ?? $default))
             ->all();
     }
 

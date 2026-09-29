@@ -32,6 +32,14 @@ class PromotionForm
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
+                        TextInput::make('url')
+                            ->label('Lien « Voir le détail »')
+                            ->placeholder('https://… ou /categorie/…')
+                            ->helperText('Facultatif : la catégorie, le produit ou la page de l’offre. Sans lien, la carte n’a pas de bouton.')
+                            ->regex('#^(https?://|/)#')
+                            ->validationMessages(['regex' => 'Le lien doit commencer par https:// ou /.'])
+                            ->maxLength(255)
+                            ->columnSpanFull(),
                         DateTimePicker::make('starts_at')
                             ->label('Début')
                             ->seconds(false)

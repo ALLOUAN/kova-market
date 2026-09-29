@@ -14,9 +14,7 @@
                         <div class="rbt-text-swiper-container rbt-arrow-vertical">
                             <div class="swiper-wrapper">
                                 @foreach (config('storefront.announcements.trending') as $message)
-                                    <div class="swiper-slide">{{ $message }}
-                                        <a class="rbt-fancy-link ml--4" href="#">En savoir plus</a>
-                                    </div>
+                                    <div class="swiper-slide">{{ $message }}</div>
                                 @endforeach
                             </div>
                             <div class="rbt-verticle-arrow rbt-arrow-prev">
@@ -36,7 +34,7 @@
                         <ul class="rbt-quick-access d-none d-lg-flex">
                             <li class="rbt-access-box">
                                 <div class="header-info">
-                                    <a href="#" class="rbt-access-link">Notre adresse</a>
+                                    <a href="{{ route('contact.show') }}" class="rbt-access-link">Notre adresse</a>
                                 </div>
                                 <div class="header-info">
                                     <a href="{{ route('tracking.show') }}" class="rbt-access-link">Suivre ma commande</a>

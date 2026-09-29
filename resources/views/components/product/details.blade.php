@@ -22,14 +22,7 @@
                     <span class="rbt-bold--text">Livraison :</span>
                     <span class="text">{{ config('storefront.shipping.delay') }}</span>
                     <br>
-                    <a href="#" class="shipment-quick-link rbt-btn-link">Voir les délais de livraison</a>
-                </div>
-            </li>
-            <li>
-                <span class="icon"><i class="fa-regular fa-bag-shopping"></i></span>
-                <div class="right-content">
-                    <span class="rbt-bold--text">Retrait :</span>
-                    <a href="#" class="shipment-quick-link rbt-btn-link">Vérifier la disponibilité</a>
+                    <a href="{{ route('pages.show', 'livraison') }}" class="shipment-quick-link rbt-btn-link">Voir les délais de livraison</a>
                 </div>
             </li>
         </ul>

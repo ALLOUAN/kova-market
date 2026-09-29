@@ -73,6 +73,8 @@ return [
         // The template's "Ne manquez pas nos offres" window (EX-20, EX-22): it opens by itself over every page and
         // its newsletter form is not wired yet, so it stays off until the newsletter exists.
         'welcome_popup' => (bool) env('STORE_WELCOME_POPUP', false),
+        // The footer's newsletter sign-up (EX-22, proposal P-04): no mailing list behind it yet.
+        'newsletter' => (bool) env('STORE_NEWSLETTER', false),
     ],
 
     // Payment methods shown in the footer (F-016). Drop each operator's official logo at the given path
@@ -119,8 +121,8 @@ return [
     |
     | quick_view:  "modal"   opens the quick view modal,
     |              "sidenav" opens the quick view side panel.
-    | cart_action: "sidenav" opens the mini-cart side panel,
-    |              "popup"   opens the "added to cart" popup.
+    | cart_action: "sidenav" opens the mini-cart side panel after an add to cart,
+    |              any other value stays on the page with the confirmation message.
     */
     'product_card' => [
         'quick_view' => 'modal',

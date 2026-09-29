@@ -5,6 +5,7 @@ namespace App\View\Composers;
 use App\Services\Cart\CartManager;
 use App\Services\Storefront\CatalogService;
 use App\Services\Storefront\NavigationService;
+use App\Services\Storefront\RecentlyViewed;
 use App\Services\Storefront\StoreSettings;
 use Illuminate\View\View;
 
@@ -15,18 +16,17 @@ class StorefrontLayoutComposer
 {
     public const TRENDING = 'trending-searches';
 
-    public const RECENTLY_VIEWED = 'weekly-highlights';
-
     public function __construct(
         private CatalogService $catalog,
         private NavigationService $navigation,
         private StoreSettings $settings,
         private CartManager $cart,
+        private RecentlyViewed $recentlyViewed,
     ) {}
 
     public function compose(View $view): void
     {
-        $collections = $this->catalog->collections([self::TRENDING, self::RECENTLY_VIEWED]);
+        $collections = $this->catalog->collections([self::TRENDING]);
 
         $contact = $this->settings->contact();
 
@@ -46,8 +46,7 @@ class StorefrontLayoutComposer
             'navBrands' => $this->catalog->brands(),
             'promotions' => $this->catalog->currentPromotions(),
             'trendingProducts' => $collections->get(self::TRENDING)?->products ?? collect(),
-            // Per-visitor history is not tracked yet: the modal showcases the weekly highlights meanwhile.
-            'recentlyViewedProducts' => $collections->get(self::RECENTLY_VIEWED)?->products ?? collect(),
+            'recentlyViewedProducts' => $this->recentlyViewed->products(),
         ]);
     }
 }

@@ -60,6 +60,4 @@ return [
         ],
     ],
 
-    'deals_filters' => ['Meilleures ventes', 'Nouveautés', 'En promotion'],
-
 ];

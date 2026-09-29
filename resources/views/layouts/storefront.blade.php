@@ -89,10 +89,11 @@
     @endif
 
     {{-- Shopping modals triggered from product cards, the header and the side panels --}}
-    @include('partials.modals.added-comparison')
+    @if (config('storefront.features.compare'))
+        @include('partials.modals.added-comparison')
+    @endif
     @include('partials.modals.quick-view')
     @include('partials.modals.notify')
-    @include('partials.modals.added-cart')
     {{-- Only needed when a tracker is set (F-156): the store's own cookies are strictly necessary. --}}
     @if ($analytics->enabled())
         @include('partials.overlays.cookies')
@@ -108,7 +109,9 @@
     {{-- Page specific modals (size guide, coupons, ...) --}}
     @stack('modals')
 
-    @include('partials.footer.newsletter')
+    @if (config('storefront.features.newsletter'))
+        @include('partials.footer.newsletter')
+    @endif
     @include('partials.footer.footer')
     @guest
         @include('partials.modals.sign-in')
@@ -138,6 +141,9 @@
         @elseif (request()->boolean('connexion') && auth()->guest())
             // Sent here by a page that needs an account.
             document.addEventListener('DOMContentLoaded', () => bootstrap.Modal.getOrCreateInstance(document.getElementById('signinModal')).show());
+        @elseif (request()->boolean('inscription') && auth()->guest())
+            // "Créer un compte" from a menu.
+            document.addEventListener('DOMContentLoaded', () => bootstrap.Modal.getOrCreateInstance(document.getElementById('signupModal')).show());
         @endif
         @if (session('cart_open'))
             // Right after an "add to cart" from a product card: show the mini-cart (same classes as the theme's opener).

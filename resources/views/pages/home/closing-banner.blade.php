@@ -21,7 +21,7 @@
                                 @endif
                             </div>
                             <div class="rbt-banner-btn rbt-scroll-trigger fade_in animation-order-5">
-                                <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="{{ $banner['url'] ?? '#' }}"><i class="fa-solid fa-arrow-up-right"></i> ACHETER <br> MAINTENANT</a>
+                                <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="{{ $banner['url'] }}"><i class="fa-solid fa-arrow-up-right"></i> ACHETER <br> MAINTENANT</a>
                             </div>
                         </div>
                         <div class="rbt-product-banner-img rbt-scroll-trigger zoom_in animation-order-1">
