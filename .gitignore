@@ -29,3 +29,10 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /public/uploads
+
+# End-to-end tests (Playwright)
+/database/e2e.sqlite
+/test-results
+/playwright-report
+/blob-report
+/.env.e2e

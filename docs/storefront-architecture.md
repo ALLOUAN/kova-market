@@ -138,3 +138,21 @@ banner nor the script is output. The theme's own banner logic (localStorage only
 | `purchase` | confirmation page, once (session) | Purchase / PlaceAnOrder |
 
 The trackers' origins are allowed in `config/security.php`; a new tracker needs its origins there too.
+
+## End-to-end tests
+
+`tests/e2e` (Playwright, Chromium) runs real journeys in a browser: a guest purchase with cash on delivery then its
+public tracking, the checkout refusal without consent to the terms, sign-up and forgotten password, the consent
+banner (no request to an advertising domain before "Accepter", the three trackers after it), and the back-office
+sign-in with two-factor authentication.
+
+```sh
+npm install --ignore-scripts && npx playwright install chromium
+npm run e2e                     # PHP_BIN=/path/to/php8.4 when `php` is another version
+```
+
+`playwright.config.js` starts `php artisan serve` on port 8123 with `APP_ENV=e2e`: `tests/e2e/environment.js` writes
+`.env.e2e` (a throwaway SQLite file, SMS and e-mails to the log, no cache), so the tests never touch the database of
+`.env`. The global setup recreates that database with the demo catalog, gives the super-admin a known authenticator
+secret (`tests/e2e/support.js` computes its codes) and sets fake tracker identifiers. Every test but the consent ones
+starts with the banner already answered. The CI runs them on each push.

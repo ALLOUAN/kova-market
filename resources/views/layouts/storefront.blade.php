@@ -78,7 +78,9 @@
         @yield('content')
     </main>
 
-    @include('partials.modals.welcome-banner')
+    @if (config('storefront.features.welcome_popup'))
+        @include('partials.modals.welcome-banner')
+    @endif
     @if (config('storefront.features.compare'))
         @include('partials.offcanvas.compare-bar')
     @endif

@@ -70,6 +70,9 @@ return [
     'features' => [
         'wishlist' => (bool) env('STORE_WISHLIST', false),
         'compare' => (bool) env('STORE_COMPARE', false),
+        // The template's "Ne manquez pas nos offres" window (EX-20, EX-22): it opens by itself over every page and
+        // its newsletter form is not wired yet, so it stays off until the newsletter exists.
+        'welcome_popup' => (bool) env('STORE_WELCOME_POPUP', false),
     ],
 
     // Payment methods shown in the footer (F-016). Drop each operator's official logo at the given path
