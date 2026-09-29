@@ -34,6 +34,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // HTTPS, HSTS, content security policy and the other security headers on every response (F-140, F-143).
         $middleware->append(SecurityHeaders::class);
+        // CinetPay calls these from its servers or posts the customer back: no CSRF token (F-064). Each checks the
+        // outcome with CinetPay's API, so a forged call changes nothing.
+        $middleware->validateCsrfTokens(except: ['paiement/cinetpay/notification', 'paiement/retour/*']);
+
         // Texts, images and menus edited in the back-office (F-111).
         $middleware->web(prepend: [ApplyStoreSettings::class]);
         $middleware->prepend(ProtectPreproduction::class);

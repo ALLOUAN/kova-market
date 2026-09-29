@@ -54,7 +54,9 @@ return [
             ],
             'frame-src' => ["'self'", 'https://challenges.cloudflare.com', 'https://www.google.com'],
             'frame-ancestors' => ["'self'"],
-            'form-action' => ["'self'"],
+            // The checkout and "Payer maintenant" forms end on CinetPay's payment page (F-060): browsers apply
+            // form-action to that redirection too.
+            'form-action' => ["'self'", 'https://*.cinetpay.net', 'https://*.cinetpay.co', 'https://*.cinetpay.com'],
             'base-uri' => ["'self'"],
             'object-src' => ["'none'"],
         ],

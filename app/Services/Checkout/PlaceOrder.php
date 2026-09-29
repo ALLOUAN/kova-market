@@ -115,7 +115,10 @@ class PlaceOrder
             return $order;
         });
 
-        OrderPlaced::dispatch($order);
+        // An order paid online is announced once CinetPay confirms the payment (OnlinePayments), not before.
+        if (! $order->payment_method->isOnline()) {
+            OrderPlaced::dispatch($order);
+        }
 
         return $order;
     }

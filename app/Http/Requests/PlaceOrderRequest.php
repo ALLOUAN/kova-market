@@ -28,7 +28,8 @@ class PlaceOrderRequest extends FormRequest
             'district' => ['required', 'string', 'max:255'],
             'landmark' => ['nullable', 'string', 'max:255'],
             'note' => ['nullable', 'string', 'max:1000'],
-            'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
+            // Online payment only once CinetPay is configured.
+            'payment_method' => ['required', Rule::in(array_map(fn (PaymentMethod $method) => $method->value, PaymentMethod::available()))],
             'terms' => ['accepted'],
             'marketing_opt_in' => ['nullable', 'boolean'],
             'cf-turnstile-response' => [new PassesTurnstile],

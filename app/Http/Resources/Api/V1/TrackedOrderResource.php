@@ -35,6 +35,8 @@ class TrackedOrderResource extends JsonResource
             'item_count' => $this->itemCount(),
             'total' => $this->total,
             'payment_method' => ['code' => $this->payment_method->value, 'label' => $this->payment_method->getLabel()],
+            // The app polls it after the customer paid on CinetPay's page (F-060).
+            'payment_status' => ['code' => $this->payment_status->value, 'label' => $this->payment_status->getLabel()],
             'commune_name' => $this->commune_name,
             'delivery_date' => $this->delivery_date?->toDateString(),
             'courier' => $courier ? [

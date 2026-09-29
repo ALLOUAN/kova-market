@@ -40,6 +40,7 @@ Route::prefix('v1')->name('api.v1.')->middleware(['api.guard', 'throttle:api'])-
     // Orders: placing one (guests allowed) and public tracking by number + phone.
     Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:10,1')->name('orders.store');
     Route::post('/orders/track', [OrderController::class, 'track'])->middleware('throttle:10,1')->name('orders.track');
+    Route::post('/orders/{order:number}/payment', [OrderController::class, 'pay'])->middleware('throttle:10,1')->name('orders.pay');
 
     // Customer account.
     Route::middleware('auth:sanctum')->group(function () {

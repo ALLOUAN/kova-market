@@ -34,6 +34,13 @@ const settings = {
     SCOUT_DRIVER: 'database',
     ADMIN_PATH: 'admin',
     LOG_CHANNEL: 'single',
+    // The fake CinetPay of tests/e2e/fake-cinetpay.js.
+    CINETPAY_API_KEY: 'e2e-key',
+    CINETPAY_API_PASSWORD: 'e2e-password',
+    CINETPAY_BASE_URL: 'http://127.0.0.1:8124',
+    CINETPAY_FALLBACK_EMAIL: 'paiements@kova.test',
+    // Its payment page lives on another origin than CinetPay's real one: the policy only reports there.
+    SECURITY_CSP_REPORT_ONLY: 'true',
 };
 
 fs.writeFileSync('.env.e2e', `${Object.entries(settings).map(([key, value]) => `${key}=${value}`).join('\n')}\n`);

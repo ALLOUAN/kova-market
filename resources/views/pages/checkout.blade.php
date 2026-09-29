@@ -109,7 +109,9 @@
                                     <label for="payment-{{ $method->value }}"><strong>{{ $method->getLabel() }}</strong> — {{ $method->description() }}</label>
                                 </div>
                             @endforeach
-                            <p class="b4 mt--8 mb-0">Le paiement en ligne par Orange Money, MTN MoMo, Moov Money et Wave arrive prochainement.</p>
+                            @if (collect($paymentMethods)->contains(fn ($method) => $method->isOnline()))
+                                <p class="b4 mt--8 mb-0">Paiement en ligne : vous êtes redirigé vers la page sécurisée de CinetPay, puis ramené ici. Une commande non payée est annulée au bout de {{ app(\App\Services\Payments\OnlinePayments::class)->timeoutMinutes() }} minutes.</p>
+                            @endif
                             @error('payment_method')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
                         </fieldset>
 

@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PaymentMethod;
+use App\Enums\TransactionStatus;
 use App\Http\Requests\PlaceOrderRequest;
 use App\Models\Commune;
 use App\Models\Order;
 use App\Services\Cart\CartManager;
 use App\Services\Checkout\CheckoutException;
 use App\Services\Checkout\PlaceOrder;
+use App\Services\Payments\CinetPayException;
+use App\Services\Payments\OnlinePayments;
 use App\Services\Storefront\Analytics;
 use App\Support\PhoneNumber;
 use Illuminate\Http\RedirectResponse;
@@ -47,7 +50,7 @@ class CheckoutController extends Controller
         return view('pages.checkout', [
             'summary' => $summary,
             'communes' => Commune::deliverable()->with('zone')->get()->groupBy(fn (Commune $commune) => $commune->zone->name),
-            'paymentMethods' => PaymentMethod::cases(),
+            'paymentMethods' => PaymentMethod::available(),
             'addresses' => $addresses,
             // Default address first (F-071), then the account, then the commune chosen in the cart.
             'defaults' => [
@@ -61,7 +64,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(PlaceOrderRequest $request, PlaceOrder $placeOrder, Analytics $analytics): RedirectResponse
+    public function store(PlaceOrderRequest $request, PlaceOrder $placeOrder, Analytics $analytics, OnlinePayments $payments): RedirectResponse
     {
         $cart = $this->cart->current();
 
@@ -80,6 +83,16 @@ class CheckoutController extends Controller
         }
 
         $request->session()->push(self::PLACED, $order->number);
+
+        // Paid online: straight to CinetPay's page; the purchase is reported once the payment is confirmed.
+        if ($order->payment_method->isOnline()) {
+            try {
+                return redirect()->away($payments->start($order)->payment_url);
+            } catch (CinetPayException $exception) {
+                return redirect()->route('checkout.confirmation', $order)->with('payment_error', $exception->getMessage());
+            }
+        }
+
         // Reported once, on the confirmation page that follows (a reload does not count it again).
         $analytics->purchase($order->load('items'));
 
@@ -88,12 +101,30 @@ class CheckoutController extends Controller
 
     public function confirmation(Request $request, Order $order): View
     {
-        // Only the visitor who placed the order (or its account) can see it here.
-        $allowed = in_array($order->number, $request->session()->get(self::PLACED, []), true)
+        abort_unless(self::isVisibleTo($request, $order), 404);
+
+        // A payment under way is checked with CinetPay on each (self-refreshing) visit, the notification may be late.
+        if ($order->awaitsOnlinePayment() && $attempt = $order->payments()->whereIn('status', [TransactionStatus::Initiated, TransactionStatus::Pending])->first()) {
+            try {
+                app(OnlinePayments::class)->synchronize($attempt, 'confirmation');
+                $order->refresh();
+            } catch (CinetPayException) {
+                // CinetPay does not answer now: the page keeps waiting.
+            }
+        }
+
+        return view('pages.order-confirmation', [
+            'order' => $order->load('items'),
+            'paymentTimeout' => app(OnlinePayments::class)->timeoutMinutes(),
+        ]);
+    }
+
+    /**
+     * Only the visitor who placed the order (in this session) or its account sees its confirmation and pays it.
+     */
+    public static function isVisibleTo(Request $request, Order $order): bool
+    {
+        return in_array($order->number, $request->session()->get(self::PLACED, []), true)
             || ($order->user_id !== null && $order->user_id === $request->user()?->getKey());
-
-        abort_unless($allowed, 404);
-
-        return view('pages.order-confirmation', ['order' => $order->load('items')]);
     }
 }

@@ -107,6 +107,24 @@ class Order extends Model
         return $this->belongsTo(Commune::class);
     }
 
+    /**
+     * Online payment attempts (F-060 to F-067), latest first.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->latest('id');
+    }
+
+    /**
+     * An online order still waiting for its payment, which the customer can (re)try.
+     */
+    public function awaitsOnlinePayment(): bool
+    {
+        return $this->payment_method === PaymentMethod::Online
+            && $this->payment_status === PaymentStatus::Pending
+            && $this->status === OrderStatus::Received;
+    }
+
     public function couponUsage(): HasOne
     {
         return $this->hasOne(CouponUsage::class);

@@ -21,7 +21,10 @@ Shared hosting runs no permanent process: no Redis, no Horizon, no Supervisor. Q
    existing one is kept aside, never deleted).
 3. **`~/kova/shared/.env`**: `APP_ENV`, `APP_KEY` (`php artisan key:generate --show` on any copy), `APP_URL`,
    `APP_DEBUG=false`, `DB_CONNECTION=mysql` and `DB_*`, `CACHE_STORE=database`, `SESSION_DRIVER=database`,
-   `QUEUE_CONNECTION=database`, `MAIL_*`, `SMS_*`, `ADMIN_PATH` (non-standard), `TURNSTILE_*`, `SENTRY_LARAVEL_DSN`.
+   `QUEUE_CONNECTION=database`, `MAIL_*`, `SMS_*`, `ADMIN_PATH` (non-standard), `TURNSTILE_*`, `SENTRY_LARAVEL_DSN`,
+   `CINETPAY_API_KEY` / `CINETPAY_API_PASSWORD` (KOVA MARKET's own CinetPay account, test keys on the preproduction)
+   and `CINETPAY_FALLBACK_EMAIL`. CinetPay must reach `https://…/paiement/cinetpay/notification`: the site must be
+   public over HTTPS (the preproduction lets that one address through its login).
    Preproduction also sets `PREPROD_USER` / `PREPROD_PASSWORD`.
 4. **Cron** (LWS panel, every minute): `cd ~/kova/current && php artisan schedule:run >> /dev/null 2>&1`
    (`setup.sh` prints the exact line).

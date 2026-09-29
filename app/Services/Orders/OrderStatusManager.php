@@ -79,6 +79,19 @@ class OrderStatusManager
     }
 
     /**
+     * An online order left unpaid is cancelled by the store itself (F-056): stock and promo code use are given back.
+     * Not announced to the customer, who never paid.
+     */
+    public function expireUnpaid(Order $order, string $note): Order
+    {
+        if ($order->status !== OrderStatus::Received || ! $order->awaitsOnlinePayment()) {
+            throw new OrderStatusException('Seule une commande en ligne non payée peut expirer.');
+        }
+
+        return $this->apply($order, OrderStatus::Cancelled, null, $note, fn (Order $order) => $this->cancel($order, null), announce: false);
+    }
+
+    /**
      * Super-admin correction, one step back in the normal flow. A cancellation cannot be undone this way:
      * its stock is already back on sale.
      */
@@ -127,7 +140,7 @@ class OrderStatusManager
         return $user->can(Permission::PrepareOrders->value) && in_array([$from, $to], self::PICKER_STEPS, true);
     }
 
-    private function apply(Order $order, OrderStatus $to, User $user, ?string $note, callable $effects): Order
+    private function apply(Order $order, OrderStatus $to, ?User $user, ?string $note, callable $effects, bool $announce = true): Order
     {
         $from = $order->status;
 
@@ -139,17 +152,19 @@ class OrderStatusManager
             $order->statusHistory()->create([
                 'from_status' => $from,
                 'to_status' => $to,
-                'user_id' => $user->getKey(),
+                'user_id' => $user?->getKey(),
                 'note' => $note,
             ]);
         });
 
-        OrderStatusChanged::dispatch($order, $from, $to);
+        if ($announce) {
+            OrderStatusChanged::dispatch($order, $from, $to);
+        }
 
         return $order;
     }
 
-    private function cancel(Order $order, User $user): void
+    private function cancel(Order $order, ?User $user): void
     {
         $order->items()->with('variant')->get()
             ->filter(fn (OrderItem $item) => $item->variant !== null)
@@ -163,7 +178,10 @@ class OrderStatusManager
             $usage->delete();
         }
 
-        $order->payment_status = PaymentStatus::Cancelled;
+        // An order already paid online stays "Payé" until the refund is recorded (F-067).
+        if ($order->payment_status !== PaymentStatus::Paid) {
+            $order->payment_status = PaymentStatus::Cancelled;
+        }
     }
 
     private function deliver(Order $order): void

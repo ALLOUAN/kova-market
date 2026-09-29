@@ -42,6 +42,16 @@ return [
         'sender' => env('SMS_SENDER', 'KOVA'),
     ],
 
+    // Online payment (F-060 to F-067): CinetPay API v1 (OAuth). Keys of KOVA MARKET's own merchant account.
+    'cinetpay' => [
+        'api_key' => env('CINETPAY_API_KEY'),
+        'api_password' => env('CINETPAY_API_PASSWORD'),
+        'base_url' => env('CINETPAY_BASE_URL', 'https://api.cinetpay.co'),
+        'currency' => env('CINETPAY_CURRENCY', 'XOF'),
+        // CinetPay requires a valid e-mail; used for customers who ordered without one (else the store's contact e-mail).
+        'fallback_email' => env('CINETPAY_FALLBACK_EMAIL'),
+    ],
+
     // Cloudflare Turnstile on the public forms (F-080), active once both keys are set.
     'turnstile' => [
         'site_key' => env('TURNSTILE_SITE_KEY'),

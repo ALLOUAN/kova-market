@@ -207,8 +207,30 @@ phone number, or by account), on the whole catalog or on chosen categories (sub-
 - **Dependencies** (F-146): `.github/workflows/ci.yml` runs the tests, `composer audit` and `npm audit` on every push
   and every Monday; a known vulnerability fails the run. Run `composer audit` before each deployment.
 
+## Online payment (CinetPay)
+
+F-060 to F-067, adapted from the CinetPay integration of MesRévisions to KOVA MARKET's orders. The method "Paiement en
+ligne" (Orange Money, MTN MoMo, Moov Money, Wave, card) is offered at checkout once `CINETPAY_API_KEY` and
+`CINETPAY_API_PASSWORD` (KOVA MARKET's own merchant account, CinetPay API v1) are set; **Paramètres de la boutique ›
+Paiement** says whether it is active and sets the unpaid timeout.
+
+| Step | What happens |
+| --- | --- |
+| Order | Placed as usual (stock reserved, payment "En attente"), then the customer is sent to CinetPay's page. A `payments` row records the attempt (our reference `KM…`, CinetPay's ids, the SHA-256 of the notify token) |
+| Notification | CinetPay posts to `/paiement/cinetpay/notification` (no CSRF, open on the preproduction). A notification without the notify token of its payment is ignored; otherwise the outcome is **fetched from CinetPay** (`GET /v1/payment/{token}`), never read from the notification. Always answers 200 |
+| Return | `/paiement/retour/{référence}` (success and failure) checks the status the same way; the customer who placed the order lands on its confirmation, anyone else sees the outcome only. The confirmation checks again on each visit and refreshes itself while CinetPay has not answered |
+| Paid | The order becomes "Payé" and is announced then (customer SMS, staff alert): unpaid online orders are never announced. Applying a success locks the payment row: notification and return page may arrive together |
+| Failed / abandoned | The attempt is closed; the order stays payable with **Payer maintenant** (a new attempt) |
+| Timeout (F-056) | `payments:expire-unpaid` (every 5 minutes) cancels online orders unpaid after 30 minutes (setting), after a last status check; stock and promo code use are given back, the customer is not notified. CinetPay unreachable: the order waits for the next run |
+| Refund (F-067) | Made in CinetPay's merchant space (the API has no refund call), then **Enregistrer un remboursement** on the order's **Paiements en ligne** tab: payment and order "Remboursé", audit log |
+
+The order page lists every attempt (status, operator, both references, reason) with **Vérifier** to ask CinetPay now.
+Amounts are sent rounded up to 5 FCFA (a CinetPay rule for XOF), the difference kept in the attempt's journal. A
+customer without e-mail is sent to CinetPay with `CINETPAY_FALLBACK_EMAIL` (else the store's contact e-mail), CinetPay
+requiring one. A payment received after its order was cancelled is logged "à rembourser" in the audit log. A cancelled
+order already paid online stays "Payé" until its refund is recorded.
+
 ## Not in the back-office yet
 
-Online payment (CinetPay) arrives with its module (see the
-specification). Products are switched off rather than deleted. The storefront still
+Products are switched off rather than deleted. The storefront still
 shows the colour swatches typed on the product; they switch to the variants with the product page.

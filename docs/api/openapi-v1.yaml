@@ -360,7 +360,9 @@ paths:
       description: |
         All or nothing: stock taken, prices read again, promo code checked a last time, cart emptied. Guests allowed.
         The order is marked `source: mobile`. Cash on delivery may be limited to an amount set by the store.
-        Online payment (CinetPay) will be added with its own endpoint.
+        `cinetpay` (offered once the store's CinetPay account is set) returns `payment.url`: open it in a browser;
+        the customer pays on CinetPay's page (Orange Money, MTN MoMo, Moov Money, Wave, card), then poll
+        `/orders/track` until `payment_status` is `paye`. Unpaid, the order is cancelled after 30 minutes.
       security: [{}, { bearer: [] }]
       parameters:
         - $ref: '#/components/parameters/CartToken'
@@ -379,7 +381,7 @@ paths:
                 district: { type: string, maxLength: 255 }
                 landmark: { type: [string, 'null'], maxLength: 255 }
                 note: { type: [string, 'null'], maxLength: 1000 }
-                payment_method: { type: string, enum: [paiement_livraison] }
+                payment_method: { type: string, enum: [paiement_livraison, cinetpay] }
                 terms: { type: boolean, description: 'Terms of sale and privacy policy accepted (must be true)' }
                 marketing_opt_in: { type: boolean, default: false }
                 save_address: { type: boolean, default: false, description: 'Signed-in customers only' }
@@ -392,6 +394,36 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Order' }
+                  payment: { $ref: '#/components/schemas/PaymentLink' }
+        '422': { $ref: '#/components/responses/BusinessError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /orders/{number}/payment:
+    post:
+      tags: [Commandes]
+      summary: New payment attempt for an online order still unpaid
+      description: The order's phone is asked, as for tracking. 10 attempts a minute.
+      security: []
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone: { type: string }
+      responses:
+        '200':
+          description: Payment opened (or its error)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment: { $ref: '#/components/schemas/PaymentLink' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/BusinessError' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
   /orders/track:
@@ -867,6 +899,13 @@ components:
         free_shipping: { type: boolean }
         missing_for_free_shipping: { type: [integer, 'null'] }
         total: { type: integer }
+    PaymentLink:
+      type: object
+      description: 'CinetPay payment page of an online order (url null with the reason in error when it could not be opened)'
+      properties:
+        url: { type: [string, 'null'], format: uri }
+        reference: { type: [string, 'null'], description: 'Our reference at CinetPay' }
+        error: { type: [string, 'null'] }
     Status:
       type: object
       properties:
@@ -891,7 +930,12 @@ components:
         payment_method:
           type: object
           properties:
-            code: { type: string }
+            code: { type: string, enum: [paiement_livraison, cinetpay] }
+            label: { type: string }
+        payment_status:
+          type: object
+          properties:
+            code: { type: string, enum: [en_attente, paye, annule, rembourse] }
             label: { type: string }
         commune_name: { type: string }
         delivery_date: { type: [string, 'null'], format: date }

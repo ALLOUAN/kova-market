@@ -6,10 +6,12 @@ use App\Enums\Permission;
 use App\Filament\Support\StorefrontImage;
 use App\Models\Setting;
 use App\Services\Delivery\DeliveryDispatcher;
+use App\Services\Payments\OnlinePayments;
 use App\Services\Storefront\ConfigOverrides;
 use App\Services\Storefront\StoreSettings;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -61,7 +63,10 @@ class Settings extends Page
                 'free_shipping_threshold' => Setting::get('delivery.free_shipping_threshold'),
                 'assignment_mode' => app(DeliveryDispatcher::class)->mode(),
             ],
-            'payment' => ['cash_on_delivery_limit' => Setting::get('payment.cash_on_delivery_limit')],
+            'payment' => [
+                'cash_on_delivery_limit' => Setting::get('payment.cash_on_delivery_limit'),
+                'online_timeout_minutes' => Setting::get('payment.online_timeout_minutes'),
+            ],
             'analytics' => collect(self::ANALYTICS_FIELDS)->mapWithKeys(fn (string $field) => [$field => Setting::get("analytics.{$field}")])->all(),
             // The values in use (settings laid over config/storefront.php by ConfigOverrides).
             'identity' => [
@@ -182,6 +187,18 @@ class Settings extends Page
                             ->integer()
                             ->minValue(0)
                             ->suffix('FCFA'),
+                        TextInput::make('payment.online_timeout_minutes')
+                            ->label('Annuler une commande en ligne non payée après')
+                            ->helperText('Son stock est alors remis en vente. Vide : '.OnlinePayments::DEFAULT_TIMEOUT.' minutes (10 au minimum).')
+                            ->integer()
+                            ->minValue(10)
+                            ->maxValue(1440)
+                            ->suffix('minutes'),
+                        Placeholder::make('payment.online_state')
+                            ->label('Paiement en ligne (CinetPay)')
+                            ->content(fn () => app(OnlinePayments::class)->isAvailable()
+                                ? 'Actif : proposé au checkout (Orange Money, MTN MoMo, Moov Money, Wave, carte).'
+                                : 'Inactif : les clés CINETPAY_API_KEY et CINETPAY_API_PASSWORD du compte marchand ne sont pas encore renseignées sur le serveur.'),
                     ]),
                 Section::make('Mesure d’audience')
                     ->description('Chargés seulement après l’accord du visiteur (bandeau cookies). Laisser vide pour ne pas utiliser un service ; sans aucun identifiant, le bandeau n’est pas affiché.')
@@ -232,6 +249,7 @@ class Settings extends Page
             'delivery.free_shipping_threshold' => $state['delivery']['free_shipping_threshold'] ?? null,
             'delivery.assignment_mode' => $state['delivery']['assignment_mode'] ?? null,
             'payment.cash_on_delivery_limit' => $state['payment']['cash_on_delivery_limit'] ?? null,
+            'payment.online_timeout_minutes' => $state['payment']['online_timeout_minutes'] ?? null,
             ...collect(self::ANALYTICS_FIELDS)->mapWithKeys(fn (string $field) => ["analytics.{$field}" => $state['analytics'][$field] ?? null])->all(),
             'identity.name' => $state['identity']['name'] ?? null,
             'identity.description' => $state['identity']['description'] ?? null,

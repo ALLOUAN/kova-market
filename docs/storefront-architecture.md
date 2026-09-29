@@ -156,3 +156,14 @@ npm run e2e                     # PHP_BIN=/path/to/php8.4 when `php` is another 
 `.env`. The global setup recreates that database with the demo catalog, gives the super-admin a known authenticator
 secret (`tests/e2e/support.js` computes its codes) and sets fake tracker identifiers. Every test but the consent ones
 starts with the banner already answered. The CI runs them on each push.
+
+## Online payment
+
+`PaymentMethod::Online` (CinetPay) is offered by `PaymentMethod::available()` once the CinetPay keys are set.
+`App\Services\Payments\CinetPayClient` speaks CinetPay API v1 (OAuth token cached 23 h, `POST /v1/payment`,
+`GET /v1/payment/{token}`, one retry on an expired token); `OnlinePayments` runs the order's payment: `start` (an
+attempt in `payments`, redirection URL), `synchronize` (the only place an outcome is applied, from the status check),
+`handleNotification`, `expireUnpaid` (F-056) and `recordRefund` (F-067). `PaymentController` holds the storefront
+routes (`payments.pay`, `payments.return`, `payments.notify`); the API returns `payment.url` with the order and has
+`POST /api/v1/orders/{number}/payment`. Details and back-office side: `docs/back-office.md` › Online payment. The
+end-to-end journeys run against `tests/e2e/fake-cinetpay.js`, a stand-in for the API and its payment page.
