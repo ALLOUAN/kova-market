@@ -25,7 +25,7 @@
                             </div>
                         </div>
                         <div class="rbt-product-banner-img rbt-scroll-trigger zoom_in animation-order-1">
-                            <img src="{{ asset($banner['image']) }}" alt="{{ $banner['highlight'] }}">
+                            <img src="{{ asset($banner['image']) }}" alt="{{ $banner['highlight'] }}" loading="lazy" decoding="async">
                         </div>
                     </div>
                 </div>

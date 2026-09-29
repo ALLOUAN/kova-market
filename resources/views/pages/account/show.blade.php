@@ -12,6 +12,30 @@
             <div class="alert alert-success mb--24" role="status">Votre mot de passe a été modifié.</div>
         @endif
 
+        {{-- Guest orders placed with this phone number join the account after an SMS code (F-070). --}}
+        @if ($guestOrdersCount > 0)
+            <section class="rbt-bg-color-gray-light rbt-radius p-4 mb--40">
+                <p class="b2 mb--12"><strong>{{ $guestOrdersCount }} {{ Str::plural('commande', $guestOrdersCount) }}</strong> {{ $guestOrdersCount > 1 ? 'ont été passées' : 'a été passée' }} sans compte avec votre numéro. Confirmez que ce numéro est bien le vôtre pour {{ $guestOrdersCount > 1 ? 'les' : 'la' }} retrouver ici.</p>
+                @if (session('claim_code_sent') || $errors->claim->any())
+                    <form method="POST" action="{{ route('account.guest-orders.confirm') }}" class="d-flex flex-wrap align-items-start gap-2" novalidate>
+                        @csrf
+                        <div>
+                            <label class="visually-hidden" for="claim_code">Code reçu par SMS</label>
+                            <input class="rbt-input-field" id="claim_code" name="code" inputmode="numeric" autocomplete="one-time-code" placeholder="Code reçu par SMS" maxlength="10" required>
+                            @error('code', 'claim')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
+                        </div>
+                        <button type="submit" class="rbt-btn rbt-btn-sm">Confirmer</button>
+                    </form>
+                @endif
+                <form method="POST" action="{{ route('account.guest-orders.claim') }}" class="mt--12">
+                    @csrf
+                    <button type="submit" @class(['rbt-btn rbt-btn-sm', 'rbt-btn-gray-light' => session('claim_code_sent') || $errors->claim->any()])>
+                        {{ session('claim_code_sent') || $errors->claim->any() ? 'Renvoyer un code' : 'Recevoir un code par SMS' }}
+                    </button>
+                </form>
+            </section>
+        @endif
+
         <section class="mb--40">
             <div class="d-flex justify-content-between align-items-center mb--16">
                 <h2 class="h5 mb-0">Mes dernières commandes</h2>

@@ -5,7 +5,7 @@
                 <div class="rbt-login-form-top">
                     <div class="logo">
                         <a href="{{ route('home') }}">
-                            <img src="{{ asset('assets/images/logo/logo.webp') }}" alt="Logo">
+                            <img src="{{ asset(config('storefront.logo_small')) }}" alt="{{ config('storefront.name') }}" loading="lazy">
                         </a>
                     </div>
                     <h3 class="rbt-title rbt-text-bold mb--16 h6" id="signupModalLabel">Créer un compte</h3>

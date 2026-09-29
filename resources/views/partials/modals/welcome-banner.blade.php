@@ -3,7 +3,7 @@
         <div class="rbt-welcome-banner-area rbt-content-trs-portion">
             <div class="rbt-welcome-banner-content">
                 <div class="rbt-welcome-banner-top position-relative overflow-hidden rbt-rounded--12">
-                    <img src="{{ asset('assets/images/banner-img/welcome-banner-img-01.webp') }}" alt="Bannière">
+                    <img src="{{ asset('assets/images/banner-img/welcome-banner-img-01.webp') }}" alt="Bannière" loading="lazy" decoding="async">
                 </div>
                 <div class="rbt-welcome-banner-bottom pt--32">
                     <h2 class="text-center mb--12">Ne manquez pas nos offres</h2>

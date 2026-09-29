@@ -9,7 +9,9 @@ use App\Models\Product;
 use App\Models\Promotion;
 use App\Services\Storefront\HomePageService;
 use Database\Seeders\CatalogSeeder;
+use Database\Seeders\ContentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class HomePageTest extends TestCase
@@ -39,6 +41,58 @@ class HomePageTest extends TestCase
         $collection->products()->attach([$second->id => ['position' => 2], $first->id => ['position' => 1]]);
 
         $this->get('/')->assertOk()->assertSeeTextInOrder(['First Deal', 'Second Deal']);
+    }
+
+    public function test_new_arrivals_list_the_latest_products_and_popular_the_best_sellers(): void
+    {
+        $this->travelTo(now()->subDays(3));
+        $bestSeller = Product::factory()->create(['name' => 'Best Seller', 'sold_count' => 50]);
+        $this->travelBack();
+        Product::factory()->create(['name' => 'Steady Seller', 'sold_count' => 10]);
+        $retired = Product::factory()->create(['name' => 'Retired Gadget', 'sold_count' => 99]);
+        $retired->update(['is_active' => false]);
+        Product::factory()->create(['name' => 'Brand New Gadget']);
+
+        $data = app(HomePageService::class)->data();
+
+        $this->assertSame('Brand New Gadget', $data['newArrivals']['products']->first()->name);
+        $this->assertSame(['Best Seller', 'Steady Seller'], $data['popular']['products']->take(2)->pluck('name')->all());
+        $this->assertNotContains('Retired Gadget', $data['newArrivals']['products']->pluck('name'));
+        $this->assertNotContains('Retired Gadget', $data['popular']['products']->pluck('name'));
+
+        $this->get('/')->assertOk()->assertSeeText('Nouveautés')->assertSeeText('Populaires')
+            ->assertSee(route('shop.index', ['tri' => 'nouveautes']), false)
+            ->assertSeeText($bestSeller->name);
+    }
+
+    public function test_a_curated_collection_takes_precedence_over_the_computed_row(): void
+    {
+        $picked = Product::factory()->create(['name' => 'Hand Picked']);
+        Product::factory()->create(['name' => 'Newest Of All']);
+        Collection::where('slug', HomePageService::NEW_ARRIVALS)->sole()->products()->attach($picked);
+
+        $this->assertSame(['Hand Picked'], app(HomePageService::class)->data()['newArrivals']['products']->pluck('name')->all());
+    }
+
+    public function test_the_footer_has_no_empty_link_and_lists_the_payment_methods(): void
+    {
+        $this->seed(ContentSeeder::class);
+
+        $content = $this->get('/')->assertOk()->getContent();
+        $footer = Str::between($content, '<footer', '<div class="rbt-toolbar');
+
+        $this->assertStringNotContainsString('href="#"', $footer);
+        foreach (['Orange Money', 'MTN MoMo', 'Moov Money', 'Wave', 'Paiement à la livraison'] as $method) {
+            $this->assertStringContainsString($method, $footer);
+        }
+        // App store buttons wait for the mobile app; wishlist and comparison wait for V1.1.
+        $this->assertStringNotContainsString('Téléchargez l’app', $content);
+        $this->assertStringNotContainsString('wishlistModal', $content);
+        $this->assertStringNotContainsString('compareviewModal', $content);
+
+        $this->get(route('pages.show', 'moyens-de-paiement'))->assertOk();
+        $this->get(route('pages.show', 'qui-sommes-nous'))->assertOk();
+        $this->get(route('contact.show', ['sujet' => 'partenariat']))->assertOk()->assertSee('value="partenariat" selected', false);
     }
 
     public function test_inactive_products_are_hidden(): void

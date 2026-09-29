@@ -196,7 +196,8 @@ phone number, or by account), on the whole catalog or on chosen categories (sub-
 - **Robots** (F-141): once `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are set, the contact, sign-up, checkout,
   tracking and "Me prévenir" forms require the Turnstile check (`x-turnstile` + `App\Rules\PassesTurnstile`). The API
   cannot show the widget and relies on its rate limits. Every public form and the API are throttled.
-- **Uploads** (F-142): images only (JPG, PNG, WebP, 2 MB), typed from their content, stored under a random name.
+- **Uploads** (F-142): images only (JPG, PNG, WebP, 5 MB), typed from their content, stored under a random name as
+  WebP at most 1600 px wide, with a 480 px copy that product cards load through `srcset` (`ImageOptimizer`).
   They are served from `public/uploads` because the storefront shows them; the CSV import stays in `storage/app`.
 - **Passwords** (F-144): 8 characters minimum, hashed (bcrypt).
 - **Deletion** (F-145): nothing the specification protects is erased from the back-office. Products are switched off

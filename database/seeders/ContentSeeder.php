@@ -22,6 +22,8 @@ class ContentSeeder extends Seeder
             'politique-de-confidentialite' => 'Politique de confidentialité',
             'livraison' => 'Livraison',
             'retours-et-remboursements' => 'Retours et remboursements',
+            'moyens-de-paiement' => 'Moyens de paiement',
+            'qui-sommes-nous' => 'Qui sommes-nous ?',
         ];
 
         foreach ($pages as $slug => $title) {

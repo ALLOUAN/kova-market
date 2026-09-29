@@ -13,7 +13,7 @@
         </div>
         <div class="rbt-image-portion">
             <a href="{{ $category->url() }}">
-                <img class="rbt-scroll-trigger" src="{{ asset($category->image) }}" alt="{{ $category->name }}">
+                <img class="rbt-scroll-trigger" src="{{ asset($category->image) }}" alt="{{ $category->name }}" loading="lazy" decoding="async">
             </a>
             <a href="{{ $category->url() }}" class="rbt-icon-overlay-link-btn" aria-label="{{ $category->name }}">
                 <span class="rbt-btn-overlay">

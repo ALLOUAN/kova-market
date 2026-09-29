@@ -37,7 +37,8 @@
                 {{-- Gallery: every picture opens full size with zoom (F-031). --}}
                 <div class="col-lg-6">
                     <a href="{{ asset($images->first()) }}" data-fancybox="product-gallery" class="d-block rbt-bg-color-gray-light rbt-radius text-center p-4">
-                        <img class="img-fluid" src="{{ asset($images->first()) }}" alt="{{ $product->name }}" id="product-main-image">
+                        {{-- The main picture is the page's largest element (LCP): loaded first, never lazily. --}}
+                        <img class="img-fluid" src="{{ asset($images->first()) }}" @if ($srcset = \App\Services\Storefront\ImageOptimizer::srcset($images->first())) srcset="{{ $srcset }}" sizes="(max-width: 991px) 100vw, 50vw" @endif alt="{{ $product->name }}" id="product-main-image" fetchpriority="high">
                     </a>
                     @if ($images->count() > 1)
                         <ul class="d-flex flex-wrap gap-2 list-unstyled mt--16" aria-label="Autres photos">

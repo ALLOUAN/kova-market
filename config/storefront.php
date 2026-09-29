@@ -23,6 +23,8 @@ return [
     'about' => 'Boutique en ligne basée à Abidjan. Commandez en quelques clics, payez par Mobile Money ou à la livraison.',
 
     'logo' => 'assets/images/logo/logo.webp',
+    // Same logo at 400 px wide, enough for the header and modals (sharp on retina screens), 4 KB instead of 19.
+    'logo_small' => 'assets/images/logo/logo-400.webp',
 
     'favicon' => 'assets/images/favicon.png',
 
@@ -64,7 +66,21 @@ return [
         ['image' => 'assets/images/footer/play-store-logo.webp', 'label' => 'Google Play', 'url' => '#'],
     ],
 
-    'payment_methods_image' => 'assets/images/payment-brand/image-01.webp',
+    // Template features without a back end yet (EX-14 wishlist, EX-15 comparison): hidden in V1, wired in V1.1.
+    'features' => [
+        'wishlist' => (bool) env('STORE_WISHLIST', false),
+        'compare' => (bool) env('STORE_COMPARE', false),
+    ],
+
+    // Payment methods shown in the footer (F-016). Drop each operator's official logo at the given path
+    // (height about 28 px); until then its name is shown.
+    'payment_methods' => [
+        ['label' => 'Orange Money', 'logo' => 'assets/images/payment/orange-money.webp'],
+        ['label' => 'MTN MoMo', 'logo' => 'assets/images/payment/mtn-momo.webp'],
+        ['label' => 'Moov Money', 'logo' => 'assets/images/payment/moov-money.webp'],
+        ['label' => 'Wave', 'logo' => 'assets/images/payment/wave.webp'],
+        ['label' => 'Paiement à la livraison', 'logo' => null],
+    ],
 
     'footer_banner' => 'assets/images/footer/banner-image1.png',
 

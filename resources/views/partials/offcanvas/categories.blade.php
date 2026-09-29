@@ -110,7 +110,7 @@
                                         @foreach ($category->children as $child)
                                             <div class="rbt-sub-category-product">
                                                 <a href="{{ $child->url() }}" class="rbt-sidebar-category-img">
-                                                    <img src="{{ asset($child->image ?? $category->image) }}" alt="{{ $child->name }}">
+                                                    <img src="{{ asset($child->image ?? $category->image) }}" alt="{{ $child->name }}" loading="lazy" decoding="async">
                                                 </a>
                                                 <h2 class="rbt-category-offcanvas-header h5"><a href="{{ $child->url() }}">{{ $child->name }}</a></h2>
                                                 <ul class="rbt-product-features has-link-underline-effect">
@@ -126,7 +126,7 @@
                                     @if ($category->promo)
                                         <div class="rbt-sidebar-banner">
                                             <div class="rbt-banner-img">
-                                                <img src="{{ asset($category->promo['image']) }}" alt="{{ $category->promo['title'] }}">
+                                                <img src="{{ asset($category->promo['image']) }}" alt="{{ $category->promo['title'] }}" loading="lazy" decoding="async">
                                             </div>
                                             <div class="rbt-sidebar-banner-content">
                                                 <p class="rbt-sidebar-banner-text">{{ $category->promo['label'] }}

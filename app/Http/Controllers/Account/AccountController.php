@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Account;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\Account\AccountEraser;
+use App\Services\Account\GuestOrderClaim;
 use App\Support\PhoneNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ class AccountController extends Controller
             'phone' => $user->phone ? PhoneNumber::format($user->phone) : null,
             'recentOrders' => $user->orders()->withCount('items')->limit(3)->get(),
             'defaultAddress' => $user->defaultAddress()->with('commune')->first(),
+            'guestOrdersCount' => app(GuestOrderClaim::class)->pending($user)->count(),
         ]);
     }
 
@@ -44,6 +46,28 @@ class AccountController extends Controller
         abort_unless($order->user_id === $request->user()->getKey(), 404);
 
         return view('pages.account.order', ['order' => $order->load(['items', 'statusHistory', 'courier.user'])]);
+    }
+
+    /**
+     * "Retrouver mes commandes" (F-070): sends the SMS code proving the phone number is the customer's.
+     */
+    public function claimGuestOrders(Request $request, GuestOrderClaim $claim): RedirectResponse
+    {
+        $claim->sendCode($request->user());
+
+        return back()->with('claim_code_sent', true)->with('account_status', 'Un code vient de vous être envoyé par SMS au '.PhoneNumber::format($request->user()->phone).'.');
+    }
+
+    public function confirmGuestOrders(Request $request, GuestOrderClaim $claim): RedirectResponse
+    {
+        $data = $request->validate(['code' => ['required', 'string', 'max:10']], [], ['code' => 'code']);
+        $count = $claim->confirm($request->user(), $data['code']);
+
+        if ($count === null) {
+            return back()->with('claim_code_sent', true)->withErrors(['code' => 'Ce code n’est pas valide ou a expiré. Demandez un nouveau code.'], 'claim');
+        }
+
+        return redirect()->route('account.orders')->with('account_status', "{$count} commande(s) ajoutée(s) à votre compte.");
     }
 
     public function preferences(Request $request): RedirectResponse

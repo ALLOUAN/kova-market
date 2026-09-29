@@ -69,7 +69,7 @@
                                 <select class="form-select" id="subject" name="subject" required>
                                     <option value="">Choisir un sujet</option>
                                     @foreach ($subjects as $subject)
-                                        <option value="{{ $subject->value }}" @selected(old('subject') === $subject->value)>{{ $subject->getLabel() }}</option>
+                                        <option value="{{ $subject->value }}" @selected(old('subject', request('sujet')) === $subject->value)>{{ $subject->getLabel() }}</option>
                                     @endforeach
                                 </select>
                                 @error('subject')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror

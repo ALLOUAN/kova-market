@@ -20,9 +20,13 @@
         @include('pages.home.best-deals')
     @endif
 
+    @include('pages.home.product-row', ['row' => $newArrivals])
+
     @if ($highlights)
         @include('pages.home.highlights')
     @endif
+
+    @include('pages.home.product-row', ['row' => $popular])
 
     @if ($featuredProduct)
         @include('pages.home.featured-products')

@@ -73,6 +73,8 @@ Route::middleware('auth')->prefix('compte')->name('account.')->group(function ()
     Route::get('/', [AccountController::class, 'show'])->name('show');
     Route::get('/commandes', [AccountController::class, 'orders'])->name('orders');
     Route::get('/commandes/{order:number}', [AccountController::class, 'order'])->name('orders.show');
+    Route::post('/commandes/retrouver', [AccountController::class, 'claimGuestOrders'])->middleware('throttle:5,1')->name('guest-orders.claim');
+    Route::post('/commandes/retrouver/confirmer', [AccountController::class, 'confirmGuestOrders'])->middleware('throttle:10,1')->name('guest-orders.confirm');
     Route::post('/preferences', [AccountController::class, 'preferences'])->name('preferences');
     Route::get('/donnees', [AccountController::class, 'export'])->name('export');
     Route::delete('/', [AccountController::class, 'destroy'])->middleware('throttle:5,1')->name('destroy');

@@ -1,3 +1,4 @@
+@use('App\Services\Storefront\ImageOptimizer')
 @props(['product', 'size' => 'sm', 'heading' => 'h2', 'order' => 1])
 
 {{-- Compact horizontal product card (text left, image right). --}}
@@ -11,7 +12,7 @@
             <x-product.pricing :product="$product" :discount="false" />
         </div>
         <div class="rbt-card-img rbt-bg-color-default rbt-curved-style-box">
-            <a href="{{ $product->url() }}"><img src="{{ asset($product->image) }}" alt="{{ $product->name }}"></a>
+            <a href="{{ $product->url() }}"><img src="{{ asset($product->image) }}" @if ($srcset = ImageOptimizer::srcset($product->image)) srcset="{{ $srcset }}" sizes="120px" @endif alt="{{ $product->name }}" loading="lazy" decoding="async"></a>
         </div>
     </div>
 </div>

@@ -26,7 +26,7 @@
                             <li class="minicart-item">
                                 <div class="thumbnail">
                                     <a href="{{ $line->product->url() }}">
-                                        <img src="{{ asset($line->product->image) }}" alt="{{ $line->product->name }}">
+                                        <img src="{{ asset($line->product->image) }}" alt="{{ $line->product->name }}" loading="lazy" decoding="async">
                                     </a>
                                 </div>
                                 <div class="product-content">

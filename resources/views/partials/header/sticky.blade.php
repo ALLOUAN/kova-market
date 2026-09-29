@@ -81,19 +81,23 @@
                         @endauth
                     </li>
 
-                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-4 tooltips tooltip-distance-lg  d-none d-lg-flex" data-tooltip="Comparer" data-tooltip-position="bottom">
-                        <a class="rbt-round-btn has-rbt-md-fsize" href="#" data-bs-toggle="modal" data-bs-target="#compareviewModal" aria-label="Comparer">
-                            <i class="fa-regular fa-code-compare"></i>
-                            <div class="access-box-count">0</div>
-                        </a>
-                    </li>
+                    @if (config('storefront.features.compare'))
+                        <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-4 tooltips tooltip-distance-lg  d-none d-lg-flex" data-tooltip="Comparer" data-tooltip-position="bottom">
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#compareviewModal" aria-label="Comparer">
+                                <i class="fa-regular fa-code-compare"></i>
+                                <div class="access-box-count">0</div>
+                            </a>
+                        </li>
+                    @endif
 
-                    <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-5 rbt-wishlist d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Favoris" data-tooltip-position="bottom">
-                        <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#wishlistModal" aria-label="Favoris">
-                            <i class="fa-regular fa-heart"></i>
-                            <div class="access-box-count">0</div>
-                        </a>
-                    </li>
+                    @if (config('storefront.features.wishlist'))
+                        <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-5 rbt-wishlist d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Favoris" data-tooltip-position="bottom">
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#wishlistModal" aria-label="Favoris">
+                                <i class="fa-regular fa-heart"></i>
+                                <div class="access-box-count">0</div>
+                            </a>
+                        </li>
+                    @endif
 
                     <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-5 rbt-access-box-has-bg-hover rbt-mini-cart tooltips tooltip-distance-lg" data-tooltip="Panier" data-tooltip-position="bottom">
                         <a class="rbt-cart-sidenav-activation" href="#!" aria-label="Panier">

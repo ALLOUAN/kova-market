@@ -4,19 +4,21 @@
             <div class="col-md-12">
                 <ul class="rbt-quick-access onepagenav">
                     <li class="rbt-access-box">
-                        <a href="#" class="rbt-round-btn has-rbt-md-fsize">
+                        <a href="{{ route('shop.index') }}" class="rbt-round-btn has-rbt-md-fsize">
                             <i class="fa-regular fa-bag-shopping"></i>
                             <span class="rbt-toolbar-label"> Boutique</span>
                         </a>
                     </li>
 
-                    <li class="rbt-access-box rbt-wishlist">
-                        <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#wishlistModal">
-                            <i class="fa-regular fa-heart"></i>
-                            <div class="access-box-count">0</div>
-                            <span class="rbt-toolbar-label"> Favoris</span>
-                        </a>
-                    </li>
+                    @if (config('storefront.features.wishlist'))
+                        <li class="rbt-access-box rbt-wishlist">
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#wishlistModal">
+                                <i class="fa-regular fa-heart"></i>
+                                <div class="access-box-count">0</div>
+                                <span class="rbt-toolbar-label"> Favoris</span>
+                            </a>
+                        </li>
+                    @endif
 
                     <li class="rbt-access-box">
                         <a class="rbt-common-search-trigger-active rbt-round-btn has-rbt-md-fsize rbt-modern-close-btn" href="{{ route('home') }}">
@@ -26,13 +28,22 @@
                         </a>
                     </li>
 
-                    <li class="rbt-access-box">
-                        <a href="#" class="rbt-round-btn has-rbt-md-fsize">
-                            <i class="fa-regular fa-code-compare"></i>
-                            <div class="access-box-count">0</div>
-                            <span class="rbt-toolbar-label"> Comparer</span>
-                        </a>
-                    </li>
+                    @if (config('storefront.features.compare'))
+                        <li class="rbt-access-box">
+                            <a href="#!" class="rbt-round-btn has-rbt-md-fsize" data-bs-toggle="modal" data-bs-target="#compareviewModal">
+                                <i class="fa-regular fa-code-compare"></i>
+                                <div class="access-box-count">0</div>
+                                <span class="rbt-toolbar-label"> Comparer</span>
+                            </a>
+                        </li>
+                    @else
+                        <li class="rbt-access-box">
+                            <a href="{{ route('cart.show') }}" class="rbt-round-btn has-rbt-md-fsize">
+                                <i class="fa-regular fa-cart-shopping"></i>
+                                <span class="rbt-toolbar-label"> Panier</span>
+                            </a>
+                        </li>
+                    @endif
 
                     <li class="rbt-access-box">
                         @auth

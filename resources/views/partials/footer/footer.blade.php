@@ -26,7 +26,7 @@
                         <div class="footer-widget rbt-link-hover">
                             <h3 class="ft-title">{{ $title }}</h3>
                             <ul class="ft-link">
-                                @foreach ($links as $link)
+                                @foreach (collect($links)->reject(fn (array $link) => $link['href'] === '#') as $link)
                                     <li>
                                         <a href="{{ $link['href'] }}">{{ $link['label'] }}</a>
                                     </li>
@@ -39,8 +39,8 @@
 
             <div class="row pb--40 pb_sm--24">
                 <div class="col-12">
-                    <a href="#">
-                        <img src="{{ asset(config('storefront.footer_banner')) }}" alt="{{ config('storefront.name') }}">
+                    <a href="{{ route('shop.index') }}">
+                        <img src="{{ asset(config('storefront.footer_banner')) }}" alt="{{ config('storefront.name') }}" loading="lazy" decoding="async">
                     </a>
                 </div>
             </div>
@@ -67,17 +67,21 @@
                         @endif
                     </div>
                 </div>
-                <div class="col-lg-6 mt--20">
-                    <div class="rbt-app-store-area justify-content-center justify-content-lg-end">
-                        <p class="title">Téléchargez l’app :</p>
-                        <ul class="rbt-app-store-list">
-                            @foreach (config('storefront.app_stores') as $store)
-                                <li><a href="{{ $store['url'] }}"><img src="{{ asset($store['image']) }}" alt="{{ $store['label'] }}"></a>
-                                </li>
-                            @endforeach
-                        </ul>
+                {{-- Shown once the mobile app is published (a "#" url means "not yet"). --}}
+                @php($appStores = collect(config('storefront.app_stores'))->reject(fn (array $store) => blank($store['url']) || $store['url'] === '#'))
+                @if ($appStores->isNotEmpty())
+                    <div class="col-lg-6 mt--20">
+                        <div class="rbt-app-store-area justify-content-center justify-content-lg-end">
+                            <p class="title">Téléchargez l’app :</p>
+                            <ul class="rbt-app-store-list">
+                                @foreach ($appStores as $store)
+                                    <li><a href="{{ $store['url'] }}"><img src="{{ asset($store['image']) }}" alt="{{ $store['label'] }}"></a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -93,9 +97,19 @@
                 </p>
             </div>
             <div class="col-xxl-4 col-xl-4 col-lg-6 col-md-12 col-12 mt--24">
-                <ul class="payment-img-link">
-                    <li><a href="#"><img src="{{ asset(config('storefront.payment_methods_image')) }}" alt="Moyens de paiement acceptés"></a>
-                    </li>
+                {{-- Accepted payment methods (F-016): each logo from config/storefront.php, or its name until the logo is supplied. --}}
+                <ul class="payment-img-link d-flex flex-wrap align-items-center justify-content-center rbt-gap--8" aria-label="Moyens de paiement acceptés">
+                    @foreach (config('storefront.payment_methods') as $method)
+                        <li>
+                            <a href="{{ route('pages.show', 'moyens-de-paiement') }}" title="{{ $method['label'] }}">
+                                @if (filled($method['logo'] ?? null) && file_exists(public_path($method['logo'])))
+                                    <img src="{{ asset($method['logo']) }}" alt="{{ $method['label'] }}" height="28" loading="lazy">
+                                @else
+                                    <span class="d-inline-block b4 rbt-text-bold rbt-radius px-2 py-1 bg-white border">{{ $method['label'] }}</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endforeach
                 </ul>
             </div>
             <div class="col-xxl-4 col-xl-4 col-lg-12 col-md-12 col-12 mt--24">

@@ -11,7 +11,8 @@
                                     <div @class(['rbt-product-banner rbt-product-banner-style-four rbt-banner-four-var-one rbt-curved-style-box rbt-scroll-trigger fade_in', 'animation-order-'.($loop->index % 4 + 1), 'rbt-curved-style-box-2' => $loop->even])>
                                         <div class="rbt-banner-inner">
                                             <div class="rbt-product-banner-img rbt-full-width-img rbt-scroll-trigger zoom_in animation-order-{{ $loop->index % 4 + 1 }}">
-                                                <img src="{{ asset($slide['image']) }}" alt="{{ $slide['highlight'] }} {{ $slide['title'] }}">
+                                                {{-- The first slide is the home page's largest element (LCP): loaded first; the others wait. --}}
+                                                <img src="{{ asset($slide['image']) }}" alt="{{ $slide['highlight'] }} {{ $slide['title'] }}" @if ($loop->first) fetchpriority="high" @else loading="lazy" decoding="async" @endif>
                                             </div>
                                             <div class="rbt-product-banner-content">
                                                 <div class="rbt-content-section">

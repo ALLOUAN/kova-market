@@ -1,10 +1,11 @@
+@use('App\Services\Storefront\ImageOptimizer')
 @props(['product', 'order' => 1])
 
 {{-- Large horizontal card used to spotlight one product. --}}
 <div class="rbt-card rbt-product-card rbt-list-view-variation rbt-list-view-lg">
     <div class="inner rbt-scroll-trigger fade_in animation-order-{{ $order }}">
         <div class="rbt-card-img rbt-bg-color-default order-2">
-            <a href="{{ $product->url() }}"><img class="rbt-prd-img" src="{{ asset($product->image) }}" alt="{{ $product->name }}"></a>
+            <a href="{{ $product->url() }}"><img class="rbt-prd-img" src="{{ asset($product->image) }}" @if ($srcset = ImageOptimizer::srcset($product->image)) srcset="{{ $srcset }}" sizes="(max-width: 575px) 50vw, 300px" @endif alt="{{ $product->name }}" loading="lazy" decoding="async"></a>
             <x-product.badges :product="$product" />
             @if ($product->watchers_count)
                 <div class="rbt-discount-badge right--corner-style tooltips" data-tooltip="👁️ {{ $product->watchers_count }} personnes regardent ce produit" data-tooltip-position="bottom">

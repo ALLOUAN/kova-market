@@ -24,7 +24,7 @@
                 <div class="rbt-product-banner rbt-product-banner-style-two rbt-curved-style-box h-100">
                     <div class="rbt-banner-inner h-100">
                         <div class="rbt-product-banner-img rbt-full-width-img rbt-scroll-trigger zoom_in animation-order-1">
-                            <img src="{{ asset($banner['image']) }}" alt="{{ $banner['highlight'] }}">
+                            <img src="{{ asset($banner['image']) }}" alt="{{ $banner['highlight'] }}" loading="lazy" decoding="async">
                         </div>
                         <div class="rbt-product-banner-content">
                             <div class="rbt-content-section rbt-scroll-trigger fade_in animation-order-1">

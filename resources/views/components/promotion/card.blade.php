@@ -4,7 +4,7 @@
     <div class="inner">
         <div class="rbt-card-img">
             <a href="#">
-                <img src="{{ asset($promotion->image) }}" alt="{{ $promotion->title }}">
+                <img src="{{ asset($promotion->image) }}" alt="{{ $promotion->title }}" loading="lazy" decoding="async">
             </a>
         </div>
         <div class="rbt-card-body">

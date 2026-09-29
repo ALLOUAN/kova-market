@@ -5,7 +5,7 @@
             <div class="col-lg-12 col-md-12 col-sm-12 col-12 mt--32 mt_sm--0">
                 <div class="rbt-product-banner rbt-product-banner-style-one">
                     <div class="rbt-product-banner-img rbt-scroll-trigger zoom_in animation-order-1">
-                        <img src="{{ asset($banner['image']) }}" alt="{{ $banner['highlight'] }}">
+                        <img src="{{ asset($banner['image']) }}" alt="{{ $banner['highlight'] }}" loading="lazy" decoding="async">
                     </div>
                     <div class="rbt-banner-inner rbt-curved-style-box">
                         <div class="rbt-product-banner-content">

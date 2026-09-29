@@ -4,7 +4,7 @@
     <a href="{{ $brand->url() }}">
         <div class="rbt-brand-inner">
             <div class="brand-image">
-                <img src="{{ asset($brand->logo) }}" alt="{{ $brand->name }}">
+                <img src="{{ asset($brand->logo) }}" alt="{{ $brand->name }}" loading="lazy" decoding="async">
                 <span class="rbt-divider-arrow has-right-angel-animation"></span>
             </div>
             <div class="rbt-content">

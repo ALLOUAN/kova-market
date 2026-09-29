@@ -1,3 +1,4 @@
+@use('App\Services\Storefront\ImageOptimizer')
 @props([
     'product',
     'heading' => 'h3',
@@ -12,11 +13,11 @@
     <div class="inner rbt-scroll-trigger fade_in animation-order-{{ $order }}">
         <div @class(['rbt-card-img rbt-bg-color-default', 'rbt-has-hover-video' => $product->hover_video, 'rbt-has-hover-img' => ! $product->hover_video && $product->hover_image])>
             <a href="{{ $product->url() }}">
-                <img class="rbt-prd-img" src="{{ asset($product->image) }}" alt="{{ $product->name }}">
+                <img class="rbt-prd-img" src="{{ asset($product->image) }}" @if ($srcset = ImageOptimizer::srcset($product->image)) srcset="{{ $srcset }}" sizes="(max-width: 575px) 50vw, 300px" @endif alt="{{ $product->name }}" loading="lazy" decoding="async">
                 @if ($product->hover_video)
                     <video class="rbt-hover-video" src="{{ asset($product->hover_video) }}" muted loop autoplay></video>
                 @elseif ($product->hover_image)
-                    <img class="rbt-hover-img" src="{{ asset($product->hover_image) }}" alt="{{ $product->name }}">
+                    <img class="rbt-hover-img" src="{{ asset($product->hover_image) }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                 @endif
             </a>
             <x-product.badges :product="$product" />

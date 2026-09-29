@@ -79,7 +79,9 @@
     </main>
 
     @include('partials.modals.welcome-banner')
-    @include('partials.offcanvas.compare-bar')
+    @if (config('storefront.features.compare'))
+        @include('partials.offcanvas.compare-bar')
+    @endif
     @if (config('storefront.product_card.quick_view') === 'sidenav')
         @include('partials.offcanvas.quick-view')
     @endif
@@ -93,8 +95,12 @@
     @if ($analytics->enabled())
         @include('partials.overlays.cookies')
     @endif
-    @include('partials.modals.wishlist')
-    @include('partials.modals.compare')
+    @if (config('storefront.features.wishlist'))
+        @include('partials.modals.wishlist')
+    @endif
+    @if (config('storefront.features.compare'))
+        @include('partials.modals.compare')
+    @endif
     @include('partials.modals.social-share')
 
     {{-- Page specific modals (size guide, coupons, ...) --}}

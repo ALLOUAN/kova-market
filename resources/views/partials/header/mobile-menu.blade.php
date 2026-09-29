@@ -73,7 +73,7 @@
                                                                                     <p class="b3 desc">{{ $category->promo['subtitle'] }}</p>
                                                                                 </div>
                                                                                 <a class="rbt-btn rbt-btn-sm rbt-btn-black" href="{{ $category->url() }}">Voir le détail</a>
-                                                                                <a href="{{ $category->url() }}" class="product-img position-bottom mt--24"><img src="{{ asset($category->image) }}" alt="{{ $category->name }}"></a>
+                                                                                <a href="{{ $category->url() }}" class="product-img position-bottom mt--24"><img src="{{ asset($category->image) }}" alt="{{ $category->name }}" loading="lazy" decoding="async"></a>
                                                                             </div>
                                                                         </div>
                                                                     </div>

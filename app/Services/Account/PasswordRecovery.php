@@ -4,10 +4,8 @@ namespace App\Services\Account;
 
 use App\Actions\Fortify\ResetUserPassword;
 use App\Models\User;
-use App\Services\Sms\SmsGateway;
+use App\Services\Security\SmsCode;
 use App\Support\PhoneNumber;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
@@ -18,15 +16,17 @@ use Illuminate\Support\Str;
  */
 class PasswordRecovery
 {
-    public const CODE_MINUTES = 15;
+    public const CODE_MINUTES = SmsCode::MINUTES;
 
-    public const MAX_ATTEMPTS = 5;
+    public const MAX_ATTEMPTS = SmsCode::MAX_ATTEMPTS;
 
     /** Minimum delay between two codes sent to the same number. */
-    public const RESEND_SECONDS = 60;
+    public const RESEND_SECONDS = SmsCode::RESEND_SECONDS;
+
+    private const PURPOSE = 'password';
 
     public function __construct(
-        private SmsGateway $sms,
+        private SmsCode $codes,
         private ResetUserPassword $resetter,
     ) {}
 
@@ -47,14 +47,8 @@ class PasswordRecovery
             return;
         }
 
-        if (! Cache::add($this->resendKey($user->phone), true, self::RESEND_SECONDS)) {
-            return;
-        }
-
-        $code = (string) random_int(100000, 999999);
-        Cache::put($this->codeKey($user->phone), ['hash' => Hash::make($code), 'attempts' => 0], now()->addMinutes(self::CODE_MINUTES));
-
-        $this->sms->send($user->phone, config('storefront.name')." : votre code pour changer de mot de passe est {$code}. Il est valable ".self::CODE_MINUTES.' minutes. Ne le communiquez à personne.');
+        $this->codes->send(self::PURPOSE, $user->phone, fn (string $code) => config('storefront.name')
+            ." : votre code pour changer de mot de passe est {$code}. Il est valable ".self::CODE_MINUTES.' minutes. Ne le communiquez à personne.');
     }
 
     /**
@@ -65,22 +59,13 @@ class PasswordRecovery
     public function resetWithCode(string $phone, string $code, array $passwords): bool
     {
         $phone = PhoneNumber::normalize($phone) ?? '';
-        $key = $this->codeKey($phone);
-        $entry = Cache::get($key);
+        $user = $this->customer($phone);
 
-        if (! is_array($entry) || ! ($user = $this->customer($phone))) {
-            return false;
-        }
-
-        if (! Hash::check(trim($code), $entry['hash'])) {
-            $entry['attempts']++;
-            $entry['attempts'] >= self::MAX_ATTEMPTS ? Cache::forget($key) : Cache::put($key, $entry, now()->addMinutes(self::CODE_MINUTES));
-
+        if (! $user || ! $this->codes->verify(self::PURPOSE, $phone, $code)) {
             return false;
         }
 
         $this->resetter->reset($user, $passwords);
-        Cache::forget($key);
         $this->signOutEverywhere($user);
 
         return true;
@@ -120,15 +105,5 @@ class PasswordRecovery
     {
         $user->forceFill(['remember_token' => Str::random(60)])->save();
         $user->tokens()->delete();
-    }
-
-    private function codeKey(string $phone): string
-    {
-        return 'password-recovery:code:'.$phone;
-    }
-
-    private function resendKey(string $phone): string
-    {
-        return 'password-recovery:sent:'.$phone;
     }
 }

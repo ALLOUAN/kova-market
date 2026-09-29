@@ -4,7 +4,12 @@ namespace App\Services\Storefront;
 
 use App\Enums\BannerPlacement;
 use App\Models\Banner;
+use App\Models\Collection;
+use App\Models\Product;
+use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection as SupportCollection;
 
 /**
  * Assembles the data displayed by the home page sections.
@@ -19,6 +24,13 @@ class HomePageService
 
     public const FEATURED = 'featured-products';
 
+    public const NEW_ARRIVALS = 'new-arrivals';
+
+    public const POPULAR = 'popular-products';
+
+    /** Products shown by the "Nouveautés" and "Populaires" rows. */
+    public const ROW_SIZE = 8;
+
     public function __construct(private CatalogService $catalog) {}
 
     /**
@@ -27,7 +39,7 @@ class HomePageService
     public function data(): array
     {
         $collections = $this->catalog->collections([
-            self::DEALS_OF_THE_DAY, self::BEST_DEALS, self::HIGHLIGHTS, self::FEATURED,
+            self::DEALS_OF_THE_DAY, self::BEST_DEALS, self::HIGHLIGHTS, self::FEATURED, self::NEW_ARRIVALS, self::POPULAR,
         ]);
 
         $featured = $collections->get(self::FEATURED)?->products ?? collect();
@@ -43,6 +55,28 @@ class HomePageService
             'featuredProducts' => $featured->slice(1)->values(),
             'featuredTitle' => $collections->get(self::FEATURED)?->name,
             'brands' => $this->catalog->brands(),
+            'newArrivals' => $this->row($collections->get(self::NEW_ARRIVALS), 'Nouveautés', 'nouveautes', fn (Builder $query) => $query->latest()->orderByDesc('id')),
+            'popular' => $this->row($collections->get(self::POPULAR), 'Populaires', 'popularite', fn (Builder $query) => $query->orderByDesc('sold_count')->orderByDesc('id')),
+        ];
+    }
+
+    /**
+     * A product row of the home page (F-011, F-012): computed from the catalog, unless a collection with that slug
+     * exists and holds active products, which then takes precedence (curated by the store).
+     *
+     * @param  Closure(Builder): Builder  $order
+     * @return array{title: string, url: string, products: SupportCollection<int, Product>}
+     */
+    private function row(?Collection $curated, string $title, string $sort, Closure $order): array
+    {
+        $products = $curated && $curated->products->isNotEmpty()
+            ? $curated->products->take(self::ROW_SIZE)
+            : $order(Product::query()->active()->with('category'))->limit(self::ROW_SIZE)->get();
+
+        return [
+            'title' => $curated?->name ?? $title,
+            'url' => route('shop.index', ['tri' => $sort]),
+            'products' => $products->values(),
         ];
     }
 

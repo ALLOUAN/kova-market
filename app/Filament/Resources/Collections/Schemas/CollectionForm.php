@@ -14,7 +14,7 @@ class CollectionForm
         return $schema
             ->components([
                 Section::make('Collection')
-                    ->description('Chaque collection alimente une section de la page d’accueil. Son identifiant technique ne peut pas être modifié.')
+                    ->description('Chaque collection alimente une section de la page d’accueil. Son identifiant technique ne peut pas être modifié. « Nouveautés » et « Populaires » se remplissent seules (produits les plus récents, les plus vendus) tant que vous ne leur ajoutez aucun produit.')
                     ->columns(2)
                     ->schema([
                         TextInput::make('name')
