@@ -103,6 +103,9 @@
                     @foreach ($legalLinks as $link)
                         <li><a href="{{ $link['href'] }}">{{ $link['label'] }}</a></li>
                     @endforeach
+                    @if (app(\App\Services\Storefront\Analytics::class)->enabled())
+                        <li><button type="button" class="btn btn-link p-0 border-0 align-baseline text-reset" data-cookie-settings>Gérer les cookies</button></li>
+                    @endif
                 </ul>
             </div>
         </div>

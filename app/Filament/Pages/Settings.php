@@ -35,6 +35,9 @@ class Settings extends Page
 
     protected static ?int $navigationSort = 1;
 
+    /** Audience measurement identifiers (F-155), read by App\Services\Storefront\Analytics. */
+    private const ANALYTICS_FIELDS = ['ga4_id', 'meta_pixel_id', 'tiktok_pixel_id', 'search_console_token'];
+
     /** @var array<string, mixed> */
     public ?array $data = [];
 
@@ -55,6 +58,7 @@ class Settings extends Page
                 'assignment_mode' => app(DeliveryDispatcher::class)->mode(),
             ],
             'payment' => ['cash_on_delivery_limit' => Setting::get('payment.cash_on_delivery_limit')],
+            'analytics' => collect(self::ANALYTICS_FIELDS)->mapWithKeys(fn (string $field) => [$field => Setting::get("analytics.{$field}")])->all(),
         ]);
     }
 
@@ -103,6 +107,19 @@ class Settings extends Page
                             ->minValue(0)
                             ->suffix('FCFA'),
                     ]),
+                Section::make('Mesure d’audience')
+                    ->description('Chargés seulement après l’accord du visiteur (bandeau cookies). Laisser vide pour ne pas utiliser un service ; sans aucun identifiant, le bandeau n’est pas affiché.')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('analytics.ga4_id')->label('Google Analytics 4 (ID de mesure)')->placeholder('G-XXXXXXXXXX')->regex('/^G-[A-Z0-9]{4,20}$/')->maxLength(30),
+                        TextInput::make('analytics.meta_pixel_id')->label('Pixel Meta (Facebook, Instagram)')->regex('/^\d{5,20}$/')->maxLength(20),
+                        TextInput::make('analytics.tiktok_pixel_id')->label('Pixel TikTok')->regex('/^[A-Z0-9]{10,30}$/')->maxLength(30),
+                        TextInput::make('analytics.search_console_token')
+                            ->label('Google Search Console (code de validation)')
+                            ->helperText('Le contenu de la balise « google-site-verification » proposée par Google.')
+                            ->regex('/^[A-Za-z0-9_-]{10,100}$/')
+                            ->maxLength(100),
+                    ]),
                 Section::make('Réseaux sociaux')
                     ->description('Laisser vide pour masquer l’icône du réseau.')
                     ->columns(2)
@@ -139,6 +156,7 @@ class Settings extends Page
             'delivery.free_shipping_threshold' => $state['delivery']['free_shipping_threshold'] ?? null,
             'delivery.assignment_mode' => $state['delivery']['assignment_mode'] ?? null,
             'payment.cash_on_delivery_limit' => $state['payment']['cash_on_delivery_limit'] ?? null,
+            ...collect(self::ANALYTICS_FIELDS)->mapWithKeys(fn (string $field) => ["analytics.{$field}" => $state['analytics'][$field] ?? null])->all(),
         ]);
 
         activity()->causedBy(auth()->user())->withProperties(['keys' => array_keys($state)])->log('Paramètres de la boutique modifiés');

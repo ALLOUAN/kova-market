@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AttributeValue;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Services\Storefront\Analytics;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection as SupportCollection;
@@ -17,11 +18,12 @@ class ProductController extends Controller
 {
     public const RECOMMENDED = 8;
 
-    public function show(Product $product): View
+    public function show(Product $product, Analytics $analytics): View
     {
         abort_unless($product->is_active, 404);
 
         $product->load(['category.parent.parent', 'brand', 'variants.attributeValues.attribute', 'bundleItems.variant.product', 'bundleItems.variant.attributeValues.attribute']);
+        $analytics->viewItem($product);
 
         return view('pages.product', [
             'product' => $product,

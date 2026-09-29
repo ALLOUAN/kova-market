@@ -24,14 +24,25 @@ return [
 
         // The storefront theme and Filament (Alpine.js, Livewire) run inline scripts and styles, hence
         // 'unsafe-inline' and 'unsafe-eval'; the policy still limits where scripts, frames and forms can go.
+        // Google Analytics, Meta and TikTok (F-155) are allowed here but only loaded after consent (analytics.js).
         'directives' => [
             'default-src' => ["'self'"],
-            'script-src' => ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://challenges.cloudflare.com'],
+            'script-src' => [
+                "'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://challenges.cloudflare.com',
+                'https://www.googletagmanager.com', 'https://connect.facebook.net', 'https://analytics.tiktok.com',
+            ],
             'style-src' => ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://fonts.bunny.net'],
             'font-src' => ["'self'", 'data:', 'https://fonts.gstatic.com', 'https://fonts.bunny.net'],
-            'img-src' => ["'self'", 'data:', 'blob:', 'https://ui-avatars.com'],
+            'img-src' => [
+                "'self'", 'data:', 'blob:', 'https://ui-avatars.com',
+                'https://www.google-analytics.com', 'https://www.googletagmanager.com', 'https://www.facebook.com', 'https://analytics.tiktok.com',
+            ],
             'media-src' => ["'self'"],
-            'connect-src' => ["'self'", 'https://challenges.cloudflare.com'],
+            'connect-src' => [
+                "'self'", 'https://challenges.cloudflare.com',
+                'https://*.google-analytics.com', 'https://*.analytics.google.com', 'https://www.googletagmanager.com',
+                'https://www.facebook.com', 'https://connect.facebook.net', 'https://analytics.tiktok.com',
+            ],
             'frame-src' => ["'self'", 'https://challenges.cloudflare.com', 'https://www.google.com'],
             'frame-ancestors' => ["'self'"],
             'form-action' => ["'self'"],

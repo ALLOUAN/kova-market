@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Services\Cart\CartManager;
 use App\Services\Checkout\CheckoutException;
 use App\Services\Checkout\PlaceOrder;
+use App\Services\Storefront\Analytics;
 use App\Support\PhoneNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,7 +25,7 @@ class CheckoutController extends Controller
 
     public function __construct(private CartManager $cart) {}
 
-    public function show(Request $request): View|RedirectResponse
+    public function show(Request $request, Analytics $analytics): View|RedirectResponse
     {
         $summary = $this->cart->summary();
 
@@ -36,6 +37,8 @@ class CheckoutController extends Controller
         if ($summary->couponIssue) {
             return redirect()->route('cart.show')->with('cart_error', "Le code promo {$summary->coupon->code} ne s’applique plus : retirez-le ou complétez votre panier pour commander.");
         }
+
+        $analytics->beginCheckout($summary);
 
         $user = $request->user();
         $addresses = $user?->addresses()->with('commune')->get() ?? collect();
@@ -58,7 +61,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(PlaceOrderRequest $request, PlaceOrder $placeOrder): RedirectResponse
+    public function store(PlaceOrderRequest $request, PlaceOrder $placeOrder, Analytics $analytics): RedirectResponse
     {
         $cart = $this->cart->current();
 
@@ -77,6 +80,8 @@ class CheckoutController extends Controller
         }
 
         $request->session()->push(self::PLACED, $order->number);
+        // Reported once, on the confirmation page that follows (a reload does not count it again).
+        $analytics->purchase($order->load('items'));
 
         return redirect()->route('checkout.confirmation', $order);
     }

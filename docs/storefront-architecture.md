@@ -120,3 +120,21 @@ orders and tracking, 5 for sign-in. Online payment (CinetPay) will add its own e
 | robots.txt | `SeoController::robots`: production disallows the private sections and points to the sitemap; any other environment disallows everything, so a preproduction copy stays out of Google. The back-office path is never listed |
 
 Check a product page with Google's Rich Results Test once the site is online (it cannot reach a local copy).
+
+## Audience measurement and consent
+
+Google Analytics 4, the Meta pixel and the TikTok pixel (F-155) are set in **Paramètres de la boutique › Mesure
+d'audience**, with the Search Console verification code. `App\Services\Storefront\Analytics` puts the identifiers and
+the page's e-commerce events in `window.kovaAnalytics`; `public/assets/js/analytics.js` shows the consent banner and
+injects the trackers only after "Accepter" (F-156). The choice is kept six months in the `kova_consent` cookie
+(`granted` / `denied`) and changed with the footer link "Gérer les cookies". Without any identifier, neither the
+banner nor the script is output. The theme's own banner logic (localStorage only) is switched off.
+
+| Event | Sent from | Meta / TikTok name |
+| --- | --- | --- |
+| `view_item` | product page | ViewContent |
+| `add_to_cart` | page following an add to cart (session) | AddToCart |
+| `begin_checkout` | checkout page | InitiateCheckout |
+| `purchase` | confirmation page, once (session) | Purchase / PlaceAnOrder |
+
+The trackers' origins are allowed in `config/security.php`; a new tracker needs its origins there too.

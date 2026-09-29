@@ -8,6 +8,7 @@ use App\Models\Coupon;
 use App\Services\Cart\CartException;
 use App\Services\Cart\CartManager;
 use App\Services\Promotions\CouponException;
+use App\Services\Storefront\Analytics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -28,7 +29,7 @@ class CartController extends Controller
         ]);
     }
 
-    public function store(AddToCartRequest $request): RedirectResponse
+    public function store(AddToCartRequest $request, Analytics $analytics): RedirectResponse
     {
         $variant = $request->variant();
 
@@ -37,6 +38,8 @@ class CartController extends Controller
         } catch (CartException $exception) {
             return back()->with('cart_error', $exception->getMessage());
         }
+
+        $analytics->addToCart($variant, $request->quantity());
 
         // "Acheter maintenant" goes straight to the cart, where the order will be placed (F-015).
         $redirect = $request->boolean('buy_now') ? redirect()->route('cart.show') : back();
