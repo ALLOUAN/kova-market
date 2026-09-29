@@ -16,3 +16,11 @@ Schedule::command('catalog:refresh-sale-prices')->everyMinute()->withoutOverlapp
 
 // Sitemap for the search engines (F-154), regenerated every night.
 Schedule::command('seo:sitemap')->dailyAt('03:00');
+
+// Queued notifications (SMS, e-mails) on shared hosting (F-170): no permanent worker, so the scheduler, run every
+// minute by the host's cron, empties the queue. Sentry raises an alert when these runs stop (F-172).
+Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')
+    ->everyMinute()
+    ->withoutOverlapping(5)
+    ->when(fn () => config('queue.default') !== 'sync')
+    ->sentryMonitor('file-attente');

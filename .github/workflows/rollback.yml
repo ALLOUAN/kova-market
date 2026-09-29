@@ -1,0 +1,35 @@
+# Rollback in one click (F-171): puts the previous version back online. Same as running
+# `bash $DEPLOY_PATH/current/deploy/rollback.sh` on the server. The database is left as it is.
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environnement
+        type: choice
+        options: [production, preproduction]
+        default: production
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: SSH access
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          printf 'Host server\n  HostName %s\n  Port %s\n  User %s\n  IdentityFile ~/.ssh/deploy_key\n' \
+            "${{ secrets.SSH_HOST }}" "${{ secrets.SSH_PORT || '22' }}" "${{ secrets.SSH_USER }}" > ~/.ssh/config
+
+      - name: Previous version back online
+        env:
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          PHP_BIN: ${{ vars.PHP_BIN || 'php' }}
+        run: ssh server "DEPLOY_PATH='$DEPLOY_PATH' PHP_BIN='$PHP_BIN' bash '$DEPLOY_PATH/current/deploy/rollback.sh'"

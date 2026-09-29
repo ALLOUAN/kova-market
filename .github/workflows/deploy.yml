@@ -1,0 +1,72 @@
+# Deployment without interruption (F-171). Every push to main goes to the preproduction once the tests pass; the
+# production is deployed from the Actions tab ("Run workflow", environment: production), which GitHub can make
+# wait for an approval (Settings › Environments › production › Required reviewers).
+#
+# Each GitHub environment (preproduction, production) holds:
+#   secrets: SSH_HOST, SSH_PORT (optional, 22), SSH_USER, SSH_PRIVATE_KEY, SSH_KNOWN_HOSTS
+#   variables: DEPLOY_PATH (e.g. /home/kova/kova), PHP_BIN (e.g. php8.4), HEALTHCHECK_URL (e.g. https://…/up)
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environnement
+        type: choice
+        options: [preproduction, production]
+        default: preproduction
+
+concurrency:
+  group: deploy-${{ inputs.environment || 'preproduction' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'preproduction' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, gd, zip, bcmath, exif
+          coverage: none
+
+      - name: Install production dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+
+      - name: Build the release archive
+        run: |
+          tar --exclude=./.git --exclude=./.github --exclude=./node_modules --exclude=./tests \
+              --exclude=./storage --exclude=./public/uploads --exclude=./.env \
+              -czf "$RUNNER_TEMP/release-$GITHUB_SHA.tar.gz" .
+
+      - name: SSH access
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          printf 'Host server\n  HostName %s\n  Port %s\n  User %s\n  IdentityFile ~/.ssh/deploy_key\n' \
+            "${{ secrets.SSH_HOST }}" "${{ secrets.SSH_PORT || '22' }}" "${{ secrets.SSH_USER }}" > ~/.ssh/config
+
+      - name: Upload and switch
+        env:
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          PHP_BIN: ${{ vars.PHP_BIN || 'php' }}
+          HEALTHCHECK_URL: ${{ vars.HEALTHCHECK_URL }}
+        run: |
+          ssh server "mkdir -p '$DEPLOY_PATH/incoming'"
+          scp "$RUNNER_TEMP/release-$GITHUB_SHA.tar.gz" deploy/release.sh "server:$DEPLOY_PATH/incoming/"
+          ssh server "DEPLOY_PATH='$DEPLOY_PATH' PHP_BIN='$PHP_BIN' HEALTHCHECK_URL='$HEALTHCHECK_URL' \
+            bash '$DEPLOY_PATH/incoming/release.sh' '$DEPLOY_PATH/incoming/release-$GITHUB_SHA.tar.gz'"

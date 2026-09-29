@@ -3,8 +3,11 @@
 name: CI
 
 on:
+  # main is tested by the deploy workflow, which calls this one before deploying.
   push:
+    branches-ignore: [main]
   pull_request:
+  workflow_call:
   schedule:
     - cron: '0 6 * * 1'
 
@@ -33,6 +36,34 @@ jobs:
 
       - name: Run the tests
         run: php artisan test --compact
+
+  # The deployment, rollback, backup and restore scripts, run for real on Linux with MySQL (F-171, F-173).
+  # Also checks every migration against MySQL, while the test suite uses SQLite.
+  deploy-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, pdo_mysql, gd, zip, bcmath, exif
+          coverage: none
+
+      - name: Install production dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+
+      - name: Start MySQL
+        run: |
+          sudo systemctl start mysql
+          mysql -uroot -proot -e "CREATE DATABASE kova CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE USER 'kova'@'%' IDENTIFIED BY 'secret'; GRANT ALL ON kova.* TO 'kova'@'%';"
+
+      - name: Release, release again, roll back, back up, restore
+        env:
+          DB_DATABASE: kova
+          DB_USERNAME: kova
+          DB_PASSWORD: secret
+        run: bash deploy/selftest.sh
 
   audit:
     runs-on: ubuntu-latest

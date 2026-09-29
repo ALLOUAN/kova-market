@@ -1,0 +1,76 @@
+# Production backup every 6 hours (F-173, RPO 6 h), stored off the server and encrypted: with the live data and
+# the 7 days of archives kept on the server, that makes 3 copies on 2 media, 1 off-site (3-2-1).
+#
+# Environment "production", in addition to the SSH secrets and DEPLOY_PATH / PHP_BIN of deploy.yml:
+#   secret BACKUP_PASSPHRASE   encrypts the archive (GPG, AES-256); keep it somewhere else too, without it
+#                              the backups cannot be read
+#   secret RCLONE_CONFIG       rclone configuration of the off-site storage (Backblaze B2, Google Drive, S3…)
+#   variable BACKUP_REMOTE     destination in that storage, e.g. "b2:kova-backups/production"
+# Without RCLONE_CONFIG the archive is kept 7 days as a workflow artifact (small stores only).
+name: Backup
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: backup-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      HAS_RCLONE: ${{ secrets.RCLONE_CONFIG != '' }}
+    steps:
+      - name: SSH access
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          printf 'Host server\n  HostName %s\n  Port %s\n  User %s\n  IdentityFile ~/.ssh/deploy_key\n' \
+            "${{ secrets.SSH_HOST }}" "${{ secrets.SSH_PORT || '22' }}" "${{ secrets.SSH_USER }}" > ~/.ssh/config
+
+      - name: Back up on the server and download
+        env:
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+        run: |
+          archive="$(ssh server "DEPLOY_PATH='$DEPLOY_PATH' bash '$DEPLOY_PATH/current/deploy/backup.sh'" | tail -n 1)"
+          scp "server:$archive" "$RUNNER_TEMP/"
+          echo "ARCHIVE=$RUNNER_TEMP/$(basename "$archive")" >> "$GITHUB_ENV"
+
+      - name: Encrypt
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          test -n "$BACKUP_PASSPHRASE" || { echo "Secret BACKUP_PASSPHRASE manquant." >&2; exit 1; }
+          gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase-fd 0 --output "$ARCHIVE.gpg" "$ARCHIVE" <<< "$BACKUP_PASSPHRASE"
+          rm "$ARCHIVE"
+          echo "ENCRYPTED=$ARCHIVE.gpg" >> "$GITHUB_ENV"
+
+      - name: Store off-site
+        if: env.HAS_RCLONE == 'true'
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
+          BACKUP_REMOTE: ${{ vars.BACKUP_REMOTE }}
+        run: |
+          curl -fsSL https://rclone.org/install.sh | sudo bash > /dev/null
+          mkdir -p ~/.config/rclone
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
+          rclone copy "$ENCRYPTED" "$BACKUP_REMOTE"
+          # Off-site copies older than 90 days are removed.
+          rclone delete --min-age 90d "$BACKUP_REMOTE"
+
+      - name: Keep as an artifact (no off-site storage configured)
+        if: env.HAS_RCLONE != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-${{ github.run_id }}
+          path: ${{ env.ENCRYPTED }}
+          retention-days: 7

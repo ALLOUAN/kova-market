@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureCourier;
+use App\Http\Middleware\ProtectPreproduction;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\UseApiGuard;
 use App\Services\Cart\CartException;
@@ -12,6 +13,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Sentry\Laravel\Integration;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -31,10 +33,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // HTTPS, HSTS, content security policy and the other security headers on every response (F-140, F-143).
         $middleware->append(SecurityHeaders::class);
+        $middleware->prepend(ProtectPreproduction::class);
 
         $middleware->alias(['courier' => EnsureCourier::class, 'api.guard' => UseApiGuard::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Production errors go to Sentry once SENTRY_LARAVEL_DSN is set (F-172); no personal data is sent.
+        Integration::handles($exceptions);
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

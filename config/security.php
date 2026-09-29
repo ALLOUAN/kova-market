@@ -13,6 +13,15 @@
 
 return [
 
+    /*
+    | Preproduction (APP_ENV=staging) holds a copy of the production data after each monthly restore test (F-173):
+    | with PREPROD_USER and PREPROD_PASSWORD set, every page asks for them (except /up for the health checks).
+    */
+    'preproduction' => [
+        'user' => env('PREPROD_USER'),
+        'password' => env('PREPROD_PASSWORD'),
+    ],
+
     'hsts' => [
         'max_age' => (int) env('SECURITY_HSTS_MAX_AGE', 31536000),
         'include_subdomains' => (bool) env('SECURITY_HSTS_SUBDOMAINS', true),

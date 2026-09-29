@@ -1,0 +1,88 @@
+# Monthly restore test (F-173): a fresh production backup is restored into the preproduction, which must then
+# answer. A failure means the backups cannot be trusted: GitHub notifies the repository admins. The time taken is
+# printed by restore.sh (target RTO: 4 h).
+#
+# Needs the SSH secrets and variables of both environments, BACKUP_PASSPHRASE in both, and in "preproduction":
+# PREPROD_USER / PREPROD_PASSWORD secrets when the preproduction is protected, and the variable STOREFRONT_URL.
+name: Restore test
+
+on:
+  schedule:
+    - cron: '0 5 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: SSH access
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          printf 'Host server\n  HostName %s\n  Port %s\n  User %s\n  IdentityFile ~/.ssh/deploy_key\n' \
+            "${{ secrets.SSH_HOST }}" "${{ secrets.SSH_PORT || '22' }}" "${{ secrets.SSH_USER }}" > ~/.ssh/config
+
+      - name: Fresh production backup
+        env:
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          archive="$(ssh server "DEPLOY_PATH='$DEPLOY_PATH' bash '$DEPLOY_PATH/current/deploy/backup.sh'" | tail -n 1)"
+          scp "server:$archive" "$RUNNER_TEMP/backup.tar.gz"
+          gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase-fd 0 --output "$RUNNER_TEMP/backup.tar.gz.gpg" "$RUNNER_TEMP/backup.tar.gz" <<< "$BACKUP_PASSPHRASE"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: restore-test
+          path: ${{ runner.temp }}/backup.tar.gz.gpg
+          retention-days: 1
+
+  restore:
+    needs: backup
+    runs-on: ubuntu-latest
+    environment: preproduction
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: restore-test
+          path: ${{ runner.temp }}
+
+      - name: SSH access
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          printf 'Host server\n  HostName %s\n  Port %s\n  User %s\n  IdentityFile ~/.ssh/deploy_key\n' \
+            "${{ secrets.SSH_HOST }}" "${{ secrets.SSH_PORT || '22' }}" "${{ secrets.SSH_USER }}" > ~/.ssh/config
+
+      - name: Restore into the preproduction
+        env:
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          PHP_BIN: ${{ vars.PHP_BIN || 'php' }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          gpg --batch --yes --decrypt --passphrase-fd 0 --output "$RUNNER_TEMP/backup.tar.gz" "$RUNNER_TEMP/backup.tar.gz.gpg" <<< "$BACKUP_PASSPHRASE"
+          scp "$RUNNER_TEMP/backup.tar.gz" "server:$DEPLOY_PATH/incoming/restore-test.tar.gz"
+          ssh server "DEPLOY_PATH='$DEPLOY_PATH' PHP_BIN='$PHP_BIN' bash '$DEPLOY_PATH/current/deploy/restore.sh' '$DEPLOY_PATH/incoming/restore-test.tar.gz' \
+            && rm '$DEPLOY_PATH/incoming/restore-test.tar.gz'"
+
+      - name: The restored store answers
+        env:
+          HEALTHCHECK_URL: ${{ vars.HEALTHCHECK_URL }}
+          STOREFRONT_URL: ${{ vars.STOREFRONT_URL }}
+          PREPROD_USER: ${{ secrets.PREPROD_USER }}
+          PREPROD_PASSWORD: ${{ secrets.PREPROD_PASSWORD }}
+        run: |
+          auth=()
+          if [ -n "$PREPROD_USER" ]; then auth=(-u "$PREPROD_USER:$PREPROD_PASSWORD"); fi
+          test "$(curl -s -o /dev/null -w '%{http_code}' "$HEALTHCHECK_URL")" = 200
+          test "$(curl -s -o /dev/null -w '%{http_code}' "${auth[@]}" "$STOREFRONT_URL")" = 200
+          test "$(curl -s -o /dev/null -w '%{http_code}' "${auth[@]}" "$STOREFRONT_URL/boutique")" = 200
+          echo "Restauration vérifiée."

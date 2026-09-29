@@ -37,6 +37,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(NavigationService::class);
         $this->app->scoped(CartManager::class);
 
+        // Preproduction holds real customers after the monthly restore test (F-173): its e-mails and SMS are only
+        // written to the log, whatever its .env says.
+        if ($this->app->environment('staging')) {
+            config(['mail.default' => 'log', 'services.sms.driver' => 'log']);
+        }
+
         // SMS provider chosen by configuration (F-131); real providers are added to this match.
         $this->app->singleton(SmsGateway::class, fn () => match (config('services.sms.driver')) {
             'log' => new LogSmsGateway(config('services.sms.sender')),
