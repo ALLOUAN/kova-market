@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['title', 'description', 'image', 'location_label', 'url', 'starts_at', 'ends_at'])]
+#[Fillable(['title', 'description', 'image', 'location_label', 'url', 'is_visible', 'position', 'starts_at', 'ends_at'])]
 class Promotion extends Model
 {
     /** @use HasFactory<PromotionFactory> */
@@ -32,15 +32,17 @@ class Promotion extends Model
         return [
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
+            'is_visible' => 'boolean',
         ];
     }
 
     /**
-     * Promotions that have not ended yet, soonest first.
+     * Visible promotions that have not ended yet, in the back-office order, then soonest first.
      */
     #[Scope]
     protected function current(Builder $query): Builder
     {
-        return $query->where('ends_at', '>=', now())->orderBy('starts_at')->orderBy('id');
+        return $query->where('is_visible', true)->where('ends_at', '>=', now())
+            ->orderBy('position')->orderBy('starts_at')->orderBy('id');
     }
 }

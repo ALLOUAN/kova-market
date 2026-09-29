@@ -37,13 +37,15 @@
                 @endforeach
             </div>
 
-            <div class="row pb--40 pb_sm--24">
-                <div class="col-12">
-                    <a href="{{ route('shop.index') }}">
-                        <img src="{{ asset(config('storefront.footer_banner')) }}" alt="{{ config('storefront.name') }}" loading="lazy" decoding="async">
-                    </a>
+            @if (filled(config('storefront.footer_banner')))
+                <div class="row pb--40 pb_sm--24">
+                    <div class="col-12">
+                        <a href="{{ route('shop.index') }}">
+                            <img src="{{ asset(config('storefront.footer_banner')) }}" alt="{{ config('storefront.name') }}" loading="lazy" decoding="async">
+                        </a>
+                    </div>
                 </div>
-            </div>
+            @endif
 
         </div>
     </div>
@@ -103,9 +105,9 @@
                         <li>
                             <a href="{{ route('pages.show', 'moyens-de-paiement') }}" title="{{ $method['label'] }}">
                                 @if (filled($method['logo'] ?? null) && file_exists(public_path($method['logo'])))
-                                    <img src="{{ asset($method['logo']) }}" alt="{{ $method['label'] }}" height="28" loading="lazy">
+                                    <img src="{{ asset($method['logo']) }}" alt="{{ $method['label'] }}" height="42" loading="lazy" decoding="async">
                                 @else
-                                    <span class="d-inline-block b4 rbt-text-bold rbt-radius px-2 py-1 bg-white border">{{ $method['label'] }}</span>
+                                    <span class="kova-payment-label"><i class="fa-solid fa-truck" aria-hidden="true"></i>{{ $method['label'] }}</span>
                                 @endif
                             </a>
                         </li>

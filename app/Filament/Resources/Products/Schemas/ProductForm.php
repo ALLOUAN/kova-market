@@ -54,6 +54,13 @@ class ProductForm
                             ->label('Ventes')
                             ->content(fn (?Product $record) => $record->sold_count ?? 0)
                             ->helperText('Mis à jour par les ventes payées.'),
+                        Placeholder::make('rating_summary')
+                            ->label('Note des clients')
+                            ->content(fn (?Product $record) => $record && $record->reviews_count > 0
+                                ? number_format($record->rating, 1, ',', ' ').' / 5 ('.$record->reviews_count.' avis publiés)'
+                                : 'Aucun avis publié')
+                            ->helperText('Calculée à partir des avis publiés (onglet « Avis clients »). Sans avis, aucune étoile n’est affichée.')
+                            ->visibleOn('edit'),
                     ]),
                 // On creation these fields make the default variant; afterwards prices and stock live on the
                 // variants (tab "Variantes") and the product only shows their summary.
@@ -108,9 +115,11 @@ class ProductForm
                     ->columnSpan(1)
                     ->schema([
                         Toggle::make('free_shipping')
-                            ->label('Livraison offerte'),
+                            ->label('Livraison offerte')
+                            ->helperText('Affiche « Livraison offerte » sur la carte et la fiche du produit.'),
                         TextInput::make('return_days')
                             ->label('Délai de retour (jours)')
+                            ->helperText('Affiche « N jours pour changer d’avis ». Vide : rien d’affiché.')
                             ->integer()
                             ->minValue(0)
                             ->maxValue(365),
@@ -119,10 +128,10 @@ class ProductForm
                     ->columnSpan(2)
                     ->columns(2)
                     ->schema([
-                        StorefrontImage::make('image', 'products')
+                        StorefrontImage::make('image', 'products', [1246, 976])
                             ->label('Image principale')
                             ->required(),
-                        StorefrontImage::make('hover_image', 'products')
+                        StorefrontImage::make('hover_image', 'products', [1246, 976], 'même format que l’image principale')
                             ->label('Image au survol'),
                     ]),
                 Section::make('Badges')
@@ -148,7 +157,7 @@ class ProductForm
                             ->schema([
                                 TextInput::make('name')->label('Nom')->required(),
                                 ColorPicker::make('hex')->label('Couleur')->required(),
-                                StorefrontImage::make('image', 'products')->label('Image'),
+                                StorefrontImage::make('image', 'products', [1246, 976])->label('Image'),
                             ])
                             ->addActionLabel('Ajouter une couleur')
                             ->defaultItems(0),

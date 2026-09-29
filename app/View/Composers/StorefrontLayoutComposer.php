@@ -2,11 +2,14 @@
 
 namespace App\View\Composers;
 
+use App\Models\Testimonial;
 use App\Services\Cart\CartManager;
 use App\Services\Storefront\CatalogService;
+use App\Services\Storefront\Comparison;
 use App\Services\Storefront\NavigationService;
 use App\Services\Storefront\RecentlyViewed;
 use App\Services\Storefront\StoreSettings;
+use App\Services\Storefront\Wishlist;
 use Illuminate\View\View;
 
 /**
@@ -47,6 +50,10 @@ class StorefrontLayoutComposer
             'promotions' => $this->catalog->currentPromotions(),
             'trendingProducts' => $collections->get(self::TRENDING)?->products ?? collect(),
             'recentlyViewedProducts' => $this->recentlyViewed->products(),
+            'wishlistCount' => config('storefront.features.wishlist') ? app(Wishlist::class)->count() : 0,
+            'compared' => config('storefront.features.compare') ? app(Comparison::class)->products() : collect(),
+            // Sign-in and sign-up windows (guests only).
+            'testimonials' => auth()->check() ? collect() : Testimonial::query()->published()->limit(8)->get(),
         ]);
     }
 }

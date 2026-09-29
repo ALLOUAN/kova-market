@@ -125,7 +125,7 @@
                     <label class="rbt-field-label" for="delete_password">Confirmez avec votre mot de passe</label>
                     <input class="rbt-input-field mb--12" id="delete_password" name="password" type="password" autocomplete="current-password" required>
                     @error('password', 'deleteAccount')<span class="d-block mb--12 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
-                    <button type="submit" class="rbt-btn rbt-btn-sm" style="background: #c0392b">Supprimer définitivement mon compte</button>
+                    <button type="submit" class="rbt-btn rbt-btn-sm kova-btn-danger">Supprimer définitivement mon compte</button>
                 </form>
             </details>
         </section>

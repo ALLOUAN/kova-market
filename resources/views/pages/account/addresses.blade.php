@@ -32,7 +32,7 @@
                                 <form method="POST" action="{{ route('account.addresses.destroy', $address) }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="rbt-btn rbt-btn-sm rbt-btn-border" aria-label="Supprimer l’adresse {{ $address->label }}">Supprimer</button>
+                                    <button type="submit" class="rbt-btn rbt-btn-sm rbt-btn-border kova-btn-danger" aria-label="Supprimer l’adresse {{ $address->label }}">Supprimer</button>
                                 </form>
                             </div>
                         </div>

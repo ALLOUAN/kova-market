@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Services\Storefront\ProductListing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,6 +44,22 @@ class CatalogController extends Controller
             'title' => $category->name,
             'breadcrumb' => collect($category->ancestry())->slice(0, -1)->all(),
             'category' => $category,
+            'brand' => null,
+        ]);
+    }
+
+    /**
+     * A home page selection ("Offres du jour", "Les meilleures offres du jour"…) in full, with filters and sorting.
+     */
+    public function collection(Request $request, Collection $collection): View
+    {
+        abort_unless($collection->hasStarted(), 404);
+
+        return view('pages.catalog', [
+            ...$this->listing->list($request, collection: $collection),
+            'title' => $collection->name,
+            'breadcrumb' => [],
+            'category' => null,
             'brand' => null,
         ]);
     }

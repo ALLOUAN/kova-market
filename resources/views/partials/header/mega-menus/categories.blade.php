@@ -39,14 +39,16 @@
                                     @if ($category->promo)
                                         <div class="col-xl-4 rbt-scroll-trigger fade_in animation-order-4">
                                             <div class="rbt-menu-offer-card rbt-bg-style-box rbt-bg-three h-100 min-h-500">
-                                                <div class="mega-top-banner h-100 align-items-start justify-content-center">
+                                                {{-- Background: the image chosen in the back-office, else the theme's (rbt-bg-three). --}}
+                                                <div class="mega-top-banner h-100 align-items-start justify-content-center"
+                                                    @if (filled($category->promo['menu_image'] ?? null)) style="background-image: url('{{ asset($category->promo['menu_image']) }}')" @endif>
                                                     <div class="rbt-banner-inner rbt-banner-inner-black flex-column rbt-gap--16 align-items-center text-center">
                                                         <div class="rbt-banner-content">
-                                                            <p class="b4 subtitle mb--0">{{ $category->promo['label'] }} {{ $category->promo['highlight'] }}</p>
-                                                            <{{ $headingTag }} class="h5 mb--4">{{ $category->promo['title'] }}
-                                                                {{ $category->promo['subtitle'] }}</{{ $headingTag }}>
+                                                            <p class="b4 subtitle mb--0">{{ $category->promo['label'] ?? '' }} {{ $category->promo['highlight'] ?? '' }}</p>
+                                                            <{{ $headingTag }} class="h5 mb--4">{{ $category->promo['title'] ?? '' }}
+                                                                {{ $category->promo['subtitle'] ?? '' }}</{{ $headingTag }}>
                                                         </div>
-                                                        <a class="rbt-btn rbt-bg-color-secondary rbt-btn-sm" href="{{ $category->url() }}">Voir la collection</a>
+                                                        <a class="rbt-btn rbt-bg-color-secondary rbt-btn-sm" href="{{ $category->url() }}">{{ filled($category->promo['button'] ?? null) ? $category->promo['button'] : 'Voir la collection' }}</a>
                                                     </div>
                                                 </div>
                                             </div>

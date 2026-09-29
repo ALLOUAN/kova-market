@@ -7,6 +7,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,13 +17,14 @@ class PromotionsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('starts_at')
+            ->defaultSort('position')
+            ->reorderable('position')
             ->columns([
                 ImageColumn::make('image')
                     ->label('')
                     ->disk('storefront'),
                 TextColumn::make('title')
-                    ->label('Campagne')
+                    ->label('Offre')
                     ->searchable()
                     ->description(fn (Promotion $record) => $record->description),
                 TextColumn::make('starts_at')
@@ -46,6 +48,7 @@ class PromotionsTable
                         'À venir' => 'info',
                         default => 'gray',
                     }),
+                ToggleColumn::make('is_visible')->label('Visible'),
             ])
             ->filters([
                 TernaryFilter::make('finished')
@@ -61,6 +64,8 @@ class PromotionsTable
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
-            ]);
+            ])
+            ->emptyStateHeading('Aucune offre spéciale')
+            ->emptyStateDescription('Sans offre visible, le panneau « Offres spéciales » invite le client à parcourir la boutique.');
     }
 }

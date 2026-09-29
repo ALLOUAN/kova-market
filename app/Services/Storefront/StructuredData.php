@@ -60,6 +60,14 @@ class StructuredData
                 'category' => $product->category?->name,
                 'brand' => $product->brand ? ['@type' => 'Brand', 'name' => $product->brand->name] : null,
                 'offers' => $offer,
+                // Only from real, approved customer reviews.
+                'aggregateRating' => $product->reviews_count > 0 ? [
+                    '@type' => 'AggregateRating',
+                    'ratingValue' => $product->rating,
+                    'reviewCount' => $product->reviews_count,
+                    'bestRating' => 5,
+                    'worstRating' => 1,
+                ] : null,
             ], fn ($value) => $value !== null && $value !== []),
             $this->breadcrumbs([...$trail, $product->name => $product->url()]),
         ];

@@ -14,20 +14,22 @@
             </div>
         </div>
         <div class="rbt-catagories-section rbt-curved-style-box rbt-catagories-section-bg-one">
+            @php($banner = $banners['categories'])
             <div class="row row--12 mt_dec--24">
-                <div class="col-xl-8 col-lg-12 col-12 mt--24">
+                {{-- Without a banner in its slot, the categories take the whole width. --}}
+                <div @class(['col-12 mt--24', 'col-xl-8 col-lg-12' => $banner])>
                     <div class="row row--12 mt_dec--24 rbt-mobile-row">
                         @foreach ($categories as $category)
-                            <div class="col-lg-4 col-md-6 col-sm-6 col-6 mt--24">
+                            <div @class(['col-md-6 col-sm-6 col-6 mt--24', 'col-lg-4' => $banner, 'col-xl-3 col-lg-4' => ! $banner])>
                                 <x-category.card :category="$category" :order="$loop->iteration" />
                             </div>
                         @endforeach
                     </div>
                 </div>
 
-                @php($banner = $banners['categories'])
+                @if ($banner)
                 <div class="col-xl-4 col-lg-12 col-12 mt--24">
-                    <div class="rbt-cat-box banner-card text-center rbt-curved-style-box rbt-catagories-img-bg rbt-scroll-trigger fade_in animation-order-5">
+                    <div class="rbt-cat-box banner-card text-center rbt-curved-style-box rbt-catagories-img-bg rbt-scroll-trigger fade_in animation-order-5" data-analytics-promotion="{{ json_encode(\App\Services\Storefront\Analytics::promotion($banner)) }}">
                         <div class="inner">
                             <div class="content">
                                 <p class="subtitle rbt-scroll-trigger fade_in animation-order-1">{{ $banner['subtitle'] }}</p>
@@ -42,6 +44,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>

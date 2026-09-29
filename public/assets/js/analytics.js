@@ -4,8 +4,9 @@
  * The page carries window.kovaAnalytics = { ga4, meta, tiktok, currency, consent, events }. Nothing is requested
  * from Google, Meta or TikTok until the visitor clicks "Accepter" on the cookie banner; the choice is kept six
  * months in the first-party "kova_consent" cookie ("granted" or "denied") and can be changed with any
- * [data-cookie-settings] link. E-commerce events of the page (view_item, add_to_cart, begin_checkout, purchase)
- * are sent once the trackers are loaded.
+ * [data-cookie-settings] link. E-commerce events of the page (view_item, add_to_cart, begin_checkout, purchase, and on
+ * the home page view_item_list and view_promotion) are sent once the trackers are loaded; clicks on home banners and
+ * on the products of its selections give select_promotion and select_item (Google Analytics only).
  */
 (function () {
     'use strict';
@@ -122,6 +123,60 @@
             banner.classList.remove('isVisible');
         }
     }
+
+    function readJson(element, attribute) {
+        try {
+            return JSON.parse(element.getAttribute(attribute));
+        } catch (error) {
+            return null;
+        }
+    }
+
+    /**
+     * Home page clicks (GA4 only), once the trackers run: a banner ("select_promotion") or a product of a
+     * selection ("select_item", with its list and its position in it).
+     */
+    document.addEventListener('click', function (event) {
+        if (!loaded || !config.ga4) {
+            return;
+        }
+
+        var link = event.target.closest('a[href]');
+
+        if (!link || link.getAttribute('href') === '#') {
+            return;
+        }
+
+        var banner = link.closest('[data-analytics-promotion]');
+
+        if (banner) {
+            var promotion = readJson(banner, 'data-analytics-promotion');
+
+            if (promotion) {
+                send({ name: 'select_promotion', params: { items: [promotion] } });
+            }
+
+            return;
+        }
+
+        var card = link.closest('[data-analytics-item]');
+        var list = card && card.closest('[data-analytics-list]');
+
+        if (!card || !list) {
+            return;
+        }
+
+        var item = readJson(card, 'data-analytics-item');
+        var listInfo = readJson(list, 'data-analytics-list');
+
+        if (item && listInfo) {
+            var cards = Array.prototype.slice.call(list.querySelectorAll('[data-analytics-item]'));
+            item.index = cards.indexOf(card);
+            item.item_list_id = listInfo.item_list_id;
+            item.item_list_name = listInfo.item_list_name;
+            send({ name: 'select_item', params: { item_list_id: listInfo.item_list_id, item_list_name: listInfo.item_list_name, items: [item] } });
+        }
+    });
 
     document.addEventListener('click', function (event) {
         var target = event.target.closest('[data-cookie-accept], [data-cookie-decline], [data-cookie-settings]');

@@ -5,10 +5,9 @@
 | Home page marketing content
 |--------------------------------------------------------------------------
 |
-| Editorial content of the home page (hero slider and promotional banners).
-| Product listings are driven by the database collections referenced below.
-| Amounts are whole FCFA. This content is the fallback used while no banner
-| is managed from the back-office.
+| Sample banners of the theme (hero slider and promotional banners), copied
+| into the back-office by the demo BannerSeeder. The site never shows them by
+| itself: an empty banner slot hides its banner. Amounts are whole FCFA.
 |
 */
 

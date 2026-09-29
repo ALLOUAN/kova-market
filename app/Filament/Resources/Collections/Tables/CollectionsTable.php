@@ -22,6 +22,10 @@ class CollectionsTable
                     ->color('gray'),
                 TextColumn::make('products_count')
                     ->label('Produits'),
+                TextColumn::make('starts_at')
+                    ->label('À partir du')
+                    ->dateTime('d/m/Y H:i')
+                    ->placeholder('Maintenant'),
                 TextColumn::make('ends_at')
                     ->label('Fin de l’offre')
                     ->dateTime('d/m/Y H:i')

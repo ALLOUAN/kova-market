@@ -3,9 +3,11 @@
 use App\Http\Controllers\Account\AccountController;
 use App\Http\Controllers\Account\AddressController;
 use App\Http\Controllers\Account\PasswordResetController;
+use App\Http\Controllers\Account\ReviewController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CompareController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Courier\AppController as CourierAppController;
 use App\Http\Controllers\Courier\AuthController as CourierAuthController;
@@ -13,12 +15,14 @@ use App\Http\Controllers\Courier\DeliveryController;
 use App\Http\Controllers\Courier\PasswordController as CourierPasswordController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\StockAlertController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -31,6 +35,7 @@ Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/boutique', [CatalogController::class, 'index'])->name('shop.index');
 Route::get('/categorie/{category:slug}', [CatalogController::class, 'category'])->name('categories.show');
 Route::get('/marque/{brand:slug}', [CatalogController::class, 'brand'])->name('brands.show');
+Route::get('/selection/{collection:slug}', [CatalogController::class, 'collection'])->name('collections.show');
 Route::get('/produit/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/produit/{product:slug}/apercu', [ProductController::class, 'quickView'])->name('products.quick-view');
 
@@ -79,6 +84,7 @@ Route::middleware('auth')->prefix('compte')->name('account.')->group(function ()
     Route::get('/', [AccountController::class, 'show'])->name('show');
     Route::get('/commandes', [AccountController::class, 'orders'])->name('orders');
     Route::get('/commandes/{order:number}', [AccountController::class, 'order'])->name('orders.show');
+    Route::post('/commandes/{order:number}/avis/{item}', [ReviewController::class, 'store'])->middleware('throttle:10,1')->name('reviews.store');
     Route::post('/commandes/retrouver', [AccountController::class, 'claimGuestOrders'])->middleware('throttle:5,1')->name('guest-orders.claim');
     Route::post('/commandes/retrouver/confirmer', [AccountController::class, 'confirmGuestOrders'])->middleware('throttle:10,1')->name('guest-orders.confirm');
     Route::post('/preferences', [AccountController::class, 'preferences'])->name('preferences');
@@ -92,6 +98,20 @@ Route::middleware('auth')->prefix('compte')->name('account.')->group(function ()
     Route::post('/adresses/{address}/defaut', [AddressController::class, 'makeDefault'])->name('addresses.default');
     Route::delete('/adresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
 });
+
+// Favourites ("Mes favoris"), for visitors and customers.
+Route::get('/favoris', [WishlistController::class, 'index'])->name('wishlist.index');
+Route::post('/favoris/{product:id}', [WishlistController::class, 'toggle'])->middleware('throttle:60,1')->name('wishlist.toggle');
+
+// Product comparison (up to 4 products, kept for the visit).
+Route::get('/comparer', [CompareController::class, 'index'])->name('compare.index');
+Route::post('/comparer/{product:id}', [CompareController::class, 'toggle'])->middleware('throttle:60,1')->name('compare.toggle');
+Route::delete('/comparer', [CompareController::class, 'clear'])->name('compare.clear');
+
+// Newsletter: sign-up, then one-click unsubscribe from every e-mail (confirmed on the page).
+Route::post('/newsletter', [NewsletterController::class, 'store'])->middleware('throttle:5,1')->name('newsletter.store');
+Route::get('/newsletter/desinscription/{subscriber}', [NewsletterController::class, 'confirm'])->name('newsletter.unsubscribe');
+Route::post('/newsletter/desinscription/{subscriber}', [NewsletterController::class, 'unsubscribe'])->middleware('throttle:10,1')->name('newsletter.unsubscribe.confirm');
 
 Route::get('/page/{page:slug}', PageController::class)->name('pages.show');
 Route::get('/faq', FaqController::class)->name('faq');

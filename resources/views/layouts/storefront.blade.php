@@ -3,7 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>@hasSection('title')@yield('title') - @endif{{ config('storefront.name') }}</title>
+    {{-- "document_title" replaces the whole title (home page); otherwise "Page - Store". Section values are
+         already escaped by Blade (@section('title', …)). --}}
+    @php
+        $documentTitle = $__env->hasSection('document_title')
+            ? $__env->yieldContent('document_title')
+            : ($__env->hasSection('title') ? $__env->yieldContent('title').' - ' : '').e(config('storefront.name'));
+    @endphp
+    <title>{!! $documentTitle !!}</title>
     <meta name="robots" content="@yield('robots', 'index, follow')">
     <meta name="description" content="@yield('description', config('storefront.description'))">
     {{-- Canonical address and link previews (F-152, F-153); pages override the defaults with sections. --}}
@@ -11,7 +18,7 @@
     <meta property="og:site_name" content="{{ config('storefront.name') }}">
     <meta property="og:locale" content="fr_FR">
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:title" content="@hasSection('title')@yield('title')@else{{ config('storefront.name') }}@endif">
+    <meta property="og:title" content="{!! $__env->hasSection('document_title') ? $__env->yieldContent('document_title') : ($__env->hasSection('title') ? $__env->yieldContent('title') : e(config('storefront.name'))) !!}">
     <meta property="og:description" content="@yield('description', config('storefront.description'))">
     <meta property="og:url" content="@yield('canonical', url()->current())">
     <meta property="og:image" content="@yield('og_image', asset(config('storefront.logo')))">
@@ -26,9 +33,9 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&family=Bebas+Neue&family=Caprasimo&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&family=Bebas+Neue&family=Caprasimo&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
     </noscript>
     <link rel="preload" href="{{ asset('assets/fonts/fa-brands-400.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('assets/fonts/fa-regular-400.woff2') }}" as="font" type="font/woff2" crossorigin>
@@ -45,6 +52,8 @@
         <link rel="stylesheet" href="{{ asset('assets/css/plugins/'.$stylesheet) }}">
     @endforeach
     <link rel="stylesheet" href="{{ asset('assets/css/style.min.css') }}">
+    {{-- KOVA MARKET graphic charter, over the theme. --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/kova.css') }}?v={{ @filemtime(public_path('assets/css/kova.css')) }}">
     @stack('meta')
     @stack('styles')
 </head>
@@ -78,31 +87,26 @@
         @yield('content')
     </main>
 
-    @if (config('storefront.features.welcome_popup'))
+    {{-- Newsletter invitation: never during a purchase, a payment or in the customer area. --}}
+    @if (config('storefront.features.welcome_popup') && ! request()->routeIs('cart.*', 'checkout.*', 'payments.*', 'account.*', 'orders.*', 'tracking.*', 'newsletter.*', 'password.*'))
         @include('partials.modals.welcome-banner')
     @endif
     @if (config('storefront.features.compare'))
-        @include('partials.offcanvas.compare-bar')
+        {{-- The products chosen for comparison, at the bottom of the screen (not on the comparison page itself). --}}
+        @unless (request()->routeIs('compare.index'))
+            @include('partials.compare-bar')
+        @endunless
     @endif
     @if (config('storefront.product_card.quick_view') === 'sidenav')
         @include('partials.offcanvas.quick-view')
     @endif
 
     {{-- Shopping modals triggered from product cards, the header and the side panels --}}
-    @if (config('storefront.features.compare'))
-        @include('partials.modals.added-comparison')
-    @endif
     @include('partials.modals.quick-view')
     @include('partials.modals.notify')
     {{-- Only needed when a tracker is set (F-156): the store's own cookies are strictly necessary. --}}
     @if ($analytics->enabled())
         @include('partials.overlays.cookies')
-    @endif
-    @if (config('storefront.features.wishlist'))
-        @include('partials.modals.wishlist')
-    @endif
-    @if (config('storefront.features.compare'))
-        @include('partials.modals.compare')
     @endif
     @include('partials.modals.social-share')
 
@@ -161,6 +165,12 @@
         {{-- Identifiers and e-commerce events only: the trackers load after consent (F-155, F-156). --}}
         <script>window.kovaAnalytics = @json([...$analytics->trackers(), 'events' => $analytics->events()]);</script>
         <script src="{{ asset('assets/js/analytics.js') }}"></script>
+    @endif
+    @if (config('storefront.features.wishlist'))
+        <script src="{{ asset('assets/js/wishlist.js') }}?v={{ @filemtime(public_path('assets/js/wishlist.js')) }}"></script>
+    @endif
+    @if (config('storefront.features.compare'))
+        <script src="{{ asset('assets/js/compare.js') }}?v={{ @filemtime(public_path('assets/js/compare.js')) }}"></script>
     @endif
     @if (app(\App\Services\Security\Turnstile::class)->enabled())
         {{-- Anti-robot widgets of the public forms (x-turnstile), F-141. --}}

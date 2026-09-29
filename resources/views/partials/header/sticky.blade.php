@@ -83,18 +83,18 @@
 
                     @if (config('storefront.features.compare'))
                         <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-4 tooltips tooltip-distance-lg  d-none d-lg-flex" data-tooltip="Comparer" data-tooltip-position="bottom">
-                            <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#compareviewModal" aria-label="Comparer">
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="{{ route('compare.index') }}" aria-label="Comparateur ({{ $compared->count() }})">
                                 <i class="fa-regular fa-code-compare"></i>
-                                <div class="access-box-count">0</div>
+                                <div class="access-box-count" data-compare-count @if ($compared->isEmpty()) hidden @endif>{{ $compared->count() }}</div>
                             </a>
                         </li>
                     @endif
 
                     @if (config('storefront.features.wishlist'))
                         <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-5 rbt-wishlist d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Favoris" data-tooltip-position="bottom">
-                            <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#wishlistModal" aria-label="Favoris">
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="{{ route('wishlist.index') }}" aria-label="Mes favoris ({{ $wishlistCount }})">
                                 <i class="fa-regular fa-heart"></i>
-                                <div class="access-box-count">0</div>
+                                <div class="access-box-count" data-wishlist-count @if (! $wishlistCount) hidden @endif>{{ $wishlistCount }}</div>
                             </a>
                         </li>
                     @endif

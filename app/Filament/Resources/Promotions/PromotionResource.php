@@ -30,9 +30,14 @@ class PromotionResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Promotions';
 
-    protected static ?string $modelLabel = 'campagne';
+    // Named as on the storefront: the cards of the "Offres spéciales" side panel.
+    protected static ?string $navigationLabel = 'Offres spéciales';
 
-    protected static ?string $pluralModelLabel = 'campagnes';
+    protected static ?string $breadcrumb = 'Offres spéciales';
+
+    protected static ?string $modelLabel = 'offre spéciale';
+
+    protected static ?string $pluralModelLabel = 'offres spéciales';
 
     protected static ?string $recordTitleAttribute = 'title';
 

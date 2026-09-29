@@ -69,8 +69,8 @@
                                                                         <div class="mega-top-banner">
                                                                             <div class="rbt-banner-inner flex-column justify-content-center rbt-gap--8 align-items-center text-center">
                                                                                 <div class="rbt-banner-content">
-                                                                                    <h2 class="title">{{ $category->promo['title'] }}</h2>
-                                                                                    <p class="b3 desc">{{ $category->promo['subtitle'] }}</p>
+                                                                                    <h2 class="title">{{ $category->promo['title'] ?? '' }}</h2>
+                                                                                    <p class="b3 desc">{{ $category->promo['subtitle'] ?? '' }}</p>
                                                                                 </div>
                                                                                 <a class="rbt-btn rbt-btn-sm rbt-btn-black" href="{{ $category->url() }}">Voir le détail</a>
                                                                                 <a href="{{ $category->url() }}" class="product-img position-bottom mt--24"><img src="{{ asset($category->image) }}" alt="{{ $category->name }}" loading="lazy" decoding="async"></a>

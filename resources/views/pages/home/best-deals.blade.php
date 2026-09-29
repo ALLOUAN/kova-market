@@ -1,6 +1,7 @@
 @php($banner = $banners['best_deals'])
-<div id="rbt-product-block-02" class="rbt-component-area rbt-catagories-area pt_lg--100 rbt-section-gap2 rbt-bg-color-white">
+<div id="rbt-product-block-02" class="rbt-component-area rbt-catagories-area pt_lg--100 rbt-section-gap2 rbt-bg-color-white" data-analytics-list="{{ json_encode(['item_list_id' => $bestDeals->slug, 'item_list_name' => $bestDeals->name]) }}">
     <div class="container">
+        @if ($banner)
         <div class="row row--12">
             <div class="col-lg-12 col-md-12 col-sm-12 col-12 mt--32 mt_sm--0">
                 <div class="rbt-product-banner rbt-product-banner-style-one">
@@ -15,13 +16,14 @@
                                 <h3 class="rbt-secondery-subtitle mb-0">{{ $banner['tagline'] }}</h3>
                             </div>
                             <div class="rbt-banner-btn rbt-magnet-area rbt-banner-btn rbt-scroll-trigger fade_in animation-order-2">
-                                <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="{{ $banner['url'] }}"><i class="fa-solid fa-arrow-up-right"></i> ACHETER <br> MAINTENANT</a>
+                                <x-banner-button :banner="$banner" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        @endif
 
         <div class="rbt-fshape-box-outline-style rbt-fshape-box-outline-style-extend-width rbt-product-fshape-box-outline-style">
             <div class="row rbt-section-gap2Top pt_sm--0 pt_md--80 mt--16">
@@ -46,6 +48,9 @@
                             <x-product.card :product="$product" :order="$loop->iteration" heading="h2" progress />
                         </div>
                     @endforeach
+                </div>
+                <div class="text-center mt--32">
+                    <a class="rbt-btn rbt-btn-border rbt-btn-sm" style="width: auto; padding: 0 24px" href="{{ route('collections.show', $bestDeals) }}">Voir toute la sélection</a>
                 </div>
             </div>
         </div>

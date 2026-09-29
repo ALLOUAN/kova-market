@@ -1,6 +1,7 @@
 @props(['product'])
 
-{{-- "Add to cart" (or "Notify me" when sold out, "Choose" when several variants) and "Add to compare" buttons. --}}
+{{-- "Add to cart" (or "Notify me" when sold out, "Choose" when several variants). Comparing is the quick button over
+     the image (x-compare-button). --}}
 <div class="prd-btn-grp">
     @if ($product->isSoldOut())
         <a class="rbt-btn rbt-btn-border rbt-btn-sm rbt-square-btn d-block has-left-icon" href="#!" data-bs-toggle="modal" data-bs-target="#notifyModal" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}"><i class="fa-regular fa-bell"></i> Me prévenir</a>
@@ -14,8 +15,5 @@
             <input type="hidden" name="open" value="{{ config('storefront.product_card.cart_action') }}">
             <button class="rbt-btn rbt-btn-border rbt-btn-sm rbt-square-btn d-block has-left-icon w-100" type="submit"><i class="fa-regular fa-cart-shopping"></i> Ajouter au panier</button>
         </form>
-    @endif
-    @if (config('storefront.features.compare'))
-        <a class="rbt-btn rbt-btn-border rbt-btn-sm rbt-square-btn d-block rbt-btn-transparent has-left-icon rbt-compare-btn-activation rbt-compare-bottom-sidenav-activation" href="#!"><i class="fa-regular fa-file-plus-minus"></i>Ajouter au comparateur</a>
     @endif
 </div>

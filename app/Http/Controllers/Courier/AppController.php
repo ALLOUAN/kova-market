@@ -23,7 +23,7 @@ class AppController extends Controller
             'display' => 'standalone',
             'orientation' => 'portrait',
             'background_color' => '#ffffff',
-            'theme_color' => '#1d3fbf',
+            'theme_color' => '#021732',
             'icons' => [
                 ['src' => asset('assets/images/courier/icon-192.png'), 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any maskable'],
                 ['src' => asset('assets/images/courier/icon-512.png'), 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any maskable'],

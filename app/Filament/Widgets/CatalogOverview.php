@@ -40,7 +40,7 @@ class CatalogOverview extends StatsOverviewWidget
             Stat::make('Stock bas', $lowStock)
                 ->color($lowStock > 0 ? 'warning' : 'success')
                 ->description("{$threshold} unités ou moins"),
-            Stat::make('Campagnes en cours', $campaigns),
+            Stat::make('Offres spéciales en cours', $campaigns),
         ];
     }
 }

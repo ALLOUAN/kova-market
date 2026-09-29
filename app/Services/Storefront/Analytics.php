@@ -77,6 +77,69 @@ class Analytics
         return [...session()->get(self::FLASH, []), ...request()->attributes->get(self::FLASH, [])];
     }
 
+    /**
+     * A product list seen on the page (home selections): which products were shown, in which list and position.
+     *
+     * @param  iterable<Product>  $products
+     */
+    public function viewItemList(string $listId, string $listName, iterable $products): void
+    {
+        $items = collect($products)->values()
+            ->map(fn (Product $product, int $index) => [...self::listItem($product), 'index' => $index, 'item_list_id' => $listId, 'item_list_name' => $listName])
+            ->all();
+
+        if ($items !== []) {
+            $this->track('view_item_list', ['item_list_id' => $listId, 'item_list_name' => $listName, 'items' => $items]);
+        }
+    }
+
+    /**
+     * Home banners seen on the page (GA4 "promotions"): which banner, in which slot.
+     *
+     * @param  iterable<array<string, mixed>>  $banners  banners as given to the home page partials
+     */
+    public function viewPromotions(iterable $banners): void
+    {
+        $promotions = collect($banners)->filter()->map(fn (array $banner) => self::promotion($banner))->values()->all();
+
+        if ($promotions !== []) {
+            $this->track('view_promotion', ['items' => $promotions]);
+        }
+    }
+
+    /**
+     * What a product card carries for "select_item" when clicked (public/assets/js/analytics.js).
+     *
+     * @return array<string, mixed>
+     */
+    public static function listItem(Product $product): array
+    {
+        return array_filter([
+            // The default variant's reference, as the other e-commerce events, when loaded; else the product id.
+            'item_id' => $product->relationLoaded('defaultVariant') && $product->defaultVariant ? $product->defaultVariant->sku : (string) $product->id,
+            'item_name' => $product->name,
+            'item_brand' => $product->relationLoaded('brand') ? $product->brand?->name : null,
+            'item_category' => $product->relationLoaded('category') ? $product->category?->name : null,
+            'price' => $product->price,
+        ], fn ($value) => $value !== null);
+    }
+
+    /**
+     * What a home banner carries for "view_promotion" and "select_promotion".
+     *
+     * @param  array<string, mixed>  $banner
+     * @return array<string, string>
+     */
+    public static function promotion(array $banner): array
+    {
+        return array_filter([
+            'promotion_id' => isset($banner['id']) ? 'banner-'.$banner['id'] : null,
+            'promotion_name' => trim(($banner['highlight'] ?? '').' '.($banner['title'] ?? '')) ?: null,
+            'creative_name' => isset($banner['image']) ? basename((string) $banner['image']) : null,
+            'creative_slot' => $banner['placement'] ?? null,
+        ]);
+    }
+
     public function viewItem(Product $product): void
     {
         $variant = $product->variants->firstWhere('is_default', true) ?? $product->variants->first();

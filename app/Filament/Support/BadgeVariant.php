@@ -15,7 +15,7 @@ class BadgeVariant
         return [
             'primary' => 'Principal',
             'secondary' => 'Secondaire',
-            'secondary-gradient' => 'Dégradé',
+            'secondary-gradient' => 'Or',
             'green' => 'Vert',
             'yellow' => 'Jaune',
             'danger' => 'Rouge',

@@ -14,11 +14,17 @@
                 </div>
                 <div class="rbt-sidebar-bottom border-0">
                     <div class="row row--12 mt_dec--24">
-                        @foreach ($promotions as $promotion)
+                        {{-- Cards of Promotions › Offres spéciales in the back-office, running or coming. --}}
+                        @forelse ($promotions as $promotion)
                             <div class="col-12 mt--24">
                                 <x-promotion.card :promotion="$promotion" />
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="col-12 mt--24 text-center">
+                                <p class="mb--16">Aucune offre spéciale en ce moment. Revenez bientôt !</p>
+                                <a class="rbt-btn rbt-btn-border rbt-btn-sm" style="width: auto; padding: 0 20px" href="{{ route('shop.index') }}">Voir la boutique</a>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>

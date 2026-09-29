@@ -80,6 +80,7 @@ class Product extends Model
             'stock' => 'integer',
             'sold_count' => 'integer',
             'rating' => 'float',
+            'reviews_count' => 'integer',
             'free_shipping' => 'boolean',
             'badges' => 'array',
             'colors' => 'array',
@@ -132,6 +133,24 @@ class Product extends Model
     public function stockMovements(): HasManyThrough
     {
         return $this->hasManyThrough(StockMovement::class, ProductVariant::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class)->latest();
+    }
+
+    /**
+     * Rating and review count shown on the site, from the approved reviews only. Saved quietly (not a product edit).
+     */
+    public function refreshRating(): void
+    {
+        $approved = $this->reviews()->reorder()->approved();
+
+        $this->forceFill([
+            'reviews_count' => (clone $approved)->count(),
+            'rating' => round((float) (clone $approved)->avg('rating'), 1),
+        ])->saveQuietly();
     }
 
     /**

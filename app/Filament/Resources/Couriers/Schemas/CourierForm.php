@@ -60,9 +60,8 @@ class CourierForm
                 Section::make('Photo')
                     ->columnSpan(1)
                     ->schema([
-                        StorefrontImage::make('photo', 'couriers')
-                            ->label('Photo')
-                            ->helperText('Montrée au client qui attend sa livraison. JPG, PNG ou WebP, 2 Mo maximum.'),
+                        StorefrontImage::make('photo', 'couriers', [96, 96], 'carrée, affichée en rond au client qui attend sa livraison')
+                            ->label('Photo'),
                     ]),
             ]);
     }

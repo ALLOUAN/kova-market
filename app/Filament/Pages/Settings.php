@@ -8,14 +8,19 @@ use App\Models\Setting;
 use App\Services\Delivery\DeliveryDispatcher;
 use App\Services\Payments\OnlinePayments;
 use App\Services\Storefront\ConfigOverrides;
+use App\Services\Storefront\HomePageService;
+use App\Services\Storefront\ProductViewers;
 use App\Services\Storefront\StoreSettings;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -31,6 +36,9 @@ use UnitEnum;
  */
 class Settings extends Page
 {
+    /** How the payment logos show in the footer: 28 px high, drawn at twice that size for sharp screens. */
+    private const PAYMENT_LOGO = 'affiché sur 28 px de haut, largeur libre, fond transparent';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static string|UnitEnum|null $navigationGroup = 'Administration';
@@ -43,6 +51,20 @@ class Settings extends Page
 
     /** Audience measurement identifiers (F-155), read by App\Services\Storefront\Analytics. */
     private const ANALYTICS_FIELDS = ['ga4_id', 'meta_pixel_id', 'tiktok_pixel_id', 'search_console_token'];
+
+    /** Icons offered for the home page guarantees (Font Awesome names). */
+    private const GUARANTEE_ICONS = [
+        'truck-fast' => 'Livraison',
+        'mobile-screen' => 'Mobile Money',
+        'hand-holding-dollar' => 'Paiement à la livraison',
+        'credit-card' => 'Carte bancaire',
+        'rotate-left' => 'Retours',
+        'shield-check' => 'Sécurité, garantie',
+        'headset' => 'Service client',
+        'award' => 'Qualité, authenticité',
+        'tags' => 'Prix, promotions',
+        'circle-check' => 'Autre',
+    ];
 
     /** @var array<string, mixed> */
     public ?array $data = [];
@@ -75,6 +97,16 @@ class Settings extends Page
                 'about' => config('storefront.about'),
                 'logo' => config('storefront.logo'),
                 'favicon' => config('storefront.favicon'),
+                'home_title' => config('storefront.home_title'),
+            ],
+            'newsletter' => [
+                'footer' => (bool) config('storefront.features.newsletter'),
+                'popup' => (bool) config('storefront.features.welcome_popup'),
+                ...collect(ConfigOverrides::NEWSLETTER_TEXTS)->mapWithKeys(fn (string $field) => [$field => config("storefront.newsletter.{$field}")])->all(),
+            ],
+            'home' => [
+                'guarantees' => array_values(config('storefront.guarantees')),
+                'sections' => HomePageService::sectionSettings(),
             ],
             'announcements' => [
                 'trending' => config('storefront.announcements.trending'),
@@ -87,6 +119,8 @@ class Settings extends Page
             'product_card' => [
                 'shipping_delay' => config('storefront.shipping.delay'),
                 'limited_stock_threshold' => config('storefront.product_card.limited_stock_threshold'),
+                'viewers_enabled' => ProductViewers::enabled(),
+                'viewers_minimum' => ProductViewers::minimum(),
             ],
             'footer' => ['banner' => config('storefront.footer_banner')],
             'apps' => collect(config('storefront.app_stores'))
@@ -113,8 +147,65 @@ class Settings extends Page
                             ->helperText('Utilisée quand une page n’a pas sa propre description.')
                             ->maxLength(160),
                         Textarea::make('identity.about')->label('Texte « À propos » du pied de page')->rows(2)->maxLength(300)->columnSpanFull(),
-                        StorefrontImage::make('identity.logo', 'branding')->label('Logo'),
-                        StorefrontImage::make('identity.favicon', 'branding')->label('Icône d’onglet (favicon)')->helperText('Image carrée, 64 × 64 px ou plus.'),
+                        StorefrontImage::make('identity.logo', 'branding', [1487, 334], 'logo horizontal, fond transparent')->label('Logo'),
+                        StorefrontImage::make('identity.favicon', 'branding', [64, 64], 'image carrée, jusqu’à 512 × 512 px')->label('Icône d’onglet (favicon)'),
+                    ]),
+                Section::make('Page d’accueil')
+                    ->description('Titre dans Google et l’onglet du navigateur, et le bandeau de garanties affiché sous le carrousel.')
+                    ->schema([
+                        TextInput::make('identity.home_title')
+                            ->label('Titre de la page d’accueil (Google)')
+                            ->placeholder(config('storefront.name').' - Boutique en ligne à Abidjan')
+                            ->helperText('Vide : le nom de la boutique suivi de « Boutique en ligne à Abidjan ». 60 à 70 caractères au plus pour être lu en entier dans Google.')
+                            ->maxLength(70),
+                        Repeater::make('home.guarantees')
+                            ->label('Bandeau de garanties')
+                            ->helperText('4 garanties au plus. Retirez-les toutes pour masquer le bandeau.')
+                            ->schema([
+                                Select::make('icon')
+                                    ->label('Icône')
+                                    ->options(self::GUARANTEE_ICONS)
+                                    ->default('circle-check')
+                                    ->required(),
+                                TextInput::make('title')->label('Titre')->required()->maxLength(40),
+                                TextInput::make('text')->label('Précision')->maxLength(60),
+                            ])
+                            ->columns(3)
+                            ->maxItems(4)
+                            ->reorderable()
+                            ->addActionLabel('Ajouter une garantie')
+                            ->defaultItems(0),
+                        Repeater::make('home.sections')
+                            ->label('Sections de la page d’accueil')
+                            ->helperText('Glissez les sections pour changer leur ordre ; décochez « Affichée » pour masquer une section. Une section sans contenu (aucune bannière, aucun produit) reste masquée.')
+                            ->schema([
+                                Hidden::make('key'),
+                                Toggle::make('visible')->label('Affichée')->default(true),
+                            ])
+                            ->itemLabel(fn (array $state): ?string => HomePageService::SECTIONS[$state['key'] ?? ''] ?? null)
+                            ->reorderable()
+                            ->reorderableWithDragAndDrop()
+                            ->addable(false)
+                            ->deletable(false)
+                            ->collapsible(false)
+                            ->grid(['default' => 1, 'md' => 2, 'xl' => 3]),
+                    ]),
+                Section::make('Newsletter')
+                    ->description('Inscription dans le pied de page et fenêtre d’invitation. Les abonnés sont dans Promotions › Newsletter.')
+                    ->columns(2)
+                    ->collapsed()
+                    ->schema([
+                        Toggle::make('newsletter.footer')->label('Inscription dans le pied de page'),
+                        Toggle::make('newsletter.popup')
+                            ->label('Fenêtre d’invitation')
+                            ->helperText('S’ouvre une seule fois par visiteur, après le délai ci-dessous ; jamais pendant un achat, un paiement ou dans l’espace client.'),
+                        TextInput::make('newsletter.title')->label('Titre du pied de page')->placeholder('Abonnez-vous à notre')->maxLength(60),
+                        TextInput::make('newsletter.highlight')->label('Mot mis en avant')->placeholder('newsletter')->maxLength(30),
+                        TextInput::make('newsletter.subtitle')->label('Sous-titre du pied de page')->maxLength(120)->columnSpanFull(),
+                        TextInput::make('newsletter.popup_title')->label('Titre de la fenêtre')->maxLength(60),
+                        TextInput::make('newsletter.popup_delay')->label('Délai avant ouverture')->integer()->minValue(3)->maxValue(120)->suffix('secondes'),
+                        Textarea::make('newsletter.popup_text')->label('Texte de la fenêtre')->rows(2)->maxLength(160)->columnSpanFull(),
+                        StorefrontImage::make('newsletter.popup_image', 'branding', [1388, 878], 'haut de la fenêtre')->label('Image de la fenêtre')->columnSpanFull(),
                     ]),
                 Section::make('Messages et recherche')
                     ->description('Tapez une phrase puis Entrée pour l’ajouter ; la croix la retire.')
@@ -135,18 +226,28 @@ class Settings extends Page
                             ->integer()
                             ->minValue(1)
                             ->suffix('articles'),
+                        Toggle::make('product_card.viewers_enabled')
+                            ->label('Badge « N personnes ont vu ce produit »')
+                            ->helperText('Visites réelles de la fiche produit ces '.ProductViewers::WINDOW_MINUTES.' dernières minutes, une par visiteur. Mis à jour chaque minute.'),
+                        TextInput::make('product_card.viewers_minimum')
+                            ->label('Affiché à partir de')
+                            ->helperText('En dessous, aucun badge : un « 1 personne » n’incite personne.')
+                            ->integer()
+                            ->minValue(2)
+                            ->maxValue(100)
+                            ->suffix('visiteurs'),
                     ]),
                 Section::make('Pied de page')
                     ->columns(2)
                     ->schema([
-                        StorefrontImage::make('footer.banner', 'branding')->label('Bannière du pied de page')->columnSpanFull(),
+                        StorefrontImage::make('footer.banner', 'branding', [1320, 140])->label('Bannière du pied de page')->columnSpanFull(),
                         TextInput::make('apps.app-store')->label('Lien App Store')->url()->helperText('Vide : bouton masqué jusqu’à la sortie de l’application.')->maxLength(255),
                         TextInput::make('apps.google-play')->label('Lien Google Play')->url()->maxLength(255),
-                        StorefrontImage::make('payment_logo.orange-money', 'payment')->label('Logo Orange Money'),
-                        StorefrontImage::make('payment_logo.mtn-momo', 'payment')->label('Logo MTN MoMo'),
-                        StorefrontImage::make('payment_logo.moov-money', 'payment')->label('Logo Moov Money'),
-                        StorefrontImage::make('payment_logo.wave', 'payment')->label('Logo Wave'),
-                        StorefrontImage::make('payment_logo.cash-on-delivery', 'payment')->label('Logo « Paiement à la livraison »')->helperText('Sans logo, le nom du moyen de paiement est affiché.'),
+                        StorefrontImage::make('payment_logo.orange-money', 'payment', [120, 56], self::PAYMENT_LOGO)->label('Logo Orange Money'),
+                        StorefrontImage::make('payment_logo.mtn-momo', 'payment', [120, 56], self::PAYMENT_LOGO)->label('Logo MTN MoMo'),
+                        StorefrontImage::make('payment_logo.moov-money', 'payment', [120, 56], self::PAYMENT_LOGO)->label('Logo Moov Money'),
+                        StorefrontImage::make('payment_logo.wave', 'payment', [120, 56], self::PAYMENT_LOGO)->label('Logo Wave'),
+                        StorefrontImage::make('payment_logo.cash-on-delivery', 'payment', [120, 56], self::PAYMENT_LOGO.' ; sans logo, le nom du moyen de paiement est affiché')->label('Logo « Paiement à la livraison »'),
                     ]),
                 Section::make('Coordonnées')
                     ->description('Affichées dans l’en-tête, le pied de page et le menu mobile.')
@@ -256,12 +357,23 @@ class Settings extends Page
             'identity.about' => $state['identity']['about'] ?? null,
             'identity.logo' => $state['identity']['logo'] ?? null,
             'identity.favicon' => $state['identity']['favicon'] ?? null,
+            'identity.home_title' => $state['identity']['home_title'] ?? null,
+            'newsletter.footer' => ($state['newsletter']['footer'] ?? false) ? '1' : '0',
+            'newsletter.popup' => ($state['newsletter']['popup'] ?? false) ? '1' : '0',
+            ...collect(ConfigOverrides::NEWSLETTER_TEXTS)->mapWithKeys(fn (string $field) => ["newsletter.{$field}" => $state['newsletter'][$field] ?? null])->all(),
+            // An empty list is kept as "no guarantee" (the banner is hidden), not as "back to the defaults".
+            'home.guarantees' => json_encode(array_values($state['home']['guarantees'] ?? []), JSON_UNESCAPED_UNICODE),
+            'home.sections' => json_encode(collect($state['home']['sections'] ?? [])
+                ->map(fn (array $section) => ['key' => $section['key'], 'visible' => (bool) ($section['visible'] ?? true)])
+                ->values()->all()),
             'announcements.trending' => self::list($state['announcements']['trending'] ?? []),
             'announcements.campaign' => self::list($state['announcements']['campaign'] ?? []),
             'search.popular' => self::list($state['search']['popular'] ?? []),
             'search.placeholders' => self::list($state['search']['placeholders'] ?? []),
             'product_card.shipping_delay' => $state['product_card']['shipping_delay'] ?? null,
             'product_card.limited_stock_threshold' => $state['product_card']['limited_stock_threshold'] ?? null,
+            'product_card.viewers_enabled' => ($state['product_card']['viewers_enabled'] ?? false) ? '1' : '0',
+            'product_card.viewers_minimum' => $state['product_card']['viewers_minimum'] ?? null,
             'footer.banner' => $state['footer']['banner'] ?? null,
             ...collect($state['apps'] ?? [])->mapWithKeys(fn ($url, string $store) => ["apps.{$store}" => $url])->all(),
             ...collect($state['payment_logo'] ?? [])->mapWithKeys(fn ($logo, string $method) => ["payment_logo.{$method}" => $logo])->all(),

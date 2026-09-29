@@ -10,6 +10,10 @@ use App\Enums\TransactionStatus;
 use App\Events\OrderPlaced;
 use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Filament\Resources\Orders\RelationManagers\PaymentsRelationManager;
+use App\Filament\Resources\Payments\Pages\ListPayments;
+use App\Filament\Resources\Payments\Pages\ViewPayment;
+use App\Filament\Resources\Payments\PaymentResource;
+use App\Filament\Resources\Payments\Widgets\PaymentsOverview;
 use App\Models\Cart;
 use App\Models\Commune;
 use App\Models\DeliveryZone;
@@ -18,6 +22,7 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Cart\CartManager;
+use App\Services\Orders\OrderStatusManager;
 use App\Services\Payments\OnlinePayments;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Filament\Actions\Testing\TestAction;
@@ -381,6 +386,75 @@ class OnlinePaymentTest extends TestCase
             ->callAction(TestAction::make('check')->table($payment));
 
         $this->assertSame(TransactionStatus::Pending, $payment->fresh()->status);
+    }
+
+    public function test_the_payments_space_lists_checks_and_refunds_payments(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $open = $this->orderPaidOnline();
+        $this->actingAs(User::factory()->staff(Role::Manager)->create());
+
+        $this->get(PaymentResource::getUrl('index'))->assertOk();
+        Livewire::test(PaymentsOverview::class)->assertSeeText('Encaissé aujourd’hui')->assertSeeText('En attente de la réponse de CinetPay');
+
+        Livewire::test(ListPayments::class)
+            ->assertCanSeeTableRecords([$open])
+            ->set('activeTab', 'succeeded')
+            ->assertCanNotSeeTableRecords([$open])
+            ->set('activeTab', 'open')
+            ->assertCanSeeTableRecords([$open]);
+
+        $this->cinetPayStatus = [100, 'SUCCESS'];
+        Livewire::test(ViewPayment::class, ['record' => $open->merchant_transaction_id])
+            ->assertSeeText($open->order->number)
+            ->callAction('check');
+        $this->assertSame(TransactionStatus::Succeeded, $open->fresh()->status);
+
+        // Cancelled after being paid: the payments space flags the refund owed.
+        app(OrderStatusManager::class)->move($open->order->fresh(), OrderStatus::Cancelled, auth()->user(), 'Rupture de stock');
+        $this->assertSame(1, Payment::query()->toRefund()->count());
+        $this->assertSame('1', PaymentResource::getNavigationBadge());
+
+        Livewire::test(ListPayments::class)
+            ->set('activeTab', 'to_refund')
+            ->assertCanSeeTableRecords([$open])
+            ->callAction(TestAction::make('refund')->table($open->fresh()), ['reason' => 'Commande annulée']);
+
+        $this->assertSame(TransactionStatus::Refunded, $open->fresh()->status);
+        $this->assertSame(PaymentStatus::Refunded, $open->order->fresh()->payment_status);
+        $this->assertNull(PaymentResource::getNavigationBadge());
+
+        $journal = $this->get(PaymentResource::getUrl('view', ['record' => $open]))->assertOk();
+        $journal->assertSeeText('Paiement confirmé par CinetPay')->assertSeeText('Remboursement enregistré');
+    }
+
+    public function test_the_payments_export_lists_the_payments_shown(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $payment = $this->orderPaidOnline();
+        $this->actingAs(User::factory()->staff(Role::Manager)->create());
+
+        $export = Livewire::test(ListPayments::class)->callAction('export')->assertFileDownloaded('paiements-'.now()->format('Y-m-d').'.csv');
+
+        $csv = base64_decode($export->effects['download']['content']);
+        $this->assertStringContainsString('Référence KOVA', $csv);
+        $this->assertStringContainsString($payment->merchant_transaction_id.';', $csv);
+        $this->assertStringContainsString($payment->order->number, $csv);
+    }
+
+    public function test_the_payments_space_is_read_only_without_the_orders_management_permission(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $payment = $this->orderPaidOnline();
+        $this->cinetPayStatus = [100, 'SUCCESS'];
+        app(OnlinePayments::class)->synchronize($payment, 'test');
+
+        $this->actingAs(User::factory()->staff(Role::Picker)->create());
+        $this->get(PaymentResource::getUrl('index'))->assertOk();
+        Livewire::test(ListPayments::class)->assertActionHidden(TestAction::make('refund')->table($payment->fresh()));
+
+        $this->actingAs(User::factory()->staff(Role::Courier)->create());
+        $this->get(PaymentResource::getUrl('index'))->assertForbidden();
     }
 
     private function orderPaidOnline(): Payment

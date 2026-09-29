@@ -11,10 +11,18 @@ use Spatie\Activitylog\Support\LogOptions;
 /**
  * A curated, ordered selection of products (e.g. "Deals of The Day") displayed by merchandising sections.
  */
-#[Fillable(['name', 'slug', 'ends_at'])]
+#[Fillable(['name', 'slug', 'starts_at', 'ends_at'])]
 class Collection extends Model
 {
     use LogsActivity;
+
+    /**
+     * Shown on the site: no start date, or a start date reached.
+     */
+    public function hasStarted(): bool
+    {
+        return $this->starts_at === null || $this->starts_at->isPast();
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -29,6 +37,7 @@ class Collection extends Model
     protected function casts(): array
     {
         return [
+            'starts_at' => 'datetime',
             'ends_at' => 'datetime',
         ];
     }

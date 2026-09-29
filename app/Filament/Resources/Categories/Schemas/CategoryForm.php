@@ -57,8 +57,8 @@ class CategoryForm
                 Section::make('Visuel et badge')
                     ->columns(2)
                     ->schema([
-                        StorefrontImage::make('image', 'categories')
-                            ->label('Image (fond transparent)')
+                        StorefrontImage::make('image', 'categories', [176, 176], 'carrée, fond transparent')
+                            ->label('Image')
                             ->columnSpanFull(),
                         TextInput::make('badge_label')
                             ->label('Badge')
@@ -71,18 +71,24 @@ class CategoryForm
                     ]),
                 SeoFields::section(),
                 Section::make('Encart promotionnel du menu')
-                    ->description('Affiché dans le méga-menu et le panneau des catégories.')
+                    ->description('Affiché dans le méga-menu « Boutique » (catégories principales) et le panneau des catégories.')
                     ->columns(2)
                     ->collapsed()
                     ->statePath('promo')
                     ->schema([
-                        StorefrontImage::make('image', 'categories')
-                            ->label('Image')
-                            ->columnSpanFull(),
-                        TextInput::make('label')->label('Libellé'),
-                        TextInput::make('highlight')->label('Mise en avant'),
-                        TextInput::make('title')->label('Titre'),
-                        TextInput::make('subtitle')->label('Sous-titre'),
+                        StorefrontImage::make('menu_image', 'categories', [630, 1008], 'fond de l’encart du méga-menu « Boutique » ; vide : l’image du thème')
+                            ->label('Image de fond du méga-menu'),
+                        StorefrontImage::make('image', 'categories', [593, 240], 'panneau des catégories')
+                            ->label('Image du panneau des catégories'),
+                        TextInput::make('label')->label('Libellé')->placeholder('À partir de'),
+                        TextInput::make('highlight')->label('Mise en avant')->placeholder('11 décembre'),
+                        TextInput::make('title')->label('Titre')->placeholder('Jusqu’à -40 %'),
+                        TextInput::make('subtitle')->label('Sous-titre')->placeholder('Sur toutes les marques'),
+                        TextInput::make('button')
+                            ->label('Texte du bouton (méga-menu)')
+                            ->placeholder('Voir la collection')
+                            ->helperText('Vide : « Voir la collection ». Le bouton mène à la page de la catégorie.')
+                            ->maxLength(40),
                     ]),
             ]);
     }

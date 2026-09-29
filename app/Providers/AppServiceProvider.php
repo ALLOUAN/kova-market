@@ -9,8 +9,10 @@ use App\Services\Sms\LogSmsGateway;
 use App\Services\Sms\NullSmsGateway;
 use App\Services\Sms\SmsGateway;
 use App\Services\Storefront\CatalogService;
+use App\Services\Storefront\Comparison;
 use App\Services\Storefront\ConfigOverrides;
 use App\Services\Storefront\NavigationService;
+use App\Services\Storefront\Wishlist;
 use App\View\Composers\StorefrontLayoutComposer;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -37,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(CatalogService::class);
         $this->app->scoped(NavigationService::class);
         $this->app->scoped(CartManager::class);
+        $this->app->scoped(Wishlist::class);
+        $this->app->scoped(Comparison::class);
 
         // Preproduction holds real customers after the monthly restore test (F-173): its e-mails and SMS are only
         // written to the log, whatever its .env says.
@@ -72,6 +76,11 @@ class AppServiceProvider extends ServiceProvider
         // The guest cart joins the customer's cart at sign-in (also right after sign-up).
         Event::listen(Login::class, fn (Login $event) => $event->user instanceof User
             ? app(CartManager::class)->mergeGuestCartInto($event->user)
+            : null);
+
+        // So do the visitor's favourites.
+        Event::listen(Login::class, fn (Login $event) => $event->user instanceof User && app()->bound('request')
+            ? app(Wishlist::class)->mergeInto($event->user, request()->cookie(Wishlist::COOKIE))
             : null);
 
         // Super-admins hold every back-office permission, including the ones added later.

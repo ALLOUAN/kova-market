@@ -47,6 +47,8 @@ return [
                 'https://www.google-analytics.com', 'https://www.googletagmanager.com', 'https://www.facebook.com', 'https://analytics.tiktok.com',
             ],
             'media-src' => ["'self'"],
+            // The back-office's image fields (FilePond) read the image in a worker created from a blob to preview it.
+            'worker-src' => ["'self'", 'blob:'],
             'connect-src' => [
                 "'self'", 'https://challenges.cloudflare.com',
                 'https://*.google-analytics.com', 'https://*.analytics.google.com', 'https://www.googletagmanager.com',

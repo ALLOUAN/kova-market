@@ -2,13 +2,14 @@
 @props(['product', 'order' => 1])
 
 {{-- Large horizontal card used to spotlight one product. --}}
-<div class="rbt-card rbt-product-card rbt-list-view-variation rbt-list-view-lg">
+<div class="rbt-card rbt-product-card rbt-list-view-variation rbt-list-view-lg" data-analytics-item="{{ json_encode(\App\Services\Storefront\Analytics::listItem($product)) }}">
     <div class="inner rbt-scroll-trigger fade_in animation-order-{{ $order }}">
         <div class="rbt-card-img rbt-bg-color-default order-2">
             <a href="{{ $product->url() }}"><img class="rbt-prd-img" src="{{ asset($product->image) }}" @if ($srcset = ImageOptimizer::srcset($product->image)) srcset="{{ $srcset }}" sizes="(max-width: 575px) 50vw, 300px" @endif alt="{{ $product->name }}" loading="lazy" decoding="async"></a>
             <x-product.badges :product="$product" />
             @if ($product->watchers_count)
-                <div class="rbt-discount-badge right--corner-style tooltips" data-tooltip="👁️ {{ $product->watchers_count }} personnes regardent ce produit" data-tooltip-position="bottom">
+                {{-- Real visits of the product page over the last minutes (App\Services\Storefront\ProductViewers). --}}
+                <div class="rbt-discount-badge right--corner-style tooltips" data-tooltip="👁️ {{ $product->watchers_count }} personnes ont vu ce produit ces {{ \App\Services\Storefront\ProductViewers::WINDOW_MINUTES }} dernières minutes" data-tooltip-position="bottom" aria-label="{{ $product->watchers_count }} personnes ont vu ce produit récemment">
                     <span><i class="fa-regular fa-eye"></i>{{ $product->watchers_count }}</span>
                 </div>
             @endif

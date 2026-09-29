@@ -30,8 +30,7 @@
                                                     </div>
                                                     @endif
                                                     <div class="rbt-banner-btn">
-                                                        <a class="rbt-btn rbt-btn-round rbt-magnetic-button" href="{{ $slide['url'] }}"><i class="fa-solid fa-arrow-up-right"></i>
-                                                            ACHETER <br> MAINTENANT</a>
+                                                        <x-banner-button :banner="$slide" />
                                                     </div>
                                                 </div>
                                             </div>

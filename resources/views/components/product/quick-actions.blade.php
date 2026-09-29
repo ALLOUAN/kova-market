@@ -9,6 +9,9 @@
         <button class="rbt-search-btn rbt-quick-btn tooltips" type="button" data-bs-toggle="modal" data-bs-target="#quickviewModal" data-quick-view-url="{{ route('products.quick-view', $product) }}" data-product-url="{{ $product->url() }}" data-tooltip="Aperçu rapide" data-tooltip-position="left" aria-label="Aperçu rapide de {{ $product->name }}"><i class="fa-regular fa-magnifying-glass-plus"></i></button>
     @endif
     @if (config('storefront.features.wishlist'))
-        <button class="rbt-wishlisted-btn rbt-quick-btn tooltips" type="button" data-bs-toggle="modal" data-bs-target="#wishlistModal" data-tooltip="Ajouter aux favoris" data-tooltip-position="left"><i class="fa-regular fa-heart"></i></button>
+        <x-wishlist-button :product="$product" />
+    @endif
+    @if (config('storefront.features.compare'))
+        <x-compare-button :product="$product" />
     @endif
 </div>

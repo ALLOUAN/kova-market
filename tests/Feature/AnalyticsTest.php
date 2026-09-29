@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\BannerPlacement;
 use App\Enums\Role;
 use App\Filament\Pages\Settings;
+use App\Models\Banner;
 use App\Models\Cart;
+use App\Models\Collection;
 use App\Models\DeliveryZone;
 use App\Models\Order;
 use App\Models\Product;
@@ -108,6 +111,32 @@ class AnalyticsTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertSame(['G-ABC123XYZ', 'CTEST1234567890'], [Setting::get('analytics.ga4_id'), Setting::get('analytics.tiktok_pixel_id')]);
+    }
+
+    public function test_the_home_page_reports_its_selections_and_banners_and_marks_them_for_clicks(): void
+    {
+        $this->configureTrackers();
+        $selection = Collection::create(['name' => 'Offres du jour', 'slug' => 'deals-of-the-day']);
+        $product = Product::factory()->create(['name' => 'Casque sans fil']);
+        $selection->products()->attach($product->id, ['position' => 1]);
+        $banner = Banner::create(['placement' => BannerPlacement::Hero, 'image' => 'assets/images/soldes.webp', 'highlight' => 'SOLDES', 'title' => 'D’ÉTÉ']);
+
+        $response = $this->get('/');
+        $events = collect($this->events($response));
+
+        // One event per selection shown; the automatic rows ("Nouveautés", "Populaires") have theirs too.
+        $list = $events->where('name', 'view_item_list')->firstWhere('params.item_list_id', 'deals-of-the-day')['params'];
+        $this->assertEqualsCanonicalizing(['deals-of-the-day', 'new_arrivals', 'popular'], $events->where('name', 'view_item_list')->pluck('params.item_list_id')->all());
+        $events = $events->keyBy('name');
+        $this->assertSame('deals-of-the-day', $list['item_list_id']);
+        $this->assertSame('Casque sans fil', $list['items'][0]['item_name']);
+        $this->assertSame(0, $list['items'][0]['index']);
+        $this->assertSame($product->defaultVariant->sku, $list['items'][0]['item_id']);
+
+        $this->assertSame(['promotion_id' => 'banner-'.$banner->id, 'promotion_name' => 'SOLDES D’ÉTÉ', 'creative_name' => 'soldes.webp', 'creative_slot' => 'hero'], $events['view_promotion']['params']['items'][0]);
+
+        // Marks read by analytics.js for the clicks.
+        $response->assertSee('data-analytics-list=', false)->assertSee('data-analytics-item=', false)->assertSee('data-analytics-promotion=', false);
     }
 
     private function configureTrackers(): void

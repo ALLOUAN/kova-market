@@ -113,7 +113,7 @@ class BundleForm
                 Section::make('Visuel')
                     ->columnSpan(1)
                     ->schema([
-                        StorefrontImage::make('image', 'products')->label('Image du pack')->required(),
+                        StorefrontImage::make('image', 'products', [1246, 976])->label('Image du pack')->required(),
                     ]),
                 Section::make('Description')
                     ->columnSpan(3)

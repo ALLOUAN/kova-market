@@ -26,7 +26,7 @@ is requested at first login) plus the demo catalog and banners.
 | Commandes : retour à l’étape précédente | ✓ | | | |
 | Catalogue (lecture) | ✓ | ✓ | ✓ | |
 | Catalogue (modification) | ✓ | ✓ | | |
-| Campagnes promotionnelles | ✓ | ✓ | | |
+| Offres spéciales (campagnes) | ✓ | ✓ | | |
 | Contenus (bannières, pages, FAQ) | ✓ | ✓ | | |
 | Zones et tarifs de livraison | ✓ | ✓ | | |
 | Paramètres de la boutique | ✓ | | | |
@@ -51,7 +51,17 @@ An account is locked for 15 minutes after 5 failed logins (`App\Filament\Pages\A
 | Uploaded images | `public/uploads/*` through the `storefront` disk (paths render with `asset()` like the template images) |
 | Store settings | `settings` table, read by `App\Services\Storefront\StoreSettings`; empty values fall back to `config/storefront.php` |
 | Texts, images and menus (F-111) | **Paramètres de la boutique** (identity, logo, favicon, scrolling messages, popular searches, product card texts, footer images and app links) and **Contenus › Menus** (Pages and Aide menus, footer columns, legal links, side panel). `App\Services\Storefront\ConfigOverrides` lays these settings over `config/storefront.php` and `config/navigation.php` at start-up and on every web request (`ApplyStoreSettings`), so every screen keeps reading `config()`; an emptied setting, or **Rétablir les menus d’origine**, goes back to the file |
-| Home banners | `banners` table; a slot without a live banner shows its default from `config/homepage.php` |
+| Home banners | `banners` table (with the button text, "Acheter maintenant" by default); a slot without a live banner hides its banner and the section around it takes the whole width: the template samples of `config/homepage.php` are only copied by the demo `BannerSeeder`, never shown by themselves |
+| Home selections | **Catalogue › Collections de l'accueil**: title, products and their order, start date (a selection prepared in advance shows from then) and end date (countdown). Each selection has its own page `/selection/{identifiant}` ("Tout voir"), with filters and sorting |
+| Home page title, guarantees and sections | **Paramètres de la boutique › Page d'accueil**: the Google title of the home page, up to 4 guarantees under the hero (none: no banner), and the order and visibility of the 11 sections (`HomePageService::SECTIONS`; a section missing from the setting shows, last). Defaults in `config/storefront.php` |
+| Banner promoting a product | A banner's **Produit mis en avant**: its price, crossed-out price, discount and page come from the product and follow it; the typed prices are then ignored. A product taken off the site: no price, the button leads to the shop |
+| Home page measurement | With Google Analytics set: `view_item_list` per selection shown and `view_promotion` for the banners (`HomeController`), `select_item` and `select_promotion` on click (`public/assets/js/analytics.js`, through the `data-analytics-*` marks). Only after the visitor accepts the cookies |
+| Product reviews | **Catalogue › Avis clients** and the product's **Avis clients** tab (`product_reviews`): customers review the articles of a delivered order from their account; published after moderation (never edited). The product's stars and count come from the published reviews only |
+| "N personnes ont vu ce produit" | Real visits of the product page over 15 minutes, one per visitor (keyed hash of the session, `product_viewers`, forgotten after 15 minutes); `catalog:refresh-viewers` (every minute) keeps `products.watchers_count`. **Paramètres › Fiches produit**: on/off and threshold (3 visitors by default) |
+| Favourites ("Mes favoris") | `wishlist_items`: the heart of product cards and pages, the header counts and the `/favoris` page. A visitor's favourites live on the year-long `kova_wishlist` cookie token and join the account at sign-in; a customer's are on the account (all devices). Products taken off the site leave the list. `App\Services\Storefront\Wishlist`, `public/assets/js/wishlist.js` (the heart is `kova-wishlist-btn`, not the theme's `rbt-wishlisted-btn`, whose script redirects to a template page) |
+| Product comparison | Up to 4 products kept in the visitor's session (`App\Services\Storefront\Comparison`): the compare button of product cards and pages, the bottom bar of the chosen products, the header counts and `/comparer` (price, availability, reviews, brand, category, options, delivery, returns, then one row per specification label of the products, from their **Caractéristiques**). `public/assets/js/compare.js` (own classes: the theme's compare buttons redirect to a template page) |
+| Newsletter | **Promotions › Newsletter** (`newsletter_subscribers`): sign-ups from the footer and the invitation window, welcome e-mail with the one-click unsubscribe link (confirmed on a page, so mail scanners unsubscribe nobody), CSV export of the active subscribers with their unsubscribe link for the e-mailing tool. Unsubscribed rows are kept as proof; **Effacer** removes one on request. **Paramètres › Newsletter**: footer form and window on/off, texts, image and delay (the window opens once per visitor, never during a purchase, a payment or in the customer area) |
+| Customer testimonials | **Contenus › Témoignages clients** (`testimonials` table): shown in the sign-in and sign-up windows; "Client vérifié" only for a customer who really ordered. None published: the windows show the store's guarantees (delivery, payment) instead of any review |
 | Audit trail | `activity_log` table (Spatie Activitylog), screen **Journal d'audit** |
 
 ## Variants and stock
@@ -224,7 +234,19 @@ Paiement** says whether it is active and sets the unpaid timeout.
 | Timeout (F-056) | `payments:expire-unpaid` (every 5 minutes) cancels online orders unpaid after 30 minutes (setting), after a last status check; stock and promo code use are given back, the customer is not notified. CinetPay unreachable: the order waits for the next run |
 | Refund (F-067) | Made in CinetPay's merchant space (the API has no refund call), then **Enregistrer un remboursement** on the order's **Paiements en ligne** tab: payment and order "Remboursé", audit log |
 
-The order page lists every attempt (status, operator, both references, reason) with **Vérifier** to ask CinetPay now.
+**Ventes › Paiements** gathers every attempt of every order (orders' view permission to see, management permission
+to record a refund):
+
+- figures: taken today and this month, success rate over 30 days, attempts still open, payments to refund;
+- tabs Tous / Réussis / En cours / Échoués ou annulés / Remboursés / **À rembourser** (paid online, order cancelled
+  since; also the red badge of the menu entry), filters by status, operator, period, search by order, customer,
+  phone or either reference;
+- the payment page: amounts, references, operator, payer's phone, the order, and the journal in words (initiation,
+  notifications, what CinetPay answered and from where it was asked);
+- **Vérifier**, **Enregistrer un remboursement**, and **Exporter (CSV)** of the payments shown (tab, filters and
+  search applied; semicolons, opens in Excel) to reconcile with CinetPay's statements.
+
+The order page lists its own attempts (status, operator, both references, reason) with the same actions.
 Amounts are sent rounded up to 5 FCFA (a CinetPay rule for XOF), the difference kept in the attempt's journal. A
 customer without e-mail is sent to CinetPay with `CINETPAY_FALLBACK_EMAIL` (else the store's contact e-mail), CinetPay
 requiring one. A payment received after its order was cancelled is logged "à rembourser" in the audit log. A cancelled

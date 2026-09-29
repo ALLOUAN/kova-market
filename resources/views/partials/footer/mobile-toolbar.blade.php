@@ -12,9 +12,9 @@
 
                     @if (config('storefront.features.wishlist'))
                         <li class="rbt-access-box rbt-wishlist">
-                            <a class="rbt-round-btn has-rbt-md-fsize" href="#!" data-bs-toggle="modal" data-bs-target="#wishlistModal">
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="{{ route('wishlist.index') }}" aria-label="Mes favoris ({{ $wishlistCount }})">
                                 <i class="fa-regular fa-heart"></i>
-                                <div class="access-box-count">0</div>
+                                <div class="access-box-count" data-wishlist-count @if (! $wishlistCount) hidden @endif>{{ $wishlistCount }}</div>
                                 <span class="rbt-toolbar-label"> Favoris</span>
                             </a>
                         </li>
@@ -30,9 +30,9 @@
 
                     @if (config('storefront.features.compare'))
                         <li class="rbt-access-box">
-                            <a href="#!" class="rbt-round-btn has-rbt-md-fsize" data-bs-toggle="modal" data-bs-target="#compareviewModal">
+                            <a href="{{ route('compare.index') }}" class="rbt-round-btn has-rbt-md-fsize" aria-label="Comparateur ({{ $compared->count() }})">
                                 <i class="fa-regular fa-code-compare"></i>
-                                <div class="access-box-count">0</div>
+                                <div class="access-box-count" data-compare-count @if ($compared->isEmpty()) hidden @endif>{{ $compared->count() }}</div>
                                 <span class="rbt-toolbar-label"> Comparer</span>
                             </a>
                         </li>

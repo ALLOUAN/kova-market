@@ -37,6 +37,22 @@ enum BannerPlacement: string implements HasLabel
     }
 
     /**
+     * Width and height of the slot's image on the site, in pixels (those of the template's images).
+     *
+     * @return array{0: int, 1: int}
+     */
+    public function imageSize(): array
+    {
+        return match ($this) {
+            self::Hero => [1296, 908],
+            self::Categories => [338, 201],
+            self::BestDeals => [435, 250],
+            self::Highlights => [1296, 890],
+            self::Closing => [1320, 435],
+        };
+    }
+
+    /**
      * Slots that display a price (the others ignore it).
      */
     public function showsPrice(): bool

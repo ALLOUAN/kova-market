@@ -22,11 +22,11 @@ return [
 
     'about' => 'Boutique en ligne basée à Abidjan. Commandez en quelques clics, payez par Mobile Money ou à la livraison.',
 
-    'logo' => 'assets/images/logo/logo.webp',
+    'logo' => 'assets/images/logo/kova-logo.webp',
     // Same logo at 400 px wide, enough for the header and modals (sharp on retina screens), 4 KB instead of 19.
-    'logo_small' => 'assets/images/logo/logo-400.webp',
+    'logo_small' => 'assets/images/logo/kova-logo-400.webp',
 
-    'favicon' => 'assets/images/favicon.png',
+    'favicon' => 'assets/images/logo/kova-favicon.png',
 
     // ISO code of the store currency and the symbol displayed after amounts (whole FCFA, no decimals).
     'currency' => env('STORE_CURRENCY', 'XOF'),
@@ -66,19 +66,20 @@ return [
         ['image' => 'assets/images/footer/play-store-logo.webp', 'label' => 'Google Play', 'url' => '#'],
     ],
 
-    // Template features without a back end yet (EX-14 wishlist, EX-15 comparison): hidden in V1, wired in V1.1.
+    // Storefront features that can be switched off (EX-14 favourites, EX-15 comparison, EX-20/22 newsletter).
     'features' => [
-        'wishlist' => (bool) env('STORE_WISHLIST', false),
-        'compare' => (bool) env('STORE_COMPARE', false),
-        // The template's "Ne manquez pas nos offres" window (EX-20, EX-22): it opens by itself over every page and
-        // its newsletter form is not wired yet, so it stays off until the newsletter exists.
+        // Favourites ("Mes favoris"): on.
+        'wishlist' => (bool) env('STORE_WISHLIST', true),
+        // Product comparison (up to 4 products): on.
+        'compare' => (bool) env('STORE_COMPARE', true),
+        // Newsletter invitation window (EX-20, EX-22): off by default, switched on in Paramètres › Newsletter.
         'welcome_popup' => (bool) env('STORE_WELCOME_POPUP', false),
-        // The footer's newsletter sign-up (EX-22, proposal P-04): no mailing list behind it yet.
-        'newsletter' => (bool) env('STORE_NEWSLETTER', false),
+        // The footer's newsletter sign-up (EX-22, P-04): on; can be switched off in Paramètres › Newsletter.
+        'newsletter' => (bool) env('STORE_NEWSLETTER', true),
     ],
 
-    // Payment methods shown in the footer (F-016). Drop each operator's official logo at the given path
-    // (height about 28 px); until then its name is shown.
+    // Payment methods shown in the footer (F-016), with the operators' logos (public/assets/images/payment,
+    // 112 px high). A method without logo shows its name. The back-office can replace each logo (Paramètres).
     'payment_methods' => [
         ['label' => 'Orange Money', 'logo' => 'assets/images/payment/orange-money.webp'],
         ['label' => 'MTN MoMo', 'logo' => 'assets/images/payment/mtn-momo.webp'],
@@ -87,12 +88,18 @@ return [
         ['label' => 'Paiement à la livraison', 'logo' => null],
     ],
 
-    'footer_banner' => 'assets/images/footer/banner-image1.png',
+    // The theme's sample banner (English text, prices in dollars) is not shown: set one from the back-office.
+    'footer_banner' => null,
 
     'newsletter' => [
         'title' => 'Abonnez-vous à notre',
         'highlight' => 'newsletter',
         'subtitle' => 'Recevez nos offres et nouveautés en avant-première',
+        // Invitation window (features.welcome_popup): texts, optional image, seconds before it opens.
+        'popup_title' => 'Ne manquez pas nos offres',
+        'popup_text' => 'Recevez nos nouveautés et nos codes promo en avant-première.',
+        'popup_image' => 'assets/images/banner-img/welcome-banner-img-01.webp',
+        'popup_delay' => 15,
     ],
 
     /*
@@ -135,6 +142,22 @@ return [
     */
     'shipping' => [
         'delay' => 'Livraison à Abidjan en 24 à 48 h',
+    ],
+
+    /*
+    | Home page: whole browser and Google title (empty: "<store name> - Boutique en ligne à Abidjan"), and the store's
+    | guarantees shown under the hero. Both editable in Paramètres de la boutique; icon: see App\Filament\Pages\Settings.
+    */
+    'home_title' => null,
+
+    // Order and visibility of the home page sections, set in the back-office; empty: the default order, all shown.
+    'home_sections' => null,
+
+    'guarantees' => [
+        ['icon' => 'truck-fast', 'title' => 'Livraison rapide', 'text' => 'À Abidjan en 24 à 48 h'],
+        ['icon' => 'mobile-screen', 'title' => 'Mobile Money', 'text' => 'Orange, MTN, Moov, Wave'],
+        ['icon' => 'hand-holding-dollar', 'title' => 'Paiement à la livraison', 'text' => 'Payez en recevant votre colis'],
+        ['icon' => 'headset', 'title' => 'Service client', 'text' => 'Du lundi au samedi'],
     ],
 
 ];

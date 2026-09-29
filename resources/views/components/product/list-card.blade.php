@@ -2,7 +2,7 @@
 @props(['product', 'size' => 'sm', 'heading' => 'h2', 'order' => 1])
 
 {{-- Compact horizontal product card (text left, image right). --}}
-<div @class(['rbt-card rbt-product-card rbt-list-view-variation', 'rbt-list-view-sm' => $size === 'sm', 'list-view-md' => $size === 'md'])>
+<div @class(['rbt-card rbt-product-card rbt-list-view-variation', 'rbt-list-view-sm' => $size === 'sm', 'list-view-md' => $size === 'md']) data-analytics-item="{{ json_encode(\App\Services\Storefront\Analytics::listItem($product)) }}">
     <div class="inner rbt-scroll-trigger fade_in animation-order-{{ $order }}">
         <div class="rbt-card-body">
             <div class="rbt-card-rating">

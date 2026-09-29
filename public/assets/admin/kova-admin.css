@@ -1,0 +1,149 @@
+/*
+ * KOVA MARKET back-office: the colours of the logo on Filament.
+ * Night blue (KOVA) for the sidebar, gold (the logo's triangle) for what is active, green (MARKET and the cart)
+ * as the primary colour of buttons and links (set in AdminPanelProvider).
+ */
+:root {
+    --kova-navy: #021732;
+    --kova-navy-2: #0a2448;
+    --kova-green: #0e7d42;
+    --kova-gold: #c69e3e;
+    --kova-gold-light: #eac658;
+    --kova-on-navy: rgb(255 255 255 / 0.78);
+    --kova-on-navy-muted: rgb(255 255 255 / 0.55);
+}
+
+/* Page background: a light, slightly blue grey that goes with the night blue. */
+.fi-body:not(.dark) {
+    background-color: #f4f6fa;
+}
+
+/* Top bar: white, with the logo's gold line underneath. */
+.fi-topbar {
+    border-bottom: 3px solid var(--kova-gold);
+}
+
+/* Sidebar: night blue (plain colour, no gradient), from the top bar to the bottom, on every screen size. */
+.fi-sidebar,
+.fi-sidebar.fi-sidebar-open,
+.fi-main-sidebar {
+    background: var(--kova-navy) !important;
+}
+
+.fi-sidebar {
+    box-shadow: 4px 0 24px rgb(2 23 50 / 0.12);
+}
+
+.fi-sidebar-header {
+    background-color: var(--kova-navy) !important;
+    box-shadow: none !important;
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+/* Group titles ("Ventes", "Catalogue"...): small gold capitals. */
+.fi-sidebar-group-label {
+    color: var(--kova-gold) !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600 !important;
+}
+
+.fi-sidebar-group-btn .fi-icon,
+.fi-sidebar-group-collapse-btn,
+.fi-sidebar-group-collapse-btn .fi-icon {
+    color: var(--kova-on-navy-muted) !important;
+}
+
+/* Menu entries. */
+.fi-sidebar-item-btn {
+    background-color: transparent !important;
+    border-radius: 10px;
+}
+
+.fi-sidebar-item-label {
+    color: var(--kova-on-navy) !important;
+    font-weight: 500;
+}
+
+.fi-sidebar-item-btn > .fi-icon,
+.fi-sidebar-item-icon {
+    color: var(--kova-on-navy-muted) !important;
+}
+
+.fi-sidebar-item-btn:hover,
+.fi-sidebar-item-btn:focus-visible {
+    background-color: rgb(255 255 255 / 0.07) !important;
+}
+
+.fi-sidebar-item-btn:hover .fi-sidebar-item-label,
+.fi-sidebar-item-btn:hover > .fi-icon {
+    color: #fff !important;
+}
+
+/* Current page: gold bar on the left, gold icon, white label. */
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background: rgb(198 158 62 / 0.16) !important;
+    box-shadow: inset 3px 0 0 var(--kova-gold-light);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon,
+.fi-sidebar-item.fi-active .fi-sidebar-item-icon {
+    color: var(--kova-gold-light) !important;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn .fi-sidebar-item-label {
+    color: #fff !important;
+    font-weight: 600;
+}
+
+/* Sub-entries' connecting line. */
+.fi-sidebar-item-grouped-border-part {
+    background-color: rgb(255 255 255 / 0.2) !important;
+}
+
+/* Sidebar controls (collapse, notifications at the bottom) readable on night blue. */
+.fi-sidebar .fi-icon-btn,
+.fi-sidebar .fi-icon-btn .fi-icon,
+.fi-sidebar-database-notifications-btn,
+.fi-sidebar-database-notifications-btn-label {
+    color: var(--kova-on-navy) !important;
+}
+
+.fi-sidebar-footer {
+    border-top: 1px solid rgb(255 255 255 / 0.08);
+}
+
+/* Scrollbar of the menu. */
+.fi-sidebar-nav {
+    scrollbar-color: rgb(255 255 255 / 0.18) transparent;
+}
+
+/* Logo in the top bar and on the sign-in page. */
+.fi-logo img {
+    object-fit: contain;
+}
+
+/* Sign-in pages: plain night-blue background, white card, gold line on top of the card. */
+.fi-simple-layout {
+    background: var(--kova-navy) !important;
+}
+
+.fi-simple-main {
+    border-top: 4px solid var(--kova-gold);
+    box-shadow: 0 20px 50px rgb(0 0 0 / 0.35) !important;
+}
+
+.fi-simple-layout .fi-simple-user-menu-ctn .fi-icon,
+.fi-simple-layout > .fi-simple-layout-header a {
+    color: #fff;
+}
+
+/* On the night-blue sidebar header (small screens), the white version of the logo. */
+.fi-sidebar .fi-logo.fi-logo-light {
+    display: none !important;
+}
+
+.fi-sidebar .fi-logo.fi-logo-dark {
+    display: flex !important;
+}

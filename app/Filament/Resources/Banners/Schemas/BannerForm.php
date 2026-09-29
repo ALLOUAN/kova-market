@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Banners\Schemas;
 
 use App\Enums\BannerPlacement;
 use App\Filament\Support\StorefrontImage;
+use App\Models\Banner;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -33,8 +34,17 @@ class BannerForm
                         TextInput::make('url')
                             ->label('Lien du bouton')
                             ->placeholder('https://… ou /page/…')
+                            ->helperText('Vide : la boutique.')
                             ->maxLength(255),
-                        StorefrontImage::make('image', 'banners')
+                        TextInput::make('button_label')
+                            ->label('Texte du bouton')
+                            ->placeholder(Banner::DEFAULT_BUTTON)
+                            ->helperText('Vide : « '.Banner::DEFAULT_BUTTON.' ». Court de préférence (2 à 3 mots) : le bouton est rond.')
+                            ->maxLength(40),
+                        StorefrontImage::make('image', 'banners',
+                            fn (Get $get) => BannerPlacement::tryFrom((string) $get('placement'))?->imageSize(),
+                            fn (Get $get) => filled($get('placement')) ? null : 'choisissez l’emplacement pour voir les dimensions de l’image',
+                        )
                             ->label('Image')
                             ->required()
                             ->columnSpanFull(),
@@ -56,9 +66,21 @@ class BannerForm
                         TextInput::make('title')->label('Titre')->maxLength(255),
                         TextInput::make('tagline')->label('Accroche')->maxLength(255),
                     ]),
+                Section::make('Produit mis en avant')
+                    ->columnSpan(2)
+                    ->description('Choisissez le produit que la bannière présente : son prix, son prix barré et sa remise s’affichent automatiquement et suivent leurs changements, et le bouton mène à sa fiche (sauf lien saisi plus haut).')
+                    ->schema([
+                        Select::make('product_id')
+                            ->label('Produit')
+                            ->relationship('product', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->placeholder('Aucun : prix saisis à la main'),
+                    ]),
                 Section::make('Prix affiché (FCFA)')
                     ->columnSpan(1)
-                    ->visible($showsPrice)
+                    ->visible(fn (Get $get) => $showsPrice($get) && blank($get('product_id')))
                     ->schema([
                         TextInput::make('price')->label('Prix')->integer()->minValue(0)->suffix('FCFA'),
                         TextInput::make('compare_at_price')->label('Prix barré')->integer()->minValue(0)->suffix('FCFA')->gt('price'),

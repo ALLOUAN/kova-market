@@ -2,15 +2,11 @@
 
 namespace App\Filament\Resources\Orders\RelationManagers;
 
-use App\Enums\Permission;
-use App\Enums\TransactionStatus;
+use App\Filament\Resources\Payments\PaymentActions;
+use App\Filament\Resources\Payments\PaymentResource;
 use App\Models\Payment;
-use App\Services\Payments\CinetPayException;
-use App\Services\Payments\OnlinePayments;
 use App\Support\Money;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Textarea;
-use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -53,29 +49,13 @@ class PaymentsRelationManager extends RelationManager
                 TextColumn::make('paid_at')->label('Payé le')->dateTime('d/m/Y H:i')->placeholder('—'),
             ])
             ->recordActions([
-                Action::make('check')
-                    ->label('Vérifier')
-                    ->icon('heroicon-o-arrow-path')
-                    ->visible(fn (Payment $record) => $record->status->isOpen())
-                    ->action(function (Payment $record): void {
-                        try {
-                            $record = app(OnlinePayments::class)->synchronize($record, 'back-office');
-                            Notification::make()->title("Statut CinetPay : {$record->status->getLabel()}")->success()->send();
-                        } catch (CinetPayException $exception) {
-                            Notification::make()->title('CinetPay ne répond pas')->body($exception->getMessage())->warning()->send();
-                        }
-                    }),
-                Action::make('refund')
-                    ->label('Enregistrer un remboursement')
-                    ->icon('heroicon-o-receipt-refund')
-                    ->color('danger')
-                    ->visible(fn (Payment $record) => $record->status === TransactionStatus::Succeeded && (auth()->user()?->can(Permission::ManageOrders->value) ?? false))
-                    ->modalDescription('Faites d’abord le remboursement dans l’espace marchand CinetPay, puis enregistrez-le ici : la commande passe en « Remboursé ».')
-                    ->schema([Textarea::make('reason')->label('Motif')->required()->maxLength(255)])
-                    ->action(function (Payment $record, array $data): void {
-                        app(OnlinePayments::class)->recordRefund($record, auth()->user(), $data['reason']);
-                        Notification::make()->title('Remboursement enregistré')->success()->send();
-                    }),
+                PaymentActions::check(),
+                PaymentActions::refund(),
+                Action::make('details')
+                    ->label('Détails')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->url(fn (Payment $record) => PaymentResource::getUrl('view', ['record' => $record])),
             ])
             ->emptyStateHeading('Aucun paiement lancé')
             ->emptyStateDescription('Le client n’a pas encore été redirigé vers CinetPay.');

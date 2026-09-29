@@ -24,6 +24,11 @@
                                 </a>
                             </li>
                         @endforeach
+                        @if (config('storefront.features.wishlist'))
+                            <li>
+                                <a class="d-block py-2 px-2" href="{{ route('wishlist.index') }}"><i class="fa-regular fa-heart mr--8"></i>Mes favoris</a>
+                            </li>
+                        @endif
                         <li>
                             <a class="d-block py-2 px-2" href="{{ route('tracking.show') }}"><i class="fa-regular fa-truck mr--8"></i>Suivre une commande</a>
                         </li>

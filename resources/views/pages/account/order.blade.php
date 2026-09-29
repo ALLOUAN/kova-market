@@ -31,5 +31,44 @@
                 <p class="b3 mb-0"><strong>Paiement :</strong> {{ $order->payment_method->getLabel() }} — {{ $order->payment_status->getLabel() }}</p>
             </div>
         </div>
+
+        {{-- Verified-purchase reviews: once delivered, one review per article, published after moderation. --}}
+        @if ($order->status === \App\Enums\OrderStatus::Delivered && $order->items->whereNotNull('product_id')->isNotEmpty())
+            <div class="mt--40">
+                <h2 class="h6 mb--8">Votre avis sur vos articles</h2>
+                <p class="b3 mb--16">Votre note aide les autres clients. Elle est publiée avec votre prénom et l’initiale de votre nom, après vérification.</p>
+                @if ($errors->hasAny(['rating', 'comment']))
+                    <div class="alert alert-danger mb--16" role="alert">{{ $errors->first('rating') ?: $errors->first('comment') }}</div>
+                @endif
+                @foreach ($order->items->whereNotNull('product_id') as $item)
+                    @php($review = $reviews->get($item->getKey()))
+                    <div class="kova-review-box">
+                        <p class="mb--8"><strong>{{ $item->product_name }}</strong>@if ($item->variant_label) <span class="b4">({{ $item->variant_label }})</span>@endif</p>
+                        @if ($review)
+                            <p class="b3 mb-0">
+                                <span class="kova-stars" aria-label="Votre note : {{ $review->rating }} sur 5">{{ str_repeat('★', $review->rating) }}<span class="off">{{ str_repeat('★', 5 - $review->rating) }}</span></span>
+                                — {{ $review->status === \App\Enums\ReviewStatus::Approved ? 'Avis publié, merci !' : ($review->status === \App\Enums\ReviewStatus::Rejected ? 'Avis non publié.' : 'Avis envoyé, en cours de vérification.') }}
+                            </p>
+                        @else
+                            <form method="POST" action="{{ route('account.reviews.store', [$order, $item]) }}">
+                                @csrf
+                                <fieldset class="border-0 p-0 m-0 mb--8">
+                                    <legend class="b3 mb--4">Votre note<span class="rbt-text-color-danger">*</span></legend>
+                                    <span class="kova-rating-input">
+                                        @for ($star = 5; $star >= 1; $star--)
+                                            <input type="radio" id="rating-{{ $item->getKey() }}-{{ $star }}" name="rating" value="{{ $star }}" required>
+                                            <label for="rating-{{ $item->getKey() }}-{{ $star }}" title="{{ $star }} sur 5"><span class="visually-hidden">{{ $star }} sur 5</span>★</label>
+                                        @endfor
+                                    </span>
+                                </fieldset>
+                                <label class="rbt-field-label" for="comment-{{ $item->getKey() }}">Commentaire <span class="b4">(facultatif)</span></label>
+                                <textarea id="comment-{{ $item->getKey() }}" name="comment" rows="2" maxlength="1000" class="w-100" placeholder="Qualité, conformité, livraison…"></textarea>
+                                <button type="submit" class="rbt-btn rbt-btn-sm mt--8" style="width: auto; padding: 0 20px">Envoyer mon avis</button>
+                            </form>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </x-account-layout>
 @endsection

@@ -60,12 +60,22 @@
                     <h2 class="h3 mt--8 mb--16">{{ $product->name }}</h2>
 
                     @if ($product->reviews_count > 0)
-                        <div class="rbt-review d-flex align-items-center gap-2 mb--16">
+                        <a href="#avis" class="rbt-review d-flex align-items-center gap-2 mb--16" aria-label="Voir les {{ $product->reviews_count }} avis clients">
                             <x-product.rating :rating="$product->rating" :count="$product->reviews_count" />
-                        </div>
+                        </a>
                     @endif
 
                     <x-product.purchase :product="$product" :variants="$variants" :options="$options" />
+                    @if (config('storefront.features.wishlist') || config('storefront.features.compare'))
+                        <div class="mt--16 d-flex flex-wrap gap-2">
+                            @if (config('storefront.features.wishlist'))
+                                <x-wishlist-button :product="$product" variant="page" />
+                            @endif
+                            @if (config('storefront.features.compare'))
+                                <x-compare-button :product="$product" variant="page" />
+                            @endif
+                        </div>
+                    @endif
                     <x-product.bundle-contents :product="$product" />
 
                     <div class="mt--24">
@@ -102,6 +112,33 @@
                                 </tbody>
                             </table>
                         @endif
+                    </div>
+                </div>
+            @endif
+
+            {{-- Customer reviews: verified purchases approved by the back-office. --}}
+            @if ($reviews->isNotEmpty())
+                <div class="row mt--60" id="avis">
+                    <div class="col-lg-10">
+                        <h2 class="h5 mb--8">Avis clients</h2>
+                        <p class="d-flex align-items-center gap-2 mb--8">
+                            <span class="kova-stars h5 mb-0" aria-hidden="true">{{ str_repeat('★', (int) round($product->rating)) }}<span class="off">{{ str_repeat('★', 5 - (int) round($product->rating)) }}</span></span>
+                            <span><strong>{{ number_format($product->rating, 1, ',', ' ') }}</strong> sur 5 · {{ $product->reviews_count }} avis</span>
+                        </p>
+                        @foreach ($reviews as $review)
+                            <div class="kova-review">
+                                <p class="mb--4">
+                                    <span class="kova-stars" aria-label="Note : {{ $review->rating }} sur 5">{{ str_repeat('★', $review->rating) }}<span class="off">{{ str_repeat('★', 5 - $review->rating) }}</span></span>
+                                </p>
+                                @if ($review->comment)
+                                    <p class="mb--4">{{ $review->comment }}</p>
+                                @endif
+                                <p class="meta mb-0">
+                                    {{ $review->author_name }} · {{ $review->created_at->translatedFormat('j F Y') }}
+                                    @if ($review->order_item_id) · <span class="verified"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Achat vérifié</span>@endif
+                                </p>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endif

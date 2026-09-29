@@ -127,14 +127,16 @@
                                     </div>
                                     @if ($category->promo)
                                         <div class="rbt-sidebar-banner">
-                                            <div class="rbt-banner-img">
-                                                <img src="{{ asset($category->promo['image']) }}" alt="{{ $category->promo['title'] }}" loading="lazy" decoding="async">
-                                            </div>
+                                            @if (filled($category->promo['image'] ?? null))
+                                                <div class="rbt-banner-img">
+                                                    <img src="{{ asset($category->promo['image']) }}" alt="{{ $category->promo['title'] ?? $category->name }}" loading="lazy" decoding="async">
+                                                </div>
+                                            @endif
                                             <div class="rbt-sidebar-banner-content">
-                                                <p class="rbt-sidebar-banner-text">{{ $category->promo['label'] }}
-                                                    <span class="rbt-text-color-primary rbt-text-semi-bold ml--4">{{ $category->promo['highlight'] }}</span>
+                                                <p class="rbt-sidebar-banner-text">{{ $category->promo['label'] ?? '' }}
+                                                    <span class="rbt-text-color-primary rbt-text-semi-bold ml--4">{{ $category->promo['highlight'] ?? '' }}</span>
                                                 </p>
-                                                <h2 class="rbt-sidebar-banner-titile h4">{{ $category->promo['title'] }} <span class="rbt-text-regular">{{ $category->promo['subtitle'] }}</span>
+                                                <h2 class="rbt-sidebar-banner-titile h4">{{ $category->promo['title'] ?? '' }} <span class="rbt-text-regular">{{ $category->promo['subtitle'] ?? '' }}</span>
                                                 </h2>
                                                 <a href="{{ $category->url() }}" class="rbt-btn rbt-btn-sm">En savoir plus</a>
                                             </div>

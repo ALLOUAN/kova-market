@@ -9,7 +9,7 @@
 ])
 
 {{-- Grid product card. "progress" swaps the stock badge for the "only N left" bar; "details" adds the expandable specs. --}}
-<div @class(['rbt-card rbt-product-card', 'rbt-stock-out-product-card' => $product->isSoldOut(), 'has-hover-box-shadow' => $shadow])>
+<div @class(['rbt-card rbt-product-card', 'rbt-stock-out-product-card' => $product->isSoldOut(), 'has-hover-box-shadow' => $shadow]) data-analytics-item="{{ json_encode(\App\Services\Storefront\Analytics::listItem($product)) }}">
     <div class="inner rbt-scroll-trigger fade_in animation-order-{{ $order }}">
         <div @class(['rbt-card-img rbt-bg-color-default', 'rbt-has-hover-video' => $product->hover_video, 'rbt-has-hover-img' => ! $product->hover_video && $product->hover_image])>
             <a href="{{ $product->url() }}">
@@ -22,7 +22,8 @@
             </a>
             <x-product.badges :product="$product" />
             @if ($product->watchers_count)
-                <div class="rbt-discount-badge right--corner-style tooltips" data-tooltip="👁️ {{ $product->watchers_count }} personnes regardent ce produit" data-tooltip-position="bottom">
+                {{-- Real visits of the product page over the last minutes (App\Services\Storefront\ProductViewers). --}}
+                <div class="rbt-discount-badge right--corner-style tooltips" data-tooltip="👁️ {{ $product->watchers_count }} personnes ont vu ce produit ces {{ \App\Services\Storefront\ProductViewers::WINDOW_MINUTES }} dernières minutes" data-tooltip-position="bottom" aria-label="{{ $product->watchers_count }} personnes ont vu ce produit récemment">
                     <span><i class="fa-regular fa-eye"></i>{{ $product->watchers_count }}</span>
                 </div>
             @endif

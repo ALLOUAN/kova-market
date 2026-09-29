@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use App\Enums\TransactionStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -47,6 +50,16 @@ class Payment extends Model
     public function refundedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'refunded_by')->withTrashed();
+    }
+
+    /**
+     * Money received on an order cancelled since: to give back in CinetPay's merchant space, then record.
+     */
+    #[Scope]
+    protected function toRefund(Builder $query): void
+    {
+        $query->where('status', TransactionStatus::Succeeded)
+            ->whereHas('order', fn (Builder $order) => $order->where('status', OrderStatus::Cancelled));
     }
 
     /**

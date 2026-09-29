@@ -246,6 +246,27 @@ class CourierTest extends TestCase
         $this->get('/livreur/connexion')->assertOk()->assertSee('rel="manifest"', false);
     }
 
+    public function test_the_sign_in_page_shows_the_brand_help_and_errors(): void
+    {
+        $this->get('/livreur/connexion')
+            ->assertOk()
+            ->assertSeeText('Espace livreur')
+            ->assertSee(config('storefront.logo_small'), false)
+            ->assertSee('data-toggle-password', false)
+            ->assertSee('autocomplete="current-password"', false)
+            ->assertSeeText('Mot de passe oublié ou compte bloqué ?')
+            ->assertSee('href="tel:', false);
+
+        $this->from('/livreur/connexion')->post('/livreur/connexion', ['phone' => '0700000000', 'password' => 'mauvais'])
+            ->assertRedirect('/livreur/connexion');
+
+        $this->get('/livreur/connexion')
+            ->assertSee('role="alert"', false)
+            ->assertSeeText('Numéro ou mot de passe incorrect.')
+            ->assertSee('aria-invalid="true"', false)
+            ->assertSee('value="0700000000"', false);
+    }
+
     /**
      * @param  list<DeliveryZone>  $zones
      * @return array{0: Courier, 1: User}

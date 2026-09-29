@@ -14,6 +14,9 @@ Schedule::command('model:prune')->daily();
 // Dated sale prices (F-090): product prices follow the opening and closing of sale windows.
 Schedule::command('catalog:refresh-sale-prices')->everyMinute()->withoutOverlapping();
 
+// "N personnes ont vu ce produit" badge of the product cards: real visits of the last 15 minutes.
+Schedule::command('catalog:refresh-viewers')->everyMinute()->withoutOverlapping();
+
 // Sitemap for the search engines (F-154), regenerated every night.
 Schedule::command('seo:sitemap')->dailyAt('03:00');
 

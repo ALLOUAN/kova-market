@@ -31,6 +31,48 @@ class HomePageService
     /** Products shown by the "Nouveautés" and "Populaires" rows. */
     public const ROW_SIZE = 8;
 
+    /** Sections of the home page in their default order (key => name in the back-office). */
+    public const SECTIONS = [
+        'hero' => 'Carrousel principal',
+        'guarantees' => 'Bandeau de garanties',
+        'categories' => 'Catégories populaires',
+        'deals_of_the_day' => 'Offres du jour',
+        'best_deals' => 'Les meilleures offres du jour',
+        'new_arrivals' => 'Nouveautés',
+        'highlights' => 'Les incontournables de la semaine',
+        'popular' => 'Populaires',
+        'featured' => 'Produit vedette',
+        'brands' => 'Nos marques',
+        'closing' => 'Bannière de fin de page',
+    ];
+
+    /**
+     * The sections in the order set in Paramètres de la boutique › Page d'accueil, with whether each is shown;
+     * sections the setting does not know yet (added later) come last, shown.
+     *
+     * @return list<array{key: string, visible: bool}>
+     */
+    public static function sectionSettings(): array
+    {
+        $saved = collect(config('storefront.home_sections') ?? [])
+            ->filter(fn ($section) => is_array($section) && array_key_exists($section['key'] ?? null, self::SECTIONS))
+            ->unique('key')
+            ->map(fn (array $section) => ['key' => $section['key'], 'visible' => (bool) ($section['visible'] ?? true)]);
+
+        return $saved
+            ->concat(collect(array_keys(self::SECTIONS))->diff($saved->pluck('key'))->map(fn (string $key) => ['key' => $key, 'visible' => true]))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function visibleSections(): array
+    {
+        return collect(self::sectionSettings())->where('visible', true)->pluck('key')->values()->all();
+    }
+
     public function __construct(private CatalogService $catalog) {}
 
     /**
@@ -45,6 +87,7 @@ class HomePageService
         $featured = $collections->get(self::FEATURED)?->products ?? collect();
 
         return [
+            'sections' => self::visibleSections(),
             'hero' => $this->hero(),
             'banners' => $this->banners(),
             'categories' => $this->catalog->featuredCategories(),
@@ -69,31 +112,32 @@ class HomePageService
      */
     private function row(?Collection $curated, string $title, string $sort, Closure $order): array
     {
-        $products = $curated && $curated->products->isNotEmpty()
+        $isCurated = $curated && $curated->products->isNotEmpty();
+
+        $products = $isCurated
             ? $curated->products->take(self::ROW_SIZE)
             : $order(Product::query()->active()->with('category'))->limit(self::ROW_SIZE)->get();
 
         return [
             'title' => $curated?->name ?? $title,
-            'url' => route('shop.index', ['tri' => $sort]),
+            // A curated row opens its own selection page; a computed one, the shop sorted the same way.
+            'url' => $isCurated ? route('collections.show', $curated) : route('shop.index', ['tri' => $sort]),
             'products' => $products->values(),
         ];
     }
 
     /**
-     * Hero slides from the back-office, or the default slides of config/homepage.php when none is live.
+     * Hero slides published from the back-office; none live, no slider (never the template's sample slides).
      *
      * @return list<array<string, mixed>>
      */
     private function hero(): array
     {
-        $slides = $this->liveBanners()->where('placement', BannerPlacement::Hero);
-
-        $slides = $slides->isEmpty()
-            ? config('homepage.hero')
-            : $slides->map(fn (Banner $banner) => $banner->toStorefront())->values()->all();
-
-        return array_map(fn (array $slide) => $this->withLink($slide), $slides);
+        return $this->liveBanners()
+            ->where('placement', BannerPlacement::Hero)
+            ->map(fn (Banner $banner) => $this->withLink($banner->toStorefront()))
+            ->values()
+            ->all();
     }
 
     /**
@@ -108,16 +152,19 @@ class HomePageService
     }
 
     /**
-     * One banner per single slot, each falling back to its config/homepage.php default.
+     * One banner per single slot, or null: an empty slot hides its banner (the section around it adapts).
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array<string, mixed>|null>
      */
     private function banners(): array
     {
-        return collect(config('homepage.banners'))
-            ->map(fn (array $default, string $slot) => $this->withLink($this->liveBanners()
-                ->firstWhere('placement', BannerPlacement::from($slot))
-                ?->toStorefront() ?? $default))
+        return collect(BannerPlacement::cases())
+            ->reject(fn (BannerPlacement $placement) => $placement->isSlider())
+            ->mapWithKeys(function (BannerPlacement $placement): array {
+                $banner = $this->liveBanners()->firstWhere('placement', $placement);
+
+                return [$placement->value => $banner ? $this->withLink($banner->toStorefront()) : null];
+            })
             ->all();
     }
 
@@ -126,6 +173,6 @@ class HomePageService
      */
     private function liveBanners(): EloquentCollection
     {
-        return once(fn () => Banner::live()->get());
+        return once(fn () => Banner::live()->with('product')->get());
     }
 }

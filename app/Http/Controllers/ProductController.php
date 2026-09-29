@@ -6,8 +6,10 @@ use App\Models\AttributeValue;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\Storefront\Analytics;
+use App\Services\Storefront\ProductViewers;
 use App\Services\Storefront\RecentlyViewed;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\View\View;
@@ -19,19 +21,21 @@ class ProductController extends Controller
 {
     public const RECOMMENDED = 8;
 
-    public function show(Product $product, Analytics $analytics, RecentlyViewed $recentlyViewed): View
+    public function show(Request $request, Product $product, Analytics $analytics, RecentlyViewed $recentlyViewed, ProductViewers $viewers): View
     {
         abort_unless($product->is_active, 404);
 
         $product->load(['category.parent.parent', 'brand', 'variants.attributeValues.attribute', 'bundleItems.variant.product', 'bundleItems.variant.attributeValues.attribute']);
         $analytics->viewItem($product);
         $recentlyViewed->remember($product);
+        $viewers->record($product, $request);
 
         return view('pages.product', [
             'product' => $product,
             ...$this->purchase($product),
             'breadcrumb' => $product->category ? $product->category->ancestry() : [],
             'recommended' => $this->recommended($product),
+            'reviews' => $product->reviews()->approved()->limit(10)->get(),
         ]);
     }
 

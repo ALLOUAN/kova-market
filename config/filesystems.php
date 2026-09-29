@@ -40,10 +40,12 @@ return [
 
         // Storefront images: the template assets and back-office uploads (under "uploads/") share the
         // public directory, so stored paths such as "assets/images/..." render with asset() everywhere.
+        // Root-relative URLs: the back-office's file fields download the current image to preview it, which the
+        // browser blocks when APP_URL is another origin than the address in use (localhost / 127.0.0.1, www...).
         'storefront' => [
             'driver' => 'local',
             'root' => public_path(),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/'),
+            'url' => '',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

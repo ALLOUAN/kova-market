@@ -14,6 +14,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -43,6 +44,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path(config('admin.path'))
             ->brandName(config('storefront.name'))
+            // The logo's colours (night blue, green, gold): public/assets/admin/kova-admin.css.
+            ->brandLogo(asset('assets/images/logo/kova-market.webp'))
+            ->darkModeBrandLogo(asset('assets/images/logo/kova-market-dark.webp'))
+            ->brandLogoHeight('3.25rem')
             ->favicon(asset(config('storefront.favicon')))
             ->login(Login::class)
             ->profile()
@@ -51,11 +56,17 @@ class AdminPanelProvider extends PanelProvider
             ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)
             ->multiFactorAuthenticationRequiredMiddlewareName(EnsureTwoFactorForSensitiveRoles::class)
             ->colors([
-                'primary' => Color::Amber,
+                // Green of the logo ("MARKET" and the cart) at shade 600, the one buttons use.
+                'primary' => array_map(Color::convertToOklch(...), [
+                    50 => '#ecf8f1', 100 => '#d2eedd', 200 => '#a6dcbc', 300 => '#6fc493', 400 => '#38a86a', 500 => '#17924f',
+                    600 => '#0e7d42', 700 => '#0b6536', 800 => '#0a502c', 900 => '#084224', 950 => '#032415',
+                ]),
+                'gray' => Color::Slate,
             ])
             // Back-office alerts (new and cancelled orders), refreshed every 30 seconds.
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<link rel="stylesheet" href="'.e(asset('assets/admin/kova-admin.css').'?v='.@filemtime(public_path('assets/admin/kova-admin.css'))).'">')
             ->navigationGroups(['Ventes', 'Catalogue', 'Promotions', 'Livraison', 'Contenus', 'Administration'])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

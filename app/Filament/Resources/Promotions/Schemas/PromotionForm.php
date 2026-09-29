@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Promotions\Schemas;
 use App\Filament\Support\StorefrontImage;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -14,7 +15,7 @@ class PromotionForm
     {
         return $schema
             ->components([
-                Section::make('Campagne')
+                Section::make('Carte « Offres spéciales »')
                     ->description('Affichée dans le panneau « Offres spéciales » jusqu’à sa date de fin.')
                     ->columns(2)
                     ->schema([
@@ -49,10 +50,21 @@ class PromotionForm
                             ->seconds(false)
                             ->required()
                             ->after('starts_at'),
-                        StorefrontImage::make('image', 'promotions')
+                        StorefrontImage::make('image', 'promotions', [720, 720], 'carrée')
                             ->label('Visuel')
                             ->required()
                             ->columnSpanFull(),
+                        Toggle::make('is_visible')
+                            ->label('Visible dans « Offres spéciales »')
+                            ->helperText('Décochez pour masquer l’offre sans la supprimer.')
+                            ->default(true),
+                        TextInput::make('position')
+                            ->label('Ordre d’affichage')
+                            ->helperText('Les plus petits numéros en premier ; à égalité, la date de début.')
+                            ->integer()
+                            ->minValue(0)
+                            ->default(0)
+                            ->required(),
                     ]),
             ]);
     }

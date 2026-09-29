@@ -25,10 +25,15 @@ class CollectionForm
                             ->label('Identifiant')
                             ->disabled()
                             ->dehydrated(false),
+                        DateTimePicker::make('starts_at')
+                            ->label('Affichée à partir du')
+                            ->helperText('Vide : dès maintenant. Préparez une sélection à l’avance (Black Friday…) : la section apparaît à cette date.')
+                            ->seconds(false),
                         DateTimePicker::make('ends_at')
                             ->label('Fin de l’offre')
                             ->helperText('Pilote le compte à rebours de la section, s’il y en a un.')
-                            ->seconds(false),
+                            ->seconds(false)
+                            ->after('starts_at'),
                     ]),
             ]);
     }

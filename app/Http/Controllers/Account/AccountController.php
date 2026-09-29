@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\ProductReview;
 use App\Services\Account\AccountEraser;
 use App\Services\Account\GuestOrderClaim;
 use App\Support\PhoneNumber;
@@ -45,7 +46,11 @@ class AccountController extends Controller
         // Another customer's order does not exist, as far as this customer knows.
         abort_unless($order->user_id === $request->user()->getKey(), 404);
 
-        return view('pages.account.order', ['order' => $order->load(['items', 'statusHistory', 'courier.user'])]);
+        return view('pages.account.order', [
+            'order' => $order->load(['items', 'statusHistory', 'courier.user']),
+            // Reviews already given on this order's lines, by line.
+            'reviews' => ProductReview::whereIn('order_item_id', $order->items->modelKeys())->get()->keyBy('order_item_id'),
+        ]);
     }
 
     /**

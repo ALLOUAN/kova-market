@@ -45,7 +45,8 @@ class CatalogService
     }
 
     /**
-     * Merchandising collections with their active products, keyed by slug.
+     * Merchandising collections with their active products, keyed by slug; a collection whose start date is still
+     * to come is left out (prepared in advance in the back-office).
      *
      * @param  list<string>  $slugs
      * @return EloquentCollection<string, Collection>
@@ -54,6 +55,7 @@ class CatalogService
     {
         return once(fn () => Collection::query()
             ->whereIn('slug', $slugs)
+            ->where(fn ($query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
             ->with(['products' => fn ($query) => $query->active()->with('category')])
             ->get()
             ->keyBy('slug'));

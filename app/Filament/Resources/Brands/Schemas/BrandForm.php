@@ -29,7 +29,7 @@ class BrandForm
                             ->minValue(0)
                             ->default(0)
                             ->required(),
-                        StorefrontImage::make('logo', 'brands')
+                        StorefrontImage::make('logo', 'brands', [140, 30], 'logo horizontal, fond transparent')
                             ->label('Logo')
                             ->required()
                             ->columnSpanFull(),

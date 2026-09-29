@@ -2,15 +2,19 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\BannerPlacement;
 use App\Enums\Role;
 use App\Filament\Pages\Settings;
 use App\Filament\Resources\Activities\ActivityResource;
 use App\Filament\Resources\Banners\BannerResource;
+use App\Filament\Resources\Banners\Pages\CreateBanner;
 use App\Filament\Resources\Faqs\FaqResource;
 use App\Filament\Resources\Pages\PageResource;
+use App\Filament\Resources\Testimonials\TestimonialResource;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\UserResource;
+use App\Models\Banner;
 use App\Models\Setting;
 use App\Models\User;
 use Database\Seeders\ContentSeeder;
@@ -53,9 +57,28 @@ class AdministrationTest extends TestCase
 
         $this->get(BannerResource::getUrl('index'))->assertOk();
         $this->get(PageResource::getUrl('index'))->assertOk();
+        $this->get(TestimonialResource::getUrl('index'))->assertOk();
+        $this->get(TestimonialResource::getUrl('create'))->assertOk();
         $this->get(UserResource::getUrl('index'))->assertForbidden();
         $this->get(Settings::getUrl())->assertForbidden();
         $this->get(ActivityResource::getUrl('index'))->assertForbidden();
+    }
+
+    public function test_image_fields_state_the_dimensions_of_the_image_on_the_site(): void
+    {
+        $this->actingAs($this->superAdmin);
+
+        Livewire::test(CreateBanner::class)
+            ->assertSeeText('Choisissez l’emplacement pour voir les dimensions de l’image')
+            ->fillForm(['placement' => BannerPlacement::Closing->value])
+            ->assertSeeText('1320 × 435 px')
+            ->fillForm(['placement' => BannerPlacement::Hero->value])
+            ->assertSeeText('1296 × 908 px');
+
+        $this->get(Settings::getUrl())->assertSeeText('1487 × 334 px')->assertSeeText('1320 × 140 px');
+
+        $banner = Banner::create(['placement' => BannerPlacement::Hero, 'image' => 'assets/images/product-banner/product-banner-img-21.webp', 'is_visible' => true, 'position' => 0]);
+        $this->get(BannerResource::getUrl('edit', ['record' => $banner]))->assertSeeText('Image actuelle : 1296 × 908 px');
     }
 
     public function test_the_super_admin_creates_a_manager_account(): void

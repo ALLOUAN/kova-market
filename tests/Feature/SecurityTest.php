@@ -27,6 +27,8 @@ class SecurityTest extends TestCase
                 ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
             $this->assertStringContainsString("frame-ancestors 'self'", $response->headers->get('Content-Security-Policy'));
             $this->assertStringContainsString("object-src 'none'", $response->headers->get('Content-Security-Policy'));
+            // The back-office's image fields preview the image in a worker created from a blob.
+            $this->assertStringContainsString("worker-src 'self' blob:", $response->headers->get('Content-Security-Policy'));
         }
     }
 

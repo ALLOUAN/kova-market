@@ -28,8 +28,6 @@ class ProductFactory extends Factory
             'slug' => Str::slug($name),
             'price' => fake()->numberBetween(10, 500) * 500,
             'stock' => fake()->numberBetween(10, 100),
-            'rating' => 5,
-            'reviews_count' => fake()->numberBetween(0, 100),
             'image' => 'assets/images/product-img/electronics/electronics-bg-trans-10-a-1.webp',
         ];
     }

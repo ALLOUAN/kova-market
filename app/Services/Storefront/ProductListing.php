@@ -5,12 +5,14 @@ namespace App\Services\Storefront;
 use App\Models\AttributeValue;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Collection as ProductCollection;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Product lists of the storefront (F-020 to F-024): shop, category, brand and search pages share the same
@@ -31,17 +33,26 @@ class ProductListing
     /**
      * @return array{products: LengthAwarePaginator, filters: array<string, mixed>, facets: array<string, mixed>}
      */
-    public function list(Request $request, ?Category $category = null, ?Brand $brand = null): array
+    public function list(Request $request, ?Category $category = null, ?Brand $brand = null, ?ProductCollection $collection = null): array
     {
         $filters = $this->filters($request);
 
-        // The scope is what the page is about (shop, category, brand, search); filters narrow it down.
+        // The scope is what the page is about (shop, category, brand, home selection, search); filters narrow it down.
         $scope = Product::query()->active()
             ->when($category, fn (Builder $query) => $query->whereIn('category_id', $category->descendantIds()))
             ->when($brand, fn (Builder $query) => $query->where('brand_id', $brand->getKey()))
+            ->when($collection, fn (Builder $query) => $query->whereHas('collections', fn (Builder $query) => $query->whereKey($collection->getKey())))
             ->when($filters['q'] !== '', fn (Builder $query) => $query->whereKey($this->searchIds($filters['q'])));
 
         $products = $this->applyFilters(clone $scope, $filters);
+
+        // A home selection keeps the order chosen in the back-office unless the visitor sorts it.
+        if ($collection && $filters['sort'] === 'pertinence') {
+            $products->orderBy(DB::table('collection_product')->select('position')
+                ->whereColumn('collection_product.product_id', 'products.id')
+                ->where('collection_product.collection_id', $collection->getKey()));
+        }
+
         $this->applySort($products, $filters['sort']);
 
         return [

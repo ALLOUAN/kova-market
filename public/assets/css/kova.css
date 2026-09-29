@@ -1,0 +1,845 @@
+/*
+ * KOVA MARKET — charte graphique de la boutique.
+ * Loaded after the theme (style.min.css): it remaps the theme's variables to the logo's colours and evens out the
+ * components. The page background stays the theme's (white, light grey sections). Plain colours only: no gradient.
+ *
+ *   Night blue #021732  "KOVA": identity, header bar, titles, prices, secondary buttons
+ *   Green      #0E7D42  "MARKET" and the cart: buying actions (add to cart, order, pay), success
+ *   Gold       #C69E3E  the logo's triangle: accent, used sparingly (discounts, current item, ratings)
+ */
+
+/* ------------------------------------------------------------------ Tokens */
+:root {
+    /* Logo */
+    --kova-navy: #021732;
+    --kova-navy-800: #0a2448;
+    --kova-navy-700: #1b3560;
+    --kova-navy-100: #e8edf5;
+    --kova-navy-50: #f2f5fa;
+    --kova-green: #0e7d42;
+    --kova-green-700: #0b6536;
+    --kova-green-800: #0a502c;
+    --kova-green-100: #e5f3eb;
+    --kova-gold: #c69e3e;
+    --kova-gold-700: #8a6a1f;
+    --kova-gold-100: #f8f0dc;
+
+    /* Text and lines (checked on white: 16:1, 7.5:1, 4.9:1) */
+    --kova-text: #0f1d33;
+    --kova-text-body: #3f4a5a;
+    --kova-text-muted: #667085;
+    --kova-border: #e3e8ef;
+    --kova-border-strong: #cfd6e0;
+
+    /* States */
+    --kova-success: #0e7d42;
+    --kova-success-bg: #e5f3eb;
+    --kova-danger: #c0362c;
+    --kova-danger-bg: #fdeceb;
+    --kova-warning: #a86b12;
+    --kova-warning-bg: #fdf3e2;
+    --kova-info: #1f4f8f;
+    --kova-info-bg: #eaf1fa;
+
+    /* Shapes */
+    --kova-radius-sm: 6px;
+    --kova-radius: 8px;
+    --kova-radius-lg: 12px;
+    --kova-shadow-sm: 0 1px 2px rgb(2 23 50 / 0.06);
+    --kova-shadow: 0 6px 20px rgb(2 23 50 / 0.08);
+    --kova-focus: 0 0 0 3px rgb(14 125 66 / 0.28);
+
+    --kova-font-heading: "Poppins", "Segoe UI", Arial, sans-serif;
+    --kova-font-body: "Inter", "Segoe UI", Arial, sans-serif;
+
+    /* Theme variables remapped to the logo (backgrounds untouched: --color-gray-light, -100, -150, brand-50/100) */
+    --color-primary: var(--kova-green);
+    --color-secondary: var(--kova-navy);
+    --color-heading: var(--kova-text);
+    --color-body: var(--kova-text-body);
+    --color-green: var(--kova-green);
+    --color-light-green: var(--kova-green-100);
+    --color-yellow: var(--kova-gold);
+    --color-orange: var(--kova-gold-700);
+    --color-extra-eight: var(--kova-gold);
+    --color-extra-nine: var(--kova-navy);
+    --color-extra-ten: var(--kova-navy-800);
+    --color-gray-400: #6b7280;
+    --color-border: var(--kova-border);
+    --color-border-2: #edf0f4;
+    --color-brand-200: var(--kova-navy-50);
+    --color-brand-300: var(--kova-navy-100);
+    --color-brand-400: #c9d3e2;
+    --color-brand-500: #9fb0c8;
+    --color-brand-600: #6b7f9e;
+    --color-brand-700: var(--kova-navy-700);
+    --color-success: var(--kova-success);
+    --color-danger: var(--kova-danger);
+    --color-warning: var(--kova-warning);
+    --shadow-7: 0 4px 14px rgb(14 125 66 / 0.22);
+    --radius: var(--kova-radius);
+    --radius-md: var(--kova-radius);
+    --radius-12: var(--kova-radius-lg);
+    --font-primary: var(--kova-font-body);
+    --font-secondary: var(--kova-font-heading);
+    --font-tertiary: var(--kova-font-heading);
+    --font-quaternary: var(--kova-font-heading);
+}
+
+/* ------------------------------------------------------------------ Typography */
+body {
+    font-family: var(--kova-font-body);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.title, .rbt-title, .rbt-short-title, .rbt-card-title, .rbt-section-title .title {
+    font-family: var(--kova-font-heading);
+    color: var(--kova-text);
+    letter-spacing: -0.01em;
+}
+
+h1, .h1 { font-weight: 700; }
+h2, .h2, h3, .h3 { font-weight: 600; }
+h4, .h4, h5, .h5, h6, .h6 { font-weight: 600; }
+
+/* Product names stay in the body font: easier to read in lists. */
+.rbt-card-title, .rbt-card-title a {
+    font-family: var(--kova-font-body);
+    font-weight: 500;
+    color: var(--kova-text);
+}
+
+.rbt-card-title a:hover { color: var(--kova-green); }
+
+a { transition: color 0.15s ease; }
+a:hover { color: var(--kova-green); }
+
+/* Handwritten highlights of the theme become the heading font in green. */
+.rbt-text-color-primary, .rbt-font-secondary, [class*="font-secondary"] {
+    font-family: var(--kova-font-heading);
+}
+
+/* Prices: night blue, old price muted. */
+.price-text, .rbt-price, .current-price, .pricing-part .price-text {
+    font-family: var(--kova-font-heading);
+    color: var(--kova-navy) !important;
+    font-weight: 600;
+}
+
+del.price-text, .pricing-part del, .rbt-price del, .old-price {
+    color: #8a94a6 !important;
+    font-weight: 400;
+    font-family: var(--kova-font-body);
+}
+
+/* Discount "-39%": gold accent, night-blue text (7:1). */
+.rbt-offer-badge {
+    background: var(--kova-gold) !important;
+    color: var(--kova-navy) !important;
+    border: 0 !important;
+    border-radius: var(--kova-radius-sm) !important;
+    font-weight: 700;
+    font-family: var(--kova-font-body);
+}
+
+/* Ratings in gold. */
+.rating i, .rbt-review i, .fa-star, .rbt-rating i { color: var(--kova-gold); }
+
+/* ------------------------------------------------------------------ Header */
+.rbt-header-middle.rbt-bg-color-primary,
+.rbt-header .rbt-bg-color-primary {
+    background: var(--kova-navy) !important;
+}
+
+.rbt-header-middle .mainmenu > li > a,
+.rbt-header-middle .rbt-header-content a,
+.rbt-header-middle .rbt-header-content span {
+    color: rgb(255 255 255 / 0.9);
+}
+
+.rbt-header-middle .mainmenu > li > a:hover,
+.rbt-header-middle .mainmenu > li.active > a,
+.rbt-header-middle .rbt-header-content a:hover {
+    color: #fff;
+    box-shadow: inset 0 -2px 0 var(--kova-gold);
+}
+
+/* Announcement strip: night blue, no picture, no gradient. */
+.rbt-header-campaign,
+.rbt-topbar-bg-img,
+.rbt-topbar-bg-one {
+    background: var(--kova-navy) !important;
+    background-image: none !important;
+}
+
+.rbt-header-campaign a { color: var(--kova-gold); }
+
+/* Logo of the KOVA identity: taller than the theme's wide logo. */
+.logo a img {
+    max-height: 52px !important;
+    max-width: 160px !important;
+    width: auto;
+    object-fit: contain !important;
+}
+
+@media (max-width: 1199px) {
+    .logo a img { max-height: 42px !important; max-width: 120px !important; }
+}
+
+/* Search bar: one height, one radius; the button in night blue. */
+.rbt-search-with-category {
+    border-radius: var(--kova-radius) !important;
+}
+
+.rbt-search-with-category .search-btn,
+.rbt-search-with-category button[type="submit"],
+.rbt-search-field button[type="submit"],
+.rbt-search-btn {
+    background: var(--kova-navy) !important;
+    border-color: var(--kova-navy) !important;
+    color: #fff !important;
+    border-radius: var(--kova-radius) !important;
+}
+
+.rbt-search-with-category .search-btn:hover,
+.rbt-search-with-category button[type="submit"]:hover {
+    background: var(--kova-navy-800) !important;
+}
+
+/* Cart count bubble. */
+.rbt-cart-count, .rbt-header .count, .rbt-count {
+    background: var(--kova-green) !important;
+    color: #fff !important;
+}
+
+/* ------------------------------------------------------------------ Buttons */
+/*  Primary (buying actions)   .rbt-btn                       green
+ *  Secondary                  .rbt-btn-secondary, -black     night blue
+ *  Outline / discreet         .rbt-btn-border                night-blue outline
+ *  Validation                 .rbt-btn (submit)              green (same as primary)
+ *  Delete                     .kova-btn-danger               red, outline or filled */
+.rbt-btn {
+    font-family: var(--kova-font-body);
+    font-weight: 600;
+    border-radius: var(--kova-radius) !important;
+    letter-spacing: 0;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rbt-btn:not(.rbt-btn-border):not(.rbt-btn-link):not(.rbt-btn-text):not(.rbt-btn-naked):not(.rbt-btn-transparent):not(.rbt-btn-gray-light):not(.rbt-bg-color-secondary):not(.rbt-btn-secondary):not(.rbt-btn-black):not(.rbt-bg-color-white):not(.kova-btn-danger) {
+    background-color: var(--kova-green);
+    border-color: var(--kova-green);
+    color: #fff;
+}
+
+.rbt-btn:not(.rbt-btn-border):not(.rbt-btn-link):not(.rbt-btn-text):not(.rbt-btn-naked):not(.rbt-btn-transparent):not(.rbt-btn-gray-light):not(.rbt-bg-color-secondary):not(.rbt-btn-secondary):not(.rbt-btn-black):not(.rbt-bg-color-white):not(.kova-btn-danger):hover {
+    background-color: var(--kova-green-700);
+    border-color: var(--kova-green-700);
+    color: #fff;
+}
+
+.rbt-btn:not(.rbt-btn-border):not(.rbt-btn-link):not(.rbt-btn-text):not(.rbt-btn-naked):not(.rbt-btn-transparent):not(.rbt-btn-gray-light):not(.rbt-bg-color-secondary):not(.rbt-btn-secondary):not(.rbt-btn-black):not(.rbt-bg-color-white):not(.kova-btn-danger):active {
+    background-color: var(--kova-green-800);
+    border-color: var(--kova-green-800);
+}
+
+/* Secondary: night blue. */
+.rbt-btn.rbt-btn-secondary,
+.rbt-btn.rbt-bg-color-secondary,
+.rbt-btn.rbt-btn-black,
+.rbt-bg-color-secondary.rbt-btn {
+    background-color: var(--kova-navy) !important;
+    border-color: var(--kova-navy) !important;
+    color: #fff !important;
+}
+
+.rbt-btn.rbt-btn-secondary:hover,
+.rbt-btn.rbt-bg-color-secondary:hover,
+.rbt-btn.rbt-btn-black:hover {
+    background-color: var(--kova-navy-800) !important;
+    border-color: var(--kova-navy-800) !important;
+}
+
+/* Outline: night blue line, fills on hover. */
+.rbt-btn.rbt-btn-border,
+.rbt-btn-border {
+    background: transparent !important;
+    border: 1.5px solid var(--kova-navy) !important;
+    color: var(--kova-navy) !important;
+}
+
+.rbt-btn.rbt-btn-border:hover,
+.rbt-btn-border:hover {
+    background: var(--kova-navy) !important;
+    color: #fff !important;
+}
+
+.rbt-btn.rbt-btn-border:hover i,
+.rbt-btn-border:hover i { color: #fff !important; }
+
+/* Delete. */
+.rbt-btn.kova-btn-danger {
+    background: var(--kova-danger) !important;
+    border: 1.5px solid var(--kova-danger) !important;
+    color: #fff !important;
+}
+
+.rbt-btn.kova-btn-danger:hover {
+    background: #9f2b22 !important;
+    border-color: #9f2b22 !important;
+}
+
+.rbt-btn.rbt-btn-border.kova-btn-danger {
+    background: transparent !important;
+    color: var(--kova-danger) !important;
+}
+
+.rbt-btn.rbt-btn-border.kova-btn-danger:hover {
+    background: var(--kova-danger) !important;
+    color: #fff !important;
+}
+
+/* Focus and disabled, for every button and link-button. */
+.rbt-btn:focus-visible,
+.rbt-round-btn:focus-visible,
+button:focus-visible,
+a:focus-visible {
+    outline: none;
+    box-shadow: var(--kova-focus) !important;
+}
+
+.rbt-btn:disabled,
+.rbt-btn.disabled,
+.rbt-btn[aria-disabled="true"] {
+    background: #d5dbe4 !important;
+    border-color: #d5dbe4 !important;
+    color: #6b7280 !important;
+    cursor: not-allowed;
+    box-shadow: none !important;
+}
+
+/* Round icon buttons (sliders, remove from cart...). */
+.rbt-round-btn {
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.rbt-round-btn:hover {
+    background-color: var(--kova-navy) !important;
+    color: #fff !important;
+}
+
+/* ------------------------------------------------------------------ Cards */
+.rbt-product-card,
+.rbt-cat-box,
+.rbt-default-card {
+    border-color: var(--kova-border) !important;
+    border-radius: var(--kova-radius-lg) !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.rbt-product-card:hover,
+.rbt-cat-box:hover {
+    box-shadow: var(--kova-shadow) !important;
+    border-color: var(--kova-border-strong) !important;
+}
+
+/* Category line above the product name: discreet. */
+.rbt-product-card .rbt-product-category,
+.rbt-product-card .rbt-card-body .rbt-product-cat,
+.rbt-product-card .rbt-card-body > a.b4,
+.rbt-product-card .rbt-product-meta a {
+    color: var(--kova-text-muted) !important;
+}
+
+/* Badges on product images: plain colours, readable. */
+.rbt-product-badge {
+    font-family: var(--kova-font-body);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: var(--kova-radius-sm) !important;
+}
+
+.rbt-product-badge-bg-primary { background: var(--kova-navy) !important; color: #fff !important; }
+.rbt-product-badge-bg-secondary { background: var(--kova-navy) !important; color: #fff !important; }
+.rbt-product-badge-bg-primary-gradient,
+.rbt-product-badge.rbt-product-badge-bg-primary-gradient,
+.rbt-product-badge-bg-secondary-gradient,
+.rbt-product-badge.rbt-product-badge-bg-secondary-gradient { background: var(--kova-gold) !important; color: var(--kova-navy) !important; }
+.rbt-product-badge-bg-green { background: var(--kova-green) !important; color: #fff !important; }
+.rbt-product-badge-bg-yellow { background: var(--kova-gold) !important; color: var(--kova-navy) !important; }
+.rbt-product-badge-bg-danger { background: var(--kova-danger) !important; color: #fff !important; }
+.rbt-product-badge-bg-disabled { background: #98a2b3 !important; color: #fff !important; }
+
+/* Stock badges: soft tints. */
+.rbt-badge {
+    font-family: var(--kova-font-body);
+    font-weight: 600;
+    border-radius: var(--kova-radius-sm) !important;
+}
+
+.rbt-badge.rbt-badge-bg-green {
+    background: var(--kova-success-bg) !important;
+    color: var(--kova-green-700) !important;
+    border-color: #bfe0cc !important;
+}
+
+.rbt-badge.rbt-badge-bg-danger {
+    background: var(--kova-danger-bg) !important;
+    color: var(--kova-danger) !important;
+    border-color: #f5c2bd !important;
+}
+
+/* Countdown boxes. */
+.countdown .countdown-container,
+.rbt-countdown .countdown-container {
+    background: var(--kova-navy) !important;
+    border-radius: var(--kova-radius) !important;
+}
+
+/* Stock progress bar. */
+.progress .progress-bar,
+.rbt-progress .progress-bar { background-color: var(--kova-green) !important; }
+
+/* ------------------------------------------------------------------ Forms */
+.rbt-input-field,
+input[type="text"], input[type="email"], input[type="tel"], input[type="password"], input[type="number"],
+input[type="search"], textarea, select, .form-select, .form-control {
+    border: 1px solid var(--kova-border-strong) !important;
+    border-radius: var(--kova-radius) !important;
+    color: var(--kova-text) !important;
+    background-color: #fff;
+    font-family: var(--kova-font-body);
+    font-size: 15px !important;
+    box-shadow: none !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Fields inside the search bar keep their own frame. */
+.rbt-search-with-category input,
+.rbt-search-with-category select,
+.rbt-search-with-category .form-select {
+    border: 0 !important;
+}
+
+.rbt-input-field:focus,
+input:focus, textarea:focus, select:focus, .form-select:focus, .form-control:focus {
+    border-color: var(--kova-green) !important;
+    box-shadow: var(--kova-focus) !important;
+    outline: none;
+}
+
+input::placeholder, textarea::placeholder { color: #98a2b3 !important; }
+
+.rbt-field-label,
+.rbt-input-field-grp label,
+.form-label {
+    color: var(--kova-text) !important;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.rbt-text-color-danger { color: var(--kova-danger) !important; }
+
+.form-check-input:checked,
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+    background-color: var(--kova-green);
+    border-color: var(--kova-green);
+    accent-color: var(--kova-green);
+}
+
+input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
+
+/* ------------------------------------------------------------------ Alerts */
+.alert {
+    border: 1px solid transparent;
+    border-left-width: 4px;
+    border-radius: var(--kova-radius);
+    font-size: 14px;
+}
+
+.alert-success { background: var(--kova-success-bg); color: var(--kova-green-800); border-color: #bfe0cc; border-left-color: var(--kova-success); }
+.alert-danger { background: var(--kova-danger-bg); color: #8a241c; border-color: #f5c2bd; border-left-color: var(--kova-danger); }
+.alert-warning { background: var(--kova-warning-bg); color: #7a4d0b; border-color: #f1d9ad; border-left-color: var(--kova-warning); }
+.alert-info { background: var(--kova-info-bg); color: #173c6e; border-color: #c6d8ef; border-left-color: var(--kova-info); }
+
+/* ------------------------------------------------------------------ Summaries (cart, checkout) */
+.rbt-cart-summary, .rbt-checkout-summary, .cart-summary, .order-summary {
+    border-radius: var(--kova-radius-lg) !important;
+}
+
+/* ------------------------------------------------------------------ Footer */
+.rbt-footer .footer-widget .title,
+.rbt-footer .title,
+.rbt-footer h4, .rbt-footer h5 {
+    font-family: var(--kova-font-heading);
+    color: var(--kova-navy);
+}
+
+.rbt-footer a:hover { color: var(--kova-green) !important; }
+
+/* ------------------------------------------------------------------ Misc */
+.rbt-bg-color-primary:not(.rbt-header-middle) { background-color: var(--kova-green) !important; }
+.rbt-border-color-primary { border-color: var(--kova-green) !important; }
+
+/* Pagination and active pills. */
+.pagination .page-item.active .page-link,
+.rbt-pagination li.active a,
+.rbt-pagination li a:hover {
+    background: var(--kova-navy) !important;
+    border-color: var(--kova-navy) !important;
+    color: #fff !important;
+}
+
+/* Scroll-to-top. */
+.rbt-progress-parent svg.rbt-back-circle path { stroke: var(--kova-green) !important; }
+.rbt-progress-parent::after { color: var(--kova-green) !important; }
+
+/* Selection. */
+::selection { background: var(--kova-gold-100); color: var(--kova-navy); }
+
+/* ------------------------------------------------------------------ Product cards: room for the text */
+/* Prices, discount and stock badge go to the next line instead of overflowing the card. */
+.rbt-product-card .pricing-part {
+    flex-wrap: wrap !important;
+    row-gap: 6px;
+    column-gap: 6px;
+}
+
+.rbt-product-card .pricing-part .price-text { font-size: 17px; }
+.rbt-product-card .pricing-part del.price-text { font-size: 14px; }
+
+/* The rotating perks ("90+ vendus récemment", "Livraison offerte") stay on one line. */
+.rbt-card-rating { flex-wrap: nowrap !important; min-width: 0; }
+.rbt-card-rating .rbt-text-swiper-container { flex: 1 1 auto; min-width: 0; }
+.rbt-card-rating .rbt-text-group {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--kova-text-muted);
+}
+
+/* Banner prices (hero, closing banner) in night blue like the product prices. */
+.rbt-price-text, .offer-price { color: var(--kova-navy) !important; font-family: var(--kova-font-heading); }
+.rbt-dis-price-text { color: #8a94a6 !important; }
+
+/* Soft secondary button ("Toutes les catégories"): night-blue tint, night-blue text. */
+.rbt-btn.defalt-secondary-bg,
+.rbt-btn.rbt-btn-secondary.defalt-secondary-bg {
+    background: var(--kova-navy-50) !important;
+    border-color: var(--kova-navy-100) !important;
+    color: var(--kova-navy) !important;
+}
+
+.rbt-btn.defalt-secondary-bg:hover {
+    background: var(--kova-navy) !important;
+    border-color: var(--kova-navy) !important;
+    color: #fff !important;
+}
+
+.rbt-btn.defalt-secondary-bg svg,
+.rbt-btn.defalt-secondary-bg svg path { stroke: currentColor; }
+
+/* "Gérer les cookies" reads like the links next to it. */
+.rbt-footer .btn-link[data-cookie-settings],
+[data-cookie-settings].btn-link {
+    font-size: inherit !important;
+    font-family: inherit;
+    text-decoration: none;
+    vertical-align: baseline;
+}
+
+/* Product page: old and new price on one baseline. */
+.rbt-single-product-content .pricing-part,
+.rbt-product-details .pricing-part { align-items: baseline; }
+
+/* Search bar category picker: no fading gradient over the text. */
+.rbt-search-with-category .rbt-modern-select .dropdown-toggle::before,
+.bootstrap-select .dropdown-toggle::before {
+    background: none !important;
+    background-image: none !important;
+}
+
+.rbt-search-with-category .dropdown-toggle .filter-option-inner-inner {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Menu column titles: French capitalisation ("Photo et caméras", not "Photo Et Caméras"). */
+.rbt-short-title, .mega-menu-item .title { text-transform: none !important; }
+
+/* ------------------------------------------------------------------ Footer: payment methods */
+/* One tile per method, same height, the operator's logo inside. */
+.payment-img-link li a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 54px;
+    min-width: 54px;
+    padding: 5px;
+    background: #fff;
+    border: 1px solid var(--kova-border);
+    border-radius: var(--kova-radius);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.payment-img-link li a:hover {
+    border-color: var(--kova-border-strong);
+    box-shadow: var(--kova-shadow-sm);
+}
+
+.payment-img-link li a img {
+    height: 42px;
+    width: auto;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+.kova-payment-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--kova-navy);
+    white-space: nowrap;
+}
+
+.kova-payment-label i { color: var(--kova-green); }
+
+/* ------------------------------------------------------------------ Sign-in / sign-up windows */
+/* Store guarantees, shown when no testimonial is published. */
+.kova-guarantees {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0 8px;
+    display: grid;
+    gap: 10px;
+}
+
+.kova-guarantees li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 14px;
+    color: var(--kova-text);
+}
+
+.kova-guarantees i {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--kova-radius);
+    background: var(--kova-green-100);
+    color: var(--kova-green);
+}
+
+.rbt-client-review .fa-regular.fa-star { color: #c9d3e2; }
+
+/* ------------------------------------------------------------------ Product reviews */
+.kova-stars { color: var(--kova-gold); letter-spacing: 1px; }
+.kova-stars .off { color: #c9d3e2; }
+
+/* Star picker: the stars light up from the left up to the one pointed or chosen (radios in reverse order). */
+.kova-rating-input {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 2px;
+}
+
+.kova-rating-input input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.kova-rating-input label { font-size: 28px; line-height: 1; color: #c9d3e2; cursor: pointer; padding: 0 2px; }
+.kova-rating-input label:hover,
+.kova-rating-input label:hover ~ label,
+.kova-rating-input input:checked ~ label { color: var(--kova-gold); }
+.kova-rating-input input:focus-visible + label { outline: 3px solid rgb(14 125 66 / 0.35); border-radius: 4px; }
+
+.kova-review-box {
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--kova-border);
+    border-radius: var(--kova-radius-lg);
+    background: #fff;
+}
+
+.kova-review {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--kova-border);
+}
+
+.kova-review:last-child { border-bottom: 0; }
+.kova-review .meta { font-size: 13px; color: var(--kova-text-muted); }
+.kova-review .verified { color: var(--kova-green); font-weight: 600; }
+
+/* ------------------------------------------------------------------ Home page guarantees */
+.kova-home-guarantees {
+    list-style: none;
+    margin: 0;
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px 24px;
+    border: 1px solid var(--kova-border);
+    border-radius: var(--kova-radius-lg);
+    background: #fff;
+}
+
+.kova-home-guarantees li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    min-width: 0;
+}
+
+.kova-home-guarantees i {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--kova-radius);
+    background: var(--kova-green-100);
+    color: var(--kova-green);
+    font-size: 18px;
+}
+
+.kova-home-guarantees strong {
+    display: block;
+    font-family: var(--kova-font-heading);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--kova-navy);
+    line-height: 1.3;
+}
+
+.kova-home-guarantees span span {
+    display: block;
+    font-size: 13px;
+    color: var(--kova-text-muted);
+    line-height: 1.4;
+}
+
+@media (max-width: 991px) {
+    .kova-home-guarantees { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 479px) {
+    .kova-home-guarantees { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+}
+
+/* ------------------------------------------------------------------ Favourites */
+/* A favourite: filled green heart (red stays for errors in the charter). */
+.kova-wishlist-btn.is-wishlisted i { color: var(--kova-green) !important; }
+.kova-wishlist-page-btn { width: auto !important; padding: 0 20px !important; }
+.kova-wishlist-page-btn.is-wishlisted { border-color: var(--kova-green) !important; color: var(--kova-green) !important; }
+.kova-wishlist-page-btn.is-wishlisted:hover { background: var(--kova-green) !important; color: #fff !important; }
+.kova-wishlist-page-btn.is-wishlisted:hover i { color: #fff !important; }
+.rbt-wishlist .access-box-count[hidden] { display: none !important; }
+
+/* ------------------------------------------------------------------ Comparison */
+.kova-compare-btn.is-compared i { color: var(--kova-green) !important; }
+.kova-compare-btn.is-compared { box-shadow: inset 0 0 0 2px var(--kova-green) !important; }
+.kova-compare-page-btn { width: auto !important; padding: 0 20px !important; }
+.kova-compare-page-btn.is-compared { border-color: var(--kova-green) !important; color: var(--kova-green) !important; }
+.kova-compare-page-btn.is-compared:hover { background: var(--kova-green) !important; color: #fff !important; }
+.kova-compare-page-btn.is-compared:hover i { color: #fff !important; }
+[data-compare-count][hidden] { display: none !important; }
+
+/* Bottom bar of the chosen products. */
+.kova-compare-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1040;
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+    background: #fff;
+    border-top: 3px solid var(--kova-gold);
+    box-shadow: 0 -6px 20px rgb(2 23 50 / 0.1);
+}
+
+.kova-compare-bar[hidden] { display: none !important; }
+.kova-compare-bar-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.kova-compare-bar-title { font-size: 14px; color: var(--kova-navy); white-space: nowrap; }
+.kova-compare-bar-title span { color: var(--kova-text-muted); }
+.kova-compare-bar-items { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; flex: 1 1 320px; min-width: 0; overflow-x: auto; }
+.kova-compare-bar-items li { display: flex; align-items: center; gap: 8px; margin: 0; padding: 4px 10px 4px 4px; border: 1px solid var(--kova-border); border-radius: var(--kova-radius); max-width: 220px; }
+.kova-compare-bar-items img { width: 44px; height: 44px; object-fit: contain; border-radius: 6px; background: #f6f7f9; }
+.kova-compare-bar-items span { font-size: 13px; color: var(--kova-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kova-compare-bar-actions { display: flex; align-items: center; gap: 8px; }
+.kova-compare-bar-actions .rbt-btn { width: auto; padding: 0 18px; }
+.kova-compare-notice { width: 100%; margin: 8px 0 0; text-align: center; font-size: 13px; font-weight: 600; color: var(--kova-danger); }
+@media (max-width: 767px) {
+    .kova-compare-bar-items span { display: none; }
+    .kova-compare-bar-items li { padding: 4px; }
+}
+
+/* Side-by-side table. */
+.kova-compare-table-wrap { overflow-x: auto; border: 1px solid var(--kova-border); border-radius: var(--kova-radius-lg); }
+.kova-compare-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 14px; }
+.kova-compare-table th, .kova-compare-table td { padding: 12px 14px; border-bottom: 1px solid var(--kova-border); vertical-align: top; text-align: left; }
+.kova-compare-table tbody tr:last-child th, .kova-compare-table tbody tr:last-child td { border-bottom: 0; }
+.kova-compare-table tbody th { width: 170px; background: var(--kova-navy-50); color: var(--kova-navy); font-weight: 600; font-size: 13px; }
+.kova-compare-table thead th { position: relative; text-align: center; background: #fff; }
+.kova-compare-table thead img { width: 140px; height: 110px; object-fit: contain; margin: 8px auto; display: block; }
+.kova-compare-name { display: block; font-weight: 600; color: var(--kova-text); line-height: 1.35; }
+.kova-compare-remove { position: absolute; top: 8px; right: 8px; margin: 0; }
+.kova-compare-remove .rbt-round-btn { width: 32px; height: 32px; min-width: 32px; }
+.kova-compare-price { font-family: var(--kova-font-heading); font-weight: 600; color: var(--kova-navy); font-size: 16px; }
+.kova-compare-table del { color: #8a94a6; font-size: 13px; }
+/* The row names stay in view while the products scroll sideways. */
+.kova-compare-table tbody th, .kova-compare-table thead th:first-child { position: sticky; left: 0; z-index: 1; }
+.kova-compare-table thead th:first-child { background: #fff; }
+@media (max-width: 767px) {
+    .kova-compare-table { min-width: 0; }
+    .kova-compare-table tbody th { width: 104px; min-width: 104px; font-size: 12px; padding: 10px; }
+    .kova-compare-table td, .kova-compare-table thead th:not(:first-child) { min-width: 160px; }
+    .kova-compare-table thead img { width: 100px; height: 80px; }
+}
+.kova-compare-yes { color: var(--kova-green); font-weight: 600; }
+.kova-compare-no { color: var(--kova-danger); font-weight: 600; }
+
+/* ------------------------------------------------------------------ Newsletter */
+.rbt-newsletter-area.rbt-bg-color-primary { background: var(--kova-navy) !important; border-top: 3px solid var(--kova-gold); }
+.rbt-newsletter-area .title span { color: var(--kova-gold); }
+.kova-hp { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }
+.kova-newsletter-message { margin: 10px 0 0; min-height: 1.4em; font-size: 14px; font-weight: 600; color: #fff; }
+.kova-newsletter-message:empty { display: none; }
+.kova-newsletter-message.is-error { color: #ffd7d3; }
+.kova-newsletter-note { margin: 6px 0 0; font-size: 12px; color: rgb(255 255 255 / 0.75); }
+.rbt-newsletter-area .rbt-newsletter-form-one input[type="email"] { border: 0 !important; }
+
+/* Invitation window: stacked form on a white card. */
+.kova-newsletter-stacked { display: grid; gap: 12px; }
+.kova-newsletter-stacked .rbt-btn { width: 100%; }
+.rbt-welcome-banner-area .kova-newsletter-message { color: var(--kova-green-700); text-align: center; }
+.rbt-welcome-banner-area .kova-newsletter-message.is-error { color: var(--kova-danger); }
+.rbt-welcome-banner-area .kova-newsletter-note { color: var(--kova-text-muted); text-align: center; }
+
+/* Mobile Money networks' logos in the guarantees. */
+.kova-network-logos {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.kova-network-logos img {
+    height: 28px;
+    width: auto;
+    padding: 2px;
+    background: #fff;
+    border: 1px solid var(--kova-border);
+    border-radius: var(--kova-radius-sm);
+}

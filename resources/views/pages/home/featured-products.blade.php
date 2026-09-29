@@ -1,4 +1,4 @@
-<div id="rbt-product-block-04" class="rbt-component-area rbt-catagories-area rbt-section-gap2 rbt-bg-color-white">
+<div id="rbt-product-block-04" class="rbt-component-area rbt-catagories-area rbt-section-gap2 rbt-bg-color-white" data-analytics-list="{{ json_encode(['item_list_id' => 'featured-products', 'item_list_name' => (string) $featuredTitle]) }}">
     <div class="container">
         <div class="rbt-fshape-box-outline-style rbt-fshape-box-outline-style-extend-width">
             <div class="row">

@@ -19,6 +19,7 @@ class ConfigOverrides
         'identity.description' => 'storefront.description',
         'identity.about' => 'storefront.about',
         'identity.favicon' => 'storefront.favicon',
+        'identity.home_title' => 'storefront.home_title',
         'footer.banner' => 'storefront.footer_banner',
         'product_card.shipping_delay' => 'storefront.shipping.delay',
     ];
@@ -30,6 +31,9 @@ class ConfigOverrides
         'search.popular' => 'storefront.search.popular',
         'search.placeholders' => 'storefront.search.placeholders',
     ];
+
+    /** Newsletter texts and invitation window (setting "newsletter.<field>" => storefront.newsletter.<field>). */
+    public const NEWSLETTER_TEXTS = ['title', 'highlight', 'subtitle', 'popup_title', 'popup_text', 'popup_image', 'popup_delay'];
 
     /** Menus edited under Contenus › Menus (JSON, see App\Filament\Pages\Menus). */
     public const MENUS = ['menu.pages', 'menu.help', 'menu.footer', 'menu.sidebar', 'menu.legal'];
@@ -63,6 +67,29 @@ class ConfigOverrides
 
         if (filled($values['identity.logo'] ?? null)) {
             config(['storefront.logo' => $values['identity.logo'], 'storefront.logo_small' => ImageOptimizer::smallVariant($values['identity.logo']) ?? $values['identity.logo']]);
+        }
+
+        // Home page guarantees: a saved list, even empty (the banner is then hidden), replaces the defaults.
+        if (is_array($guarantees = self::decode($values['home.guarantees'] ?? null))) {
+            config(['storefront.guarantees' => array_values($guarantees)]);
+        }
+
+        // Newsletter: the two sign-up places switched on or off, then their texts.
+        foreach (['footer' => 'newsletter', 'popup' => 'welcome_popup'] as $key => $feature) {
+            if (in_array($values["newsletter.{$key}"] ?? null, ['0', '1'], true)) {
+                config(["storefront.features.{$feature}" => $values["newsletter.{$key}"] === '1']);
+            }
+        }
+
+        foreach (self::NEWSLETTER_TEXTS as $field) {
+            if (filled($values["newsletter.{$field}"] ?? null)) {
+                config(["storefront.newsletter.{$field}" => $values["newsletter.{$field}"]]);
+            }
+        }
+
+        // Home page sections: order and visibility (App\Services\Storefront\HomePageService::sectionSettings()).
+        if (is_array($sections = self::decode($values['home.sections'] ?? null))) {
+            config(['storefront.home_sections' => array_values($sections)]);
         }
 
         if (filled($values['product_card.limited_stock_threshold'] ?? null)) {

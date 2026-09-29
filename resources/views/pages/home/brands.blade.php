@@ -3,8 +3,7 @@
         <div class="rbt-brand-style-one rbt-fshape-box-outline-style rbt-fshape-box-outline-style-extend-width">
             <div class="row">
                 <div class="col-lg-12">
-                    <x-section-title class="text-left">Favorite
-                        Brands</x-section-title>
+                    <x-section-title class="text-left">Nos marques</x-section-title>
                 </div>
             </div>
 
