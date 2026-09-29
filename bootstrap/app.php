@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApplyStoreSettings;
 use App\Http\Middleware\EnsureCourier;
 use App\Http\Middleware\ProtectPreproduction;
 use App\Http\Middleware\SecurityHeaders;
@@ -33,6 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // HTTPS, HSTS, content security policy and the other security headers on every response (F-140, F-143).
         $middleware->append(SecurityHeaders::class);
+        // Texts, images and menus edited in the back-office (F-111).
+        $middleware->web(prepend: [ApplyStoreSettings::class]);
         $middleware->prepend(ProtectPreproduction::class);
 
         $middleware->alias(['courier' => EnsureCourier::class, 'api.guard' => UseApiGuard::class]);

@@ -50,6 +50,7 @@ An account is locked for 15 minutes after 5 failed logins (`App\Filament\Pages\A
 | Dashboard widgets | `app/Filament/Widgets` |
 | Uploaded images | `public/uploads/*` through the `storefront` disk (paths render with `asset()` like the template images) |
 | Store settings | `settings` table, read by `App\Services\Storefront\StoreSettings`; empty values fall back to `config/storefront.php` |
+| Texts, images and menus (F-111) | **Paramètres de la boutique** (identity, logo, favicon, scrolling messages, popular searches, product card texts, footer images and app links) and **Contenus › Menus** (Pages and Aide menus, footer columns, legal links, side panel). `App\Services\Storefront\ConfigOverrides` lays these settings over `config/storefront.php` and `config/navigation.php` at start-up and on every web request (`ApplyStoreSettings`), so every screen keeps reading `config()`; an emptied setting, or **Rétablir les menus d’origine**, goes back to the file |
 | Home banners | `banners` table; a slot without a live banner shows its default from `config/homepage.php` |
 | Audit trail | `activity_log` table (Spatie Activitylog), screen **Journal d'audit** |
 

@@ -9,6 +9,7 @@ use App\Services\Sms\LogSmsGateway;
 use App\Services\Sms\NullSmsGateway;
 use App\Services\Sms\SmsGateway;
 use App\Services\Storefront\CatalogService;
+use App\Services\Storefront\ConfigOverrides;
 use App\Services\Storefront\NavigationService;
 use App\View\Composers\StorefrontLayoutComposer;
 use Illuminate\Auth\Events\Login;
@@ -59,6 +60,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Production is served over HTTPS only (F-140): generated links and redirects never fall back to http.
         URL::forceHttps($this->app->isProduction());
+
+        // Store name and texts edited in the back-office, for the queued SMS and e-mails too (F-111).
+        ConfigOverrides::apply();
 
         View::composer('layouts.storefront', StorefrontLayoutComposer::class);
 
