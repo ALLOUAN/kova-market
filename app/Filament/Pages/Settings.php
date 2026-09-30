@@ -7,6 +7,7 @@ use App\Filament\Support\StorefrontImage;
 use App\Models\Category;
 use App\Models\Setting;
 use App\Services\Delivery\DeliveryDispatcher;
+use App\Services\Orders\WeighIn;
 use App\Services\Payments\OnlinePayments;
 use App\Services\Storefront\ConfigOverrides;
 use App\Services\Storefront\HomePageService;
@@ -99,6 +100,7 @@ class Settings extends Page
                 'cash_on_delivery_limit' => Setting::get('payment.cash_on_delivery_limit'),
                 'online_timeout_minutes' => Setting::get('payment.online_timeout_minutes'),
             ],
+            'orders' => ['weigh_tolerance' => Setting::get('orders.weigh_tolerance')],
             'market' => [
                 'enabled' => Setting::get('market.enabled', '1') !== '0',
                 'in_menu' => Setting::get('market.in_menu', '1') !== '0',
@@ -380,6 +382,18 @@ class Settings extends Page
                                                 ? 'Actif : proposé au checkout (Orange Money, MTN MoMo, Moov Money, Wave, carte).'
                                                 : 'Inactif : les clés CINETPAY_API_KEY et CINETPAY_API_PASSWORD du compte marchand ne sont pas encore renseignées sur le serveur.'),
                                     ]),
+                                Section::make('Pesée des produits au poids')
+                                    ->description('Mon Marché : à la préparation, « Peser les articles » facture la quantité réellement pesée des produits vendus au kg ou au litre (commandes payées à la livraison, avant l’expédition).')
+                                    ->schema([
+                                        TextInput::make('orders.weigh_tolerance')
+                                            ->label('Écart accepté avec la quantité commandée')
+                                            ->helperText('En plus ou en moins : à 10 %, 1,5 kg commandés peuvent être pesés de 1,35 à 1,65 kg. 0 : pas de pesée.')
+                                            ->integer()
+                                            ->minValue(0)
+                                            ->maxValue(50)
+                                            ->placeholder((string) WeighIn::DEFAULT_TOLERANCE)
+                                            ->suffix('%'),
+                                    ]),
                             ]),
                         Tab::make('Pied de page')
                             ->icon(Heroicon::OutlinedRectangleGroup)
@@ -486,6 +500,7 @@ class Settings extends Page
             'product_card.limited_stock_threshold' => $state['product_card']['limited_stock_threshold'] ?? null,
             'product_card.viewers_enabled' => ($state['product_card']['viewers_enabled'] ?? false) ? '1' : '0',
             'product_card.viewers_minimum' => $state['product_card']['viewers_minimum'] ?? null,
+            'orders.weigh_tolerance' => $state['orders']['weigh_tolerance'] ?? null,
             'market.enabled' => ($state['market']['enabled'] ?? true) ? '1' : '0',
             'market.in_menu' => ($state['market']['in_menu'] ?? true) ? '1' : '0',
             'market.category_id' => $state['market']['category_id'] ?? null,

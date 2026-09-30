@@ -95,7 +95,7 @@
                     <td>
                         {{ $item->product_name }}
                         @if ($item->variant_label)<br><span class="muted">{{ $item->variant_label }}</span>@endif
-                        @if ($item->contentsSummary())<br><span class="muted">{{ $item->contentsSummary() }}</span>@endif
+                        @if ($item->contentsSummary())<br><span class="muted">{{ $item->contentsSummary() }}</span>@endif@if ($item->weighNote())<br><span class="muted">{{ $item->weighNote() }}</span>@endif
                         <br><span class="muted">Réf. {{ $item->sku }}</span>
                     </td>
                     <td class="right">@money($item->unit_price){{ str_replace(" / ", "/", $item->saleQuantity()->priceSuffix()) }}</td>

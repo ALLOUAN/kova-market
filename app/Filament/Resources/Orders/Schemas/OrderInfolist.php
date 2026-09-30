@@ -65,7 +65,7 @@ class OrderInfolist
                                 RepeatableEntry\TableColumn::make('Total'),
                             ])
                             ->schema([
-                                TextEntry::make('product_name')->belowContent(fn ($record) => collect([$record->variant_label, $record->contentsSummary()])->filter()->join(' · ') ?: null),
+                                TextEntry::make('product_name')->belowContent(fn ($record) => collect([$record->variant_label, $record->contentsSummary(), $record->weighNote()])->filter()->join(' · ') ?: null),
                                 TextEntry::make('sku'),
                                 TextEntry::make('unit_price')->formatStateUsing(fn (int $state, $record) => Money::format($state).$record->saleQuantity()->priceSuffix()),
                                 TextEntry::make('quantity')->formatStateUsing(fn ($state, $record) => $record->quantityLabel()),

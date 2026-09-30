@@ -31,6 +31,8 @@ class OrderItem extends Model
             'line_total' => 'integer',
             'bundle_contents' => 'array',
             'sale_unit' => SaleUnit::class,
+            'ordered_quantity' => 'integer',
+            'weighed_at' => 'datetime',
         ];
     }
 
@@ -65,6 +67,16 @@ class OrderItem extends Model
     public function pricing(): string
     {
         return $this->saleQuantity()->describe($this->quantity, $this->unit_price);
+    }
+
+    /** "Pesé : 1,62 kg (commandé : 1,5 kg)" once weighed at preparation with a different quantity, else null. */
+    public function weighNote(): ?string
+    {
+        if ($this->weighed_at === null || $this->ordered_quantity === null || $this->ordered_quantity === $this->quantity) {
+            return null;
+        }
+
+        return 'Pesé : '.$this->quantityLabel().' (commandé : '.$this->saleQuantity()->format($this->ordered_quantity).')';
     }
 
     /** Units counted as sold (popularity): a line sold by weight or volume counts as one sale. */
