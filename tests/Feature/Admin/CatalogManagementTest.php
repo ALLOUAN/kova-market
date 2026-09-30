@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\Role;
+use App\Enums\SaleUnit;
 use App\Filament\Resources\Categories\CategoryResource;
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
@@ -74,6 +75,40 @@ class CatalogManagementTest extends TestCase
         $this->assertSame(17, $product->discountPercentage());
         $this->assertSame([250000, 8], [$product->defaultVariant->price, $product->defaultVariant->stock]);
         $this->assertTrue($product->stockMovements()->sole()->user->is($this->manager));
+    }
+
+    public function test_a_product_sold_by_the_kilo_is_set_in_kilos_and_stored_in_grams(): void
+    {
+        Livewire::test(CreateProduct::class)
+            ->fillForm([
+                'name' => 'Tomates fraîches',
+                'slug' => 'tomates-fraiches',
+                'category_id' => Category::factory()->create()->id,
+                'sale_unit' => SaleUnit::Kilogram->value,
+                'min_quantity' => 0.5,
+                'quantity_step' => 0.25,
+                'price' => 1000,
+                'stock' => 50,
+                'image' => UploadedFile::fake()->image('tomates.jpg'),
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $tomatoes = Product::where('slug', 'tomates-fraiches')->firstOrFail();
+        $this->assertSame([SaleUnit::Kilogram, 500, 250, null], [$tomatoes->sale_unit, $tomatoes->min_quantity, $tomatoes->quantity_step, $tomatoes->max_quantity]);
+        $this->assertSame([1000, 50_000], [$tomatoes->defaultVariant->price, $tomatoes->defaultVariant->stock]);
+
+        // The stock is counted in kilos in the back-office too.
+        Livewire::test(VariantsRelationManager::class, ['ownerRecord' => $tomatoes, 'pageClass' => EditProduct::class])
+            ->assertSee('50 kg')
+            ->callAction(TestAction::make('adjustStock')->table($tomatoes->defaultVariant), ['counted' => 12.5, 'reason' => 'ajustement']);
+        $this->assertSame(12_500, $tomatoes->defaultVariant->fresh()->stock);
+
+        // A local unit needs its name.
+        Livewire::test(CreateProduct::class)
+            ->fillForm(['name' => 'Gombo', 'slug' => 'gombo', 'category_id' => $tomatoes->category_id, 'sale_unit' => SaleUnit::Local->value, 'price' => 500, 'stock' => 10])
+            ->call('create')
+            ->assertHasFormErrors(['unit_label' => 'required']);
     }
 
     public function test_prices_must_be_whole_amounts_and_the_compare_price_above_the_price(): void

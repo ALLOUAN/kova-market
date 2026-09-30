@@ -10,11 +10,11 @@
         ->filter()->unique()->values();
     $description = $product->meta_description ?: Str::limit(trim(strip_tags(Str::sanitizeHtml((string) $product->description))), 160, '…') ?: config('storefront.description');
     $trail = ['Boutique' => route('shop.index'), ...collect($breadcrumb)->mapWithKeys(fn ($ancestor) => [$ancestor->name => $ancestor->url()])->all()];
-    $shareText = rawurlencode($product->name.' — '.Money::format($product->price).' : '.$product->url());
+    $shareText = rawurlencode($product->name.' — '.Money::format($product->price).$product->saleQuantity()->priceSuffix().' : '.$product->url());
 @endphp
 
 @section('title', $product->meta_title ?: $product->name)
-@section('whatsapp_message', 'Bonjour, je suis intéressé(e) par « '.$product->name.' » ('.Money::format($product->price).') : '.$product->url())
+@section('whatsapp_message', 'Bonjour, je suis intéressé(e) par « '.$product->name.' » ('.Money::format($product->price).$product->saleQuantity()->priceSuffix().') : '.$product->url())
 @section('description', $description)
 {{-- Link previews on WhatsApp, Facebook… (F-037, F-153) --}}
 @section('canonical', $product->url())

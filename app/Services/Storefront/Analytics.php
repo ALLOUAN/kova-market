@@ -181,8 +181,9 @@ class Analytics
                 'item_id' => $item->sku,
                 'item_name' => $item->product_name,
                 'item_variant' => $item->variant_label,
-                'price' => $item->unit_price,
-                'quantity' => $item->quantity,
+                ...($item->saleQuantity()->unit->isMeasured()
+                    ? ['price' => $item->line_total, 'quantity' => 1]
+                    : ['price' => $item->unit_price, 'quantity' => $item->quantity]),
             ])->values()->all(),
         ]);
     }
@@ -192,13 +193,21 @@ class Analytics
      */
     private function item(Product $product, ?ProductVariant $variant, int $quantity): array
     {
+        $price = $variant?->currentPrice() ?? $product->price;
+        $rules = $product->saleQuantity();
+
+        // GA4 counts whole items: a quantity sold by weight or volume is one item at the price of that quantity.
+        if ($rules->unit->isMeasured()) {
+            [$price, $quantity] = [$rules->lineTotal($price, max($rules->minimum(), $quantity)), 1];
+        }
+
         return array_filter([
             'item_id' => $variant?->sku ?? (string) $product->id,
             'item_name' => $product->name,
             'item_brand' => $product->brand?->name,
             'item_category' => $product->category?->name,
             'item_variant' => $variant && $variant->attributeValues->isNotEmpty() ? $variant->label() : null,
-            'price' => $variant?->currentPrice() ?? $product->price,
+            'price' => $price,
             'quantity' => $quantity,
         ], fn ($value) => $value !== null);
     }

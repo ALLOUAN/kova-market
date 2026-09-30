@@ -209,7 +209,7 @@ class OrderStatusManager
     {
         foreach ($order->items as $item) {
             if ($item->product_id) {
-                Product::whereKey($item->product_id)->increment('sold_count', $direction * $item->quantity);
+                Product::whereKey($item->product_id)->increment('sold_count', $direction * $item->soldUnits());
             }
         }
     }

@@ -30,6 +30,7 @@ class ProductResource extends JsonResource
             'discount_percentage' => $this->discountPercentage(),
             'sale_ends_at' => $this->when($this->hasCountdown(), fn () => $this->sale_ends_at?->toIso8601String()),
             'stock' => $this->stock,
+            'sale_unit' => SaleUnitResource::make($this->resource),
             'in_stock' => ! $this->isSoldOut(),
             'limited_stock' => $this->hasLimitedStock(),
             'image' => $this->image ? asset($this->image) : null,

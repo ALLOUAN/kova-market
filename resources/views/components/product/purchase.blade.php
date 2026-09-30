@@ -2,6 +2,7 @@
 
 @php
     $default = $product->variants->first();
+    $rules = $product->saleQuantity();
 @endphp
 
 {{-- Price, stock, variant selector and cart form of a product (F-035, F-036); storefront.js keeps them in step
@@ -10,7 +11,13 @@
     <div class="pricing-part mb--16" data-product-price>
         <del class="price-text" data-compare @if (! $default?->currentComparePrice()) hidden @endif>{{ $default?->currentComparePrice() ? \App\Support\Money::format($default->currentComparePrice()) : '' }}</del>
         <span class="price-text h4" data-price>{{ \App\Support\Money::format($default?->currentPrice() ?? $product->price) }}</span>
+        @if ($rules->priceSuffix())
+            <span class="kova-price-unit">{{ $rules->priceSuffix() }}</span>
+        @endif
     </div>
+    @if ($rules->unit->isMeasured())
+        <p class="b4 mb--8"><i class="fa-regular fa-scale-balanced mr--4"></i> Vendu {{ $rules->unit === \App\Enums\SaleUnit::Kilogram ? 'au poids' : 'au volume' }}, par {{ $rules->format($rules->step()) }} à partir de {{ $rules->format($rules->minimum()) }}.</p>
+    @endif
     <p class="b3 mb--8" data-stock></p>
     <p class="b4 mb--24">Réf. : <span data-sku>{{ $default?->sku }}</span></p>
 
@@ -39,7 +46,12 @@
             <input type="hidden" name="open" value="{{ $open }}">
         @endif
         <label class="visually-hidden" for="{{ $prefix }}-quantity">Quantité</label>
-        <input id="{{ $prefix }}-quantity" class="rbt-input-field text-center" type="number" name="quantity" value="1" min="1" max="{{ max(1, $default?->stock ?? 1) }}" style="width: 90px" data-quantity>
+        <x-product.quantity-field :rules="$rules" :id="$prefix.'-quantity'" :stock="$default?->stock"
+            :price="$product->variants->count() === 1 ? $default?->currentPrice() : null"
+            :style="$rules->unit->isMeasured() ? 'width: auto; min-width: 190px' : 'width: 90px'" data-quantity />
+        @if ($rules->unit !== \App\Enums\SaleUnit::Piece && ! $rules->unit->isMeasured())
+            <span class="b3">{{ $rules->unit->symbol($rules->localLabel) }}</span>
+        @endif
         <button type="submit" class="rbt-btn" data-buy @disabled(! $default || $default->stock === 0)>Ajouter au panier</button>
         <button type="submit" name="buy_now" value="1" class="rbt-btn rbt-btn-border" data-buy @disabled(! $default || $default->stock === 0)>Acheter maintenant</button>
     </form>

@@ -2,6 +2,7 @@
 
 namespace App\Services\Storefront;
 
+use App\Enums\SaleUnit;
 use App\Models\Product;
 use App\Models\ProductVariant;
 
@@ -47,6 +48,17 @@ class StructuredData
             // A running sale price is valid until its end date.
             'priceValidUntil' => $product->hasCountdown() ? $product->sale_ends_at?->toDateString() : null,
             'seller' => ['@type' => 'Organization', 'name' => config('storefront.name')],
+            // Sold by weight or volume: the price is for 1 kg (KGM) or 1 litre (LTR).
+            'priceSpecification' => $product->saleQuantity()->unit->isMeasured() ? [
+                '@type' => 'UnitPriceSpecification',
+                'price' => $prices->min() ?? $product->price,
+                'priceCurrency' => $currency,
+                'referenceQuantity' => [
+                    '@type' => 'QuantitativeValue',
+                    'value' => 1,
+                    'unitCode' => $product->saleQuantity()->unit === SaleUnit::Kilogram ? 'KGM' : 'LTR',
+                ],
+            ] : null,
         ], fn ($value) => $value !== null);
 
         return [

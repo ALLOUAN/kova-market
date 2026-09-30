@@ -34,7 +34,7 @@
                                     @if ($line->variant->attributeValues->isNotEmpty())
                                         <p class="b4 mb--4">{{ $line->variant->label() }}</p>
                                     @endif
-                                    <span class="quantity">{{ $line->item->quantity }} × <span class="price">@money($line->unitPrice())</span></span>
+                                    <span class="quantity">{{ $line->saleQuantity()->format($line->item->quantity) }} × <span class="price">@money($line->unitPrice()){{ str_replace(" / ", "/", $line->saleQuantity()->priceSuffix()) }}</span></span>
                                     @if ($line->notice)
                                         <p class="b4 mt--4 rbt-text-color-danger">{{ $line->notice }}</p>
                                     @endif

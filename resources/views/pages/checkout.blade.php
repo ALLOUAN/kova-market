@@ -151,7 +151,7 @@
                             <ul class="list-unstyled mb--16">
                                 @foreach ($summary->lines->filter->available as $line)
                                     <li class="d-flex justify-content-between gap-3 mb--8">
-                                        <span>{{ $line->quantity }} × {{ $line->product->name }}@if ($line->variant->attributeValues->isNotEmpty())<span class="b4 d-block">{{ $line->variant->label() }}</span>@endif</span>
+                                        <span>{{ $line->quantityLabel() }} × {{ $line->product->name }}@if ($line->variant->attributeValues->isNotEmpty())<span class="b4 d-block">{{ $line->variant->label() }}</span>@endif</span>
                                         <span class="text-nowrap">@money($line->total())</span>
                                     </li>
                                 @endforeach

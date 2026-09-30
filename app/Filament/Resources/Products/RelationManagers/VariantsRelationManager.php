@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Products\RelationManagers;
 
+use App\Enums\SaleUnit;
 use App\Enums\StockMovementReason;
+use App\Filament\Support\QuantityInput;
 use App\Models\AttributeValue;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\Catalog\StockManager;
 use App\Support\Money;
+use App\Support\SaleQuantity;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -59,13 +62,10 @@ class VariantsRelationManager extends RelationManager
                     ->alphaDash()
                     ->unique(ignoreRecord: true)
                     ->default(fn () => $this->nextSku()),
-                TextInput::make('low_stock_threshold')
-                    ->label('Seuil d’alerte de stock')
-                    ->helperText('Vide : '.config('storefront.product_card.limited_stock_threshold').' unités (réglage général).')
-                    ->integer()
-                    ->minValue(0),
+                QuantityInput::make('low_stock_threshold', 'Seuil d’alerte de stock', fn () => $this->unit())
+                    ->helperText(fn () => 'Vide : '.$this->rules()->format(config('storefront.product_card.limited_stock_threshold') * $this->unit()->factor()).' (réglage général).'),
                 TextInput::make('price')
-                    ->label('Prix de vente')
+                    ->label(fn () => 'Prix de vente'.$this->rules()->priceSuffix())
                     ->integer()
                     ->minValue(0)
                     ->suffix('FCFA')
@@ -88,10 +88,7 @@ class VariantsRelationManager extends RelationManager
                     ->helperText('Vide : sans fin. Après cette date, le prix barré s’applique.')
                     ->seconds(false)
                     ->after('sale_starts_at'),
-                TextInput::make('opening_stock')
-                    ->label('Stock initial')
-                    ->integer()
-                    ->minValue(0)
+                QuantityInput::make('opening_stock', 'Stock initial', fn () => $this->unit())
                     ->default(0)
                     ->required()
                     ->visibleOn('create'),
@@ -119,6 +116,7 @@ class VariantsRelationManager extends RelationManager
                     }),
                 TextColumn::make('stock')
                     ->label('Stock')
+                    ->formatStateUsing(fn (int $state) => $this->rules()->format($state))
                     ->badge()
                     ->color(fn (ProductVariant $record) => match (true) {
                         $record->stock === 0 => 'danger',
@@ -142,12 +140,9 @@ class VariantsRelationManager extends RelationManager
                     ->label('Ajuster le stock')
                     ->icon('heroicon-o-arrows-up-down')
                     ->modalHeading(fn (ProductVariant $record) => "Stock de {$record->sku}")
-                    ->modalDescription(fn (ProductVariant $record) => "Stock actuel : {$record->stock}. Indiquez la quantité réellement disponible.")
+                    ->modalDescription(fn (ProductVariant $record) => 'Stock actuel : '.$this->rules()->format($record->stock).'. Indiquez la quantité réellement disponible.')
                     ->schema([
-                        TextInput::make('counted')
-                            ->label('Nouvelle quantité en stock')
-                            ->integer()
-                            ->minValue(0)
+                        QuantityInput::make('counted', 'Nouvelle quantité en stock', fn () => $this->unit())
                             ->required()
                             ->default(fn (ProductVariant $record) => $record->stock),
                         Select::make('reason')
@@ -170,7 +165,7 @@ class VariantsRelationManager extends RelationManager
                         );
 
                         Notification::make()
-                            ->title($movement ? "Stock mis à jour : {$movement->stock_after}" : 'Stock inchangé')
+                            ->title($movement ? 'Stock mis à jour : '.$this->rules()->format($movement->stock_after) : 'Stock inchangé')
                             ->success()
                             ->send();
                     }),
@@ -208,6 +203,20 @@ class VariantsRelationManager extends RelationManager
                 $fail('Une variante avec ces caractéristiques existe déjà pour ce produit.');
             }
         };
+    }
+
+    /** The product's sale unit: stock, thresholds and prices of its variants are in that unit. */
+    private function unit(): SaleUnit
+    {
+        return $this->rules()->unit;
+    }
+
+    private function rules(): SaleQuantity
+    {
+        /** @var Product $product */
+        $product = $this->getOwnerRecord();
+
+        return $product->saleQuantity();
     }
 
     private function nextSku(): string

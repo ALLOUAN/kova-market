@@ -110,9 +110,20 @@ class ProductVariant extends Model
         return $this->saleIsRunning() ? $this->compare_at_price : null;
     }
 
+    /**
+     * Alert threshold in base units, like the stock: the variant's own, else the general one counted in the
+     * product's displayed units (5 → 5 pieces, or 5 kg = 5 000 g).
+     */
     public function lowStockThreshold(): int
     {
-        return $this->low_stock_threshold ?? config('storefront.product_card.limited_stock_threshold');
+        return $this->low_stock_threshold
+            ?? config('storefront.product_card.limited_stock_threshold') * ($this->product?->saleQuantity()->unit->factor() ?? 1);
+    }
+
+    /** "5", "2,5 kg": the threshold as the team reads it. */
+    public function lowStockThresholdLabel(): string
+    {
+        return $this->product ? $this->product->saleQuantity()->format($this->lowStockThreshold()) : (string) $this->lowStockThreshold();
     }
 
     public function isLowOnStock(): bool

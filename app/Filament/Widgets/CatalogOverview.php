@@ -28,7 +28,7 @@ class CatalogOverview extends StatsOverviewWidget
 
         $online = Product::active()->count();
         $soldOut = Product::active()->where('stock', 0)->count();
-        $lowStock = Product::active()->whereBetween('stock', [1, $threshold])->count();
+        $lowStock = Product::active()->lowStock($threshold)->count();
         $campaigns = Promotion::query()->where('starts_at', '<=', now())->where('ends_at', '>=', now())->count();
 
         return [

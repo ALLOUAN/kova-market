@@ -41,7 +41,7 @@
                                 <th scope="row">Prix</th>
                                 @foreach ($products as $product)
                                     <td>
-                                        <span class="kova-compare-price">@money($product->price)@if ($product->price_max) – @money($product->price_max)@endif</span>
+                                        <span class="kova-compare-price">@money($product->price)@if ($product->price_max) – @money($product->price_max)@endif{{ $product->saleQuantity()->priceSuffix() }}</span>
                                         @if ($product->isOnSale())<br><del>@money($product->compare_at_price)</del> <span class="rbt-offer-badge">-{{ $product->discountPercentage() }}%</span>@endif
                                     </td>
                                 @endforeach

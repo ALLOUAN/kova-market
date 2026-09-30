@@ -38,11 +38,12 @@ class ProductsTable
                     ->sortable(),
                 TextColumn::make('price')
                     ->label('Prix')
-                    ->formatStateUsing(fn ($state) => Money::format($state))
+                    ->formatStateUsing(fn ($state, Product $record) => Money::format($state).$record->saleQuantity()->priceSuffix())
                     ->description(fn (Product $record) => $record->isOnSale() ? 'au lieu de '.Money::format($record->compare_at_price) : null)
                     ->sortable(),
                 TextColumn::make('stock')
                     ->label('Stock')
+                    ->formatStateUsing(fn (int $state, Product $record) => $record->saleQuantity()->format($state))
                     ->badge()
                     ->color(fn (Product $record) => match (true) {
                         $record->isSoldOut() => 'danger',
@@ -91,7 +92,7 @@ class ProductsTable
                     ->query(fn (Builder $query) => $query->whereHas('stockAlerts', fn (Builder $query) => $query->whereNull('notified_at'))),
                 Filter::make('low_stock')
                     ->label('Stock bas')
-                    ->query(fn (Builder $query) => $query->whereBetween('stock', [1, config('storefront.product_card.limited_stock_threshold')])),
+                    ->query(fn (Builder $query) => $query->lowStock(config('storefront.product_card.limited_stock_threshold'))),
                 Filter::make('on_sale')
                     ->label('En promotion')
                     ->query(fn (Builder $query) => $query->whereColumn('compare_at_price', '>', 'price')),

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\Role;
+use App\Enums\SaleUnit;
 use App\Enums\StockMovementReason;
 use App\Filament\Pages\ImportCatalog;
 use App\Models\Brand;
@@ -85,6 +86,31 @@ class CatalogImportTest extends TestCase
         $this->assertSame([40000, 50000, 8, 2], [$variant->price, $variant->compare_at_price, $variant->stock, $variant->low_stock_threshold]);
         $this->assertSame(['2026-10-01 00:00', '2026-10-31 23:59'], [$variant->sale_starts_at->format('Y-m-d H:i'), $variant->sale_ends_at->format('Y-m-d H:i')]);
         $this->assertSame([StockMovementReason::Adjustment, 5, 'Import CSV'], [$variant->stockMovements()->first()->reason, $variant->stockMovements()->first()->quantity, $variant->stockMovements()->first()->note]);
+    }
+
+    public function test_products_sold_by_weight_or_local_unit_are_imported_in_their_unit(): void
+    {
+        $header = self::HEADER.';mode_vente;quantite_min;pas';
+        $report = app(CatalogImporter::class)->import($this->csv([
+            $header,
+            'TOM-KG;Tomates fraîches;;Audio;;1000;;;;12,5;5;;uploads/products/photo.webp;oui;kg;0,5;0,25',
+            'GOMBO;Gombo;;Audio;;500;;;;30;;;uploads/products/photo.webp;oui;tas;;',
+            'OEUF;Œufs;;Audio;;100;;;;2,5;;;uploads/products/photo.webp;oui;;;',
+        ]), null);
+
+        $this->assertSame(2, $report->productsCreated);
+        $this->assertStringContainsString('Quantité entière attendue', $report->errors[4] ?? implode(' ', $report->errors));
+
+        $tomatoes = Product::where('slug', 'tomates-fraiches')->sole();
+        $this->assertSame([SaleUnit::Kilogram, 500, 250], [$tomatoes->sale_unit, $tomatoes->min_quantity, $tomatoes->quantity_step]);
+        $this->assertSame([12_500, 5000], [$tomatoes->defaultVariant->stock, $tomatoes->defaultVariant->low_stock_threshold]);
+
+        $okra = Product::where('slug', 'gombo')->sole();
+        $this->assertSame([SaleUnit::Local, 'tas', 30], [$okra->sale_unit, $okra->unit_label, $okra->defaultVariant->stock]);
+
+        // Stock updated later in kilos too.
+        app(CatalogImporter::class)->import($this->csv([$header, 'TOM-KG;Tomates fraîches;;;;1000;;;;8,75;;;;;;;']), null);
+        $this->assertSame(8750, $tomatoes->defaultVariant->fresh()->stock);
     }
 
     public function test_variants_of_one_product_come_from_lines_sharing_its_slug(): void

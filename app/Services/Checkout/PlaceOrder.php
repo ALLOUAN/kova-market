@@ -6,6 +6,7 @@ use App\Enums\CouponType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Enums\SaleUnit;
 use App\Enums\StockMovementReason;
 use App\Events\OrderPlaced;
 use App\Models\BundleItem;
@@ -132,6 +133,7 @@ class PlaceOrder
     {
         $variant = $item->variant;
         $product = $variant->product;
+        $rules = $product->saleQuantity();
 
         if (! $product->is_active) {
             throw new CheckoutException("« {$product->name} » n’est plus en vente : retirez-le du panier pour commander.");
@@ -143,7 +145,7 @@ class PlaceOrder
             throw new CheckoutException(
                 $exception->variant->stock === 0
                     ? "« {$product->name} » vient d’être épuisé : retirez-le du panier pour commander."
-                    : "Il ne reste que {$exception->variant->stock} « {$product->name} » : ajustez la quantité pour commander.",
+                    : 'Il ne reste que '.$rules->format($exception->variant->stock).($rules->unit === SaleUnit::Piece ? '' : ' de')." « {$product->name} » : ajustez la quantité pour commander.",
             );
         }
 
@@ -155,9 +157,13 @@ class PlaceOrder
             'bundle_contents' => $product->is_bundle ? $this->packContents($product) : null,
             'sku' => $variant->sku,
             'image' => $product->image,
+            // Price per displayed unit (per kg, per litre…) and the quantity in base units, with the unit frozen:
+            // the total is computed here from the product's price, never taken from the browser.
             'unit_price' => $variant->currentPrice(),
             'quantity' => $item->quantity,
-            'line_total' => $variant->currentPrice() * $item->quantity,
+            'sale_unit' => $rules->unit,
+            'unit_label' => $rules->localLabel,
+            'line_total' => $rules->lineTotal($variant->currentPrice(), $item->quantity),
         ];
     }
 
@@ -187,7 +193,10 @@ class PlaceOrder
      */
     private function couponDiscount(Coupon $coupon, EloquentCollection $items, string $phone, ?User $user): int
     {
-        $basket = $items->map(fn (CartItem $item) => ['product' => $item->variant->product, 'amount' => $item->variant->currentPrice() * $item->quantity]);
+        $basket = $items->map(fn (CartItem $item) => [
+            'product' => $item->variant->product,
+            'amount' => $item->variant->product->saleQuantity()->lineTotal($item->variant->currentPrice(), $item->quantity),
+        ]);
 
         try {
             return $this->coupons->discount($coupon, $basket->toBase(), $phone, $user);

@@ -98,8 +98,8 @@
                         @if ($item->contentsSummary())<br><span class="muted">{{ $item->contentsSummary() }}</span>@endif
                         <br><span class="muted">Réf. {{ $item->sku }}</span>
                     </td>
-                    <td class="right">@money($item->unit_price)</td>
-                    <td class="right">{{ $item->quantity }}</td>
+                    <td class="right">@money($item->unit_price){{ str_replace(" / ", "/", $item->saleQuantity()->priceSuffix()) }}</td>
+                    <td class="right">{{ $item->quantityLabel() }}</td>
                     <td class="right">@money($item->line_total)</td>
                 </tr>
             @endforeach

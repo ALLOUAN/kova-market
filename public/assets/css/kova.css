@@ -936,3 +936,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 /* ------------------------------------------------------------------ Category without image: its icon */
 .kova-category-icon { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--kova-green-100); color: var(--kova-green); font-size: 26px; }
 .kova-category-icon--lg { width: 110px; height: 110px; font-size: 44px; }
+
+/* ------------------------------------------------------------------ Sale units: price per kg, weight choice */
+.kova-price-unit { margin-left: 2px; font-size: 14px; font-weight: 500; color: var(--kova-text-muted); }
+.kova-quantity-select { height: 50px; padding-right: 36px; font-weight: 500; }

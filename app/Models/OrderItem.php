@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\SaleUnit;
+use App\Support\SaleQuantity;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 #[Fillable([
     'order_id', 'product_variant_id', 'product_id', 'product_name', 'variant_label', 'bundle_contents', 'sku', 'image',
-    'unit_price', 'quantity', 'line_total',
+    'unit_price', 'quantity', 'sale_unit', 'unit_label', 'line_total',
 ])]
 class OrderItem extends Model
 {
@@ -28,6 +30,7 @@ class OrderItem extends Model
             'quantity' => 'integer',
             'line_total' => 'integer',
             'bundle_contents' => 'array',
+            'sale_unit' => SaleUnit::class,
         ];
     }
 
@@ -44,6 +47,30 @@ class OrderItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /** The unit frozen on the line: the product may be sold otherwise later, the order must still read right. */
+    public function saleQuantity(): SaleQuantity
+    {
+        return SaleQuantity::forOrderItem($this);
+    }
+
+    /** "1,75 kg", "3 tas", "2". */
+    public function quantityLabel(): string
+    {
+        return $this->saleQuantity()->format($this->quantity);
+    }
+
+    /** "1,75 kg × 1 000 FCFA/kg" or "2 × 4 500 FCFA". */
+    public function pricing(): string
+    {
+        return $this->saleQuantity()->describe($this->quantity, $this->unit_price);
+    }
+
+    /** Units counted as sold (popularity): a line sold by weight or volume counts as one sale. */
+    public function soldUnits(): int
+    {
+        return $this->saleQuantity()->unit->isMeasured() ? 1 : $this->quantity;
     }
 
     /**

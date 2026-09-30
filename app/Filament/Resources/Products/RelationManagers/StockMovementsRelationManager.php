@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Products\RelationManagers;
 
 use App\Enums\StockMovementReason;
+use App\Models\Product;
+use App\Support\SaleQuantity;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -30,9 +32,9 @@ class StockMovementsRelationManager extends RelationManager
                 TextColumn::make('reason')->label('Motif')->badge(),
                 TextColumn::make('quantity')
                     ->label('Quantité')
-                    ->formatStateUsing(fn (int $state) => $state > 0 ? "+{$state}" : (string) $state)
+                    ->formatStateUsing(fn (int $state) => ($state > 0 ? '+' : '−').$this->rules()->format(abs($state)))
                     ->color(fn (int $state) => $state < 0 ? 'danger' : 'success'),
-                TextColumn::make('stock_after')->label('Stock après'),
+                TextColumn::make('stock_after')->label('Stock après')->formatStateUsing(fn (int $state) => $this->rules()->format($state)),
                 TextColumn::make('user.name')->label('Par')->placeholder('Système'),
                 TextColumn::make('note')->label('Commentaire')->placeholder('—')->wrap(),
             ])
@@ -46,5 +48,14 @@ class StockMovementsRelationManager extends RelationManager
     public function isReadOnly(): bool
     {
         return true;
+    }
+
+    /** Movements count base units: shown in the product's unit (−1,75 kg). */
+    private function rules(): SaleQuantity
+    {
+        /** @var Product $product */
+        $product = $this->getOwnerRecord();
+
+        return $product->saleQuantity();
     }
 }

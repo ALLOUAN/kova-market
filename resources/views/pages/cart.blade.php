@@ -27,7 +27,7 @@
                                         @if ($line->variant->attributeValues->isNotEmpty())
                                             <p class="b4 mb--4">{{ $line->variant->label() }}</p>
                                         @endif
-                                        <p class="b3 mb-0">@money($line->unitPrice()) l’unité</p>
+                                        <p class="b3 mb-0">@money($line->unitPrice()){{ $line->saleQuantity()->priceSuffix() ?: ' l’unité' }}</p>
                                         @if ($line->notice)
                                             <p class="b4 mt--4 mb-0 rbt-text-color-danger">{{ $line->notice }}</p>
                                         @endif
@@ -37,7 +37,9 @@
                                             @csrf
                                             @method('PATCH')
                                             <label class="visually-hidden" for="quantity-{{ $line->item->id }}">Quantité de {{ $line->product->name }}</label>
-                                            <input id="quantity-{{ $line->item->id }}" class="rbt-input-field text-center" type="number" name="quantity" value="{{ $line->quantity }}" min="0" max="{{ $line->variant->stock }}" style="width: 80px">
+                                            <x-product.quantity-field :rules="$line->saleQuantity()" :id="'quantity-'.$line->item->id" :value="$line->quantity"
+                                                :stock="$line->variant->stock" :price="$line->unitPrice()" :min="0"
+                                                :style="$line->saleQuantity()->unit->isMeasured() ? 'width: auto; min-width: 190px' : 'width: 80px'" />
                                             <button type="submit" class="rbt-btn rbt-btn-sm rbt-btn-border">Mettre à jour</button>
                                         </form>
                                     @endif

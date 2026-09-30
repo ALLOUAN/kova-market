@@ -26,6 +26,9 @@ class OrderItemResource extends JsonResource
             'image' => $this->image ? asset($this->image) : null,
             'unit_price' => $this->unit_price,
             'quantity' => $this->quantity,
+            'sale_unit' => $this->saleQuantity()->unit->value,
+            'unit_label' => $this->unit_label,
+            'quantity_label' => $this->quantityLabel(),
             'line_total' => $this->line_total,
             'bundle_contents' => $this->bundle_contents,
         ];

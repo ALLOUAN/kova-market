@@ -2,6 +2,7 @@
 
 namespace App\Services\Catalog\Import;
 
+use App\Enums\SaleUnit;
 use App\Enums\StockMovementReason;
 use App\Models\Brand;
 use App\Models\Category;
@@ -32,7 +33,7 @@ class CatalogImporter
     /** Columns of the template, in order; "attribut:<name>" columns may be added for the variant values. */
     public const COLUMNS = [
         'sku', 'produit', 'slug', 'categorie', 'marque', 'prix', 'prix_barre', 'promo_debut', 'promo_fin',
-        'stock', 'seuil_alerte', 'description', 'image', 'actif',
+        'stock', 'seuil_alerte', 'description', 'image', 'actif', 'mode_vente', 'quantite_min', 'pas',
     ];
 
     private const REQUIRED = ['sku', 'produit', 'prix'];
@@ -77,8 +78,10 @@ class CatalogImporter
     {
         $lines = [
             [...self::COLUMNS, 'attribut:Couleur'],
-            ['CASQ-NOIR', 'Casque Bluetooth X1', 'casque-bluetooth-x1', 'Audio', 'Sony', '45000', '55000', '01/10/2026 08:00', '31/10/2026 23:59', '12', '3', 'Casque sans fil, 30 h d’autonomie.', 'uploads/products/casque-x1.webp', 'oui', 'Noir'],
-            ['CASQ-BLANC', 'Casque Bluetooth X1', 'casque-bluetooth-x1', 'Audio', 'Sony', '45000', '', '', '', '4', '', '', '', 'oui', 'Blanc'],
+            ['CASQ-NOIR', 'Casque Bluetooth X1', 'casque-bluetooth-x1', 'Audio', 'Sony', '45000', '55000', '01/10/2026 08:00', '31/10/2026 23:59', '12', '3', 'Casque sans fil, 30 h d’autonomie.', 'uploads/products/casque-x1.webp', 'oui', '', '', '', 'Noir'],
+            ['CASQ-BLANC', 'Casque Bluetooth X1', 'casque-bluetooth-x1', 'Audio', 'Sony', '45000', '', '', '', '4', '', '', '', 'oui', '', '', '', 'Blanc'],
+            // Sold by the kilo: price per kg, stock and quantities in kg.
+            ['TOMATE-KG', 'Tomates fraîches', 'tomates-fraiches', 'Légumes frais', '', '1000', '', '', '', '50', '5', 'Tomates du marché, vendues au kilo.', 'uploads/products/tomates.webp', 'oui', 'kg', '0,5', '0,25', ''],
         ];
 
         $out = fopen('php://temp', 'r+');
@@ -128,6 +131,7 @@ class CatalogImporter
         $data = $this->validate($row);
         $variant = ProductVariant::with('product')->where('sku', $data['sku'])->first();
         $product = $variant?->product ?? Product::where('slug', $data['slug'])->first();
+        $data = $this->toBaseUnits($data, $product?->saleQuantity()->unit ?? $data['sale_unit']);
 
         // A pack's stock is its components': it is managed in Promotions › Packs only.
         if ($product?->is_bundle) {
@@ -232,6 +236,10 @@ class CatalogImporter
             'sale_starts_at' => $data['sale_starts_at'],
             'sale_ends_at' => $data['sale_ends_at'],
             'stock' => $data['stock'] ?? 0,
+            'sale_unit' => $data['sale_unit'],
+            'unit_label' => $data['unit_label'],
+            'min_quantity' => $data['min_quantity'],
+            'quantity_step' => $data['quantity_step'],
         ]);
 
         $variant = $this->stock->createDefaultVariant($product, $data['sku'], $user);
@@ -336,6 +344,8 @@ class CatalogImporter
     private function validate(array $row): array
     {
         $number = fn (?string $value) => filled($value) ? preg_replace('/[\s\x{00A0}\x{202F}]|FCFA|F$/iu', '', $value) : null;
+        // Quantities may be decimal for a product sold by weight or volume: "12,5" (kg).
+        $quantity = fn (?string $value) => filled($value) ? str_replace(',', '.', preg_replace('/[\s\x{00A0}\x{202F}]|kg|l$/iu', '', $value)) : null;
 
         $values = [
             'sku' => $row['sku'] ?? null,
@@ -343,8 +353,10 @@ class CatalogImporter
             'slug' => $row['slug'] ?? null,
             'prix' => $number($row['prix'] ?? null),
             'prix_barre' => $number($row['prix_barre'] ?? null),
-            'stock' => $number($row['stock'] ?? null),
-            'seuil_alerte' => $number($row['seuil_alerte'] ?? null),
+            'stock' => $quantity($row['stock'] ?? null),
+            'seuil_alerte' => $quantity($row['seuil_alerte'] ?? null),
+            'quantite_min' => $quantity($row['quantite_min'] ?? null),
+            'pas' => $quantity($row['pas'] ?? null),
             'actif' => filled($row['actif'] ?? null) ? Str::lower($row['actif']) : null,
         ];
 
@@ -354,12 +366,16 @@ class CatalogImporter
             'slug' => ['nullable', 'max:255', 'alpha_dash'],
             'prix' => ['required', 'integer', 'min:0'],
             'prix_barre' => ['nullable', 'integer', 'gt:prix'],
-            'stock' => ['nullable', 'integer', 'min:0'],
-            'seuil_alerte' => ['nullable', 'integer', 'min:0'],
+            'stock' => ['nullable', 'numeric', 'min:0'],
+            'seuil_alerte' => ['nullable', 'numeric', 'min:0'],
+            'quantite_min' => ['nullable', 'numeric', 'min:0'],
+            'pas' => ['nullable', 'numeric', 'gt:0'],
             'actif' => ['nullable', 'in:oui,non,1,0,vrai,faux'],
         ], [], [
-            'produit' => 'nom du produit', 'prix_barre' => 'prix barré', 'seuil_alerte' => 'seuil d’alerte',
+            'produit' => 'nom du produit', 'prix_barre' => 'prix barré', 'seuil_alerte' => 'seuil d’alerte', 'quantite_min' => 'quantité minimale',
         ]);
+
+        [$saleUnit, $unitLabel] = $this->saleUnit($row['mode_vente'] ?? null);
 
         if ($validator->fails()) {
             throw new ImportException($validator->errors()->first());
@@ -400,8 +416,13 @@ class CatalogImporter
             'compare_at_price' => $values['prix_barre'] !== null ? (int) $values['prix_barre'] : null,
             'sale_starts_at' => $startsAt,
             'sale_ends_at' => $endsAt,
-            'stock' => $values['stock'] !== null ? (int) $values['stock'] : null,
-            'low_stock_threshold' => $values['seuil_alerte'] !== null ? (int) $values['seuil_alerte'] : null,
+            // In displayed units here (kg, L, pieces); converted to base units once the product's unit is known.
+            'stock' => $values['stock'] !== null ? (float) $values['stock'] : null,
+            'low_stock_threshold' => $values['seuil_alerte'] !== null ? (float) $values['seuil_alerte'] : null,
+            'min_quantity' => $values['quantite_min'] !== null ? (float) $values['quantite_min'] : null,
+            'quantity_step' => $values['pas'] !== null ? (float) $values['pas'] : null,
+            'sale_unit' => $saleUnit,
+            'unit_label' => $unitLabel,
             'image' => filled($row['image'] ?? null) ? $row['image'] : null,
             'active' => $values['actif'] === null ? null : in_array($values['actif'], ['oui', '1', 'vrai'], true),
             'attributes' => collect($row)
@@ -409,6 +430,56 @@ class CatalogImporter
                 ->mapWithKeys(fn (string $value, string $column) => [trim(Str::after($column, self::ATTRIBUTE_PREFIX)) => $value])
                 ->all(),
         ];
+    }
+
+    /**
+     * The "mode_vente" column: "piece", "kg", "litre", "paquet", "lot" (or their usual spellings), and any other
+     * word names a local unit ("tas", "botte"). Empty: by the piece. Only read for a new product.
+     *
+     * @return array{0: SaleUnit, 1: ?string}
+     */
+    private function saleUnit(?string $value): array
+    {
+        $value = Str::lower(trim((string) $value));
+
+        $unit = match ($value) {
+            '', 'piece', 'pièce', 'pieces', 'pièces', 'unite', 'unité' => SaleUnit::Piece,
+            'kg', 'kilo', 'kilogramme', 'poids' => SaleUnit::Kilogram,
+            'l', 'litre', 'litres', 'volume' => SaleUnit::Litre,
+            'paquet', 'paquets' => SaleUnit::Pack,
+            'lot', 'lots' => SaleUnit::Lot,
+            default => SaleUnit::Local,
+        };
+
+        if ($unit === SaleUnit::Local && mb_strlen($value) > 30) {
+            throw new ImportException("Mode de vente trop long : « {$value} » (30 caractères au plus).");
+        }
+
+        return [$unit, $unit === SaleUnit::Local ? $value : null];
+    }
+
+    /**
+     * Stock, threshold, minimum and step typed in displayed units, turned into base units (12,5 kg → 12 500 g).
+     * A unit sold whole refuses decimals.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function toBaseUnits(array $data, SaleUnit $unit): array
+    {
+        foreach (['stock', 'low_stock_threshold', 'min_quantity', 'quantity_step'] as $key) {
+            if ($data[$key] === null) {
+                continue;
+            }
+
+            if (! $unit->isMeasured() && floor($data[$key]) != $data[$key]) {
+                throw new ImportException('Quantité entière attendue pour un produit vendu '.Str::lower($unit->getLabel()).' : '.str_replace('.', ',', (string) $data[$key]).'.');
+            }
+
+            $data[$key] = (int) round($data[$key] * $unit->factor());
+        }
+
+        return $data;
     }
 
     private function date(?string $value, string $column): ?CarbonImmutable

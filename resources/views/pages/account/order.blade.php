@@ -16,7 +16,7 @@
                 <ul class="list-unstyled mb--16">
                     @foreach ($order->items as $item)
                         <li class="d-flex justify-content-between gap-3 mb--8">
-                            <span>{{ $item->quantity }} × {{ $item->product_name }}@if ($item->variant_label)<span class="b4 d-block">{{ $item->variant_label }}</span>@endif@if ($item->contentsSummary())<span class="b4 d-block">{{ $item->contentsSummary() }}</span>@endif</span>
+                            <span>{{ $item->quantityLabel() }} × {{ $item->product_name }}@if ($item->variant_label)<span class="b4 d-block">{{ $item->variant_label }}</span>@endif@if ($item->contentsSummary())<span class="b4 d-block">{{ $item->contentsSummary() }}</span>@endif</span>
                             <span class="text-nowrap">@money($item->line_total)</span>
                         </li>
                     @endforeach

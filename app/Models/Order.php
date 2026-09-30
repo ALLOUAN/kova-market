@@ -137,6 +137,7 @@ class Order extends Model
 
     public function itemCount(): int
     {
-        return (int) $this->items->sum('quantity');
+        // Articles, not grams: a line sold by weight or volume counts as one.
+        return (int) $this->items->sum(fn (OrderItem $item) => $item->soldUnits());
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\Permission;
+use App\Enums\SaleUnit;
 use App\Filament\Resources\Products\ProductResource;
 use App\Models\ProductVariant;
 use Filament\Tables\Columns\TextColumn;
@@ -32,7 +33,8 @@ class ProductsToRestock extends TableWidget
             ->query(fn () => ProductVariant::query()
                 ->with(['product', 'attributeValues'])
                 ->whereHas('product', fn (Builder $query) => $query->active())
-                ->whereRaw('stock <= COALESCE(low_stock_threshold, ?)', [config('storefront.product_card.limited_stock_threshold')])
+                // The general threshold counts displayed units: × 1 000 for a product sold by weight or volume.
+                ->whereRaw('stock <= COALESCE(low_stock_threshold, ? * (SELECT '.SaleUnit::sqlFactor('products.sale_unit').' FROM products WHERE products.id = product_variants.product_id))', [config('storefront.product_card.limited_stock_threshold')])
                 ->orderBy('stock'))
             ->columns([
                 TextColumn::make('product.name')->label('Produit')->limit(50),
@@ -42,7 +44,8 @@ class ProductsToRestock extends TableWidget
                     ->label('Stock')
                     ->badge()
                     ->color(fn (int $state) => $state === 0 ? 'danger' : 'warning')
-                    ->description(fn (ProductVariant $record) => 'seuil : '.$record->lowStockThreshold()),
+                    ->formatStateUsing(fn (int $state, ProductVariant $record) => $record->product->saleQuantity()->format($state))
+                    ->description(fn (ProductVariant $record) => 'seuil : '.$record->lowStockThresholdLabel()),
             ])
             ->recordUrl(fn (ProductVariant $record) => ProductResource::canEdit($record->product) ? ProductResource::getUrl('edit', ['record' => $record->product]) : null)
             ->emptyStateHeading('Aucun produit à réapprovisionner')

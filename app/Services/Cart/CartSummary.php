@@ -36,7 +36,8 @@ class CartSummary
      */
     public function count(): int
     {
-        return $this->lines->filter->available->sum->quantity;
+        // Articles, not grams: a line sold by weight or volume counts as one.
+        return $this->lines->filter->available->sum->countedItems();
     }
 
     public function isEmpty(): bool

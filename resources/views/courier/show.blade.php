@@ -52,7 +52,7 @@
         <ul class="plain">
             @foreach ($order->items as $item)
                 <li>
-                    {{ $item->quantity }} × {{ $item->product_name }}
+                    {{ $item->quantityLabel() }} × {{ $item->product_name }}
                     @if ($item->variant_label)<span class="muted">({{ $item->variant_label }})</span>@endif
                     @if ($item->contentsSummary())<div class="muted">{{ $item->contentsSummary() }}</div>@endif
                 </li>

@@ -34,12 +34,12 @@ class LowStockForStaff extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $variant = $this->variant->loadMissing('product', 'attributeValues.attribute');
-        $state = $variant->stock === 0 ? 'est épuisé' : "n’a plus que {$variant->stock} unité(s) en stock";
+        $state = $variant->stock === 0 ? 'est épuisé' : 'n’a plus que '.$variant->product->saleQuantity()->format($variant->stock).' en stock';
 
         return (new MailMessage)
             ->subject("Stock bas : {$variant->product->name}")
             ->line("« {$variant->product->name} » ({$variant->label()}, réf. {$variant->sku}) {$state}.")
-            ->line("Seuil d’alerte : {$variant->lowStockThreshold()}.")
+            ->line("Seuil d’alerte : {$variant->lowStockThresholdLabel()}.")
             ->action('Voir le produit', ProductResource::getUrl('edit', ['record' => $variant->product]));
     }
 }

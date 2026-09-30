@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\SaleUnit;
 use App\Models\Concerns\RedirectsOldSlugs;
 use App\Services\Catalog\StockManager;
+use App\Support\SaleQuantity;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -24,6 +26,7 @@ use Spatie\Activitylog\Support\LogOptions;
     'category_id', 'brand_id', 'name', 'slug', 'description', 'meta_title', 'meta_description', 'price', 'price_max', 'compare_at_price', 'stock', 'sold_count',
     'rating', 'reviews_count', 'watchers_count', 'free_shipping', 'return_days', 'image', 'hover_image', 'hover_video',
     'badges', 'colors', 'variants_count', 'specifications', 'sale_starts_at', 'sale_ends_at', 'is_active', 'is_bundle',
+    'sale_unit', 'unit_label', 'min_quantity', 'quantity_step', 'max_quantity',
 ])]
 class Product extends Model
 {
@@ -89,6 +92,10 @@ class Product extends Model
             'sale_ends_at' => 'datetime',
             'is_active' => 'boolean',
             'is_bundle' => 'boolean',
+            'sale_unit' => SaleUnit::class,
+            'min_quantity' => 'integer',
+            'quantity_step' => 'integer',
+            'max_quantity' => 'integer',
         ];
     }
 
@@ -188,6 +195,15 @@ class Product extends Model
     }
 
     /**
+     * In stock but at most the threshold, counted in displayed units (5 pieces, or 5 kg for a product sold by weight).
+     */
+    #[Scope]
+    protected function lowStock(Builder $query, int $threshold): Builder
+    {
+        return $query->where('stock', '>', 0)->whereRaw('stock <= ? * '.SaleUnit::sqlFactor('sale_unit'), [$threshold]);
+    }
+
+    /**
      * Public page of the product ("#" until the product page route is registered).
      */
     public function url(): string
@@ -202,7 +218,14 @@ class Product extends Model
 
     public function hasLimitedStock(): bool
     {
-        return ! $this->isSoldOut() && $this->stock <= config('storefront.product_card.limited_stock_threshold');
+        // The threshold counts displayed units: 5 means 5 pieces, or 5 kg for a product sold by weight.
+        return ! $this->isSoldOut() && $this->stock <= config('storefront.product_card.limited_stock_threshold') * $this->saleQuantity()->unit->factor();
+    }
+
+    /** Unit, minimum, step and ceiling of the product's quantities (Mon Marché). */
+    public function saleQuantity(): SaleQuantity
+    {
+        return SaleQuantity::for($this);
     }
 
     public function isOnSale(): bool

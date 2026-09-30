@@ -111,7 +111,7 @@ class OrderUpdateForCustomer extends Notification implements ShouldQueue
             });
 
         foreach ($order->items as $item) {
-            $mail->line("{$item->quantity} × {$item->product_name} — ".Money::format($item->line_total));
+            $mail->line("{$item->quantityLabel()} × {$item->product_name} — ".Money::format($item->line_total));
         }
 
         $mail

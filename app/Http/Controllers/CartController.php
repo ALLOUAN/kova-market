@@ -45,7 +45,7 @@ class CartController extends Controller
         $redirect = $request->boolean('buy_now') ? redirect()->route('cart.show') : back();
 
         return $redirect
-            ->with('cart_status', "« {$variant->product->name} » a été ajouté au panier ({$inCart} au total).")
+            ->with('cart_status', "« {$variant->product->name} » a été ajouté au panier (".$variant->product->saleQuantity()->format($inCart).' au total).')
             // Product cards ask the next page to slide the mini-cart open (storefront.product_card.cart_action).
             ->with('cart_open', $request->input('open') === 'sidenav');
     }
@@ -56,10 +56,13 @@ class CartController extends Controller
         $line = $this->cart->findItem($item) ?? abort(404);
 
         $kept = $this->cart->update($line, (int) $data['quantity']);
+        $rules = $line->variant->product->saleQuantity();
 
         return redirect()->route('cart.show')->with('cart_status', match (true) {
             $kept === 0 => 'L’article a été retiré du panier.',
-            $kept < (int) $data['quantity'] => "Quantité ramenée à {$kept} : c’est le stock disponible.",
+            $kept < (int) $data['quantity'] && $line->variant->stock < (int) $data['quantity'] => 'Quantité ramenée à '.$rules->format($kept).' : c’est le stock disponible.',
+            $kept < (int) $data['quantity'] && $kept === $rules->maximum() => 'Quantité limitée à '.$rules->format($kept).' par commande.',
+            $kept !== (int) $data['quantity'] => 'Quantité ajustée à '.$rules->format($kept).' : ce produit se vend par '.$rules->format($rules->step()).'.',
             default => 'Quantité mise à jour.',
         });
     }

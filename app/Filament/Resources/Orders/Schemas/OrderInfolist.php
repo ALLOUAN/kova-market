@@ -67,8 +67,8 @@ class OrderInfolist
                             ->schema([
                                 TextEntry::make('product_name')->belowContent(fn ($record) => collect([$record->variant_label, $record->contentsSummary()])->filter()->join(' · ') ?: null),
                                 TextEntry::make('sku'),
-                                TextEntry::make('unit_price')->formatStateUsing($money),
-                                TextEntry::make('quantity'),
+                                TextEntry::make('unit_price')->formatStateUsing(fn (int $state, $record) => Money::format($state).$record->saleQuantity()->priceSuffix()),
+                                TextEntry::make('quantity')->formatStateUsing(fn ($state, $record) => $record->quantityLabel()),
                                 TextEntry::make('line_total')->formatStateUsing($money),
                             ]),
                         TextEntry::make('subtotal')->label('Sous-total')->formatStateUsing($money)->inlineLabel(),

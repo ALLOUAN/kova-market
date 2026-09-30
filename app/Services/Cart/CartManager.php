@@ -31,7 +31,11 @@ class CartManager
     /** Header carrying the guest cart token for API clients, which keep no cookies. */
     public const HEADER = 'X-Cart-Token';
 
-    public const MAX_QUANTITY = 99;
+    /**
+     * Largest quantity a request may ask for, in base units (100 kg in grams). Each product then applies its own
+     * ceiling, 99 units by default (App\Support\SaleQuantity).
+     */
+    public const MAX_QUANTITY = 100_000;
 
     private ?Cart $cart = null;
 
@@ -83,9 +87,16 @@ class CartManager
             throw new CartException('Ce produit est épuisé.');
         }
 
+        $rules = $variant->product->saleQuantity();
+
+        if ($rules->normalize($rules->minimum(), $variant->stock) === 0) {
+            throw new CartException('Il ne reste que '.$rules->format($variant->stock).' de ce produit : moins que la quantité minimale ('.$rules->format($rules->minimum()).').');
+        }
+
         $cart = $this->currentOrCreate();
         $item = $cart->items()->firstOrNew(['product_variant_id' => $variant->getKey()]);
-        $item->quantity = $this->cap(($item->exists ? $item->quantity : 0) + max(1, $quantity), $variant);
+        // A bare "add" adds one step: one piece, or 250 g of a product sold by the kilo.
+        $item->quantity = $this->cap(($item->exists ? $item->quantity : 0) + max($rules->step(), $quantity), $variant);
         $item->save();
 
         $this->touch($cart);
@@ -277,9 +288,15 @@ class CartManager
         return request();
     }
 
+    /**
+     * A quantity the product can be sold in (minimum, whole steps, ceiling) within the stock; the minimum when the
+     * stock no longer allows it, so the line stays and the cart says what is wrong.
+     */
     private function cap(int $quantity, ProductVariant $variant): int
     {
-        return max(1, min($quantity, $variant->stock, self::MAX_QUANTITY));
+        $rules = $variant->loadMissing('product')->product->saleQuantity();
+
+        return $rules->normalize($quantity, $variant->stock) ?: $rules->minimum();
     }
 
     private function touch(Cart $cart): void
