@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\Categories\Tables;
 
+use App\Filament\Resources\Categories\CategoryResource;
 use App\Models\Category;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -62,9 +65,20 @@ class CategoriesTable
                 TernaryFilter::make('is_featured')->label('À l’accueil'),
             ])
             ->recordActions([
-                EditAction::make(),
+                // Third-level categories are the last level: no sub-category under them.
+                Action::make('addChild')
+                    ->label('Ajouter une sous-catégorie')
+                    ->icon(Heroicon::OutlinedFolderPlus)
+                    ->iconButton()
+                    ->color('gray')
+                    ->tooltip('Ajouter une sous-catégorie')
+                    ->url(fn (Category $record) => CategoryResource::getUrl('create', ['parent' => $record->getKey()]))
+                    ->visible(fn (Category $record) => $record->parent?->parent_id === null && CategoryResource::canCreate()),
+                EditAction::make()->iconButton()->tooltip('Modifier'),
                 // Products block the deletion (database constraint) and sub-categories would be deleted with it.
                 DeleteAction::make()
+                    ->iconButton()
+                    ->tooltip('Supprimer')
                     ->hidden(fn (Category $record) => $record->products_count > 0 || $record->children_count > 0),
             ]);
     }

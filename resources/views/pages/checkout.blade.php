@@ -103,14 +103,31 @@
 
                         <fieldset class="mb--32">
                             <legend class="h5 mb--16">Paiement</legend>
-                            @foreach ($paymentMethods as $method)
-                                <div class="rbt-check-group mb--8">
-                                    <input type="radio" id="payment-{{ $method->value }}" name="payment_method" value="{{ $method->value }}" @checked(old('payment_method', $paymentMethods[0]->value) === $method->value)>
-                                    <label for="payment-{{ $method->value }}"><strong>{{ $method->getLabel() }}</strong> — {{ $method->description() }}</label>
-                                </div>
-                            @endforeach
+                            {{-- Pay now online (CinetPay) or on delivery: one card per method, the whole card is clickable. --}}
+                            @php
+                                $networks = collect(config('storefront.payment_methods'))->filter(fn ($network) => filled($network['logo'] ?? null) && file_exists(public_path($network['logo'])));
+                            @endphp
+                            <div class="kova-pay-options">
+                                @foreach ($paymentMethods as $method)
+                                    <label class="kova-pay-option" for="payment-{{ $method->value }}">
+                                        <input type="radio" id="payment-{{ $method->value }}" name="payment_method" value="{{ $method->value }}" @checked(old('payment_method', $paymentMethods[0]->value) === $method->value)>
+                                        <span class="kova-pay-icon" aria-hidden="true"><i class="fa-solid {{ $method->isOnline() ? 'fa-mobile-screen' : 'fa-truck' }}"></i></span>
+                                        <span class="kova-pay-body">
+                                            <strong>{{ $method->isOnline() ? 'Payer maintenant, en ligne' : 'Payer à la livraison' }}</strong>
+                                            <span>{{ $method->description() }}</span>
+                                            @if ($method->isOnline() && $networks->isNotEmpty())
+                                                <span class="kova-pay-logos">
+                                                    @foreach ($networks as $network)
+                                                        <img src="{{ asset($network['logo']) }}" alt="{{ $network['label'] }}" height="26" loading="lazy">
+                                                    @endforeach
+                                                </span>
+                                            @endif
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
                             @if (collect($paymentMethods)->contains(fn ($method) => $method->isOnline()))
-                                <p class="b4 mt--8 mb-0">Paiement en ligne : vous êtes redirigé vers la page sécurisée de CinetPay, puis ramené ici. Une commande non payée est annulée au bout de {{ app(\App\Services\Payments\OnlinePayments::class)->timeoutMinutes() }} minutes.</p>
+                                <p class="b4 mt--12 mb-0"><i class="fa-solid fa-lock me-1" aria-hidden="true"></i>Paiement en ligne : après « Valider ma commande », vous payez sur la page sécurisée de CinetPay, puis vous revenez ici. Une commande non payée est annulée au bout de {{ app(\App\Services\Payments\OnlinePayments::class)->timeoutMinutes() }} minutes.</p>
                             @endif
                             @error('payment_method')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
                         </fieldset>
@@ -118,7 +135,8 @@
                         {{-- F-053: explicit consent, separate optional marketing opt-in. --}}
                         <div class="rbt-check-group mb--8">
                             <input type="checkbox" id="terms" name="terms" value="1" @checked(old('terms')) required>
-                            <label for="terms">J’accepte les <a href="{{ route('pages.show', 'conditions-generales-de-vente') }}" target="_blank">conditions générales de vente</a> et la <a href="{{ route('pages.show', 'politique-de-confidentialite') }}" target="_blank">politique de confidentialité</a>.<span class="rbt-text-color-danger">*</span></label>
+                            {{-- One span: the theme lays the label out as a flex row, which spread the links apart. --}}
+                            <label for="terms"><span>J’accepte les <a href="{{ route('pages.show', 'conditions-generales-de-vente') }}" target="_blank">conditions générales de vente</a> et la <a href="{{ route('pages.show', 'politique-de-confidentialite') }}" target="_blank">politique de confidentialité</a>.<span class="rbt-text-color-danger">*</span></span></label>
                         </div>
                         @error('terms')<span class="d-block mb--8 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
                         <div class="rbt-check-group">

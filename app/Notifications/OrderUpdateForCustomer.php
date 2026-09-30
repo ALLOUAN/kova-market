@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Notifications\Channels\SmsChannel;
+use App\Services\Orders\OrderReceipt;
 use App\Support\Money;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -21,6 +22,9 @@ class OrderUpdateForCustomer extends Notification implements ShouldQueue
     use Queueable;
 
     public const PLACED = 'placed';
+
+    /** Events that give the customer the receipt: the order (paid online, or to pay on delivery), and the delivery (paid). */
+    private const WITH_RECEIPT = [self::PLACED, 'livree'];
 
     /**
      * Channels per event, from the specification's notification table.
@@ -83,7 +87,7 @@ class OrderUpdateForCustomer extends Notification implements ShouldQueue
             self::PLACED => "KOVA MARKET : commande {$number} reçue (".Money::format($this->order->total).'). Suivi : '.route('tracking.show'),
             'confirmee' => "KOVA MARKET : votre commande {$number} est confirmée.",
             'expediee', 'en_livraison' => "KOVA MARKET : votre commande {$number} est en route vers {$this->order->commune_name}.",
-            'livree' => "KOVA MARKET : commande {$number} livrée. Merci pour votre confiance !",
+            'livree' => "KOVA MARKET : commande {$number} livrée. Merci ! Votre reçu : ".app(OrderReceipt::class)->url($this->order),
             'annulee' => "KOVA MARKET : votre commande {$number} a été annulée. Questions : ".config('storefront.contact.phone'),
             default => "KOVA MARKET : votre commande {$number} a été mise à jour.",
         };
@@ -110,10 +114,18 @@ class OrderUpdateForCustomer extends Notification implements ShouldQueue
             $mail->line("{$item->quantity} × {$item->product_name} — ".Money::format($item->line_total));
         }
 
-        return $mail
-            ->line('Total : '.Money::format($order->total).' ('.$order->payment_method->getLabel().')')
+        $mail
+            ->line('Total : '.Money::format($order->total).' ('.$order->payment_method->getLabel().' — '.$order->payment_status->getLabel().')')
             ->action('Suivre ma commande', route('tracking.show'))
-            ->line("Numéro de commande : {$order->number}")
-            ->salutation('L’équipe '.config('storefront.name'));
+            ->line("Numéro de commande : {$order->number}");
+
+        // The receipt, attached and as a link: "de commande" while payment is due, "de paiement" once paid.
+        if (in_array($this->event, self::WITH_RECEIPT, true)) {
+            $receipt = app(OrderReceipt::class);
+            $mail->line('Votre reçu est joint à cet e-mail. Vous pouvez aussi [le télécharger ici]('.$receipt->url($order).').')
+                ->attachData($receipt->pdf($order), $receipt->filename($order), ['mime' => 'application/pdf']);
+        }
+
+        return $mail->salutation('L’équipe '.config('storefront.name'));
     }
 }

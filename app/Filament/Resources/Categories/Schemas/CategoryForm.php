@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories\Schemas;
 
+use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Support\BadgeVariant;
 use App\Filament\Support\SeoFields;
 use App\Filament\Support\SlugInput;
@@ -26,7 +27,9 @@ class CategoryForm
                         ...SlugInput::make(),
                         Select::make('parent_id')
                             ->label('Catégorie parente')
-                            ->helperText('Vide pour un rayon principal. Trois niveaux maximum.')
+                            ->helperText(fn ($livewire) => $livewire instanceof CreateCategory && $livewire->isSubCategory()
+                                ? 'Un rayon principal ou l’une de ses sous-catégories. Trois niveaux maximum.'
+                                : 'Vide pour un rayon principal. Trois niveaux maximum.')
                             // A category can only hang under a root or a second-level category, never under itself.
                             ->relationship(
                                 'parent',
@@ -36,13 +39,22 @@ class CategoryForm
                                         ->orWhereHas('parent', fn (Builder $query) => $query->whereNull('parent_id')))
                                     ->when($record, fn (Builder $query) => $query->whereKeyNot($record->getKey())),
                             )
+                            // "+ Sous-catégorie" on the list opens the form with the parent chosen; the sidebar's
+                            // "Ajouter une sous-catégorie" makes it required.
+                            ->default(fn () => request()->integer('parent') ?: null)
+                            ->required(fn ($livewire) => $livewire instanceof CreateCategory && $livewire->isSubCategory())
+                            // "Ajouter une catégorie parente": a main department, nothing to choose.
+                            ->hidden(fn ($livewire) => $livewire instanceof CreateCategory && $livewire->isParentCategory())
                             ->searchable()
                             ->preload(),
                         TextInput::make('position')
                             ->label('Ordre d’affichage')
                             ->numeric()
                             ->minValue(0)
-                            ->default(0)
+                            // A new main department goes at the end of the menus.
+                            ->default(fn ($livewire) => $livewire instanceof CreateCategory && $livewire->isParentCategory()
+                                ? (int) Category::whereNull('parent_id')->max('position') + 1
+                                : 0)
                             ->required(),
                         TextInput::make('tagline')
                             ->label('Accroche')

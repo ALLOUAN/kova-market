@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\ApplyStoreSettings;
 use App\Http\Middleware\EnsureCourier;
+use App\Http\Middleware\MaintenanceMode;
 use App\Http\Middleware\ProtectPreproduction;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\UseApiGuard;
@@ -40,6 +41,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Texts, images and menus edited in the back-office (F-111).
         $middleware->web(prepend: [ApplyStoreSettings::class]);
+        // Maintenance switched from the back-office: after the session, so a signed-in team member keeps the site.
+        $middleware->web(append: [MaintenanceMode::class]);
         $middleware->prepend(ProtectPreproduction::class);
 
         $middleware->alias(['courier' => EnsureCourier::class, 'api.guard' => UseApiGuard::class]);

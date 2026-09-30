@@ -59,6 +59,12 @@
 </head>
 
 <body class="rbt-header-sticky">
+    {{-- Only people let through the maintenance (team, allowed addresses) reach a page while it is on. --}}
+    @if (app(\App\Services\Storefront\Maintenance::class)->enabled())
+        <div class="kova-maintenance-bar" role="status">
+            <i class="fa-regular fa-screwdriver-wrench mr--8"></i>Mode maintenance actif : les visiteurs voient la page de maintenance. Vous voyez le site car vous faites partie de l’équipe ou votre adresse est autorisée.
+        </div>
+    @endif
     @include('partials.header.index')
     @include('partials.overlays.preloader')
     @include('partials.header.mobile-menu')

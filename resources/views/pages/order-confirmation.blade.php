@@ -88,8 +88,12 @@
                         </div>
                     </div>
 
-                    <div class="text-center mt--32">
-                        <a class="rbt-btn" href="{{ route('shop.index') }}">Continuer mes achats</a>
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mt--32">
+                        {{-- The receipt: "Reçu de commande" while payment is due, "Reçu de paiement" once paid. --}}
+                        <a class="rbt-btn rbt-btn-border" style="width: auto; padding: 0 24px" href="{{ route('orders.receipt', $order) }}" target="_blank" rel="noopener">
+                            <i class="fa-regular fa-file-invoice me-2" aria-hidden="true"></i>Télécharger mon reçu (PDF)
+                        </a>
+                        <a class="rbt-btn" style="width: auto; padding: 0 24px" href="{{ route('shop.index') }}">Continuer mes achats</a>
                     </div>
                 </div>
             </div>

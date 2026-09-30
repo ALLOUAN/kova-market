@@ -80,6 +80,27 @@ class Payment extends Model
         return $this->payment_token ?: ($this->gateway_transaction_id ?: $this->merchant_transaction_id);
     }
 
+    /**
+     * The operator as customers know it (CinetPay gives a code: "OM", "MOMO", "FLOOZ"…).
+     */
+    public function operatorLabel(): ?string
+    {
+        if (blank($this->operator)) {
+            return null;
+        }
+
+        $code = strtoupper((string) $this->operator);
+
+        return match (true) {
+            str_starts_with($code, 'OM'), str_contains($code, 'ORANGE') => 'Orange Money',
+            str_starts_with($code, 'MOMO'), str_contains($code, 'MTN') => 'MTN MoMo',
+            str_starts_with($code, 'FLOOZ'), str_contains($code, 'MOOV') => 'Moov Money',
+            str_contains($code, 'WAVE') => 'Wave',
+            str_contains($code, 'CARD'), str_contains($code, 'VISA'), str_contains($code, 'MASTER') => 'carte bancaire',
+            default => $this->operator,
+        };
+    }
+
     public function notifyTokenMatches(?string $token): bool
     {
         return filled($token) && filled($this->notify_token_hash) && hash_equals($this->notify_token_hash, hash('sha256', $token));

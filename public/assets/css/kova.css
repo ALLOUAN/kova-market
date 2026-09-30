@@ -747,6 +747,46 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
 .kova-wishlist-page-btn.is-wishlisted:hover i { color: #fff !important; }
 .rbt-wishlist .access-box-count[hidden] { display: none !important; }
 
+/* ------------------------------------------------------------------ Checkout: payment choice */
+.kova-pay-options { display: grid; gap: 12px; }
+.kova-pay-option {
+    position: relative;
+    display: flex !important;
+    align-items: flex-start;
+    gap: 14px;
+    margin: 0;
+    padding: 16px 18px;
+    border: 1.5px solid var(--kova-border-strong);
+    border-radius: var(--kova-radius-lg);
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.kova-pay-option:hover { border-color: var(--kova-navy-700); }
+.kova-pay-option input[type="radio"] { flex: 0 0 auto; width: 20px; height: 20px; margin: 12px 0 0; accent-color: var(--kova-green); }
+.kova-pay-option:has(input:checked) { border-color: var(--kova-green); background: var(--kova-green-100); box-shadow: 0 0 0 3px rgb(14 125 66 / 0.12); }
+.kova-pay-option:has(input:focus-visible) { box-shadow: var(--kova-focus); }
+.kova-pay-icon {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--kova-radius);
+    background: var(--kova-navy-50);
+    color: var(--kova-navy);
+    font-size: 18px;
+}
+.kova-pay-option:has(input:checked) .kova-pay-icon { background: var(--kova-green); color: #fff; }
+.kova-pay-body { display: grid; gap: 4px; min-width: 0; }
+.kova-pay-body strong { font-family: var(--kova-font-heading); font-size: 16px; color: var(--kova-navy); }
+.kova-pay-body > span { font-size: 14px; color: var(--kova-text-body); line-height: 1.45; }
+.kova-pay-logos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.kova-pay-logos img { height: 26px; width: auto; border-radius: 4px; border: 1px solid var(--kova-border); background: #fff; }
+/* The theme's radio look is not used here: the native radio, in the brand green. */
+.kova-pay-option input[type="radio"] { opacity: 1 !important; position: static !important; appearance: auto; }
+
 /* ------------------------------------------------------------------ Comparison */
 .kova-compare-btn.is-compared i { color: var(--kova-green) !important; }
 .kova-compare-btn.is-compared { box-shadow: inset 0 0 0 2px var(--kova-green) !important; }
@@ -843,3 +883,56 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
     border: 1px solid var(--kova-border);
     border-radius: var(--kova-radius-sm);
 }
+
+/* ------------------------------------------------------------------ Contact page */
+/* Night-blue band with the gold line of the logo, then a light blue-grey section for the form. Plain colours. */
+.kova-contact-band { padding: 48px 0 56px; background: var(--kova-navy); border-bottom: 4px solid var(--kova-gold); }
+.kova-contact-main { padding: 56px 0 72px; background: var(--kova-navy-50); }
+.kova-contact-intro { max-width: 720px; margin: 0 0 28px; color: #fff; font-size: 18px; line-height: 1.6; }
+.kova-contact-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; list-style: none; margin: 0; padding: 0; }
+.kova-contact-cards li { margin: 0; }
+.kova-contact-card { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; height: 100%; padding: 20px; background: #fff; border: 1px solid var(--kova-border); border-radius: 12px; color: var(--kova-text); transition: box-shadow .2s, transform .2s; }
+.kova-contact-band .kova-contact-card { border-color: transparent; border-top: 4px solid var(--kova-navy-700); }
+.kova-contact-band li:nth-child(2n) .kova-contact-card { border-top-color: var(--kova-green); }
+.kova-contact-band li:nth-child(3n) .kova-contact-card { border-top-color: var(--kova-gold); }
+a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transform: translateY(-2px); color: var(--kova-text); }
+.kova-contact-card__icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-bottom: 8px; border-radius: 50%; background: var(--kova-navy-50); color: var(--kova-navy); font-size: 18px; }
+.kova-contact-card__icon--navy { background: var(--kova-navy); color: #fff; }
+.kova-contact-card__icon--green { background: var(--kova-green-100); color: var(--kova-green); }
+.kova-contact-card__icon--gold { background: var(--kova-gold-100); color: var(--kova-gold-700); }
+.kova-contact-card__icon--whatsapp { background: var(--kova-green); color: #fff; font-size: 22px; }
+.kova-contact-card__label { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--kova-text-muted); }
+.kova-contact-card__value { font-size: 16px; line-height: 1.4; color: var(--kova-navy); overflow-wrap: anywhere; }
+.kova-contact-card__action { margin-top: auto; padding-top: 8px; font-size: 14px; font-weight: 600; color: var(--kova-green); }
+.kova-contact-form { padding: 32px; background: #fff; border: 1px solid var(--kova-border); border-top: 4px solid var(--kova-green); border-radius: 12px; box-shadow: 0 4px 16px rgba(2, 23, 50, .05); }
+.kova-contact-form__submit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--kova-border); }
+.kova-contact-form__submit p { color: var(--kova-text-muted); }
+.kova-contact-side { padding: 22px 24px; margin-bottom: 16px; background: #fff; border: 1px solid var(--kova-border); border-radius: 12px; color: var(--kova-text-body); }
+.kova-contact-side h2 { color: var(--kova-navy); }
+.kova-contact-side--navy { background: var(--kova-navy); border-color: var(--kova-navy); color: #fff; }
+.kova-contact-side--navy h2 { color: #fff; }
+.kova-contact-side--navy h2 i { color: var(--kova-gold); }
+.kova-contact-side--navy p { font-size: 17px; font-weight: 600; }
+.kova-contact-side--tip { background: var(--kova-gold-100); border-color: var(--kova-gold-100); border-left: 4px solid var(--kova-gold); }
+.kova-contact-links { list-style: none; margin: 0; padding: 0; }
+.kova-contact-links li { margin: 0; }
+.kova-contact-links li + li { border-top: 1px solid var(--kova-border); }
+.kova-contact-links a { display: flex; align-items: center; gap: 10px; padding: 10px 0; font-weight: 500; color: var(--kova-navy); }
+.kova-contact-links a:hover { color: var(--kova-green); }
+.kova-contact-links i { width: 18px; color: var(--kova-green); }
+@media (max-width: 575px) {
+    .kova-contact-band { padding: 32px 0 40px; }
+    .kova-contact-main { padding: 40px 0 48px; }
+    .kova-contact-form { padding: 20px 16px; }
+    .kova-contact-form__submit .rbt-btn { width: 100%; justify-content: center; }
+}
+
+/* The theme's "added" toasters stay out of sight until shown. */
+.rbt-toaster:not(.is-visible) { visibility: hidden; }
+
+/* ------------------------------------------------------------------ Maintenance bar (team only) */
+.kova-maintenance-bar { padding: 8px 16px; background: var(--kova-danger); color: #fff; font-size: 14px; font-weight: 500; text-align: center; }
+
+/* ------------------------------------------------------------------ Category without image: its icon */
+.kova-category-icon { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--kova-green-100); color: var(--kova-green); font-size: 26px; }
+.kova-category-icon--lg { width: 110px; height: 110px; font-size: 44px; }

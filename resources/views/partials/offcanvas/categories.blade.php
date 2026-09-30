@@ -112,7 +112,12 @@
                                         @foreach ($category->children as $child)
                                             <div class="rbt-sub-category-product">
                                                 <a href="{{ $child->url() }}" class="rbt-sidebar-category-img">
-                                                    <img src="{{ asset($child->image ?? $category->image) }}" alt="{{ $child->name }}" loading="lazy" decoding="async">
+                                                    @if ($child->image ?? $category->image)
+                                                        <img src="{{ asset($child->image ?? $category->image) }}" alt="{{ $child->name }}" loading="lazy" decoding="async">
+                                                    @else
+                                                        {{-- No image yet: the category icon rather than a broken image. --}}
+                                                        <span class="kova-category-icon" aria-hidden="true"><i class="{{ $child->icon ?: ($category->icon ?: 'fa-regular fa-tag') }}"></i></span>
+                                                    @endif
                                                 </a>
                                                 <h2 class="rbt-category-offcanvas-header h5"><a href="{{ $child->url() }}">{{ $child->name }}</a></h2>
                                                 <ul class="rbt-product-features has-link-underline-effect">

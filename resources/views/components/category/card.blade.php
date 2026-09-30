@@ -13,7 +13,11 @@
         </div>
         <div class="rbt-image-portion">
             <a href="{{ $category->url() }}">
-                <img class="rbt-scroll-trigger" src="{{ asset($category->image) }}" alt="{{ $category->name }}" loading="lazy" decoding="async">
+                @if ($category->image)
+                    <img class="rbt-scroll-trigger" src="{{ asset($category->image) }}" alt="{{ $category->name }}" loading="lazy" decoding="async">
+                @else
+                    <span class="kova-category-icon kova-category-icon--lg" aria-hidden="true"><i class="{{ $category->icon ?: 'fa-regular fa-tag' }}"></i></span>
+                @endif
             </a>
             <a href="{{ $category->url() }}" class="rbt-icon-overlay-link-btn" aria-label="{{ $category->name }}">
                 <span class="rbt-btn-overlay">

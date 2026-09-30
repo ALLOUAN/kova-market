@@ -15,11 +15,13 @@ use App\Http\Controllers\Courier\DeliveryController;
 use App\Http\Controllers\Courier\PasswordController as CourierPasswordController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MaintenancePreviewController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\StockAlertController;
 use App\Http\Controllers\WishlistController;
@@ -59,6 +61,9 @@ Route::post('/panier/code-promo', [CartController::class, 'applyCoupon'])->middl
 Route::get('/commande', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/commande', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
 Route::get('/commande/{order:number}/merci', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+Route::get('/commande/{order:number}/recu', ReceiptController::class)->middleware('throttle:30,1')->name('orders.receipt');
+// Maintenance page as visitors see it, for the team (Administration › Maintenance).
+Route::get('/maintenance/apercu', MaintenancePreviewController::class)->middleware('auth')->name('maintenance.preview');
 
 // Online payment through CinetPay (F-060 to F-066): retry, return page, server-to-server notification.
 Route::post('/commande/{order:number}/paiement', [PaymentController::class, 'pay'])->middleware('throttle:10,1')->name('payments.pay');

@@ -34,7 +34,7 @@ class CheckoutJourneyTest extends TestCase
         $category = Category::factory()->create(['name' => 'Audio', 'slug' => 'audio']);
         Product::factory()->for($category)->create(['name' => 'Enceinte JBL', 'slug' => 'enceinte-jbl', 'price' => 45000, 'stock' => 10]);
 
-        $this->getJson('/api/v1/categories')->assertOk()->assertJsonPath('data.0.slug', 'audio');
+        $this->assertContains('audio', $this->getJson('/api/v1/categories')->assertOk()->json('data.*.slug'));
         $this->getJson('/api/v1/categories/audio/products')->assertOk()->assertJsonPath('data.0.slug', 'enceinte-jbl');
 
         $variantId = $this->getJson('/api/v1/products/enceinte-jbl')

@@ -29,6 +29,9 @@
                 </dl>
                 <p class="b3 mb--4"><strong>Livraison :</strong> {{ $order->customer_name }}, {{ $order->district }}, {{ $order->commune_name }}@if ($order->landmark) ({{ $order->landmark }})@endif</p>
                 <p class="b3 mb-0"><strong>Paiement :</strong> {{ $order->payment_method->getLabel() }} — {{ $order->payment_status->getLabel() }}</p>
+                <a class="rbt-btn rbt-btn-border rbt-btn-sm mt--16" style="width: auto; padding: 0 18px" href="{{ route('orders.receipt', $order) }}" target="_blank" rel="noopener">
+                    <i class="fa-regular fa-file-invoice me-2" aria-hidden="true"></i>Télécharger le reçu (PDF)
+                </a>
             </div>
         </div>
 
