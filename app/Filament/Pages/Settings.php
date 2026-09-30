@@ -4,11 +4,13 @@ namespace App\Filament\Pages;
 
 use App\Enums\Permission;
 use App\Filament\Support\StorefrontImage;
+use App\Models\Category;
 use App\Models\Setting;
 use App\Services\Delivery\DeliveryDispatcher;
 use App\Services\Payments\OnlinePayments;
 use App\Services\Storefront\ConfigOverrides;
 use App\Services\Storefront\HomePageService;
+use App\Services\Storefront\Market;
 use App\Services\Storefront\ProductViewers;
 use App\Services\Storefront\StoreSettings;
 use BackedEnum;
@@ -96,6 +98,15 @@ class Settings extends Page
             'payment' => [
                 'cash_on_delivery_limit' => Setting::get('payment.cash_on_delivery_limit'),
                 'online_timeout_minutes' => Setting::get('payment.online_timeout_minutes'),
+            ],
+            'market' => [
+                'enabled' => Setting::get('market.enabled', '1') !== '0',
+                'in_menu' => Setting::get('market.in_menu', '1') !== '0',
+                'category_id' => Setting::get('market.category_id'),
+                'per_row' => Setting::get('market.per_row'),
+                'title' => Setting::get('market.title'),
+                'subtitle' => Setting::get('market.subtitle'),
+                'banner' => Setting::get('market.banner'),
             ],
             'analytics' => collect(self::ANALYTICS_FIELDS)->mapWithKeys(fn (string $field) => [$field => Setting::get("analytics.{$field}")])->all(),
             // The values in use (settings laid over config/storefront.php by ConfigOverrides).
@@ -282,6 +293,50 @@ class Settings extends Page
                                             ->suffix('visiteurs'),
                                     ]),
                             ]),
+                        Tab::make('Mon Marché')
+                            ->icon(Heroicon::OutlinedShoppingCart)
+                            ->schema([
+                                Section::make('Page « Mon Marché »')
+                                    ->description('La vitrine du marché (/mon-marche) : bannière, rayons en raccourcis et une rangée de produits par rayon. Le rayon choisi y mène aussi depuis les menus.')
+                                    ->columns(2)
+                                    ->headerActions([
+                                        Action::make('openMarket')
+                                            ->label('Voir la page')
+                                            ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+                                            ->color('gray')
+                                            ->url(fn () => route('market.show'), shouldOpenInNewTab: true)
+                                            ->visible(fn () => app(Market::class)->enabled()),
+                                    ])
+                                    ->schema([
+                                        Toggle::make('market.enabled')->label('Page en ligne'),
+                                        Toggle::make('market.in_menu')->label('Lien « Mon Marché » dans la barre de navigation'),
+                                        Select::make('market.category_id')
+                                            ->label('Rayon présenté')
+                                            ->options(fn () => Category::roots()->pluck('name', 'id'))
+                                            ->placeholder('Mon Marché (par défaut)')
+                                            ->helperText('Ses catégories deviennent les rayons de la page, avec leurs produits et ceux de leurs sous-catégories.'),
+                                        TextInput::make('market.per_row')
+                                            ->label('Produits par rayon')
+                                            ->integer()
+                                            ->minValue(4)
+                                            ->maxValue(12)
+                                            ->placeholder((string) Market::DEFAULT_PER_ROW)
+                                            ->helperText('De 4 à 12 ; le lien « Tout voir » mène au rayon complet.'),
+                                        TextInput::make('market.title')
+                                            ->label('Titre')
+                                            ->placeholder('Mon Marché')
+                                            ->helperText('Aussi le libellé du lien de la barre de navigation. Vide : le nom du rayon.')
+                                            ->maxLength(60),
+                                        Textarea::make('market.subtitle')
+                                            ->label('Texte sous le titre')
+                                            ->placeholder('Fruits, légumes, viandes, épicerie et boissons, livrés chez vous.')
+                                            ->rows(2)
+                                            ->maxLength(200),
+                                        StorefrontImage::make('market.banner', 'market', [1920, 420], 'photo de marché ; assombrie pour que le texte blanc reste lisible. Vide : fond bleu nuit')
+                                            ->label('Image de la bannière')
+                                            ->columnSpanFull(),
+                                    ]),
+                            ]),
                         Tab::make('Commandes')
                             ->icon(Heroicon::OutlinedTruck)
                             ->schema([
@@ -431,6 +486,13 @@ class Settings extends Page
             'product_card.limited_stock_threshold' => $state['product_card']['limited_stock_threshold'] ?? null,
             'product_card.viewers_enabled' => ($state['product_card']['viewers_enabled'] ?? false) ? '1' : '0',
             'product_card.viewers_minimum' => $state['product_card']['viewers_minimum'] ?? null,
+            'market.enabled' => ($state['market']['enabled'] ?? true) ? '1' : '0',
+            'market.in_menu' => ($state['market']['in_menu'] ?? true) ? '1' : '0',
+            'market.category_id' => $state['market']['category_id'] ?? null,
+            'market.per_row' => $state['market']['per_row'] ?? null,
+            'market.title' => $state['market']['title'] ?? null,
+            'market.subtitle' => $state['market']['subtitle'] ?? null,
+            'market.banner' => $state['market']['banner'] ?? null,
             'footer.banner' => $state['footer']['banner'] ?? null,
             ...collect($state['apps'] ?? [])->mapWithKeys(fn ($url, string $store) => ["apps.{$store}" => $url])->all(),
             ...collect($state['payment_logo'] ?? [])->mapWithKeys(fn ($logo, string $method) => ["payment_logo.{$method}" => $logo])->all(),

@@ -63,7 +63,7 @@ class ProductListing
     }
 
     /**
-     * @return array{q: string, sort: string, min: ?int, max: ?int, in_stock: bool, brands: list<int>, values: list<int>, categories: list<int>}
+     * @return array{q: string, sort: string, min: ?int, max: ?int, in_stock: bool, weighed: bool, brands: list<int>, values: list<int>, categories: list<int>}
      */
     private function filters(Request $request): array
     {
@@ -83,6 +83,8 @@ class ProductListing
             'min' => $min,
             'max' => $max,
             'in_stock' => $request->boolean('en_stock'),
+            // Sold by weight or volume (Mon Marché): "?vente=poids".
+            'weighed' => $request->query('vente') === 'poids',
             'brands' => $this->ids($request->query('marques')),
             'values' => $this->ids($request->query('valeurs')),
             'categories' => $this->ids($request->query('categories')),
@@ -98,6 +100,7 @@ class ProductListing
             ->when($filters['min'] !== null, fn (Builder $query) => $query->where('price', '>=', $filters['min']))
             ->when($filters['max'] !== null, fn (Builder $query) => $query->where('price', '<=', $filters['max']))
             ->when($filters['in_stock'], fn (Builder $query) => $query->where('stock', '>', 0))
+            ->when($filters['weighed'], fn (Builder $query) => Market::weighed($query))
             ->when($filters['brands'] !== [], fn (Builder $query) => $query->whereIn('brand_id', $filters['brands']))
             ->when($filters['categories'] !== [], fn (Builder $query) => $query->whereIn(
                 'category_id',
@@ -130,7 +133,7 @@ class ProductListing
     /**
      * Choices offered by the filter panel, computed on the page scope (before its own filters).
      *
-     * @return array{categories: Collection<int, Category>, brands: Collection<int, Brand>, attributes: Collection<int, ProductAttribute>, price: array{min: int, max: int}}
+     * @return array{categories: Collection<int, Category>, brands: Collection<int, Brand>, attributes: Collection<int, ProductAttribute>, price: array{min: int, max: int}, weighed: bool}
      */
     private function facets(Builder $scope, ?Category $category): array
     {
@@ -152,6 +155,8 @@ class ProductListing
                 'min' => (int) (clone $scope)->min('price'),
                 'max' => (int) (clone $scope)->max('price'),
             ],
+            // Offer the "sold by weight" filter only where such products exist.
+            'weighed' => Market::weighed(clone $scope)->exists(),
         ];
     }
 

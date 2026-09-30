@@ -8,7 +8,7 @@
     if ($category || $brand || $filters['q'] !== '') {
         $trail = ['Boutique' => route('shop.index'), ...$trail];
     }
-    $activeFilters = $filters['min'] || $filters['max'] || $filters['in_stock'] || $filters['brands'] || $filters['values'] || $filters['categories'];
+    $activeFilters = $filters['min'] || $filters['max'] || $filters['in_stock'] || $filters['weighed'] || $filters['brands'] || $filters['values'] || $filters['categories'];
 @endphp
 
 @section('title', $seoTitle)
@@ -76,6 +76,12 @@
                                 <input type="checkbox" id="filter-in-stock" name="en_stock" value="1" @checked($filters['in_stock'])>
                                 <label for="filter-in-stock">En stock uniquement</label>
                             </div>
+                            @if ($facets['weighed'] || $filters['weighed'])
+                                <div class="rbt-check-group mt--8">
+                                    <input type="checkbox" id="filter-weighed" name="vente" value="poids" @checked($filters['weighed'])>
+                                    <label for="filter-weighed">Vendu au poids ou au litre</label>
+                                </div>
+                            @endif
                         </fieldset>
 
                         @if ($facets['brands']->isNotEmpty() && ! $brand)

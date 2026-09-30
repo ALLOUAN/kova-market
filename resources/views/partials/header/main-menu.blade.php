@@ -56,7 +56,9 @@
                     @break
 
                 @default
-                    <li class="position-relative"><a href="{{ $item['href'] }}">{{ $item['label'] }}</a></li>
+                    <li @class(['position-relative', 'kova-menu-highlight' => $item['highlight'] ?? false])>
+                        <a href="{{ $item['href'] }}">@isset($item['icon'])<i class="{{ $item['icon'] }} mr--4"></i>@endisset{{ $item['label'] }}</a>
+                    </li>
             @endswitch
         @endforeach
     </ul>

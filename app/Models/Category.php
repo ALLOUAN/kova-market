@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\RedirectsOldSlugs;
+use App\Services\Storefront\Market;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -103,6 +104,11 @@ class Category extends Model
      */
     public function url(): string
     {
+        // The market department opens on its showcase (/mon-marche) rather than a plain product list.
+        if ($this->parent_id === null && Route::has('market.show') && app(Market::class)->isMarket($this)) {
+            return route('market.show');
+        }
+
         return Route::has('categories.show') ? route('categories.show', $this) : '#';
     }
 

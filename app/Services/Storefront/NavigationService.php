@@ -23,7 +23,28 @@ class NavigationService
             $item['links'] = $this->links($item['links'] ?? []);
 
             return $item;
-        }, config('navigation.main')));
+        }, $this->withMarket(config('navigation.main'))));
+    }
+
+    /**
+     * "Mon Marché" right after the "Boutique" menu, highlighted, while the showcase is on and shown in the menu.
+     *
+     * @param  list<array<string, mixed>>  $items
+     * @return list<array<string, mixed>>
+     */
+    private function withMarket(array $items): array
+    {
+        $market = app(Market::class);
+
+        if (! $market->showInMenu()) {
+            return $items;
+        }
+
+        $link = ['label' => $market->title(), 'route' => 'market.show', 'icon' => 'fa-regular fa-basket-shopping', 'highlight' => true];
+        $after = collect($items)->search(fn (array $item) => ($item['type'] ?? null) === 'categories');
+        array_splice($items, $after === false ? 1 : $after + 1, 0, [$link]);
+
+        return $items;
     }
 
     /**

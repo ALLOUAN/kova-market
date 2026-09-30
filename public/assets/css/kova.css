@@ -940,3 +940,44 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 /* ------------------------------------------------------------------ Sale units: price per kg, weight choice */
 .kova-price-unit { margin-left: 2px; font-size: 14px; font-weight: 500; color: var(--kova-text-muted); }
 .kova-quantity-select { height: 50px; padding-right: 36px; font-weight: 500; }
+
+/* ------------------------------------------------------------------ Mon Marché showcase */
+.kova-menu-highlight > a { color: var(--kova-gold) !important; font-weight: 600; }
+.kova-menu-highlight > a:hover { color: #fff !important; }
+.kova-market-hero { padding: 36px 0 56px; background-color: var(--kova-navy); background-size: cover; background-position: center; border-bottom: 4px solid var(--kova-gold); color: #fff; position: relative; }
+.kova-market-hero--image::before { content: ""; position: absolute; inset: 0; background: rgb(2 23 50 / .72); }
+.kova-market-hero .container { position: relative; }
+.kova-market-hero__trail { margin-bottom: 28px; font-size: 14px; color: rgb(255 255 255 / .75); }
+.kova-market-hero__trail a { color: #fff; }
+.kova-market-hero__content { max-width: 720px; }
+.kova-market-hero__icon { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; margin-bottom: 16px; border-radius: 50%; background: var(--kova-gold); color: var(--kova-navy); font-size: 28px; }
+.kova-market-hero h1 { margin: 0 0 12px; color: #fff; font-size: 44px; }
+.kova-market-hero p { margin: 0 0 24px; font-size: 18px; color: rgb(255 255 255 / .88); }
+.kova-market-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.kova-market-hero__secondary { display: inline-flex; align-items: center; padding: 0 24px; min-height: 50px; border: 1px solid rgb(255 255 255 / .6); border-radius: 6px; color: #fff; font-weight: 600; }
+.kova-market-hero__secondary:hover { border-color: #fff; background: rgb(255 255 255 / .1); color: #fff; }
+.kova-market-rayons { margin-top: -28px; position: relative; z-index: 1; }
+.kova-market-rayons__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 0; padding: 16px; list-style: none; background: #fff; border: 1px solid var(--kova-border); border-radius: 14px; box-shadow: 0 10px 28px rgb(2 23 50 / .08); }
+.kova-market-rayons__list li { margin: 0; }
+.kova-market-rayon { display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; padding: 14px 8px; border-radius: 10px; text-align: center; color: var(--kova-navy); transition: background .2s; }
+.kova-market-rayon:hover { background: var(--kova-green-100); color: var(--kova-green-800); }
+.kova-market-rayon__icon { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: var(--kova-green-100); color: var(--kova-green); font-size: 24px; overflow: hidden; }
+.kova-market-rayon__icon img { width: 100%; height: 100%; object-fit: cover; }
+.kova-market-rayon__name { font-size: 14px; font-weight: 600; line-height: 1.3; }
+.kova-market-body { padding: 48px 0 72px; }
+.kova-market-row + .kova-market-row { margin-top: 56px; }
+.kova-market-row__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 2px solid var(--kova-border); }
+.kova-market-row__head h2 i { color: var(--kova-green); }
+.kova-market-row__subs { margin: 6px 0 0; font-size: 14px; color: var(--kova-text-muted); }
+.kova-market-row__subs a { color: var(--kova-text-body); }
+.kova-market-row__subs a:hover, .kova-market-row__all:hover { color: var(--kova-green); }
+.kova-market-row__all { font-weight: 600; color: var(--kova-navy); white-space: nowrap; }
+.kova-market-empty { max-width: 520px; margin: 24px auto 0; text-align: center; }
+.kova-market-empty .kova-category-icon { margin-bottom: 16px; }
+@media (max-width: 575px) {
+    .kova-market-hero { padding: 24px 0 48px; }
+    .kova-market-hero h1 { font-size: 32px; }
+    .kova-market-rayons__list { grid-template-columns: repeat(3, 1fr); padding: 10px; gap: 6px; }
+    .kova-market-rayon__icon { width: 46px; height: 46px; font-size: 20px; }
+    .kova-market-rayon__name { font-size: 12px; }
+}

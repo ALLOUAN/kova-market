@@ -16,6 +16,7 @@ use App\Http\Controllers\Courier\PasswordController as CourierPasswordController
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MaintenancePreviewController;
+use App\Http\Controllers\MarketController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\PageController;
@@ -36,6 +37,8 @@ Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 // Catalog: these route names turn the menu, card and brand links from "#" into real URLs.
 Route::get('/boutique', [CatalogController::class, 'index'])->name('shop.index');
 Route::get('/categorie/{category:slug}', [CatalogController::class, 'category'])->name('categories.show');
+// The market showcase (Paramètres › Mon Marché).
+Route::get('/mon-marche', MarketController::class)->name('market.show');
 Route::get('/marque/{brand:slug}', [CatalogController::class, 'brand'])->name('brands.show');
 Route::get('/selection/{collection:slug}', [CatalogController::class, 'collection'])->name('collections.show');
 Route::get('/produit/{product:slug}', [ProductController::class, 'show'])->name('products.show');
