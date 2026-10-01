@@ -9,7 +9,6 @@ use App\Support\PhoneNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -39,7 +38,7 @@ class AuthController extends Controller
 
         $user = User::findByLogin($data['phone']);
 
-        if (! $user || ! $user->hasRole(Role::Courier->value) || ! Hash::check($data['password'], $user->password)) {
+        if (! User::passwordMatches($user, $data['password']) || ! $user->hasRole(Role::Courier->value)) {
             RateLimiter::hit($key);
 
             throw ValidationException::withMessages(['phone' => 'Numéro ou mot de passe incorrect.']);

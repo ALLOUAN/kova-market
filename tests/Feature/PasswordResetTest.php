@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\Account\PasswordRecovery;
 use App\Services\Sms\SmsGateway;
@@ -23,6 +24,12 @@ class PasswordResetTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Codes and links go out after the answer (defer); here they are sent at once to be read.
+        $this->withoutDefer();
+
+        // These journeys are checked with SMS switched on; WhatsApp codes: WhatsAppTest.
+        Setting::store(['notifications.sms' => '1', 'notifications.whatsapp' => '0']);
 
         $sent = &$this->sms;
         $this->app->instance(SmsGateway::class, new class($sent) implements SmsGateway

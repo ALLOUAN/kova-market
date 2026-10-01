@@ -6,9 +6,11 @@ use App\Enums\Permission;
 use App\Filament\Support\StorefrontImage;
 use App\Models\Category;
 use App\Models\Setting;
+use App\Notifications\Channels\Messaging;
 use App\Services\Delivery\DeliveryDispatcher;
 use App\Services\Orders\WeighIn;
 use App\Services\Payments\OnlinePayments;
+use App\Services\Storefront\Analytics;
 use App\Services\Storefront\ConfigOverrides;
 use App\Services\Storefront\HomePageService;
 use App\Services\Storefront\Market;
@@ -101,6 +103,15 @@ class Settings extends Page
                 'online_timeout_minutes' => Setting::get('payment.online_timeout_minutes'),
             ],
             'orders' => ['weigh_tolerance' => Setting::get('orders.weigh_tolerance')],
+            'notifications' => [
+                'whatsapp' => Messaging::whatsappEnabled(),
+                'sms' => Messaging::smsEnabled(),
+            ],
+            'whatsapp_content' => collect(config('whatsapp.templates'))->mapWithKeys(fn (array $template, string $key) => [$key => Setting::get("whatsapp.twilio_content.{$key}")])->all(),
+            'cookies' => [
+                'always' => Setting::get('cookies.always', '1') !== '0',
+                ...collect(array_keys(Analytics::BANNER_TEXTS))->mapWithKeys(fn (string $key) => [$key => Setting::get("cookies.{$key}")])->all(),
+            ],
             'market' => [
                 'enabled' => Setting::get('market.enabled', '1') !== '0',
                 'in_menu' => Setting::get('market.in_menu', '1') !== '0',
@@ -382,6 +393,40 @@ class Settings extends Page
                                                 ? 'Actif : proposé au checkout (Orange Money, MTN MoMo, Moov Money, Wave, carte).'
                                                 : 'Inactif : les clés CINETPAY_API_KEY et CINETPAY_API_PASSWORD du compte marchand ne sont pas encore renseignées sur le serveur.'),
                                     ]),
+                                Section::make('Notifications aux clients et aux livreurs')
+                                    ->description('Confirmations de commande, suivi, codes de vérification et messages aux livreurs. L’e-mail part toujours quand le client en a donné un.')
+                                    ->columns(2)
+                                    ->schema([
+                                        Toggle::make('notifications.whatsapp')
+                                            ->label('WhatsApp (API WhatsApp Business de Meta)')
+                                            ->helperText('Messages automatiques au numéro de téléphone, avec les modèles validés par Meta.'),
+                                        Toggle::make('notifications.sms')
+                                            ->label('SMS')
+                                            ->helperText('À laisser désactivé tant qu’aucun fournisseur SMS n’est branché.'),
+                                        Placeholder::make('notifications.whatsapp_state')
+                                            ->label('État de WhatsApp')
+                                            ->content(fn () => match (config('services.whatsapp.driver')) {
+                                                'twilio' => filled(config('services.whatsapp.twilio.sid')) && filled(config('services.whatsapp.twilio.token')) && filled(config('services.whatsapp.twilio.from'))
+                                                    ? 'Connecté à Twilio (expéditeur '.config('services.whatsapp.twilio.from').') : les messages partent réellement.'
+                                                    : 'Clés Twilio manquantes : renseigner TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN et TWILIO_WHATSAPP_FROM sur le serveur.',
+                                                'cloud' => filled(config('services.whatsapp.token')) && filled(config('services.whatsapp.phone_number_id'))
+                                                    ? 'Connecté à Meta : les messages partent réellement.'
+                                                    : 'Clés manquantes : renseigner WHATSAPP_TOKEN et WHATSAPP_PHONE_NUMBER_ID sur le serveur.',
+                                                default => 'Mode test : les messages sont écrits dans le journal du serveur, rien n’est envoyé.',
+                                            })
+                                            ->columnSpanFull(),
+                                    ]),
+                                // One approved template per message. With Twilio, each one's Content SID (HX…) from the
+                                // Content Template Builder; without it the message goes as plain text (sandbox, 24 h window).
+                                Section::make('Modèles de messages WhatsApp')
+                                    ->description('À créer en français avec exactement ce texte, puis à faire valider pour WhatsApp : dans Twilio (Messaging › Content Template Builder) ou dans WhatsApp Manager de Meta. Avec Twilio, collez ici l’identifiant de chaque modèle validé ; sans identifiant, le message part en texte libre, accepté seulement dans le bac à sable ou dans les 24 h qui suivent un message du client.')
+                                    ->collapsible()
+                                    ->schema(collect(config('whatsapp.templates'))->map(fn (array $template, string $key) => TextInput::make("whatsapp_content.{$key}")
+                                        ->label($template['name'].' · '.($template['category'] === 'AUTHENTICATION' ? 'authentification' : 'utilitaire'))
+                                        ->placeholder('Content SID Twilio (HX…)')
+                                        ->regex('/^HX[0-9a-fA-F]{32}$/')
+                                        ->helperText($template['body']))
+                                        ->values()->all()),
                                 Section::make('Pesée des produits au poids')
                                     ->description('Mon Marché : à la préparation, « Peser les articles » facture la quantité réellement pesée des produits vendus au kg ou au litre (commandes payées à la livraison, avant l’expédition).')
                                     ->schema([
@@ -434,8 +479,22 @@ class Settings extends Page
                         Tab::make('Audience')
                             ->icon(Heroicon::OutlinedChartBar)
                             ->schema([
+                                Section::make('Bandeau des cookies')
+                                    ->description('La fenêtre qui demande l’accord du visiteur, en bas de l’écran, et le lien « Gérer les cookies » du pied de page. Toujours affichée dès qu’un outil de mesure ci-dessous est renseigné : l’accord est alors obligatoire.')
+                                    ->columns(2)
+                                    ->schema([
+                                        Toggle::make('cookies.always')
+                                            ->label('Afficher le bandeau même sans outil de mesure')
+                                            ->helperText('Désactivé : sans Google Analytics, Meta ni TikTok, aucun bandeau (les cookies de la boutique elle-même, panier et connexion, n’en demandent pas).')
+                                            ->columnSpanFull(),
+                                        TextInput::make('cookies.title')->label('Titre')->placeholder(Analytics::BANNER_TEXTS['title'])->maxLength(80),
+                                        TextInput::make('cookies.accept')->label('Bouton pour accepter')->placeholder(Analytics::BANNER_TEXTS['accept'])->maxLength(30),
+                                        Textarea::make('cookies.message')->label('Message')->placeholder(Analytics::BANNER_TEXTS['message'])->rows(3)->maxLength(400)
+                                            ->helperText('Suivi du lien « Politique de confidentialité ».'),
+                                        TextInput::make('cookies.decline')->label('Bouton pour refuser')->placeholder(Analytics::BANNER_TEXTS['decline'])->maxLength(30),
+                                    ]),
                                 Section::make('Mesure d’audience')
-                                    ->description('Chargés seulement après l’accord du visiteur (bandeau cookies). Laisser vide pour ne pas utiliser un service ; sans aucun identifiant, le bandeau n’est pas affiché.')
+                                    ->description('Chargés seulement après l’accord du visiteur (bandeau cookies). Laisser vide pour ne pas utiliser un service.')
                                     ->columns(2)
                                     ->schema([
                                         TextInput::make('analytics.ga4_id')->label('Google Analytics 4 (ID de mesure)')->placeholder('G-XXXXXXXXXX')->regex('/^G-[A-Z0-9]{4,20}$/')->maxLength(30),
@@ -501,6 +560,11 @@ class Settings extends Page
             'product_card.viewers_enabled' => ($state['product_card']['viewers_enabled'] ?? false) ? '1' : '0',
             'product_card.viewers_minimum' => $state['product_card']['viewers_minimum'] ?? null,
             'orders.weigh_tolerance' => $state['orders']['weigh_tolerance'] ?? null,
+            'notifications.whatsapp' => ($state['notifications']['whatsapp'] ?? true) ? '1' : '0',
+            'notifications.sms' => ($state['notifications']['sms'] ?? false) ? '1' : '0',
+            ...collect(config('whatsapp.templates'))->mapWithKeys(fn (array $template, string $key) => ["whatsapp.twilio_content.{$key}" => $state['whatsapp_content'][$key] ?? null])->all(),
+            'cookies.always' => ($state['cookies']['always'] ?? true) ? '1' : '0',
+            ...collect(array_keys(Analytics::BANNER_TEXTS))->mapWithKeys(fn (string $key) => ["cookies.{$key}" => $state['cookies'][$key] ?? null])->all(),
             'market.enabled' => ($state['market']['enabled'] ?? true) ? '1' : '0',
             'market.in_menu' => ($state['market']['in_menu'] ?? true) ? '1' : '0',
             'market.category_id' => $state['market']['category_id'] ?? null,

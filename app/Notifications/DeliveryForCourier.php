@@ -3,13 +3,14 @@
 namespace App\Notifications;
 
 use App\Models\Order;
-use App\Notifications\Channels\SmsChannel;
+use App\Notifications\Channels\Messaging;
+use App\Services\WhatsApp\WhatsAppMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 /**
- * SMS to a courier (F-123): an order given to them, or a new order waiting in their zone.
+ * WhatsApp (or SMS) to a courier (F-123): an order given to them, or a new order waiting in their zone.
  */
 class DeliveryForCourier extends Notification implements ShouldQueue
 {
@@ -31,7 +32,17 @@ class DeliveryForCourier extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return [SmsChannel::class];
+        return Messaging::via($notifiable, $this, ['phone']);
+    }
+
+    public function toWhatsApp(object $notifiable): WhatsAppMessage
+    {
+        return WhatsAppMessage::template('courier_delivery', [
+            $this->order->number,
+            "{$this->order->commune_name}, {$this->order->district}",
+            $this->event === self::ASSIGNED ? 'elle vous est confiée' : 'nouvelle commande dans votre zone, prenez-la',
+            $this->event === self::ASSIGNED ? route('courier.orders.show', $this->order) : route('courier.home'),
+        ]);
     }
 
     public function toSms(object $notifiable): string

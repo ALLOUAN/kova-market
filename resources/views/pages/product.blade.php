@@ -8,7 +8,7 @@
     $images = collect([$product->image, $product->hover_image])
         ->merge(collect($product->colors ?? [])->pluck('image'))
         ->filter()->unique()->values();
-    $description = $product->meta_description ?: Str::limit(trim(strip_tags(Str::sanitizeHtml((string) $product->description))), 160, '…') ?: config('storefront.description');
+    $description = \App\Support\SeoText::product($product);
     $trail = ['Boutique' => route('shop.index'), ...collect($breadcrumb)->mapWithKeys(fn ($ancestor) => [$ancestor->name => $ancestor->url()])->all()];
     $shareText = rawurlencode($product->name.' — '.Money::format($product->price).$product->saleQuantity()->priceSuffix().' : '.$product->url());
 @endphp

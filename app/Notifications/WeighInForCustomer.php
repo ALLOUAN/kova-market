@@ -4,8 +4,9 @@ namespace App\Notifications;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Notifications\Channels\SmsChannel;
+use App\Notifications\Channels\Messaging;
 use App\Services\Orders\OrderReceipt;
+use App\Services\WhatsApp\WhatsAppMessage;
 use App\Support\Money;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,11 +33,18 @@ class WeighInForCustomer extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return collect(['sms', 'mail'])
-            ->filter(fn (string $channel) => filled($notifiable->routeNotificationFor($channel, $this)))
-            ->map(fn (string $channel) => $channel === 'sms' ? SmsChannel::class : $channel)
-            ->values()
-            ->all();
+        return Messaging::via($notifiable, $this, ['phone', 'mail']);
+    }
+
+    public function toWhatsApp(object $notifiable): WhatsAppMessage
+    {
+        return WhatsAppMessage::template('weigh_in', [
+            str($this->order->customer_name)->before(' ')->toString() ?: $this->order->customer_name,
+            $this->order->number,
+            Money::format($this->order->total),
+            Money::format($this->previousTotal),
+            app(OrderReceipt::class)->url($this->order),
+        ]);
     }
 
     public function toSms(object $notifiable): string

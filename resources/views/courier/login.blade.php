@@ -15,7 +15,7 @@
             <img src="{{ asset(config('storefront.logo_small')) }}" alt="{{ config('storefront.name') }}">
             <div><span class="eyebrow">Espace livreur</span></div>
             <h1>Connexion</h1>
-            <p>Avec votre numéro et le mot de passe reçu par SMS.</p>
+            <p>Avec votre numéro et le mot de passe reçu sur WhatsApp.</p>
         </div>
 
         @foreach (['courier_status' => 'ok', 'courier_error' => 'error'] as $key => $type)
@@ -53,7 +53,7 @@
 
         <div class="help">
             <strong>Mot de passe oublié ou compte bloqué ?</strong>
-            <p>La boutique vous envoie un nouveau mot de passe par SMS.</p>
+            <p>La boutique vous envoie un nouveau mot de passe sur WhatsApp.</p>
             <div class="{{ $whatsapp ? 'grid2' : '' }}">
                 @if (filled($storePhone))
                     <a class="btn secondary" href="tel:{{ preg_replace('/[^\d+]/', '', $storePhone) }}">Appeler</a>

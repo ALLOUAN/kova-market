@@ -59,8 +59,26 @@ class CheckoutTest extends TestCase
         $this->assertSame(8, $product->defaultVariant->fresh()->stock);
         $this->assertSame(StockMovementReason::Sale, $product->defaultVariant->stockMovements()->first()->reason);
         $this->assertSame(0, Cart::sole()->items()->count());
+        // The emptied cart keeps its commune but no delivery fee: the header shows 0 FCFA.
+        $this->assertSame(0, app(CartManager::class)->summary()->total());
 
         $this->get("/commande/{$order->number}/merci")->assertOk()->assertSeeText($order->number)->assertSeeText("91\u{00A0}500\u{00A0}FCFA");
+    }
+
+    public function test_a_visitor_is_told_no_account_is_needed_and_may_sign_in_to_come_back(): void
+    {
+        $product = Product::factory()->create(['price' => 45000, 'stock' => 10]);
+        $this->addToCart($product);
+
+        $this->get('/commande')->assertOk()
+            ->assertSeeText('Pas besoin de compte pour commander')
+            ->assertSee('data-bs-target="#signinModal"', false);
+
+        // Signing in from the checkout brings the customer back to it, the cart kept.
+        $customer = User::factory()->customer()->create(['phone' => '0701020304']);
+        $this->post('/login', ['login' => '0701020304', 'password' => 'password'])->assertRedirect('/commande');
+
+        $this->actingAs($customer)->get('/commande')->assertOk()->assertDontSeeText('Pas besoin de compte pour commander');
     }
 
     public function test_order_lines_keep_their_price_when_the_product_changes(): void

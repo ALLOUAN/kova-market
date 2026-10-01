@@ -9,6 +9,8 @@ use App\Support\PhoneNumber;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
+use function Illuminate\Support\defer;
+
 /**
  * "Mot de passe oublié" (F-076) for customer accounts: an e-mail address receives a single-use link (Laravel's
  * password broker), a phone number receives a 6-digit code by SMS, valid 15 minutes, 5 tries, used once. Nothing
@@ -41,14 +43,18 @@ class PasswordRecovery
             return;
         }
 
-        if (str_contains($login, '@')) {
-            Password::broker()->sendResetLink(['email' => $user->email]);
+        // Sent once the answer has left (F-147): the e-mail or WhatsApp call would otherwise make the answer slower
+        // when the account exists, which tells it apart.
+        defer(function () use ($user, $login): void {
+            if (str_contains($login, '@')) {
+                Password::broker()->sendResetLink(['email' => $user->email]);
 
-            return;
-        }
+                return;
+            }
 
-        $this->codes->send(self::PURPOSE, $user->phone, fn (string $code) => config('storefront.name')
-            ." : votre code pour changer de mot de passe est {$code}. Il est valable ".self::CODE_MINUTES.' minutes. Ne le communiquez à personne.');
+            $this->codes->send(self::PURPOSE, $user->phone, fn (string $code) => config('storefront.name')
+                ." : votre code pour changer de mot de passe est {$code}. Il est valable ".self::CODE_MINUTES.' minutes. Ne le communiquez à personne.');
+        });
     }
 
     /**

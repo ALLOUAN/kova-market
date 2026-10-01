@@ -147,3 +147,38 @@
 .fi-sidebar .fi-logo.fi-logo-dark {
     display: flex !important;
 }
+
+/* Dashboard: Filament's own cards, figures aligned, headings in the logo's night blue. */
+.fi-wi-stats-overview-stat-value { font-variant-numeric: tabular-nums; }
+.fi-wi-stats-overview .fi-section-header-heading,
+.fi-wi-chart .fi-section-header-heading,
+.fi-wi-table .fi-ta-header-heading { color: var(--kova-navy); }
+.dark .fi-wi-stats-overview .fi-section-header-heading,
+.dark .fi-wi-chart .fi-section-header-heading,
+.dark .fi-wi-table .fi-ta-header-heading { color: #fff; }
+
+/* Group titles of the dashboard ("Aujourd’hui", "Catalogue"): led by the gold triangle of the logo's A. */
+.fi-wi-stats-overview .fi-section-header-heading { display: inline-flex; align-items: center; gap: 0.55rem; }
+.fi-wi-stats-overview .fi-section-header-heading::before {
+    content: "";
+    width: 0.62rem;
+    height: 0.55rem;
+    background: var(--kova-gold);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+/* Figures: the icon in a small night-blue tint, the value in the logo's night blue. */
+.fi-wi-stats-overview-stat-label-ctn > .fi-icon {
+    width: 2rem;
+    height: 2rem;
+    padding: 0.42rem;
+    border-radius: 0.5rem;
+    background: #eef2f8;
+    color: var(--kova-navy);
+}
+.fi-wi-stats-overview-stat-label-ctn { gap: 0.6rem; }
+.fi-body:not(.dark) .fi-wi-stats-overview-stat-value { color: var(--kova-navy); }
+.dark .fi-wi-stats-overview-stat-label-ctn > .fi-icon { background: rgb(255 255 255 / 0.08); color: var(--kova-gold-light); }
+
+/* Orders to handle: the number set like a reference. */
+.fi-wi-table .fi-ta-cell-number .fi-ta-text-item { font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }

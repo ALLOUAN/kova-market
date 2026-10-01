@@ -4,8 +4,9 @@ namespace App\Notifications;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
-use App\Notifications\Channels\SmsChannel;
+use App\Notifications\Channels\Messaging;
 use App\Services\Orders\OrderReceipt;
+use App\Services\WhatsApp\WhatsAppMessage;
 use App\Support\Money;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,8 +15,8 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * What the customer receives about an order (F-130): SMS is the main channel since the e-mail is optional.
- * Sent through the queue, three attempts, never blocking the order itself.
+ * What the customer receives about an order (F-130): a WhatsApp message to the phone number (SMS while switched on),
+ * and the e-mail when one was given. Sent through the queue, three attempts, never blocking the order itself.
  */
 class OrderUpdateForCustomer extends Notification implements ShouldQueue
 {
@@ -27,16 +28,16 @@ class OrderUpdateForCustomer extends Notification implements ShouldQueue
     private const WITH_RECEIPT = [self::PLACED, 'livree'];
 
     /**
-     * Channels per event, from the specification's notification table.
+     * Channels per event, from the specification's notification table ("phone": WhatsApp, or SMS while switched on).
      */
     private const CHANNELS = [
-        self::PLACED => ['sms', 'mail'],
-        'confirmee' => ['sms', 'mail'],
+        self::PLACED => ['phone', 'mail'],
+        'confirmee' => ['phone', 'mail'],
         'en_preparation' => ['mail'],
-        'expediee' => ['sms'],
-        'en_livraison' => ['sms'],
-        'livree' => ['sms', 'mail'],
-        'annulee' => ['sms', 'mail'],
+        'expediee' => ['phone'],
+        'en_livraison' => ['phone'],
+        'livree' => ['phone', 'mail'],
+        'annulee' => ['phone', 'mail'],
     ];
 
     public int $tries = 3;
@@ -62,11 +63,30 @@ class OrderUpdateForCustomer extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return collect(self::CHANNELS[$this->event] ?? [])
-            ->filter(fn (string $channel) => filled($notifiable->routeNotificationFor($channel, $this)))
-            ->map(fn (string $channel) => $channel === 'sms' ? SmsChannel::class : $channel)
-            ->values()
-            ->all();
+        return Messaging::via($notifiable, $this, self::CHANNELS[$this->event] ?? []);
+    }
+
+    /**
+     * Templates "kova_commande_recue" and "kova_suivi_commande" (config/whatsapp.php).
+     */
+    public function toWhatsApp(object $notifiable): WhatsAppMessage
+    {
+        $order = $this->order;
+        $firstName = str($order->customer_name)->before(' ')->toString() ?: $order->customer_name;
+        $receipt = app(OrderReceipt::class)->url($order);
+
+        if ($this->event === self::PLACED) {
+            return WhatsAppMessage::template('order_placed', [$firstName, $order->number, Money::format($order->total), $receipt]);
+        }
+
+        return WhatsAppMessage::template('order_status', [$firstName, $order->number, match ($this->event) {
+            'confirmee' => 'elle est confirmée, nous la préparons',
+            'expediee' => 'elle a quitté notre entrepôt',
+            'en_livraison' => 'le livreur est en route, gardez votre téléphone à portée de main',
+            'livree' => 'elle a été livrée, merci pour votre confiance ! Votre reçu est disponible',
+            'annulee' => 'elle a été annulée. Pour toute question, répondez à ce message',
+            default => 'son statut a changé',
+        }, $this->event === 'livree' ? $receipt : route('tracking.show')]);
     }
 
     public static function recipientOf(Order $order): AnonymousNotifiable

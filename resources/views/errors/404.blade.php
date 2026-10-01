@@ -1,6 +1,8 @@
 @extends('layouts.storefront')
 
 @section('title', 'Page introuvable')
+{{-- A missing page is never indexed. --}}
+@section('robots', 'noindex, follow')
 
 @push('meta')
     <meta name="robots" content="noindex">

@@ -6,7 +6,7 @@
 @endphp
 
 @section('title', $category->meta_title ?: $market->title())
-@section('description', $category->meta_description ?: $market->subtitle())
+@section('description', $category->meta_description ?: \Illuminate\Support\Str::limit($market->title().' : '.rtrim($market->subtitle(), '.').'. '.$category->children->take(3)->pluck('name')->join(', ').'… Livraison à Abidjan, paiement Mobile Money ou à la livraison.', 160, '…'))
 
 @push('meta')
     <x-json-ld :data="app(\App\Services\Storefront\StructuredData::class)->breadcrumbs([$market->title() => url()->current()])" />

@@ -1,7 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', $page->meta_title ?: $page->title)
-@section('description', $page->meta_description ?: config('storefront.description'))
+@section('description', $page->meta_description ?: (\Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags((string) $page->content))), 160, '…') ?: config('storefront.description')))
 
 @section('content')
     <x-page-header :title="$page->title" />

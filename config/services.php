@@ -42,6 +42,27 @@ return [
         'sender' => env('SMS_SENDER', 'KOVA'),
     ],
 
+    // WhatsApp Business (F-134): customer and courier messages, verification codes. "twilio" sends through Twilio,
+    // "cloud" through Meta's Cloud API directly, "log" writes them to storage/logs/whatsapp.log, "null" discards
+    // them (tests). Templates: config/whatsapp.php.
+    'whatsapp' => [
+        'driver' => env('WHATSAPP_DRIVER', 'log'),
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'api_version' => env('WHATSAPP_API_VERSION', 'v21.0'),
+        // Webhook (delivery reports): the app secret signs Meta's calls, the verify token answers its check.
+        'app_secret' => env('WHATSAPP_APP_SECRET'),
+        'verify_token' => env('WHATSAPP_VERIFY_TOKEN'),
+        // "twilio": WhatsApp through Twilio. Account SID and auth token from the Twilio console; "from" is the
+        // WhatsApp sender, e.g. the sandbox number shown in the Twilio console. Template Content SIDs (HX…) are set in the
+        // back-office (Paramètres › Commandes › Notifications).
+        'twilio' => [
+            'sid' => env('TWILIO_ACCOUNT_SID'),
+            'token' => env('TWILIO_AUTH_TOKEN'),
+            'from' => env('TWILIO_WHATSAPP_FROM'),
+        ],
+    ],
+
     // Online payment (F-060 to F-067): CinetPay API v1 (OAuth). Keys of KOVA MARKET's own merchant account.
     'cinetpay' => [
         'api_key' => env('CINETPAY_API_KEY'),

@@ -13,6 +13,11 @@ use App\Services\Storefront\Comparison;
 use App\Services\Storefront\ConfigOverrides;
 use App\Services\Storefront\NavigationService;
 use App\Services\Storefront\Wishlist;
+use App\Services\WhatsApp\CloudWhatsAppGateway;
+use App\Services\WhatsApp\LogWhatsAppGateway;
+use App\Services\WhatsApp\NullWhatsAppGateway;
+use App\Services\WhatsApp\TwilioWhatsAppGateway;
+use App\Services\WhatsApp\WhatsAppGateway;
 use App\View\Composers\StorefrontLayoutComposer;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -45,8 +50,26 @@ class AppServiceProvider extends ServiceProvider
         // Preproduction holds real customers after the monthly restore test (F-173): its e-mails and SMS are only
         // written to the log, whatever its .env says.
         if ($this->app->environment('staging')) {
-            config(['mail.default' => 'log', 'services.sms.driver' => 'log']);
+            config(['mail.default' => 'log', 'services.sms.driver' => 'log', 'services.whatsapp.driver' => 'log']);
         }
+
+        // WhatsApp Business (F-134): Meta's Cloud API once its keys are set, the log file locally.
+        $this->app->singleton(WhatsAppGateway::class, fn () => match (config('services.whatsapp.driver')) {
+            'cloud' => new CloudWhatsAppGateway(
+                (string) config('services.whatsapp.token'),
+                (string) config('services.whatsapp.phone_number_id'),
+                (string) config('services.whatsapp.api_version'),
+                (string) config('whatsapp.language'),
+            ),
+            'twilio' => new TwilioWhatsAppGateway(
+                (string) config('services.whatsapp.twilio.sid'),
+                (string) config('services.whatsapp.twilio.token'),
+                (string) config('services.whatsapp.twilio.from'),
+            ),
+            'log' => new LogWhatsAppGateway,
+            'null', null => new NullWhatsAppGateway,
+            default => throw new InvalidArgumentException('Pilote WhatsApp inconnu : '.config('services.whatsapp.driver')),
+        });
 
         // SMS provider chosen by configuration (F-131); real providers are added to this match.
         $this->app->singleton(SmsGateway::class, fn () => match (config('services.sms.driver')) {

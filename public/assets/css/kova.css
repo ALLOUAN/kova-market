@@ -981,3 +981,174 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     .kova-market-rayon__icon { width: 46px; height: 46px; font-size: 20px; }
     .kova-market-rayon__name { font-size: 12px; }
 }
+
+/* ------------------------------------------------------------------ Checkout: ordering without an account */
+.kova-guest-note { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; background: var(--kova-green-100); border: 1px solid var(--kova-green-100); border-left: 4px solid var(--kova-green); border-radius: 10px; color: var(--kova-text-body); font-size: 15px; }
+.kova-guest-note__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kova-green); color: #fff; font-size: 18px; }
+.kova-guest-note__title { margin: 0 0 2px; font-weight: 600; color: var(--kova-green-800); }
+.kova-guest-note a { color: var(--kova-green-800); font-weight: 600; text-decoration: underline; }
+
+/* ------------------------------------------------------------------ Order confirmation ("merci") */
+.kova-thanks-hero { padding: 32px 0 40px; background: var(--kova-navy); border-bottom: 4px solid var(--kova-gold); color: #fff; }
+.kova-thanks-hero__trail { margin-bottom: 24px; font-size: 14px; color: rgb(255 255 255 / .75); }
+.kova-thanks-hero__trail a { color: #fff; }
+.kova-thanks-hero__main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 20px 24px; align-items: center; }
+.kova-thanks-hero__icon { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: var(--kova-green); color: #fff; font-size: 32px; }
+.kova-thanks-hero--pending .kova-thanks-hero__icon { background: var(--kova-gold); color: var(--kova-navy); }
+.kova-thanks-hero--cancelled .kova-thanks-hero__icon { background: var(--kova-danger); }
+.kova-thanks-hero h1 { margin: 0 0 6px; color: #fff; font-size: 34px; line-height: 1.2; }
+.kova-thanks-hero__text p { margin: 0; font-size: 16px; color: rgb(255 255 255 / .85); max-width: 560px; }
+.kova-thanks-ticket { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; padding: 16px 20px; background: #fff; border-radius: 12px; border: 2px dashed var(--kova-gold); color: var(--kova-text); min-width: 280px; }
+.kova-thanks-ticket__label { grid-column: 1 / -1; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--kova-text-muted); }
+.kova-thanks-ticket__number { font: 700 26px/1.2 Poppins, sans-serif; color: var(--kova-navy); letter-spacing: .02em; white-space: nowrap; }
+.kova-thanks-ticket__copy { display: inline-flex; align-items: center; padding: 6px 12px; border: 1px solid var(--kova-border); border-radius: 6px; background: var(--kova-navy-50); color: var(--kova-navy); font-size: 13px; font-weight: 600; }
+.kova-thanks-ticket__copy:hover { border-color: var(--kova-navy); }
+.kova-thanks-ticket__hint { grid-column: 1 / -1; margin-top: 4px; font-size: 12px; color: var(--kova-text-muted); }
+.kova-thanks-facts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 24px 0 0; padding: 0; list-style: none; font-size: 14px; color: rgb(255 255 255 / .85); }
+.kova-thanks-facts li { margin: 0; color: rgb(255 255 255 / .9); }
+.kova-thanks-facts i { margin-right: 6px; color: var(--kova-gold); }
+.kova-thanks-body { padding: 40px 0 72px; background: var(--kova-navy-50); }
+.kova-thanks-card { padding: 22px 24px; margin-bottom: 20px; background: #fff; border: 1px solid var(--kova-border); border-radius: 12px; }
+.kova-thanks-card__title { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; font-size: 18px; color: var(--kova-navy); }
+.kova-thanks-card__title i { color: var(--kova-green); font-size: 16px; }
+.kova-thanks-card__note { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--kova-border); font-size: 14px; color: var(--kova-text-muted); }
+.kova-thanks-pay { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.kova-thanks-pay--paid { background: var(--kova-green-100); border-color: var(--kova-green-100); border-left: 4px solid var(--kova-green); color: var(--kova-green-800); }
+.kova-thanks-pay--due { background: var(--kova-warning-bg); border-color: var(--kova-warning-bg); border-left: 4px solid var(--kova-warning); }
+.kova-thanks-pay--due > div { flex: 1 1 320px; }
+.kova-thanks-pay--cancelled { background: var(--kova-danger-bg); border-color: var(--kova-danger-bg); border-left: 4px solid var(--kova-danger); }
+.kova-thanks-pay__amount { margin: 0 0 4px; font: 700 22px/1.2 Poppins, sans-serif; color: var(--kova-navy); }
+.kova-thanks-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.kova-thanks-steps li { position: relative; display: flex; flex-direction: column; gap: 2px; margin: 0; font-size: 14px; color: var(--kova-text-muted); }
+.kova-thanks-steps li::before { content: ""; position: absolute; top: 20px; left: 44px; right: -12px; height: 2px; background: var(--kova-border); }
+.kova-thanks-steps li:last-child::before { display: none; }
+.kova-thanks-steps li.is-done::before { background: var(--kova-green); }
+.kova-thanks-steps strong { color: var(--kova-text); font-size: 15px; }
+.kova-thanks-steps__dot { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-bottom: 8px; border-radius: 50%; background: var(--kova-navy-50); border: 2px solid var(--kova-border); color: var(--kova-text-muted); }
+.kova-thanks-steps .is-done .kova-thanks-steps__dot { background: var(--kova-green); border-color: var(--kova-green); color: #fff; }
+.kova-thanks-steps .is-current .kova-thanks-steps__dot { background: #fff; border-color: var(--kova-gold); color: var(--kova-gold-700); box-shadow: 0 0 0 4px var(--kova-gold-100); }
+.kova-thanks-items { margin: 0; padding: 0; list-style: none; }
+.kova-thanks-items li { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 14px; align-items: center; margin: 0; padding: 12px 0; border-bottom: 1px solid var(--kova-border); }
+.kova-thanks-items li:first-child { padding-top: 0; }
+.kova-thanks-items__img { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 10px; background: var(--kova-navy-50); overflow: hidden; color: var(--kova-text-muted); font-size: 22px; }
+.kova-thanks-items__img img { width: 100%; height: 100%; object-fit: contain; }
+.kova-thanks-items__text { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--kova-text-muted); }
+.kova-thanks-items__text strong { font-size: 15px; color: var(--kova-text); }
+.kova-thanks-items__total { font-weight: 600; color: var(--kova-navy); white-space: nowrap; }
+.kova-thanks-totals { margin: 14px 0 0; }
+.kova-thanks-totals div { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; }
+.kova-thanks-totals dt { font-weight: 400; color: var(--kova-text-body); }
+.kova-thanks-totals dd { margin: 0; }
+.kova-thanks-totals .is-total { margin-top: 8px; padding-top: 12px; border-top: 2px solid var(--kova-navy); font: 700 18px/1.3 Poppins, sans-serif; }
+.kova-thanks-totals .is-total dt, .kova-thanks-totals .is-total dd { color: var(--kova-navy); font-weight: 700; }
+.kova-thanks-side { position: sticky; top: 100px; }
+.kova-thanks-amount { margin: 8px 0 4px; font-weight: 700; font-size: 16px; color: var(--kova-warning); }
+.kova-thanks-amount.is-paid { color: var(--kova-green); }
+.kova-thanks-muted { color: var(--kova-text-muted); font-size: 14px; }
+.kova-thanks-actions { display: grid; gap: 10px; }
+.kova-thanks-actions .rbt-btn { width: 100%; justify-content: center; }
+.kova-thanks-link { font-weight: 600; color: var(--kova-green); text-align: center; }
+.kova-thanks-link:hover { color: var(--kova-green-800); }
+.kova-thanks-account { background: var(--kova-gold-100); border-color: var(--kova-gold-100); }
+.kova-thanks-account p { font-size: 14px; }
+.kova-thanks-help { margin: 0; padding: 0 4px; font-size: 14px; color: var(--kova-text-muted); }
+@media (max-width: 991px) {
+    .kova-thanks-hero__main { grid-template-columns: auto minmax(0, 1fr); }
+    .kova-thanks-ticket { grid-column: 1 / -1; }
+    .kova-thanks-side { position: static; }
+}
+@media (max-width: 575px) {
+    .kova-thanks-hero h1 { font-size: 26px; }
+    .kova-thanks-hero__icon { width: 56px; height: 56px; font-size: 24px; }
+    .kova-thanks-ticket { min-width: 0; padding: 14px 16px; }
+    .kova-thanks-ticket__number { font-size: 21px; }
+    .kova-thanks-items li { grid-template-columns: 52px minmax(0, 1fr); }
+    .kova-thanks-items__img { width: 52px; height: 52px; }
+    .kova-thanks-items__total { grid-column: 2; }
+    .kova-thanks-steps { grid-template-columns: 1fr; gap: 14px; }
+    .kova-thanks-steps li { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 12px; padding-left: 52px; min-height: 40px; }
+    .kova-thanks-steps__dot { position: absolute; left: 0; top: 0; margin: 0; }
+    .kova-thanks-steps li::before { top: 40px; left: 19px; right: auto; width: 2px; height: calc(100% - 26px); }
+    .kova-thanks-steps li strong { flex-basis: 100%; }
+    .kova-thanks-card { padding: 18px 16px; }
+}
+
+/* ------------------------------------------------------------------ Order tracking (/suivi) and the shared order timeline */
+.kova-track-hero { padding: 32px 0 72px; background: var(--kova-navy); border-bottom: 4px solid var(--kova-gold); color: #fff; }
+.kova-track-hero__title { display: flex; gap: 20px; align-items: center; }
+.kova-track-hero__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--kova-gold); color: var(--kova-navy); font-size: 28px; }
+.kova-track-hero h1 { margin: 0 0 6px; color: #fff; font-size: 34px; }
+.kova-track-hero p { margin: 0; max-width: 620px; font-size: 16px; color: rgb(255 255 255 / .85); }
+.kova-track-body { padding: 0 0 72px; background: var(--kova-navy-50); }
+.kova-track-form { position: relative; z-index: 1; top: -40px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px 16px; align-items: end; margin-bottom: -16px; padding: 22px 24px; background: #fff; border: 1px solid var(--kova-border); border-radius: 14px; box-shadow: 0 12px 30px rgb(2 23 50 / .1); }
+.kova-track-form__field { min-width: 0; }
+.kova-track-form__submit { min-width: 150px; justify-content: center; }
+.kova-track-form__captcha:empty { display: none; }
+.kova-track-form__captcha, .kova-track-form__hint { grid-column: 1 / -1; }
+.kova-track-form__hint { margin: 0; font-size: 13px; color: var(--kova-text-muted); }
+.kova-track-notfound { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; margin-bottom: 24px; background: var(--kova-warning-bg); border-left: 4px solid var(--kova-warning); border-radius: 10px; }
+.kova-track-notfound__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #fff; color: var(--kova-warning); }
+.kova-track-notfound__title { margin: 0 0 2px; font-weight: 700; color: var(--kova-text); }
+.kova-track-result { padding: 26px 28px; margin-bottom: 24px; background: #fff; border: 1px solid var(--kova-border); border-top: 4px solid var(--kova-gold); border-radius: 14px; }
+.kova-track-result--delivered { border-top-color: var(--kova-green); }
+.kova-track-result--cancelled { border-top-color: var(--kova-danger); }
+.kova-track-result__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 24px; }
+.kova-track-result__head h2 { margin: 0 0 2px; font-size: 22px; color: var(--kova-navy); }
+.kova-track-result__head p { margin: 0; font-size: 14px; color: var(--kova-text-muted); }
+.kova-track-status { padding: 6px 14px; border-radius: 999px; background: var(--kova-gold-100); color: var(--kova-gold-700); font-size: 14px; font-weight: 700; }
+.kova-track-result--delivered .kova-track-status { background: var(--kova-green-100); color: var(--kova-green-800); }
+.kova-track-result--cancelled .kova-track-status { background: var(--kova-danger-bg); color: var(--kova-danger); }
+.kova-track-facts { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 22px 0 0; padding: 16px 0 0; list-style: none; border-top: 1px solid var(--kova-border); font-size: 15px; color: var(--kova-text-body); }
+.kova-track-facts li { margin: 0; }
+.kova-track-facts i { margin-right: 8px; color: var(--kova-green); }
+.kova-track-help { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.kova-track-help > div { display: flex; gap: 12px; align-items: flex-start; padding: 18px; background: #fff; border: 1px solid var(--kova-border); border-radius: 12px; }
+.kova-track-help__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kova-green-100); color: var(--kova-green); }
+.kova-track-help p { margin: 0; font-size: 14px; color: var(--kova-text-muted); }
+.kova-track-help strong { display: block; margin-bottom: 2px; font-size: 15px; color: var(--kova-text); }
+.kova-track-help a { color: var(--kova-green); font-weight: 600; }
+
+.kova-timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.kova-timeline li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; margin: 0; text-align: center; font-size: 13px; color: var(--kova-text-muted); }
+.kova-timeline li::before { content: ""; position: absolute; top: 21px; left: calc(50% + 24px); right: calc(-50% + 24px); height: 3px; border-radius: 2px; background: var(--kova-border); }
+.kova-timeline li:last-child::before { display: none; }
+.kova-timeline li.is-done::before { background: var(--kova-green); }
+.kova-timeline__dot { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-bottom: 8px; border-radius: 50%; background: var(--kova-navy-50); border: 2px solid var(--kova-border); color: var(--kova-text-muted); font-size: 16px; }
+.kova-timeline .is-done .kova-timeline__dot { background: var(--kova-green); border-color: var(--kova-green); color: #fff; }
+.kova-timeline .is-current .kova-timeline__dot { background: #fff; border-color: var(--kova-gold); color: var(--kova-gold-700); box-shadow: 0 0 0 5px var(--kova-gold-100); }
+.kova-timeline__label { font-size: 14px; font-weight: 600; color: var(--kova-text-body); }
+.kova-timeline .is-current .kova-timeline__label { color: var(--kova-navy); }
+.kova-timeline__date { font-size: 12px; }
+.kova-timeline-cancelled { display: flex; gap: 10px; align-items: center; padding: 14px 16px; background: var(--kova-danger-bg); border-radius: 10px; color: var(--kova-danger); font-weight: 600; }
+.kova-delivery-card { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 22px; padding: 14px 16px; background: var(--kova-navy-50); border-radius: 12px; }
+.kova-delivery-card__avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: #fff; color: var(--kova-green); font-size: 22px; overflow: hidden; }
+.kova-delivery-card__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.kova-delivery-card__text { flex: 1 1 200px; }
+.kova-delivery-card__date { margin: 0 0 2px; font-weight: 700; color: var(--kova-navy); }
+@media (max-width: 991px) {
+    .kova-track-form { grid-template-columns: 1fr 1fr; }
+    .kova-track-form__submit { grid-column: 1 / -1; }
+    .kova-track-help { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+    .kova-timeline { grid-template-columns: 1fr; gap: 0; }
+    .kova-timeline li { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 12px; min-height: 58px; padding-left: 58px; text-align: left; }
+    .kova-timeline__dot { position: absolute; left: 0; top: 0; margin: 0; }
+    .kova-timeline li::before { top: 44px; left: 20px; right: auto; width: 3px; height: 14px; }
+    .kova-timeline__label { flex-basis: 100%; }
+}
+@media (max-width: 575px) {
+    .kova-track-hero { padding-bottom: 64px; }
+    .kova-track-hero__title { align-items: flex-start; }
+    .kova-track-hero__icon { width: 48px; height: 48px; font-size: 22px; }
+    .kova-track-hero h1 { font-size: 26px; }
+    .kova-track-form { grid-template-columns: 1fr; padding: 18px 16px; }
+    .kova-track-result { padding: 20px 16px; }
+}
+
+/* The timeline down the page (narrow columns: the customer's order page). */
+.kova-timeline--vertical { grid-template-columns: 1fr; gap: 0; }
+.kova-timeline--vertical li { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 12px; min-height: 58px; padding-left: 58px; text-align: left; }
+.kova-timeline--vertical .kova-timeline__dot { position: absolute; left: 0; top: 0; margin: 0; }
+.kova-timeline--vertical li::before { top: 44px; left: 20px; right: auto; width: 3px; height: 14px; }
+.kova-timeline--vertical .kova-timeline__label { flex-basis: 100%; }

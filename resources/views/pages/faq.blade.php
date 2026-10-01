@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Questions fréquentes')
+@section('description', 'Commande, livraison à Abidjan, paiement Mobile Money ou à la livraison, retours : les réponses aux questions fréquentes sur '.config('storefront.name').'.')
 
 @section('content')
     <x-page-header title="Questions fréquentes" />

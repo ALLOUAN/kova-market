@@ -50,6 +50,16 @@ class Market
         return $id ? (int) $id === $category->getKey() : $category->slug === self::DEFAULT_SLUG;
     }
 
+    /**
+     * The market's categories with their sub-categories, for the "Mon Marché" mega menu (same layout as "Boutique").
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Category>
+     */
+    public function menuTree(): \Illuminate\Database\Eloquent\Collection
+    {
+        return once(fn () => $this->category()?->children()->with('children')->get() ?? new \Illuminate\Database\Eloquent\Collection);
+    }
+
     public function showInMenu(): bool
     {
         return $this->enabled() && Setting::get('market.in_menu', '1') !== '0';

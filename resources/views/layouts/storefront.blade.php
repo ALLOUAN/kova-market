@@ -21,7 +21,8 @@
     <meta property="og:title" content="{!! $__env->hasSection('document_title') ? $__env->yieldContent('document_title') : ($__env->hasSection('title') ? $__env->yieldContent('title') : e(config('storefront.name'))) !!}">
     <meta property="og:description" content="@yield('description', config('storefront.description'))">
     <meta property="og:url" content="@yield('canonical', url()->current())">
-    <meta property="og:image" content="@yield('og_image', asset(config('storefront.logo')))">
+    {{-- Default preview: the PNG logo (WhatsApp and Facebook do not all read WebP). --}}
+    <meta property="og:image" content="@yield('og_image', asset(is_file(public_path('assets/images/logo/kova-logo.png')) ? 'assets/images/logo/kova-logo.png' : config('storefront.logo')))">
     <meta name="twitter:card" content="@yield('twitter_card', 'summary')">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -110,8 +111,8 @@
     {{-- Shopping modals triggered from product cards, the header and the side panels --}}
     @include('partials.modals.quick-view')
     @include('partials.modals.notify')
-    {{-- Only needed when a tracker is set (F-156): the store's own cookies are strictly necessary. --}}
-    @if ($analytics->enabled())
+    {{-- Always while a tracker is set (F-156); otherwise as chosen in Paramètres › Audience. --}}
+    @if ($analytics->showsConsentBanner())
         @include('partials.overlays.cookies')
     @endif
     @include('partials.modals.social-share')
@@ -167,9 +168,11 @@
             document.getElementById('logout-form')?.submit();
         }));
     </script>
-    @if ($analytics->enabled())
-        {{-- Identifiers and e-commerce events only: the trackers load after consent (F-155, F-156). --}}
-        <script>window.kovaAnalytics = @json([...$analytics->trackers(), 'events' => $analytics->events()]);</script>
+    @if ($analytics->showsConsentBanner())
+        {{-- Identifiers and e-commerce events only: the trackers load after consent (F-155, F-156). Without any tracker
+             the script only runs the banner. --}}
+        {{-- <, >, & and quotes encoded (<…): a product name can never break out of the script. --}}
+        <script>window.kovaAnalytics = {!! json_encode([...$analytics->trackers(), 'events' => $analytics->events()], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR) !!};</script>
         <script src="{{ asset('assets/js/analytics.js') }}"></script>
     @endif
     @if (config('storefront.features.wishlist'))

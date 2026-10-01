@@ -12,7 +12,6 @@ use App\Services\Cart\CartManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -42,8 +41,9 @@ class AuthController extends Controller
 
         $user = User::findByLogin($request->input('login'));
 
-        // A suspended account is refused like a wrong password.
-        if (! $user || $user->isSuspended() || ! Hash::check($request->input('password'), $user->password)) {
+        // Customers only (the team signs in on the back-office, with its two-factor code); a team account or a
+        // suspended one is refused like a wrong password (F-147).
+        if (! User::passwordMatches($user, $request->input('password')) || ! $user->isCustomer() || $user->isSuspended()) {
             throw ValidationException::withMessages(['login' => __('auth.failed')]);
         }
 

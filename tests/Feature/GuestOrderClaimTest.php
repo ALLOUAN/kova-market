@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Commune;
 use App\Models\DeliveryZone;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\Sms\SmsGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,6 +25,9 @@ class GuestOrderClaimTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // These journeys are checked with SMS switched on; WhatsApp codes: WhatsAppTest.
+        Setting::store(['notifications.sms' => '1', 'notifications.whatsapp' => '0']);
 
         $sent = &$this->sms;
         $this->app->instance(SmsGateway::class, new class($sent) implements SmsGateway

@@ -130,7 +130,7 @@
                     </div>
 
                     <div class="kova-contact-side kova-contact-side--tip">
-                        <p class="b3 mb-0"><strong>Astuce :</strong> votre numéro de commande (KM-…) figure dans le SMS et l’e-mail de confirmation. Donnez-le-nous, nous retrouverons votre commande tout de suite.</p>
+                        <p class="b3 mb-0"><strong>Astuce :</strong> votre numéro de commande (KM-…) figure dans le message WhatsApp et l’e-mail de confirmation. Donnez-le-nous, nous retrouverons votre commande tout de suite.</p>
                     </div>
                 </aside>
             </div>

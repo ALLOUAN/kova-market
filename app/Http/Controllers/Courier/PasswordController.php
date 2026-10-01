@@ -20,9 +20,12 @@ class PasswordController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
+        // A later change asks for the current password (F-147); the first one follows the sign-in with the
+        // temporary password just received.
         $data = $request->validate([
+            'current_password' => $request->user()->must_change_password ? ['nullable'] : ['required', 'string', 'current_password:web'],
             'password' => ['required', 'confirmed', Password::min(8)],
-        ], [], ['password' => 'mot de passe']);
+        ], ['current_password.current_password' => 'Mot de passe actuel incorrect.'], ['password' => 'mot de passe', 'current_password' => 'mot de passe actuel']);
 
         $request->user()->forceFill(['password' => $data['password'], 'must_change_password' => false])->save();
 

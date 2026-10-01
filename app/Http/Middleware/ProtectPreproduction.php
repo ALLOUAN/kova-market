@@ -19,7 +19,7 @@ class ProtectPreproduction
         $password = config('security.preproduction.password');
 
         // /up for the health checks, the CinetPay notification for the payment tests (it cannot log in).
-        if (! app()->environment('staging') || blank($user) || blank($password) || $request->is('up', 'paiement/cinetpay/notification')) {
+        if (! app()->environment('staging') || blank($user) || blank($password) || $request->is('up', 'paiement/cinetpay/notification', 'webhooks/*')) {
             return $next($request);
         }
 

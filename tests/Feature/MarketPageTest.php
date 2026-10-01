@@ -48,9 +48,13 @@ class MarketPageTest extends TestCase
 
     public function test_the_menus_lead_to_the_showcase(): void
     {
+        // Like "Boutique": a chevron opening the market's categories (tabs) and their sub-categories.
         $this->get('/')->assertOk()
-            ->assertSee('class="position-relative kova-menu-highlight"', false)
-            ->assertSee('href="'.route('market.show').'"', false);
+            ->assertSee('class="with-rbt-megamenu has-menu-child-item position-static kova-menu-highlight"', false)
+            ->assertSee('href="'.route('market.show').'"', false)
+            ->assertSee('id="rbt-megamenu_tab1-market"', false)
+            ->assertSee('href="'.route('categories.show', 'legumes-frais').'"', false)
+            ->assertSeeText('Découvrir Mon Marché');
 
         // The department link opens the showcase; its categories keep their own pages, the showcase in their trail.
         $this->assertSame(route('market.show'), Category::where('slug', 'mon-marche')->first()->url());

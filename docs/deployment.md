@@ -50,6 +50,49 @@ automatically. The 5 latest versions are kept. Migrations must stay **additive**
 no renames or drops in the same release) so that the previous version still runs after a rollback; the database is
 never rolled back.
 
+## WhatsApp Business and e-mail notifications (F-134)
+
+Customers and couriers are reached on WhatsApp (through Twilio or the Meta Cloud API) and by e-mail; SMS is switched off in Paramètres ›
+Commandes › Notifications until a provider is added. Without Meta's keys the messages are only written to
+`storage/logs/whatsapp.log` (`WHATSAPP_DRIVER=log`), and the preproduction always keeps them in that log.
+
+### With Meta directly
+
+On Meta's side, by KOVA MARKET (business verification takes Meta a few days or more):
+
+1. Meta Business Suite: verify the business (RCCM), add a WhatsApp Business account and a phone number that is not
+   used in the WhatsApp app, with the display name "KOVA MARKET" approved, and a payment method.
+2. WhatsApp Manager › Message templates: create the templates listed in `config/whatsapp.php` (also shown in
+   Paramètres › Commandes), in French, with the same name, category and text; wait for "Active".
+3. developers.facebook.com: an app of type Business with the WhatsApp product; a system user with a permanent token
+   (permission `whatsapp_business_messaging`); note the phone number ID and the app secret.
+4. Webhook: callback `https://kovamarket.ci/webhooks/whatsapp`, a verify token of your choice, field `messages`.
+
+On the server (`shared/.env`): `WHATSAPP_DRIVER=cloud`, `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`,
+`WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`. Paramètres › Commandes then shows "Connecté à Meta". Refused
+messages are retried by the queue and logged with Meta's reason in `whatsapp.log`.
+
+### With Twilio (current choice)
+
+Twilio carries the WhatsApp messages instead of a direct Meta connection; the keys stay in the server `.env`.
+
+1. Twilio Console › Messaging › Try it out › Send a WhatsApp message: the sandbox number shown there (e.g. `+17372508034`). Each tester
+   first sends `join <code>` to it from their WhatsApp; messages then go out as plain text (no template needed).
+2. For the real launch: Messaging › Senders › WhatsApp senders, register the KOVA MARKET number (Meta business
+   verification is done through Twilio).
+3. Content Template Builder: create the templates listed in `config/whatsapp.php` (same text, variables `{{1}}`,
+   `{{2}}`…, category Utility, Authentication for `kova_code`), submit them to WhatsApp and wait for "Approved".
+   Copy each Content SID (`HX…`) into Paramètres › Commandes › Modèles de messages WhatsApp. A template without a
+   SID is sent as plain text, which WhatsApp only delivers within 24 h of the customer's last message.
+4. Status callback: nothing to set, each message carries `https://kovamarket.ci/webhooks/twilio/whatsapp`; failed
+   and undelivered messages are logged in `whatsapp.log` with Twilio's error code (signature checked).
+
+On the server (`shared/.env`): `WHATSAPP_DRIVER=twilio`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`,
+`TWILIO_WHATSAPP_FROM` — `php artisan whatsapp:twilio` asks for them (hidden input) and writes them — (the sandbox or the registered number, e.g. `+17372508034`). Paramètres › Commandes then shows "Connecté à Twilio"; `php artisan whatsapp:test 07XXXXXXXX` sends a test message right away.
+
+E-mail: a transactional sender (SMTP of the host, Brevo, Mailgun…) in `MAIL_*`, and the domain's SPF, DKIM and DMARC
+records, or the messages end up in spam. Once the address exists (LWS panel › E-mails, e.g. `commandes@kovamarket.ci`), `php artisan mail:smtp` writes its settings (`mail.kovamarket.ci`, port 465) and `php artisan mail:test <address>` checks the sending.
+
 ## Monitoring (F-172)
 
 - **Errors**: Sentry, once `SENTRY_LARAVEL_DSN` is set (one project, `SENTRY_ENVIRONMENT` tells production from
@@ -91,4 +134,12 @@ Fail2ban and root SSH settings therefore do not apply; what stays in our hands:
 - Only `current/public` is served: `.env`, `storage` and the code are outside the web root.
 - `shared/.env` and `backups/` readable by the account only (`setup.sh` sets 600 / 700).
 - A non-standard `ADMIN_PATH`, two-factor authentication for staff, HTTPS forced (LWS Let's Encrypt certificate).
+- Account takeover: changing the phone, the e-mail or a password asks for the current password, and each such change is
+  reported to the former e-mail and phone (template `kova_securite_compte`); the session cookie is `Secure`,
+  `HttpOnly` and `SameSite=Lax` in preproduction and production, and every form carries a CSRF token checked
+  together with the request origin.
+- Sign-in: the storefront and the mobile app accept customer accounts only (the team signs in on the back-office,
+  with its two-factor code); tries are capped at 5 a minute per account and address, 20 an hour per account and 30 a
+  minute per address, sign-up at 10 a minute per address; unknown accounts take as long to refuse as wrong passwords,
+  reset codes leave after the answer, and pages for a signed-in person are sent with `Cache-Control: no-store`.
 - Dependencies audited on every deploy and every Monday (CI); `composer update` and a redeploy once a month.

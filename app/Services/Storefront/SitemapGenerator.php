@@ -29,8 +29,20 @@ class SitemapGenerator
             $this->url($xml, route($route));
         }
 
-        Category::query()->orderBy('id')->each(fn (Category $category) => $this->url($xml, $category->url(), $category->updated_at));
-        Brand::query()->orderBy('id')->each(fn (Brand $brand) => $this->url($xml, $brand->url(), $brand->updated_at));
+        // The market showcase stands on its own, products or not.
+        $market = app(Market::class);
+        if ($market->enabled()) {
+            $this->url($xml, route('market.show'));
+        }
+
+        // Only lists that show products: an empty category or brand page is thin content for search engines.
+        Category::query()->orderBy('id')->each(function (Category $category) use ($xml, $market): void {
+            if (! $market->isMarket($category) && Product::query()->active()->whereIn('category_id', $category->descendantIds())->exists()) {
+                $this->url($xml, $category->url(), $category->updated_at);
+            }
+        });
+        Brand::query()->whereHas('products', fn ($query) => $query->active())->orderBy('id')
+            ->each(fn (Brand $brand) => $this->url($xml, $brand->url(), $brand->updated_at));
         Product::query()->active()->orderBy('id')->each(fn (Product $product) => $this->url($xml, $product->url(), $product->updated_at));
         Page::query()->published()->orderBy('id')->each(fn (Page $page) => $this->url($xml, route('pages.show', $page), $page->updated_at));
 

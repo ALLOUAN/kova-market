@@ -104,7 +104,7 @@ class CustomerAreaTest extends TestCase
     {
         $this->actingAs($this->customer);
 
-        $this->put('/user/profile-information', ['name' => 'Aya K.', 'phone' => '05 06 07 08 09', 'email' => 'aya@example.ci'])->assertSessionHasNoErrors();
+        $this->put('/user/profile-information', ['name' => 'Aya K.', 'phone' => '05 06 07 08 09', 'email' => 'aya@example.ci', 'current_password' => 'password'])->assertSessionHasNoErrors();
         $this->put('/user/password', ['current_password' => 'password', 'password' => 'nouveau-mdp', 'password_confirmation' => 'nouveau-mdp'])->assertSessionHasNoErrors();
         $this->post('/compte/preferences', ['marketing_opt_in' => '1']);
 

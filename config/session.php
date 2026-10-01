@@ -169,8 +169,9 @@ return [
     |
     */
 
-    // Secure by default in production (F-140); the cart cookie follows the same setting.
-    'secure' => env('SESSION_SECURE_COOKIE', env('APP_ENV') === 'production'),
+    // Secure by default in production and preproduction, both served over HTTPS (F-140, F-147); the cart cookie
+    // follows the same setting.
+    'secure' => env('SESSION_SECURE_COOKIE', in_array(env('APP_ENV'), ['production', 'staging'], true)),
 
     /*
     |--------------------------------------------------------------------------

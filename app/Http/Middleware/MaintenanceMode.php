@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class MaintenanceMode
 {
-    private const OPEN = ['livreur', 'livreur/*', 'paiement/*', 'maintenance/apercu', 'up'];
+    private const OPEN = ['livreur', 'livreur/*', 'paiement/*', 'webhooks/*', 'maintenance/apercu', 'up'];
 
     public function __construct(private Maintenance $maintenance) {}
 

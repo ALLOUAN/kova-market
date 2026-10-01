@@ -102,7 +102,8 @@ return [
     |
     */
 
-    'middleware' => ['web'],
+    // "fortify-forms" limits the sign-up (FortifyServiceProvider); the other Fortify routes have their own limiters.
+    'middleware' => ['web', 'throttle:fortify-forms'],
 
     /*
     |--------------------------------------------------------------------------

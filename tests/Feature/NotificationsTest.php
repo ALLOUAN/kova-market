@@ -10,8 +10,9 @@ use App\Models\Cart;
 use App\Models\DeliveryZone;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\User;
-use App\Notifications\Channels\SmsChannel;
+use App\Notifications\Channels\WhatsAppChannel;
 use App\Notifications\LowStockForStaff;
 use App\Notifications\NewOrderForStaff;
 use App\Notifications\OrderUpdateForCustomer;
@@ -19,6 +20,8 @@ use App\Services\Catalog\StockManager;
 use App\Services\Checkout\PlaceOrder;
 use App\Services\Orders\OrderStatusManager;
 use App\Services\Sms\SmsGateway;
+use App\Services\WhatsApp\WhatsAppGateway;
+use App\Services\WhatsApp\WhatsAppMessage;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Filament\Notifications\DatabaseNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -43,7 +46,7 @@ class NotificationsTest extends TestCase
         $this->picker = User::factory()->staff(Role::Picker)->create();
     }
 
-    public function test_a_new_order_notifies_the_customer_by_sms_and_the_order_staff(): void
+    public function test_a_new_order_notifies_the_customer_on_whatsapp_and_the_order_staff(): void
     {
         Notification::fake();
 
@@ -53,7 +56,7 @@ class NotificationsTest extends TestCase
             OrderUpdateForCustomer::class,
             fn (OrderUpdateForCustomer $notification, array $channels, AnonymousNotifiable $notifiable) => $notification->event === OrderUpdateForCustomer::PLACED
                 && $notifiable->routes['sms'] === '+2250701020304'
-                && $channels === [SmsChannel::class],
+                && $channels === [WhatsAppChannel::class],
         );
         Notification::assertSentTo($this->manager, NewOrderForStaff::class);
         Notification::assertSentTo($this->manager, DatabaseNotification::class);
@@ -69,7 +72,7 @@ class NotificationsTest extends TestCase
 
         Notification::assertSentOnDemand(
             OrderUpdateForCustomer::class,
-            fn ($notification, array $channels) => $channels === [SmsChannel::class, 'mail'],
+            fn ($notification, array $channels) => $channels === [WhatsAppChannel::class, 'mail'],
         );
     }
 
@@ -83,7 +86,7 @@ class NotificationsTest extends TestCase
         $statuses->move($order, OrderStatus::Preparing, $this->manager);
 
         $sent = collect(Notification::sentNotifications()[AnonymousNotifiable::class] ?? [])->flatten(2)->pluck('channels');
-        $this->assertEquals([[SmsChannel::class, 'mail'], ['mail']], $sent->values()->all());
+        $this->assertEquals([[WhatsAppChannel::class, 'mail'], ['mail']], $sent->values()->all());
 
         Notification::fake();
         $statuses->rollBack($order, User::factory()->staff(Role::SuperAdmin)->create(), 'Erreur');
@@ -101,8 +104,43 @@ class NotificationsTest extends TestCase
         Notification::assertSentTo($this->manager, DatabaseNotification::class);
     }
 
-    public function test_sms_texts_go_through_the_configured_gateway(): void
+    public function test_whatsapp_messages_use_the_approved_templates(): void
     {
+        $gateway = new class implements WhatsAppGateway
+        {
+            /** @var list<array{string, WhatsAppMessage}> */
+            public array $sent = [];
+
+            public function send(string $phone, WhatsAppMessage $message): void
+            {
+                $this->sent[] = [$phone, $message];
+            }
+        };
+        $this->app->instance(WhatsAppGateway::class, $gateway);
+
+        $order = $this->placeOrder(email: null);
+
+        [$phone, $message] = $gateway->sent[0];
+        $this->assertSame(['+2250701020304', 'kova_commande_recue'], [$phone, $message->name()]);
+        $this->assertSame('Koffi', $message->parameters[0]);
+        $this->assertStringContainsString("votre commande {$order->number} d’un montant de 45\u{00A0}000\u{00A0}FCFA", $message->text());
+        $this->assertStringContainsString("/commande/{$order->number}/recu?signature=", $message->parameters[3]);
+
+        // The following steps use "kova_suivi_commande" with the step in words.
+        app(OrderStatusManager::class)->move($order, OrderStatus::Confirmed, $this->manager);
+        $this->assertSame('kova_suivi_commande', $gateway->sent[1][1]->name());
+        $this->assertSame('elle est confirmée, nous la préparons', $gateway->sent[1][1]->parameters[2]);
+
+        // Switched off in the back-office: no WhatsApp message.
+        Setting::store(['notifications.whatsapp' => '0']);
+        app(OrderStatusManager::class)->move($order->fresh(), OrderStatus::Preparing, $this->manager);
+        app(OrderStatusManager::class)->move($order->fresh(), OrderStatus::Shipped, $this->manager);
+        $this->assertCount(2, $gateway->sent);
+    }
+
+    public function test_sms_switched_back_on_go_through_the_configured_gateway(): void
+    {
+        Setting::store(['notifications.sms' => '1', 'notifications.whatsapp' => '0']);
         $gateway = new class implements SmsGateway
         {
             /** @var list<array{string, string}> */

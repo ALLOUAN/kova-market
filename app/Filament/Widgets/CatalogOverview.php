@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Enums\Permission;
 use App\Models\Product;
 use App\Models\Promotion;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -13,9 +14,11 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
  */
 class CatalogOverview extends StatsOverviewWidget
 {
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 3;
 
     protected ?string $heading = 'Catalogue';
+
+    protected ?string $pollingInterval = '60s';
 
     public static function canView(): bool
     {
@@ -33,14 +36,18 @@ class CatalogOverview extends StatsOverviewWidget
 
         return [
             Stat::make('Produits en ligne', $online)
+                ->icon(Heroicon::OutlinedCube)
                 ->description(Product::query()->where('is_active', false)->count().' hors ligne'),
             Stat::make('En rupture de stock', $soldOut)
+                ->icon(Heroicon::OutlinedNoSymbol)
                 ->color($soldOut > 0 ? 'danger' : 'success')
                 ->description('Produits en ligne à 0'),
             Stat::make('Stock bas', $lowStock)
+                ->icon(Heroicon::OutlinedArchiveBoxArrowDown)
                 ->color($lowStock > 0 ? 'warning' : 'success')
                 ->description("{$threshold} unités ou moins"),
-            Stat::make('Offres spéciales en cours', $campaigns),
+            Stat::make('Offres spéciales en cours', $campaigns)
+                ->icon(Heroicon::OutlinedTag),
         ];
     }
 }

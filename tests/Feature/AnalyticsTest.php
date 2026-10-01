@@ -26,13 +26,45 @@ class AnalyticsTest extends TestCase
 
     private const AD_DOMAINS = ['googletagmanager.com', 'google-analytics.com', 'connect.facebook.net', 'facebook.com/tr', 'analytics.tiktok.com'];
 
-    public function test_without_any_tracker_there_is_no_banner_and_nothing_is_loaded(): void
+    public function test_without_any_tracker_the_banner_shows_by_default_and_nothing_is_tracked(): void
     {
-        $this->get('/')
+        $response = $this->get('/')
             ->assertOk()
+            ->assertSee('data-cookie-banner', false)
+            ->assertSeeText('Nous respectons votre vie privée')
+            ->assertSee('data-cookie-settings', false);
+
+        foreach (self::AD_DOMAINS as $domain) {
+            $response->assertDontSee($domain, false);
+        }
+
+        // Turned off in the back-office: no banner, no "Gérer les cookies", no script.
+        Setting::store(['cookies.always' => '0']);
+        $this->get('/')
             ->assertDontSee('data-cookie-banner', false)
             ->assertDontSee('assets/js/analytics.js', false)
             ->assertDontSee('data-cookie-settings', false);
+    }
+
+    public function test_the_banner_is_set_in_the_back_office_and_forced_while_a_tracker_is_set(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->actingAs(User::factory()->staff(Role::SuperAdmin)->create());
+
+        Livewire::test(Settings::class)
+            ->fillForm(['cookies.always' => false, 'cookies.title' => 'Des cookies ?', 'cookies.message' => 'Pour mesurer la fréquentation.', 'cookies.accept' => 'D’accord', 'cookies.decline' => 'Non merci'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->get('/')->assertDontSee('data-cookie-banner', false);
+
+        // A tracker makes consent mandatory: the banner comes back, with the texts chosen.
+        $this->configureTrackers();
+        $this->get('/')->assertSee('data-cookie-banner', false)
+            ->assertSeeText('Des cookies ?')
+            ->assertSeeText('Pour mesurer la fréquentation.')
+            ->assertSeeText('D’accord')
+            ->assertSeeText('Non merci');
     }
 
     public function test_without_consent_the_page_requests_nothing_from_advertising_domains(): void

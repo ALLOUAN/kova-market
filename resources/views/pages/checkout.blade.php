@@ -22,6 +22,18 @@
                             <div class="alert alert-danger" role="alert">Merci de corriger les champs signalés ci-dessous.</div>
                         @endif
 
+                        {{-- Guest checkout (F-050): no account needed; signing in only fills the form and keeps the order history. --}}
+                        @guest
+                            <div class="kova-guest-note mb--32">
+                                <span class="kova-guest-note__icon" aria-hidden="true"><i class="fa-regular fa-user-check"></i></span>
+                                <div>
+                                    <p class="kova-guest-note__title">Pas besoin de compte pour commander</p>
+                                    <p class="mb-0">Remplissez simplement le formulaire : vous recevez la confirmation et le reçu sur WhatsApp, et par e-mail si vous l’indiquez. Déjà client ?
+                                        <a href="#!" data-bs-toggle="modal" data-bs-target="#signinModal">Connectez-vous</a> pour retrouver vos adresses et suivre vos commandes (facultatif).</p>
+                                </div>
+                            </div>
+                        @endguest
+
                         <fieldset class="mb--32">
                             <legend class="h5 mb--16">Vos coordonnées</legend>
                             <div class="row g-3">

@@ -36,6 +36,11 @@ class CheckoutController extends Controller
             return redirect()->route('cart.show')->with('cart_error', 'Votre panier est vide ou ses articles ne sont plus disponibles.');
         }
 
+        // A guest who signs in from this page (optional) comes back to it, the cart joined to the account.
+        if (! $request->user()) {
+            $request->session()->put('url.intended', route('checkout.show'));
+        }
+
         // A code that no longer applies is settled in the cart, where its cause is shown.
         if ($summary->couponIssue) {
             return redirect()->route('cart.show')->with('cart_error', "Le code promo {$summary->coupon->code} ne s’applique plus : retirez-le ou complétez votre panier pour commander.");

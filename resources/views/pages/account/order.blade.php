@@ -8,7 +8,7 @@
         <div class="row g-4">
             <div class="col-md-5">
                 <h2 class="h6 mb--16">Suivi</h2>
-                <x-order-timeline :order="$order" />
+                <x-order-timeline :order="$order" vertical />
                 <x-order-delivery :order="$order" />
             </div>
             <div class="col-md-7">

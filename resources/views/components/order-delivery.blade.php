@@ -5,17 +5,21 @@
     $courier = in_array($order->status, \App\Models\Courier::OPEN_STATUSES, true) ? $order->courier : null;
 @endphp
 
-@if ($order->delivery_date || $courier)
-    <div class="d-flex flex-wrap align-items-center gap-3 mt--16 p-3 rbt-radius bg-white">
-        @if ($courier?->photo)
-            <img src="{{ asset($courier->photo) }}" alt="" width="48" height="48" class="rounded-circle" style="object-fit: cover">
-        @endif
-        <div class="flex-grow-1">
+@if (($order->delivery_date && $order->status !== \App\Enums\OrderStatus::Delivered) || $courier)
+    <div class="kova-delivery-card">
+        <span class="kova-delivery-card__avatar" aria-hidden="true">
+            @if ($courier?->photo)
+                <img src="{{ asset($courier->photo) }}" alt="" width="52" height="52">
+            @else
+                <i class="fa-regular {{ $courier ? 'fa-person-biking' : 'fa-calendar-check' }}"></i>
+            @endif
+        </span>
+        <div class="kova-delivery-card__text">
             @if ($order->delivery_date && $order->status !== \App\Enums\OrderStatus::Delivered)
-                <p class="b2 mb--4"><strong>Livraison prévue le {{ $order->delivery_date->translatedFormat('l j F') }}</strong></p>
+                <p class="kova-delivery-card__date">Livraison prévue le {{ $order->delivery_date->translatedFormat('l j F') }}</p>
             @endif
             @if ($courier)
-                <p class="b3 mb-0">Votre livreur : {{ $courier->name() }}</p>
+                <p class="mb-0">Votre livreur : {{ $courier->name() }}</p>
             @endif
         </div>
         @if ($courier)

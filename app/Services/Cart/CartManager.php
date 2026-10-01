@@ -256,7 +256,8 @@ class CartManager
             lines: $lines,
             subtotal: $subtotal,
             commune: $commune,
-            shippingFee: $commune ? ($free || $freeByCoupon ? 0 : $commune->zone->fee) : null,
+            // No goods, no delivery: an emptied cart (after an order) keeps its commune but costs nothing.
+            shippingFee: $commune && $subtotal > 0 ? ($free || $freeByCoupon ? 0 : $commune->zone->fee) : null,
             freeShipping: $free,
             freeShippingThreshold: $threshold,
             coupon: $coupon,

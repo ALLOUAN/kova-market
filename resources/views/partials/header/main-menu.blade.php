@@ -30,6 +30,30 @@
                     @endif
                     @break
 
+                {{-- "Mon Marché": the same mega menu as "Boutique", with the market's categories. --}}
+                @case('market')
+                    @php
+                        $market = app(\App\Services\Storefront\Market::class);
+                        $marketTree = $market->menuTree();
+                    @endphp
+                    @if ($mobile)
+                        <li class="has-dropdown position-relative kova-menu-highlight">
+                            <a href="#!"><i class="{{ $item['icon'] }} mr--4"></i>{{ $item['label'] }} <i class="fa-regular fa-chevron-down"></i></a>
+                            <ul class="submenu">
+                                <li><a href="{{ $item['href'] }}">Tout {{ $item['label'] }}</a></li>
+                                @foreach ($marketTree as $rayon)
+                                    <li><a href="{{ $rayon->url() }}">{{ $rayon->name }}</a></li>
+                                @endforeach
+                            </ul>
+                        </li>
+                    @else
+                        <li class="with-rbt-megamenu has-menu-child-item position-static kova-menu-highlight">
+                            <a href="{{ $item['href'] }}"><i class="{{ $item['icon'] }} mr--4"></i>{{ $item['label'] }} <i class="fa-regular fa-chevron-down"></i></a>
+                            @include('partials.header.mega-menus.categories', ['categoryTree' => $marketTree, 'idSuffix' => $idSuffix.'-market', 'promoFallback' => $market->category()])
+                        </li>
+                    @endif
+                    @break
+
                 @case('mega')
                     <li class="with-rbt-megamenu has-menu-child-item position-static">
                         <a href="#!">{{ $item['label'] }} <i class="fa-regular fa-chevron-down"></i></a>

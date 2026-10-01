@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\DeliveryZone;
 use App\Models\Product;
 use App\Services\Storefront\SitemapGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -115,9 +116,11 @@ class SeoTest extends TestCase
     public function test_the_sitemap_lists_the_public_pages_and_is_regenerated_by_the_command(): void
     {
         Storage::fake('local');
-        $active = Product::factory()->create(['slug' => 'en-ligne']);
-        Product::factory()->create(['slug' => 'retire', 'is_active' => false]);
         $category = Category::factory()->create(['slug' => 'audio']);
+        $active = Product::factory()->for($category)->create(['slug' => 'en-ligne']);
+        Product::factory()->create(['slug' => 'retire', 'is_active' => false]);
+        // An empty category is thin content: left out. The market showcase is listed, products or not.
+        $empty = Category::factory()->create(['slug' => 'vide']);
 
         $this->artisan('seo:sitemap')->assertSuccessful();
         Storage::disk('local')->assertExists(SitemapGenerator::PATH);
@@ -128,7 +131,27 @@ class SeoTest extends TestCase
             ->assertSee('<loc>'.$active->url().'</loc>', false)
             ->assertSee('<loc>'.$category->url().'</loc>', false)
             ->assertSee('<loc>'.route('home').'</loc>', false)
+            ->assertSee('<loc>'.route('market.show').'</loc>', false)
+            ->assertDontSee('<loc>'.$empty->url().'</loc>', false)
             ->assertDontSee('/produit/retire', false);
+    }
+
+    public function test_pages_without_seo_text_get_their_own_description_and_google_gets_delivery_and_returns(): void
+    {
+        DeliveryZone::create(['name' => 'Zone 1', 'fee' => 1500, 'is_active' => true]);
+        DeliveryZone::create(['name' => 'Zone 2', 'fee' => 1000, 'is_active' => true]);
+        $audio = Category::factory()->create(['name' => 'Audio', 'slug' => 'audio', 'tagline' => null, 'meta_description' => null]);
+        Product::factory()->for($audio)->create(['name' => 'Enceinte JBL', 'slug' => 'enceinte-jbl', 'price' => 45000, 'description' => null, 'meta_description' => null, 'return_days' => 7]);
+
+        $page = $this->get('/produit/enceinte-jbl')->assertOk()
+            ->assertSee("Enceinte JBL à 45\u{00A0}000\u{00A0}FCFA chez KOVA MARKET. Livraison à Abidjan, paiement Mobile Money ou à la livraison.", false);
+        preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $page->getContent(), $blocks);
+        $product = collect($blocks[1])->flatMap(fn (string $json) => array_is_list($data = json_decode($json, true)) ? $data : [$data])->firstWhere('@type', 'Product');
+        $this->assertSame(1000, $product['offers']['shippingDetails']['shippingRate']['value']);
+        $this->assertSame(7, $product['offers']['hasMerchantReturnPolicy']['merchantReturnDays']);
+
+        $this->get('/categorie/audio')->assertSee('content="Audio : 1 produit sur KOVA MARKET. Livraison à Abidjan', false);
+        $this->get('/produit/inexistant')->assertNotFound()->assertSee('content="noindex, follow"', false);
     }
 
     public function test_robots_open_the_store_in_production_only(): void

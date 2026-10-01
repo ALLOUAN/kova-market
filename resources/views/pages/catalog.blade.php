@@ -12,7 +12,11 @@
 @endphp
 
 @section('title', $seoTitle)
-@section('description', $category?->meta_description ?: $brand?->meta_description ?: $category?->tagline ?: config('storefront.description'))
+@section('description', match (true) {
+    (bool) $category => \App\Support\SeoText::listing($category, $products->total()),
+    (bool) $brand => \App\Support\SeoText::listing($brand, $products->total()),
+    default => \App\Support\SeoText::shop($products->total()),
+})
 {{-- One indexed address per list and page (F-152): searches and filtered lists are followed but not indexed. --}}
 @section('canonical', $products->currentPage() > 1 ? url()->current().'?page='.$products->currentPage() : url()->current())
 @if ($filters['q'] !== '' || $activeFilters)

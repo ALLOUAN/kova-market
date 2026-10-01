@@ -39,6 +39,28 @@ class Analytics
         return array_filter($this->trackers()) !== [];
     }
 
+    /** Texts of the cookie banner, editable in Paramètres › Audience. */
+    public const BANNER_TEXTS = [
+        'title' => 'Nous respectons votre vie privée',
+        'message' => 'Avec votre accord, nous mesurons la fréquentation du site et l’efficacité de nos publicités. Sans accord, rien de tout cela n’est chargé.',
+        'accept' => 'Accepter',
+        'decline' => 'Refuser',
+    ];
+
+    /**
+     * Whether the cookie banner (and the footer's "Gérer les cookies") is shown: always while a tracker is set —
+     * consent is then required — and otherwise as chosen in the back-office (shown by default).
+     */
+    public function showsConsentBanner(): bool
+    {
+        return $this->enabled() || Setting::get('cookies.always', '1') !== '0';
+    }
+
+    public function bannerText(string $key): string
+    {
+        return (string) (Setting::get("cookies.{$key}") ?: self::BANNER_TEXTS[$key]);
+    }
+
     public function searchConsoleToken(): ?string
     {
         return Setting::get('analytics.search_console_token') ?: null;

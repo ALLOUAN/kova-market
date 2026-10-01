@@ -40,7 +40,8 @@ class NavigationService
             return $items;
         }
 
-        $link = ['label' => $market->title(), 'route' => 'market.show', 'icon' => 'fa-regular fa-basket-shopping', 'highlight' => true];
+        // Like "Boutique": a chevron opening its categories and their sub-categories.
+        $link = ['label' => $market->title(), 'type' => 'market', 'route' => 'market.show', 'icon' => 'fa-regular fa-basket-shopping', 'highlight' => true];
         $after = collect($items)->search(fn (array $item) => ($item['type'] ?? null) === 'categories');
         array_splice($items, $after === false ? 1 : $after + 1, 0, [$link]);
 

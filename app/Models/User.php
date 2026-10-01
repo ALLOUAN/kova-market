@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Role;
+use App\Notifications\AccountSecurityAlert;
+use App\Services\Account\AccountEraser;
 use App\Support\PhoneNumber;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
@@ -19,6 +21,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
@@ -36,6 +41,29 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, LogsActivity, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
+
+    /**
+     * A changed password, e-mail or phone is reported to the former e-mail and phone (F-147), whatever the way it
+     * was changed: account page, password reset, courier app, back-office. Not for a temporary password set by the
+     * store (it is sent with the credentials) nor for an erased account.
+     */
+    protected static function booted(): void
+    {
+        static::updated(function (User $user): void {
+            $changes = array_values(array_filter(['password', 'email', 'phone'], fn (string $field) => $user->wasChanged($field)));
+
+            if ($changes === [] || $user->must_change_password || $user->name === AccountEraser::ANONYMOUS) {
+                return;
+            }
+
+            $phone = $user->getRawOriginal('phone');
+
+            Notification::route('mail', $user->getRawOriginal('email'))
+                ->route('whatsapp', $phone)
+                ->route('sms', $phone)
+                ->notify(new AccountSecurityAlert($user->name, $changes));
+        });
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -98,6 +126,26 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     /**
      * A suspended account cannot sign in anywhere (F-122).
      */
+    /**
+     * Password check for the sign-in forms that also takes the hashing time when no account matches, so the answer
+     * does not tell whether an identifier exists (F-147).
+     */
+    public static function passwordMatches(?self $user, #[SensitiveParameter] string $password): bool
+    {
+        $hash = $user?->password ?? Cache::rememberForever('auth.unknown-account-hash', fn () => Hash::make(Str::random(40)));
+
+        return Hash::check($password, $hash) && $user !== null;
+    }
+
+    /**
+     * A plain customer account: no back-office or courier role. Only these sign in on the storefront and the mobile
+     * app (F-147); the team signs in on the back-office, with its two-factor code, and couriers on their own page.
+     */
+    public function isCustomer(): bool
+    {
+        return $this->roles()->doesntExist();
+    }
+
     public function isSuspended(): bool
     {
         return $this->suspended_at !== null;

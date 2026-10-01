@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Support\PhoneNumber;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -36,8 +35,9 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::authenticateUsing(function (Request $request): ?User {
             $user = User::findByLogin($request->input(Fortify::username()));
 
-            // A suspended account (courier, staff) is refused like a wrong password.
-            return $user && ! $user->isSuspended() && Hash::check((string) $request->input('password'), $user->password) ? $user : null;
+            // Customers only, refused like a wrong password otherwise: a team member signing in here would reach the
+            // back-office without its two-factor code (same "web" session). Suspended accounts are refused too.
+            return User::passwordMatches($user, (string) $request->input('password')) && $user->isCustomer() && ! $user->isSuspended() ? $user : null;
         });
 
         Fortify::createUsersUsing(CreateNewUser::class);
@@ -51,8 +51,20 @@ class FortifyServiceProvider extends ServiceProvider
             $login = (string) $request->input(Fortify::username());
             $throttleKey = Str::transliterate((PhoneNumber::normalize($login) ?? Str::lower($login)).'|'.$request->ip());
 
-            return Limit::perMinute(5)->by($throttleKey);
+            return [
+                Limit::perMinute(5)->by($throttleKey),
+                // Whatever the address: tries spread over many IP addresses stop at 20 an hour for one account (F-147).
+                Limit::perHour(20)->by('account|'.Str::before($throttleKey, '|')),
+                // Whatever the account: one address trying passwords on many accounts. Mobile operators put many
+                // customers behind one address, hence the margin.
+                Limit::perMinute(30)->by('ip|'.$request->ip()),
+            ];
         });
+
+        // Sign-up says when a phone number already has an account: limited so it cannot list the customers (F-147).
+        RateLimiter::for('fortify-forms', fn (Request $request) => $request->routeIs('register.store')
+            ? Limit::perMinute(10)->by('register|'.$request->ip())
+            : Limit::none());
 
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));

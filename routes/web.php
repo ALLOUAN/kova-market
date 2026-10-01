@@ -25,6 +25,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\StockAlertController;
+use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -72,6 +73,11 @@ Route::get('/maintenance/apercu', MaintenancePreviewController::class)->middlewa
 Route::post('/commande/{order:number}/paiement', [PaymentController::class, 'pay'])->middleware('throttle:10,1')->name('payments.pay');
 Route::match(['get', 'post'], '/paiement/retour/{payment}', [PaymentController::class, 'back'])->middleware('throttle:30,1')->name('payments.return');
 Route::match(['get', 'post'], '/paiement/cinetpay/notification', [PaymentController::class, 'notify'])->middleware('throttle:120,1')->name('payments.notify');
+
+// WhatsApp Business (F-134): Meta's subscription check and delivery reports, Twilio's status callbacks.
+Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify'])->middleware('throttle:30,1')->name('webhooks.whatsapp.verify');
+Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'receive'])->middleware('throttle:600,1')->name('webhooks.whatsapp');
+Route::post('/webhooks/twilio/whatsapp', [WhatsAppWebhookController::class, 'twilio'])->middleware('throttle:600,1')->name('webhooks.twilio.whatsapp');
 
 // Public order tracking by number + phone (F-073), throttled against guessing.
 Route::get('/suivi', [OrderTrackingController::class, 'show'])->name('tracking.show');

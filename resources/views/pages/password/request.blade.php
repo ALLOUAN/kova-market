@@ -15,7 +15,12 @@
                         <div class="alert alert-success" role="status">{{ session('status') }}</div>
                     @endif
 
-                    <p class="b2 mb--24">Indiquez le numéro de téléphone ou l’e-mail de votre compte. Avec un numéro, vous recevez un code par SMS ; avec un e-mail, un lien pour choisir un nouveau mot de passe.</p>
+                    @if (\App\Services\Security\SmsCode::available())
+                        <p class="b2 mb--24">Indiquez le numéro de téléphone ou l’e-mail de votre compte. Avec un numéro, vous recevez un code par {{ \App\Services\Security\SmsCode::channelLabel() }} ; avec un e-mail, un lien pour choisir un nouveau mot de passe.</p>
+                    @else
+                        {{-- No phone channel switched on: only the e-mail link works; the shop helps the others. --}}
+                        <p class="b2 mb--24">Indiquez l’e-mail de votre compte : vous recevez un lien pour choisir un nouveau mot de passe. Votre compte n’a pas d’e-mail ? Contactez-nous au {{ app(\App\Services\Storefront\StoreSettings::class)->contact()['phone'] }}.</p>
+                    @endif
 
                     <form method="POST" action="{{ route('password.send') }}" class="row g-3" novalidate>
                         @csrf

@@ -3,8 +3,10 @@
 namespace App\Services\Storefront;
 
 use App\Enums\SaleUnit;
+use App\Models\DeliveryZone;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Support\SeoText;
 
 /**
  * Schema.org data read by search engines (F-152): Product with its Offer, BreadcrumbList, and the Organization and
@@ -48,6 +50,16 @@ class StructuredData
             // A running sale price is valid until its end date.
             'priceValidUntil' => $product->hasCountdown() ? $product->sale_ends_at?->toDateString() : null,
             'seller' => ['@type' => 'Organization', 'name' => config('storefront.name')],
+            // Delivery and returns, asked by Google for product results (merchant listings).
+            'shippingDetails' => $this->shipping($product),
+            'hasMerchantReturnPolicy' => $product->return_days
+                ? [
+                    '@type' => 'MerchantReturnPolicy',
+                    'applicableCountry' => 'CI',
+                    'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+                    'merchantReturnDays' => $product->return_days,
+                ]
+                : ['@type' => 'MerchantReturnPolicy', 'applicableCountry' => 'CI', 'returnPolicyCategory' => 'https://schema.org/MerchantReturnNotPermitted'],
             // Sold by weight or volume: the price is for 1 kg (KGM) or 1 litre (LTR).
             'priceSpecification' => $product->saleQuantity()->unit->isMeasured() ? [
                 '@type' => 'UnitPriceSpecification',
@@ -67,7 +79,7 @@ class StructuredData
                 '@type' => 'Product',
                 'name' => $product->name,
                 'image' => $images,
-                'description' => $this->plainText($product->meta_description ?: $product->description) ?: null,
+                'description' => SeoText::product($product),
                 'sku' => $variants->firstWhere('is_default', true)?->sku ?? $variants->first()?->sku,
                 'category' => $product->category?->name,
                 'brand' => $product->brand ? ['@type' => 'Brand', 'name' => $product->brand->name] : null,
@@ -145,8 +157,20 @@ class StructuredData
         ];
     }
 
-    private function plainText(?string $html): string
+    /**
+     * Delivery in Côte d'Ivoire from the cheapest active zone (free for a product with free shipping); null while no
+     * zone is set up.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function shipping(Product $product): ?array
     {
-        return trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string) $html), ENT_QUOTES | ENT_HTML5)) ?? '');
+        $fee = $product->free_shipping ? 0 : once(fn () => DeliveryZone::query()->where('is_active', true)->min('fee'));
+
+        return $fee === null ? null : [
+            '@type' => 'OfferShippingDetails',
+            'shippingRate' => ['@type' => 'MonetaryAmount', 'value' => (int) $fee, 'currency' => config('storefront.currency')],
+            'shippingDestination' => ['@type' => 'DefinedRegion', 'addressCountry' => 'CI'],
+        ];
     }
 }
