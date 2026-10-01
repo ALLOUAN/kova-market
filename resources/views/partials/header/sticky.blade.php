@@ -92,7 +92,7 @@
 
                     @if (config('storefront.features.wishlist'))
                         <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-5 rbt-wishlist d-none d-lg-flex tooltips tooltip-distance-lg" data-tooltip="Favoris" data-tooltip-position="bottom">
-                            <a class="rbt-round-btn has-rbt-md-fsize" href="{{ route('wishlist.index') }}" aria-label="Mes favoris ({{ $wishlistCount }})">
+                            <a class="rbt-round-btn has-rbt-md-fsize" href="{{ auth()->check() ? route('account.wishlist') : route('wishlist.index') }}" aria-label="Mes favoris ({{ $wishlistCount }})">
                                 <i class="fa-regular fa-heart"></i>
                                 <div class="access-box-count" data-wishlist-count @if (! $wishlistCount) hidden @endif>{{ $wishlistCount }}</div>
                             </a>

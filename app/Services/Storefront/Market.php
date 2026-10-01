@@ -51,6 +51,22 @@ class Market
     }
 
     /**
+     * Whether a category is the market itself or sits under it, at any depth (active menu).
+     */
+    public function contains(?Category $category): bool
+    {
+        for ($depth = 0; $category !== null && $depth < 5; $depth++) {
+            if ($category->parent_id === null) {
+                return $this->isMarket($category);
+            }
+
+            $category = $category->parent;
+        }
+
+        return false;
+    }
+
+    /**
      * The market's categories with their sub-categories, for the "Mon Marché" mega menu (same layout as "Boutique").
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, Category>

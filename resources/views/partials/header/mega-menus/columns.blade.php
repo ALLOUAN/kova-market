@@ -11,8 +11,8 @@
                                     <p class="rbt-short-title h5">{{ $column['title'] }}</p>
                                     <ul class="mega-menu-item">
                                         @foreach ($column['links'] as $link)
-                                            <li>
-                                                <a href="{{ $link['href'] }}">
+                                            <li @class(['active' => $link['active']])>
+                                                <a href="{{ $link['href'] }}" @if ($link['active']) aria-current="page" @endif>
                                                     {{ $link['label'] }}
                                                     @isset($link['badge'])
                                                         <div class="rbt-product-badge rbt-product-badge-bg-{{ $link['badge']['variant'] }} border-rounded">{{ $link['badge']['label'] }}</div>

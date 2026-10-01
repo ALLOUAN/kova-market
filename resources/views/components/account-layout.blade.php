@@ -1,42 +1,59 @@
-@props(['title'])
+@props(['title', 'heading' => true])
 
-{{-- Customer area frame: menu on the left, page on the right, flash messages on top. --}}
+{{-- Customer area frame: the customer and the menu on the left, the page on the right, flash messages on top.
+     "heading" off for the dashboard, whose welcome card stands for the title. --}}
 @php
+    $customer = auth()->user();
     $links = [
-        'account.show' => ['Mon compte', 'fa-user'],
-        'account.orders' => ['Mes commandes', 'fa-bag-shopping'],
-        'account.addresses.index' => ['Mes adresses', 'fa-location-dot'],
+        'account.show' => ['Tableau de bord', 'fa-grid-2', 'account.show', 'navy'],
+        'account.orders' => ['Mes commandes', 'fa-bag-shopping', 'account.orders*', 'green'],
+        'account.tracking' => ['Suivi de mes commandes', 'fa-truck-fast', 'account.tracking', 'gold'],
+        'account.addresses.index' => ['Mes adresses', 'fa-location-dot', 'account.addresses.*', 'blue'],
     ];
 @endphp
 
-<x-page-header :title="$title" :trail="request()->routeIs('account.show') ? [] : ['Mon compte' => route('account.show')]" />
-
-<div class="rbt-section-gap2">
+<div class="kova-account">
     <div class="container">
-        <div class="row g-5">
-            <aside class="col-lg-3">
-                <nav class="rbt-bg-color-gray-light rbt-radius p-3" aria-label="Espace client">
-                    <ul class="list-unstyled mb-0">
-                        @foreach ($links as $route => [$label, $icon])
-                            <li>
-                                <a @class(['d-block py-2 px-2 rbt-radius', 'rbt-text-bold rbt-bg-color-white' => request()->routeIs($route.'*')]) href="{{ route($route) }}">
-                                    <i class="fa-regular {{ $icon }} mr--8"></i>{{ $label }}
-                                </a>
-                            </li>
-                        @endforeach
-                        @if (config('storefront.features.wishlist'))
-                            <li>
-                                <a class="d-block py-2 px-2" href="{{ route('wishlist.index') }}"><i class="fa-regular fa-heart mr--8"></i>Mes favoris</a>
-                            </li>
-                        @endif
-                        <li>
-                            <a class="d-block py-2 px-2" href="{{ route('tracking.show') }}"><i class="fa-regular fa-truck mr--8"></i>Suivre une commande</a>
-                        </li>
-                        <li class="border-top mt-2 pt-2">
-                            <a class="d-block py-2 px-2" href="#" data-logout><i class="fa-regular fa-right-from-bracket mr--8"></i>Se déconnecter</a>
-                        </li>
-                    </ul>
+        @if ($heading)
+            <div class="kova-account__heading">
+                <nav aria-label="Fil d’Ariane" class="kova-account__trail">
+                    <a href="{{ route('account.show') }}">Mon compte</a>
+                    @unless (request()->routeIs('account.show'))
+                        <i class="fa-regular fa-chevron-right" aria-hidden="true"></i><span aria-current="page">{{ $title }}</span>
+                    @endunless
                 </nav>
+                <h1 class="kova-account__title">{{ $title }}</h1>
+            </div>
+        @endif
+
+        <div class="row g-4">
+            <aside class="col-lg-3 order-last order-lg-first">
+                <div class="kova-account-nav">
+                    @if ($customer)
+                        <div class="kova-account-nav__profile">
+                            <span class="kova-account-nav__avatar" aria-hidden="true">{{ Str::upper(Str::substr($customer->name, 0, 1)) }}</span>
+                            <div class="kova-account-nav__who">
+                                <strong>{{ $customer->name }}</strong>
+                                <span>{{ $customer->phone ? \App\Support\PhoneNumber::format($customer->phone) : $customer->email }}</span>
+                            </div>
+                        </div>
+                    @endif
+                    <nav aria-label="Espace client">
+                        <ul class="kova-account-nav__list">
+                            @foreach ($links as $route => [$label, $icon, $pattern, $tone])
+                                <li>
+                                    <a @class(['kova-account-nav__link', 'kova-account-nav__link--'.$tone, 'is-active' => request()->routeIs($pattern)]) href="{{ route($route) }}" @if (request()->routeIs($pattern)) aria-current="page" @endif>
+                                        <i class="fa-regular {{ $icon }}"></i>{{ $label }}
+                                    </a>
+                                </li>
+                            @endforeach
+                            @if (config('storefront.features.wishlist'))
+                                <li><a @class(['kova-account-nav__link kova-account-nav__link--rose', 'is-active' => request()->routeIs('account.wishlist')]) href="{{ route('account.wishlist') }}" @if (request()->routeIs('account.wishlist')) aria-current="page" @endif><i class="fa-regular fa-heart"></i>Mes favoris</a></li>
+                            @endif
+                            <li class="kova-account-nav__sep"><a class="kova-account-nav__link kova-account-nav__link--quiet" href="#" data-logout><i class="fa-regular fa-right-from-bracket"></i>Se déconnecter</a></li>
+                        </ul>
+                    </nav>
+                </div>
             </aside>
             <div class="col-lg-9">
                 @foreach (['account_status' => 'success', 'account_error' => 'danger'] as $key => $type)

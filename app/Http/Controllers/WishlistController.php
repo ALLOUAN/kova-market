@@ -16,8 +16,13 @@ class WishlistController extends Controller
 {
     public function __construct(private Wishlist $wishlist) {}
 
-    public function index(): View
+    public function index(Request $request): View|RedirectResponse
     {
+        // A signed-in customer finds their favourites in the customer area.
+        if ($request->user()) {
+            return redirect()->route('account.wishlist');
+        }
+
         return view('pages.wishlist', ['products' => $this->wishlist->products()]);
     }
 

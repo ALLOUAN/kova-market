@@ -97,6 +97,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->prefix('compte')->name('account.')->group(function () {
     Route::get('/', [AccountController::class, 'show'])->name('show');
     Route::get('/commandes', [AccountController::class, 'orders'])->name('orders');
+    Route::get('/suivi', [AccountController::class, 'tracking'])->name('tracking');
+    Route::get('/favoris', [AccountController::class, 'wishlist'])->name('wishlist');
     Route::get('/commandes/{order:number}', [AccountController::class, 'order'])->name('orders.show');
     Route::post('/commandes/{order:number}/avis/{item}', [ReviewController::class, 'store'])->middleware('throttle:10,1')->name('reviews.store');
     Route::post('/commandes/retrouver', [AccountController::class, 'claimGuestOrders'])->middleware('throttle:5,1')->name('guest-orders.claim');

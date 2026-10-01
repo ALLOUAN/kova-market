@@ -1,4 +1,10 @@
-{{-- Tabbed "Shop" mega menu: one tab per department, sub-categories in columns and the department promo. --}}
+{{-- Tabbed "Shop" mega menu: one tab per department, sub-categories in columns and the department promo. The tab of
+     the department being browsed opens first, its link and the current sub-category highlighted. --}}
+@php
+    $currentCategoryId ??= null;
+    $currentTab = $currentCategoryId === null ? false : $categoryTree->values()->search(fn ($department) => $department->id === $currentCategoryId || $department->children->contains('id', $currentCategoryId));
+    $openTab = $currentTab === false ? 0 : $currentTab;
+@endphp
 <div class="rbt-megamenu rbt-megamenu-4">
     <div class="rbt-megamenu-wrapper p--0">
         <div class="row row--0">
@@ -6,7 +12,7 @@
                 <div class="rbt-menu-tab-wrapper">
                     <nav id="rbt-megamenuTab{{ $idSuffix }}" class="nav nav-pills flex-column rbt-megamenu-tab rbt-megamenu-tab-cs-activation">
                         @foreach ($categoryTree as $category)
-                            <a href="#rbt-megamenu_tab{{ $loop->iteration }}{{ $idSuffix }}" data-bs-toggle="pill" @class(['nav-link', 'active' => $loop->first])>
+                            <a href="#rbt-megamenu_tab{{ $loop->iteration }}{{ $idSuffix }}" data-bs-toggle="pill" @class(['nav-link', 'active' => $loop->index === $openTab, 'is-current' => $loop->index === $currentTab])>
                                 <span><i class="{{ $category->icon }}"></i></span>
                                 {{ $category->name }}
                                 <span class="rbt-chevron-right"><i class="fa-regular fa-chevron-right"></i></span>
@@ -20,7 +26,7 @@
                 <div class="rbt-menu-tab-content-wrapper">
                     <div class="tab-content rbt-megamenu-tab-content" id="megamenu-tab-content{{ $idSuffix }}">
                         @foreach ($categoryTree as $category)
-                            <div @class(['tab-pane', 'show active' => $loop->first, 'fade' => ! $loop->first]) id="rbt-megamenu_tab{{ $loop->iteration }}{{ $idSuffix }}">
+                            <div @class(['tab-pane', 'show active' => $loop->index === $openTab, 'fade' => $loop->index !== $openTab]) id="rbt-megamenu_tab{{ $loop->iteration }}{{ $idSuffix }}">
                                 <div class="row row--24">
                                     <div class="col-xl-8">
                                         <div class="row row--8">
@@ -29,7 +35,7 @@
                                                     <p class="rbt-short-title h5">{{ $loop->first ? $category->name : ($loop->last ? 'Et aussi' : 'Populaires') }}</p>
                                                     <ul class="mega-menu-item">
                                                         @foreach ($column as $child)
-                                                            <li><a href="{{ $child->url() }}">{{ $child->name }}</a></li>
+                                                            <li @class(['active' => $child->id === $currentCategoryId])><a href="{{ $child->url() }}" @if ($child->id === $currentCategoryId) aria-current="page" @endif>{{ $child->name }}</a></li>
                                                         @endforeach
                                                     </ul>
                                                 </div>

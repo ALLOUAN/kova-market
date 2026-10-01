@@ -157,6 +157,30 @@ class CustomerAreaTest extends TestCase
         $this->post('/suivi', ['number' => 'KM-000000-0000', 'phone' => '0701020304'])->assertSeeText('Commande introuvable.');
     }
 
+    public function test_tracking_and_favourites_open_inside_the_customer_area(): void
+    {
+        $open = $this->placeOrder($this->customer);
+        $cancelled = $this->placeOrder($this->customer);
+        $this->seed(RolesAndPermissionsSeeder::class);
+        app(OrderStatusManager::class)->move($cancelled, OrderStatus::Cancelled, User::factory()->staff(Role::Manager)->create(), 'Test');
+        $this->actingAs($this->customer);
+
+        // The dashboard's buttons and the side menu lead to the customer area's own pages.
+        $this->get(route('account.show'))
+            ->assertSee('href="'.route('account.tracking').'"', false)
+            ->assertSee('href="'.route('account.wishlist').'"', false)
+            ->assertDontSee('href="'.route('wishlist.index').'"', false);
+
+        $this->get(route('account.tracking'))->assertOk()
+            ->assertSee('class="kova-account-bar"', false)
+            ->assertSeeText('Commande '.$open->number)
+            ->assertDontSeeText('Commande '.$cancelled->number);
+
+        $this->get(route('account.wishlist'))->assertOk()
+            ->assertSee('class="kova-account-bar"', false)
+            ->assertSeeText('Vous n’avez pas encore de favori');
+    }
+
     private function placeOrder(User $user): Order
     {
         $cart = Cart::create(['token' => fake()->uuid(), 'expires_at' => now()->addDay()]);

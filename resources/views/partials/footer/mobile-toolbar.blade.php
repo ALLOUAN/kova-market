@@ -4,7 +4,7 @@
             <div class="col-md-12">
                 <ul class="rbt-quick-access onepagenav">
                     <li class="rbt-access-box">
-                        <a href="{{ route('shop.index') }}" class="rbt-round-btn has-rbt-md-fsize">
+                        <a href="{{ route('shop.index') }}" @class(['rbt-round-btn has-rbt-md-fsize', 'is-active' => request()->routeIs('shop.index', 'categories.show', 'brands.show', 'collections.show', 'products.show', 'market.show')])>
                             <i class="fa-regular fa-bag-shopping"></i>
                             <span class="rbt-toolbar-label"> Boutique</span>
                         </a>
@@ -12,7 +12,7 @@
 
                     @if (config('storefront.features.wishlist'))
                         <li class="rbt-access-box rbt-wishlist">
-                            <a class="rbt-round-btn has-rbt-md-fsize" href="{{ route('wishlist.index') }}" aria-label="Mes favoris ({{ $wishlistCount }})">
+                            <a @class(['rbt-round-btn has-rbt-md-fsize', 'is-active' => request()->routeIs('wishlist.index', 'account.wishlist')]) href="{{ auth()->check() ? route('account.wishlist') : route('wishlist.index') }}" aria-label="Mes favoris ({{ $wishlistCount }})">
                                 <i class="fa-regular fa-heart"></i>
                                 <div class="access-box-count" data-wishlist-count @if (! $wishlistCount) hidden @endif>{{ $wishlistCount }}</div>
                                 <span class="rbt-toolbar-label"> Favoris</span>
@@ -30,7 +30,7 @@
 
                     @if (config('storefront.features.compare'))
                         <li class="rbt-access-box">
-                            <a href="{{ route('compare.index') }}" class="rbt-round-btn has-rbt-md-fsize" aria-label="Comparateur ({{ $compared->count() }})">
+                            <a href="{{ route('compare.index') }}" @class(['rbt-round-btn has-rbt-md-fsize', 'is-active' => request()->routeIs('compare.index')]) aria-label="Comparateur ({{ $compared->count() }})">
                                 <i class="fa-regular fa-code-compare"></i>
                                 <div class="access-box-count" data-compare-count @if ($compared->isEmpty()) hidden @endif>{{ $compared->count() }}</div>
                                 <span class="rbt-toolbar-label"> Comparer</span>
@@ -38,7 +38,7 @@
                         </li>
                     @else
                         <li class="rbt-access-box">
-                            <a href="{{ route('cart.show') }}" class="rbt-round-btn has-rbt-md-fsize">
+                            <a href="{{ route('cart.show') }}" @class(['rbt-round-btn has-rbt-md-fsize', 'is-active' => request()->routeIs('cart.show', 'checkout.*')])>
                                 <i class="fa-regular fa-cart-shopping"></i>
                                 <span class="rbt-toolbar-label"> Panier</span>
                             </a>
@@ -47,7 +47,7 @@
 
                     <li class="rbt-access-box">
                         @auth
-                            <a href="{{ route('account.show') }}" class="rbt-round-btn has-rbt-md-fsize">
+                            <a href="{{ route('account.show') }}" @class(['rbt-round-btn has-rbt-md-fsize', 'is-active' => request()->routeIs('account.*')])>
                                 <i class="fa-regular fa-user"></i>
                                 <span class="rbt-toolbar-label"> Mon compte</span>
                             </a>

@@ -17,12 +17,35 @@ class CustomerAccountTest extends TestCase
             'phone' => '07 01 02 03 04',
             'password' => 'motdepasse',
             'password_confirmation' => 'motdepasse',
-        ])->assertRedirect('/');
+        ])->assertRedirect(route('account.show'));
 
         $user = User::firstOrFail();
         $this->assertSame('+2250701020304', $user->phone);
         $this->assertNull($user->email);
         $this->assertAuthenticatedAs($user);
+
+        // The account dashboard welcomes the new customer.
+        $this->get(route('account.show'))->assertOk()->assertSeeText('Bienvenue Aya, votre compte est créé !')
+            // The customer area has its own slim bar instead of the storefront header and top header.
+            ->assertSee('class="kova-account-bar"', false)
+            ->assertDontSee('rbt-header rbt-header-2', false)
+            // Nor footer: one line with the legal links.
+            ->assertDontSee('class="rbt-footer', false)
+            ->assertSee('class="kova-account-line"', false)
+            ->assertSee(route('pages.show', 'conditions-generales-de-vente'), false);
+        $this->get(route('home'))->assertSee('rbt-header rbt-header-2', false)->assertDontSee('class="kova-account-bar"', false)
+            ->assertSee('class="rbt-footer', false);
+        $this->get(route('account.show'))->assertDontSeeText('votre compte est créé');
+    }
+
+    public function test_a_sign_up_started_at_the_checkout_goes_back_to_it(): void
+    {
+        $this->withSession(['url.intended' => route('checkout.show')])->post('/register', [
+            'name' => 'Aya Kouassi',
+            'phone' => '07 01 02 03 04',
+            'password' => 'motdepasse',
+            'password_confirmation' => 'motdepasse',
+        ])->assertRedirect(route('checkout.show'));
     }
 
     public function test_a_phone_number_can_only_be_used_once_however_it_is_typed(): void
@@ -55,7 +78,8 @@ class CustomerAccountTest extends TestCase
     {
         $user = User::factory()->customer()->create(['phone' => '0501020304']);
 
-        $this->post('/login', ['login' => '+225 05 01 02 03 04', 'password' => 'password']);
+        // Straight to the account dashboard.
+        $this->post('/login', ['login' => '+225 05 01 02 03 04', 'password' => 'password'])->assertRedirect('/compte');
 
         $this->assertAuthenticatedAs($user);
     }

@@ -76,6 +76,12 @@ return [
 
     'home' => '/',
 
+    // A customer who signs in lands on their account dashboard, unless a page asked to come back to it (the
+    // checkout, a page of the account). Sign-up: RegisterResponse in FortifyServiceProvider.
+    'redirects' => [
+        'login' => '/compte',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Fortify Routes Prefix / Subdomain

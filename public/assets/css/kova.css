@@ -1152,3 +1152,256 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-timeline--vertical .kova-timeline__dot { position: absolute; left: 0; top: 0; margin: 0; }
 .kova-timeline--vertical li::before { top: 44px; left: 20px; right: auto; width: 3px; height: 14px; }
 .kova-timeline--vertical .kova-timeline__label { flex-basis: 100%; }
+
+/* ------------------------------------------------------------------ Active menu
+   The page being shown is marked in every menu: gold underline in the header bars, green text in the dropdowns,
+   mega menus, mobile menu and footer, filled button in the mobile toolbar. */
+.rbt-header-middle .mainmenu > li.active > a { color: #fff !important; font-weight: 600; }
+.rbt-header-middle.rbt-bg-color-primary .rbt-mainmenu-nav .mainmenu > li.kova-menu-highlight.active > a { color: var(--kova-gold) !important; }
+/* The theme turns the chevron of an active item as if its menu were open: only on hover here. */
+.rbt-mainmenu-nav .mainmenu > li.active:not(:hover) > a i { transform: none !important; margin-top: 0 !important; }
+
+.rbt-header-common-sticky-activation .mainmenu > li.active > a,
+.rbt-header-common-sticky-activation .mainmenu > li.active > a:hover {
+    color: var(--kova-navy) !important;
+    font-weight: 600;
+    box-shadow: inset 0 -2px 0 var(--kova-gold);
+}
+.rbt-header-common-sticky-activation .mainmenu > li.active > a::after { opacity: 0; visibility: hidden; }
+
+.mainmenu .submenu li.active > a,
+.mega-menu-item li.active > a {
+    color: var(--kova-green) !important;
+    font-weight: 600;
+}
+.mainmenu .submenu li.active > a::before,
+.mega-menu-item li.active > a::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--kova-gold);
+    vertical-align: middle;
+}
+.rbt-megamenu-tab .nav-link.is-current { font-weight: 600; box-shadow: inset 3px 0 0 var(--kova-gold); }
+
+/* Mobile menu (off-canvas): no hover bar, the colour carries it. */
+.popup-mobile-menu .mainmenu > li.active > a { color: var(--kova-green) !important; font-weight: 600; }
+
+.rbt-footer .ft-link a.is-active,
+.copyright-link a.is-active {
+    color: var(--kova-green) !important;
+    font-weight: 600;
+}
+
+.rbt-round-btn.is-active { background: var(--kova-navy) !important; color: #fff !important; }
+.rbt-round-btn.is-active i { color: #fff !important; }
+
+/* ------------------------------------------------------------------ Customer area bar
+   Replaces the header and the top header in the customer area: white, a gold line underneath, compact. */
+.kova-account-bar { background: #fff; border-bottom: 1px solid var(--kova-border); box-shadow: inset 0 -3px 0 var(--kova-gold); position: relative; z-index: 5; }
+.kova-account-bar__inner { display: flex; align-items: center; gap: 16px; min-height: 72px; padding-bottom: 3px; }
+.kova-account-bar__logo img { height: 42px; width: auto; }
+.kova-account-bar__area { padding-left: 16px; border-left: 1px solid var(--kova-border); color: var(--kova-navy); font-weight: 600; font-size: 15px; letter-spacing: .02em; }
+.kova-account-bar__actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.kova-account-bar__link { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; color: var(--kova-text-body); font-size: 15px; font-weight: 500; }
+.kova-account-bar__link:hover { background: var(--kova-success-bg); color: var(--kova-green); }
+.kova-account-bar__count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--kova-gold); color: #fff; font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; }
+.kova-account-bar__user { display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; margin-left: 6px; border-left: 1px solid var(--kova-border); color: var(--kova-navy); font-weight: 600; font-size: 15px; }
+.kova-account-bar__avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--kova-navy); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+
+@media (max-width: 767px) {
+    .kova-account-bar__inner { min-height: 60px; gap: 10px; }
+    .kova-account-bar__logo img { height: 34px; }
+    .kova-account-bar__area, .kova-account-bar__user span:not(.kova-account-bar__avatar) { display: none; }
+    .kova-account-bar__link span:not(.kova-account-bar__count) { display: none; }
+    .kova-account-bar__link { padding: 8px; font-size: 17px; }
+    .kova-account-bar__user { padding: 0 4px; margin-left: 0; border-left: 0; }
+}
+
+/* ------------------------------------------------------------------ Customer area
+   Frame (heading, side menu with the customer) and dashboard: welcome card, figures, latest orders, address,
+   help, settings in tabs. */
+.kova-account { padding: 32px 0 72px; background: #f6f7f9; }
+.kova-account__heading { margin-bottom: 24px; }
+.kova-account__trail { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--kova-text-muted); margin-bottom: 6px; }
+.kova-account__trail a { color: var(--kova-text-muted); }
+.kova-account__trail a:hover { color: var(--kova-green); }
+.kova-account__trail i { font-size: 10px; }
+.kova-account__title { font-size: 28px; margin: 0; color: var(--kova-navy); }
+
+.kova-account-nav { background: #fff; border: 1px solid var(--kova-border); border-radius: 14px; padding: 8px; position: sticky; top: 24px; }
+.kova-account-nav__profile { display: flex; align-items: center; gap: 12px; padding: 14px 12px 16px; margin-bottom: 6px; border-bottom: 1px solid var(--kova-border); }
+.kova-account-nav__avatar { flex: none; width: 46px; height: 46px; border-radius: 50%; background: var(--kova-navy); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--kova-gold); }
+.kova-account-nav__who { min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
+.kova-account-nav__who strong { color: var(--kova-navy); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kova-account-nav__who span { color: var(--kova-text-muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kova-account-nav__list { list-style: none; margin: 0; padding: 0; }
+.kova-account-nav__list li { margin: 0; }
+.kova-account-nav__link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: var(--kova-text-body); font-size: 15px; font-weight: 500; position: relative; }
+.kova-account-nav__link i { width: 18px; text-align: center; color: var(--kova-text-muted); }
+.kova-account-nav__link:hover { background: #f3f5f8; color: var(--kova-navy); }
+.kova-account-nav__link.is-active { background: #eef1f6; color: var(--kova-navy); font-weight: 600; }
+.kova-account-nav__link.is-active::before { content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 3px; background: var(--kova-gold); }
+.kova-account-nav__link.is-active i { color: var(--kova-navy); }
+.kova-account-nav__sep { margin-top: 6px !important; padding-top: 6px; border-top: 1px solid var(--kova-border); }
+.kova-account-nav__link--quiet { color: var(--kova-text-muted); }
+.kova-account-nav__link--quiet:hover { background: var(--kova-danger-bg); color: var(--kova-danger); }
+.kova-account-nav__link--quiet:hover i { color: var(--kova-danger); }
+
+.kova-dash-hero { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 30px; margin-bottom: 20px; border-radius: 16px; background: var(--kova-navy); color: #fff; position: relative; overflow: hidden; }
+.kova-dash-hero::after { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; border: 28px solid rgb(198 158 62 / .14); pointer-events: none; }
+.kova-dash-hero > * { position: relative; z-index: 1; }
+.kova-dash-hero__eyebrow { margin: 0 0 4px; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--kova-gold); }
+.kova-dash-hero__title { margin: 0 0 6px; font-size: 30px; color: #fff; }
+.kova-dash-hero__text { margin: 0; max-width: 520px; color: rgb(255 255 255 / .78); font-size: 15px; }
+.kova-dash-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.rbt-btn.kova-dash-hero__primary { background: var(--kova-gold) !important; color: #fff !important; border-color: var(--kova-gold) !important; }
+.rbt-btn.kova-dash-hero__primary:hover { background: #b38b2f !important; }
+.kova-dash-hero__secondary { display: inline-flex; align-items: center; padding: 10px 16px; border-radius: 8px; border: 1px solid rgb(255 255 255 / .35); color: #fff; font-size: 15px; font-weight: 500; }
+.kova-dash-hero__secondary:hover { background: rgb(255 255 255 / .1); color: #fff; }
+
+.kova-dash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.kova-dash-stat { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 14px; align-items: center; padding: 16px 18px; background: #fff; border: 1px solid var(--kova-border); border-radius: 14px; transition: border-color .2s, transform .2s; }
+.kova-dash-stat:hover { border-color: var(--kova-border-strong); transform: translateY(-2px); }
+.kova-dash-stat__icon { grid-row: span 2; width: 44px; height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; background: var(--kova-success-bg); color: var(--kova-green); }
+.kova-dash-stat__icon--gold { background: #f8f1e2; color: #a07c26; }
+.kova-dash-stat__icon--navy { background: #e8edf5; color: var(--kova-navy); }
+.kova-dash-stat__icon--rose { background: #fdecef; color: #c0364f; }
+.kova-dash-stat__value { font-size: 24px; font-weight: 700; color: var(--kova-navy); line-height: 1.1; }
+.kova-dash-stat__label { font-size: 14px; color: var(--kova-text-muted); }
+
+.kova-dash-callout { display: flex; gap: 16px; padding: 18px 20px; margin-bottom: 20px; border-radius: 14px; background: #fbf6ea; border: 1px solid #ecdcb4; }
+.kova-dash-callout__icon { flex: none; width: 42px; height: 42px; border-radius: 50%; background: var(--kova-gold); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+.kova-dash-callout__body { flex: 1; min-width: 0; }
+
+.kova-dash-card { background: #fff; border: 1px solid var(--kova-border); border-radius: 14px; padding: 22px 24px; }
+.kova-dash-card__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.kova-dash-card__title { margin: 0; font-size: 18px; color: var(--kova-navy); }
+.kova-dash-card__more { font-size: 14px; font-weight: 600; color: var(--kova-green); }
+.kova-dash-card__more i { font-size: 12px; margin-left: 4px; transition: transform .2s; }
+.kova-dash-card__more:hover i { transform: translateX(3px); }
+
+.kova-dash-order { display: flex; align-items: center; gap: 14px; padding: 14px 4px; border-top: 1px solid var(--kova-border); color: var(--kova-text-body); }
+.kova-dash-order:first-of-type { border-top: 0; }
+.kova-dash-order:hover { background: #fafbfc; }
+.kova-dash-order__icon { flex: none; width: 40px; height: 40px; border-radius: 10px; background: #f3f5f8; color: var(--kova-navy); display: inline-flex; align-items: center; justify-content: center; }
+.kova-dash-order__main { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.4; }
+.kova-dash-order__main strong { color: var(--kova-navy); font-size: 15px; }
+.kova-dash-order__main span { font-size: 13px; color: var(--kova-text-muted); }
+.kova-dash-order__total { font-weight: 700; color: var(--kova-navy); white-space: nowrap; min-width: 96px; text-align: right; }
+.kova-dash-order__go { color: var(--kova-border-strong); font-size: 13px; }
+
+.kova-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.kova-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.kova-pill--warning { background: #fdf3e1; color: #a5650a; }
+.kova-pill--info { background: #e6f0fb; color: #1d5fa8; }
+.kova-pill--primary { background: #e8edf5; color: var(--kova-navy); }
+.kova-pill--success { background: var(--kova-success-bg); color: var(--kova-green); }
+.kova-pill--danger { background: var(--kova-danger-bg); color: var(--kova-danger); }
+
+.kova-dash-empty { text-align: center; padding: 26px 10px 10px; }
+.kova-dash-empty__icon { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 50%; background: #f3f5f8; color: var(--kova-navy); display: flex; align-items: center; justify-content: center; font-size: 26px; }
+.kova-dash-empty__title { margin: 0 0 4px; font-weight: 600; color: var(--kova-navy); }
+.kova-dash-empty__text { margin: 0 0 16px; font-size: 14px; color: var(--kova-text-muted); }
+
+.kova-dash-address__label { margin: 0 0 6px; font-weight: 600; color: var(--kova-navy); }
+.kova-dash-address__line { margin: 0 0 2px; font-size: 14px; color: var(--kova-text-body); }
+.kova-dash-help { background: linear-gradient(180deg, #fff 0%, #f6faf7 100%); }
+.kova-dash-help__link { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--kova-border); font-size: 15px; font-weight: 500; color: var(--kova-navy); }
+.kova-dash-help__link i { color: var(--kova-green); width: 18px; text-align: center; }
+.kova-dash-help__link:hover { color: var(--kova-green); }
+
+.kova-dash-tabs { gap: 4px; margin-bottom: 22px; border-bottom: 1px solid var(--kova-border); flex-wrap: nowrap; overflow-x: auto; }
+.kova-dash-tabs .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; margin-bottom: -1px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; color: var(--kova-text-muted); font-size: 15px; font-weight: 500; white-space: nowrap; }
+.kova-dash-tabs .nav-link:hover { color: var(--kova-navy); }
+.kova-dash-tabs .nav-link.active { color: var(--kova-navy); font-weight: 600; border-bottom-color: var(--kova-gold); }
+.kova-dash-note { display: flex; gap: 8px; align-items: baseline; margin: 0; font-size: 13px; color: var(--kova-text-muted); }
+.kova-dash-note i { color: var(--kova-green); }
+.kova-dash-option { padding: 16px 18px; border: 1px solid var(--kova-border); border-radius: 12px; background: #fafbfc; }
+.kova-dash-danger { padding: 14px 18px; border: 1px solid #f3cfcb; border-radius: 12px; background: #fffafa; }
+.kova-dash-danger summary { cursor: pointer; font-weight: 600; color: var(--kova-danger); }
+
+@media (max-width: 991px) {
+    .kova-account-nav { position: static; }
+}
+@media (max-width: 575px) {
+    .kova-account { padding-top: 20px; }
+    .kova-dash-hero { padding: 22px 20px; }
+    .kova-dash-hero__title { font-size: 24px; }
+    .kova-dash-card { padding: 18px 16px; }
+    .kova-dash-order { flex-wrap: wrap; gap: 8px 12px; }
+    .kova-dash-order__main { flex-basis: calc(100% - 60px); }
+    .kova-dash-order .kova-pill { margin-left: 52px; }
+    .kova-dash-order__total { margin-left: auto; min-width: 0; }
+    .kova-dash-order__go { display: none; }
+}
+
+/* Customer area footer line (no newsletter band nor footer there). */
+.kova-account-line { background: var(--kova-navy); border-top: 3px solid var(--kova-gold); }
+.kova-account-line__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 20px; padding: 18px 0; font-size: 13px; color: rgb(255 255 255 / .7); }
+.kova-account-line__inner > span { color: #fff; font-weight: 500; }
+.kova-account-line nav { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.kova-account-line a { color: rgb(255 255 255 / .75); }
+.kova-account-line a:hover { color: var(--kova-gold); }
+.kova-account { padding-bottom: 48px; }
+@media (max-width: 1199px) {
+    /* Room for the mobile toolbar fixed at the bottom. */
+    .kova-account-line { padding-bottom: 72px; }
+}
+
+/* Customer area bar buttons: pills, each action its colour (shop navy, cart gold, sign-out red on hover). */
+.kova-account-bar__actions { gap: 10px; }
+.kova-account-bar__link { padding: 8px 16px 8px 8px; border-radius: 999px; background: #f4f6f9; border: 1px solid var(--kova-border); color: var(--kova-navy); font-weight: 600; transition: background .2s, color .2s, border-color .2s, box-shadow .2s; }
+.kova-account-bar__link i { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #fff; color: var(--kova-navy); font-size: 13px; box-shadow: 0 1px 2px rgb(2 23 50 / .08); transition: background .2s, color .2s; }
+.kova-account-bar__link:hover { box-shadow: 0 4px 12px rgb(2 23 50 / .12); }
+
+.kova-account-bar__link--shop { background: var(--kova-navy); border-color: var(--kova-navy); color: #fff; }
+.kova-account-bar__link--shop i { background: var(--kova-gold); color: #fff; }
+.kova-account-bar__link--shop:hover { background: #0a2a52; border-color: #0a2a52; color: #fff; }
+
+.kova-account-bar__link--cart { background: #fbf6ea; border-color: #ecdcb4; }
+.kova-account-bar__link--cart i { background: var(--kova-gold); color: #fff; }
+.kova-account-bar__link--cart:hover { background: var(--kova-gold); border-color: var(--kova-gold); color: #fff; }
+.kova-account-bar__link--cart:hover i { background: #fff; color: var(--kova-gold); }
+.kova-account-bar__link--cart .kova-account-bar__count { background: var(--kova-navy); }
+
+.kova-account-bar__link--logout:hover { background: var(--kova-danger-bg); border-color: #f3cfcb; color: var(--kova-danger); }
+.kova-account-bar__link--logout:hover i { background: var(--kova-danger); color: #fff; }
+
+.kova-account-bar__user { padding: 4px 14px 4px 4px; margin-left: 0; border: 1px solid var(--kova-border); border-radius: 999px; background: #fff; }
+
+@media (max-width: 767px) {
+    .kova-account-bar__actions { gap: 6px; }
+    .kova-account-bar__link { padding: 4px; }
+    .kova-account-bar__link i { width: 30px; height: 30px; }
+    .kova-account-bar__user { padding: 3px; border: 0; background: none; }
+}
+
+/* Customer area side menu: navy header with the customer, each icon in a tinted chip, the current page filled navy. */
+.kova-account-nav { padding: 0; overflow: hidden; box-shadow: 0 6px 18px rgb(2 23 50 / .05); }
+.kova-account-nav__profile { margin: 0; padding: 20px 18px; border: 0; background: var(--kova-navy); position: relative; overflow: hidden; }
+.kova-account-nav__profile::after { content: ""; position: absolute; right: -36px; bottom: -46px; width: 120px; height: 120px; border-radius: 50%; border: 16px solid rgb(198 158 62 / .18); }
+.kova-account-nav__avatar { position: relative; z-index: 1; background: var(--kova-gold); color: #fff; box-shadow: 0 0 0 3px rgb(255 255 255 / .9); }
+.kova-account-nav__who { position: relative; z-index: 1; }
+.kova-account-nav__who strong { color: #fff; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
+.kova-account-nav__who span { color: rgb(255 255 255 / .7); margin-top: 2px; }
+.kova-account-nav nav { padding: 10px; }
+
+.kova-account-nav__link { gap: 12px; padding: 7px 10px 7px 7px; margin-bottom: 2px; border-radius: 11px; transition: background .2s, color .2s; }
+.kova-account-nav__link i { flex: none; width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; background: #eef1f6; color: var(--kova-navy); transition: background .2s, color .2s; }
+.kova-account-nav__link--green i { background: var(--kova-success-bg); color: var(--kova-green); }
+.kova-account-nav__link--gold i { background: #f8f1e2; color: #a07c26; }
+.kova-account-nav__link--blue i { background: #e6f0fb; color: #1d5fa8; }
+.kova-account-nav__link--rose i { background: #fdecef; color: #c0364f; }
+.kova-account-nav__link:hover { background: #f4f6f9; color: var(--kova-navy); }
+
+.kova-account-nav__link.is-active { background: var(--kova-navy); color: #fff; box-shadow: 0 6px 14px rgb(2 23 50 / .18); }
+.kova-account-nav__link.is-active::before { display: none; }
+.kova-account-nav__link.is-active i { background: var(--kova-gold); color: #fff; }
+
+.kova-account-nav__sep { margin: 8px 0 0 !important; padding-top: 8px; }
+.kova-account-nav__link--quiet i { background: #f4f6f9; color: var(--kova-text-muted); }
+.kova-account-nav__link--quiet:hover i { background: var(--kova-danger); color: #fff; }

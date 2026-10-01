@@ -63,8 +63,10 @@ class WishlistTest extends TestCase
         $this->actingAs($user)->post(route('wishlist.toggle', $onSale))->assertRedirect();
         $this->assertTrue(WishlistItem::where('user_id', $user->id)->where('product_id', $onSale->id)->exists());
 
-        $this->get(route('wishlist.index'))->assertSeeText('Montre connectée')->assertDontSeeText('Ancien modèle');
-        $this->get(route('account.show'))->assertSee('href="'.route('wishlist.index').'"', false);
+        // Signed in, the favourites live in the customer area.
+        $this->get(route('wishlist.index'))->assertRedirect(route('account.wishlist'));
+        $this->get(route('account.wishlist'))->assertSeeText('Montre connectée')->assertDontSeeText('Ancien modèle');
+        $this->get(route('account.show'))->assertSee('href="'.route('account.wishlist').'"', false);
 
         // A product taken off the site cannot be added.
         $this->post(route('wishlist.toggle', $retired))->assertNotFound();

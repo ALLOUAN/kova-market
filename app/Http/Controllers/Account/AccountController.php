@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Account;
 
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\ProductReview;
 use App\Services\Account\AccountEraser;
 use App\Services\Account\GuestOrderClaim;
+use App\Services\Security\SmsCode;
+use App\Services\Storefront\Wishlist;
 use App\Support\PhoneNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,10 +28,19 @@ class AccountController extends Controller
     {
         $user = $request->user();
 
+        $statuses = $user->orders()->reorder()->pluck('status');
+
         return view('pages.account.show', [
             'user' => $user,
             'phone' => $user->phone ? PhoneNumber::format($user->phone) : null,
             'recentOrders' => $user->orders()->withCount('items')->limit(3)->get(),
+            // The figures of the dashboard tiles.
+            'stats' => [
+                'orders' => $statuses->count(),
+                'open' => $statuses->reject(fn (OrderStatus $status) => $status->isFinal())->count(),
+                'addresses' => $user->addresses()->count(),
+                'wishlist' => config('storefront.features.wishlist') ? app(Wishlist::class)->count() : null,
+            ],
             'defaultAddress' => $user->defaultAddress()->with('commune')->first(),
             'guestOrdersCount' => app(GuestOrderClaim::class)->pending($user)->count(),
         ]);
@@ -39,6 +51,28 @@ class AccountController extends Controller
         return view('pages.account.orders', [
             'orders' => $request->user()->orders()->with('items')->paginate(10),
         ]);
+    }
+
+    /**
+     * The orders still on their way, with their progress: "Suivre une commande" inside the customer area.
+     */
+    public function tracking(Request $request): View
+    {
+        $orders = $request->user()->orders()->with(['statusHistory', 'courier.user'])->withCount('items')->get()
+            ->reject(fn (Order $order) => $order->status->isFinal())
+            ->values();
+
+        return view('pages.account.tracking', ['orders' => $orders]);
+    }
+
+    /**
+     * The favourites inside the customer area (the storefront's /favoris page stays for visitors).
+     */
+    public function wishlist(Wishlist $wishlist): View
+    {
+        abort_unless(config('storefront.features.wishlist'), 404);
+
+        return view('pages.account.wishlist', ['products' => $wishlist->products()]);
     }
 
     public function order(Request $request, Order $order): View
@@ -60,7 +94,7 @@ class AccountController extends Controller
     {
         $claim->sendCode($request->user());
 
-        return back()->with('claim_code_sent', true)->with('account_status', 'Un code vient de vous être envoyé par SMS au '.PhoneNumber::format($request->user()->phone).'.');
+        return back()->with('claim_code_sent', true)->with('account_status', 'Un code vient de vous être envoyé par '.SmsCode::channelLabel().' au '.PhoneNumber::format($request->user()->phone).'.');
     }
 
     public function confirmGuestOrders(Request $request, GuestOrderClaim $claim): RedirectResponse
@@ -79,7 +113,7 @@ class AccountController extends Controller
     {
         $request->user()->update(['marketing_opt_in' => $request->boolean('marketing_opt_in')]);
 
-        return back()->with('account_status', 'Vos préférences sont enregistrées.');
+        return back()->with('account_status', 'Vos préférences sont enregistrées.')->with('account_tab', 'preferences');
     }
 
     public function export(Request $request, AccountEraser $eraser): StreamedResponse

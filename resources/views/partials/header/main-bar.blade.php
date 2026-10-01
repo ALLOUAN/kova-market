@@ -99,7 +99,7 @@
                     @endif
                     @if (config('storefront.features.wishlist'))
                         <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 rbt-access-box-has-bg-hover rbt-wishlist d-none d-lg-flex">
-                            <a href="{{ route('wishlist.index') }}" class="rbt-access-box-wrapper" aria-label="Mes favoris ({{ $wishlistCount }})">
+                            <a href="{{ auth()->check() ? route('account.wishlist') : route('wishlist.index') }}" class="rbt-access-box-wrapper" aria-label="Mes favoris ({{ $wishlistCount }})">
                                 <div class="rbt-round-btn rbt-bg-static-gray">
                                     <i class="fa-regular fa-heart"></i>
                                     <span class="access-box-count" data-wishlist-count @if (! $wishlistCount) hidden @endif>{{ $wishlistCount }}</span>

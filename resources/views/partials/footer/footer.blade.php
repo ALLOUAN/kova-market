@@ -28,7 +28,7 @@
                             <ul class="ft-link">
                                 @foreach (collect($links)->reject(fn (array $link) => $link['href'] === '#') as $link)
                                     <li>
-                                        <a href="{{ $link['href'] }}">{{ $link['label'] }}</a>
+                                        <a href="{{ $link['href'] }}" @class(['is-active' => $link['active']]) @if ($link['active']) aria-current="page" @endif>{{ $link['label'] }}</a>
                                     </li>
                                 @endforeach
                             </ul>
@@ -117,7 +117,7 @@
             <div class="col-xxl-4 col-xl-4 col-lg-12 col-md-12 col-12 mt--24">
                 <ul class="copyright-link rbt-link-hover justify-content-center justify-content-xl-end mt_sm--12 mt_md--12 mt_lg--12">
                     @foreach ($legalLinks as $link)
-                        <li><a href="{{ $link['href'] }}">{{ $link['label'] }}</a></li>
+                        <li><a href="{{ $link['href'] }}" @class(['is-active' => $link['active']]) @if ($link['active']) aria-current="page" @endif>{{ $link['label'] }}</a></li>
                     @endforeach
                     @if (app(\App\Services\Storefront\Analytics::class)->showsConsentBanner())
                         <li><button type="button" class="btn btn-link p-0 border-0 align-baseline text-reset" data-cookie-settings>Gérer les cookies</button></li>

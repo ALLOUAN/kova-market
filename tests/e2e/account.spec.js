@@ -13,8 +13,9 @@ test('un visiteur crée son compte par téléphone et retrouve son espace client
     await signup.locator('#modal_register_password_confirmation').fill('mot-de-passe-e2e');
     await signup.getByRole('button', { name: 'Créer mon compte' }).click();
 
-    await page.goto('/compte');
+    // The new customer lands straight on the account dashboard, welcomed.
     await expect(page).toHaveURL(/\/compte$/);
+    await expect(page.getByText('votre compte est créé')).toBeVisible();
     await expect(page.locator('#profile_name')).toHaveValue('Yao Kouassi');
 });
 

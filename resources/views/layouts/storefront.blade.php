@@ -66,7 +66,12 @@
             <i class="fa-regular fa-screwdriver-wrench mr--8"></i>Mode maintenance actif : les visiteurs voient la page de maintenance. Vous voyez le site car vous faites partie de l’équipe ou votre adresse est autorisée.
         </div>
     @endif
-    @include('partials.header.index')
+    {{-- The customer area reads like an application: its own slim bar instead of the header and the top header. --}}
+    @if (request()->routeIs('account.*'))
+        @include('partials.header.account-bar')
+    @else
+        @include('partials.header.index')
+    @endif
     @include('partials.overlays.preloader')
     @include('partials.header.mobile-menu')
 
@@ -120,10 +125,15 @@
     {{-- Page specific modals (size guide, coupons, ...) --}}
     @stack('modals')
 
-    @if (config('storefront.features.newsletter'))
-        @include('partials.footer.newsletter')
+    {{-- The customer area (signed in) has no newsletter band nor footer: a slim line with the legal links instead. --}}
+    @if (request()->routeIs('account.*'))
+        @include('partials.footer.account-line')
+    @else
+        @if (config('storefront.features.newsletter'))
+            @include('partials.footer.newsletter')
+        @endif
+        @include('partials.footer.footer')
     @endif
-    @include('partials.footer.footer')
     @guest
         @include('partials.modals.sign-in')
         @include('partials.modals.sign-up')

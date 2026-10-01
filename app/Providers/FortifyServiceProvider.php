@@ -9,11 +9,13 @@ use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Models\User;
 use App\Support\PhoneNumber;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -23,7 +25,17 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // A new customer lands on their account dashboard with a welcome, unless the sign-up started from a page
+        // that asked to come back (the checkout).
+        $this->app->instance(RegisterResponse::class, new class implements RegisterResponse
+        {
+            public function toResponse($request)
+            {
+                return $request->wantsJson()
+                    ? new JsonResponse('', 201)
+                    : redirect()->intended(route('account.show'))->with('status', 'account-created');
+            }
+        });
     }
 
     /**
