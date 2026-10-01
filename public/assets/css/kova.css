@@ -1199,6 +1199,113 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .rbt-round-btn.is-active { background: var(--kova-navy) !important; color: #fff !important; }
 .rbt-round-btn.is-active i { color: #fff !important; }
 
+/* ------------------------------------------------------------------ Mobile toolbar
+   Night blue bar (KOVA identity), off-white icons and labels, gold for the current page and the counters. */
+.rbt-toolbar {
+    background-color: var(--kova-navy);
+    box-shadow: 0 -6px 20px rgb(2 23 50 / 0.18);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+.rbt-toolbar .rbt-quick-access > li .rbt-round-btn {
+    position: relative;
+    background: transparent;
+    color: rgb(255 255 255 / 0.78);
+    transition: color 0.2s ease;
+}
+.rbt-toolbar .rbt-quick-access > li .rbt-round-btn i {
+    color: rgb(255 255 255 / 0.78);
+    font-size: 18px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.rbt-toolbar .rbt-quick-access > li .rbt-round-btn .rbt-toolbar-label {
+    color: inherit;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+.rbt-toolbar .rbt-quick-access > li:hover .rbt-round-btn,
+.rbt-toolbar .rbt-quick-access > li:hover .rbt-round-btn i {
+    color: #fff;
+}
+
+/* Current page: gold icon, white label and a short gold bar on top (instead of the generic filled button). */
+.rbt-toolbar .rbt-round-btn.is-active {
+    background: transparent !important;
+    color: #fff !important;
+}
+.rbt-toolbar .rbt-round-btn.is-active i {
+    color: var(--kova-gold) !important;
+    transform: translateY(-1px);
+}
+.rbt-toolbar .rbt-round-btn.is-active .rbt-toolbar-label { font-weight: 600; }
+.rbt-toolbar .rbt-round-btn.is-active::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    width: 28px;
+    height: 3px;
+    margin-left: -14px;
+    border-radius: 0 0 3px 3px;
+    background: var(--kova-gold);
+}
+
+/* Counters (favourites, compare): gold pill outlined with the bar colour. */
+.rbt-toolbar .rbt-quick-access > li .rbt-round-btn .access-box-count {
+    background: var(--kova-gold);
+    color: var(--kova-navy);
+    font-weight: 700;
+    box-shadow: 0 0 0 2px var(--kova-navy);
+}
+
+.rbt-toolbar .rbt-round-btn:focus-visible {
+    outline: 2px solid var(--kova-gold);
+    outline-offset: -2px;
+}
+
+/* ------------------------------------------------------------------ Copyright bar
+   Night blue band closing the page (like the mobile toolbar): off-white text, gold store name and hovers,
+   a thin gold line on top. The payment tiles keep their white background so the operators' logos stay readable. */
+.copyright-area {
+    background-color: var(--kova-navy);
+    border-top: 3px solid var(--kova-gold);
+    color: rgb(255 255 255 / 0.72);
+}
+.copyright-area .rbt-link-hover,
+.copyright-area .copyright-link.rbt-link-hover a,
+.copyright-area .copyright-link .btn-link {
+    color: rgb(255 255 255 / 0.78) !important;
+    transition: color 0.2s ease;
+}
+.copyright-area .rbt-link-hover a.rbt-text-color-heading {
+    color: var(--kova-gold) !important;
+}
+.copyright-area .copyright-link.rbt-link-hover a:hover,
+.copyright-area .copyright-link .btn-link:hover,
+.copyright-area .rbt-link-hover a.rbt-text-color-heading:hover {
+    color: var(--kova-gold) !important;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.copyright-area .copyright-link a.is-active { color: var(--kova-gold) !important; }
+
+.copyright-area .payment-img-link li a { border-color: transparent; }
+.copyright-area .payment-img-link li a:hover {
+    border-color: var(--kova-gold);
+    box-shadow: 0 0 0 1px var(--kova-gold);
+}
+
+.copyright-area a:focus-visible,
+.copyright-area .btn-link:focus-visible {
+    outline: 2px solid var(--kova-gold);
+    outline-offset: 2px;
+}
+
+/* Back-to-top button: solid white so it stays clean over the dark copyright band. */
+.rbt-progress-parent {
+    background-color: #fff;
+    box-shadow: 0 4px 14px rgb(2 23 50 / 0.18);
+}
+
 /* ------------------------------------------------------------------ Customer area bar
    Replaces the header and the top header in the customer area: white, a gold line underneath, compact. */
 .kova-account-bar { background: #fff; border-bottom: 1px solid var(--kova-border); box-shadow: inset 0 -3px 0 var(--kova-gold); position: relative; z-index: 5; }
