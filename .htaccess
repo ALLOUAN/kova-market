@@ -1,0 +1,28 @@
+<IfModule mod_rewrite.c>
+<IfModule mod_negotiation.c>
+Options -MultiViews +FollowSymLinks
+</IfModule>
+
+RewriteEngine On
+
+# Transmettre l'en-tête Authorization à PHP
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Contournement : /storage/* servi directement depuis son vrai chemin
+# (le lien symbolique public/storage ne fonctionne pas sur cet hébergement)
+RewriteCond %{REQUEST_URI} ^/storage/
+RewriteCond %{REQUEST_URI} !^/storage/app/public/
+RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+
+
+# Si le fichier/dossier demandé existe physiquement dans public/, le servir tel quel
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Sinon, tout le reste passe par le front controller Laravel
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ server.php [L]
+</IfModule>
