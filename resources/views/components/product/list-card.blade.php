@@ -10,6 +10,7 @@
             </div>
             <{{ $heading }} class="rbt-card-title h6"><a href="{{ $product->url() }}">{{ $product->name }}</a></{{ $heading }}>
             <x-product.pricing :product="$product" :discount="false" />
+            <x-product.actions :product="$product" compact />
         </div>
         <div class="rbt-card-img rbt-bg-color-default rbt-curved-style-box">
             <a href="{{ $product->url() }}"><img src="{{ asset($product->image) }}" @if ($srcset = ImageOptimizer::srcset($product->image)) srcset="{{ $srcset }}" sizes="120px" @endif alt="{{ $product->name }}" loading="lazy" decoding="async"></a>

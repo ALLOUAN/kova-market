@@ -132,7 +132,7 @@ class CartTest extends TestCase
         $this->get('/panier')->assertSeeText('Chargeur');
     }
 
-    public function test_buy_now_goes_to_the_cart_and_variants_with_options_are_chosen_on_the_product_page(): void
+    public function test_buy_now_goes_to_the_cart_and_variants_with_options_are_chosen_in_the_quick_view(): void
     {
         $simple = Product::factory()->create();
         $withOptions = Product::factory()->create();
@@ -140,7 +140,19 @@ class CartTest extends TestCase
 
         $this->addToCart(['variant_id' => $simple->defaultVariant->id, 'buy_now' => 1])->assertRedirect('/panier');
 
-        $this->get('/boutique')->assertSeeText('Choisir une option');
+        // Every card has an add-to-cart button; with several options it opens the quick view to choose one.
+        $this->get('/boutique')->assertDontSeeText('Choisir une option')
+            ->assertSee('data-quick-view-url="'.route('products.quick-view', $withOptions).'" data-product-url="'.$withOptions->url().'" aria-label="Ajouter « '.$withOptions->name.' » au panier (choisir une option)"', false);
+
+        // The "+" adds the default variant in one click, options or not.
+        $this->get('/boutique')->assertSee('class="kova-quick-add"', false);
+        $this->addToCart(['product_id' => $withOptions->id])->assertSessionHas('cart_status');
+
+        // Sent in the background from a card: the answer refreshes the header and the mini-cart, the page stays.
+        $this->postJson('/panier/articles', ['product_id' => $simple->id])->assertOk()
+            ->assertJsonStructure(['message', 'count', 'total', 'mini_cart']);
+        $soldOut = Product::factory()->create(['stock' => 0]);
+        $this->postJson('/panier/articles', ['product_id' => $soldOut->id])->assertUnprocessable()->assertJsonStructure(['message']);
     }
 
     public function test_expired_guest_carts_are_pruned_but_customer_carts_are_kept(): void
@@ -175,6 +187,6 @@ class CartTest extends TestCase
         $product = Product::factory()->create(['price' => 30000, 'stock' => 5]);
         $this->addToCart(['product_id' => $product->id, 'quantity' => 2]);
 
-        $this->get('/')->assertSee('<span class="access-box-count rbt-shiny">2</span>', false)->assertSeeText("60\u{00A0}000\u{00A0}FCFA");
+        $this->get('/')->assertSee('<span class="access-box-count rbt-shiny" data-cart-count>2</span>', false)->assertSeeText("60\u{00A0}000\u{00A0}FCFA");
     }
 }

@@ -9,6 +9,8 @@ use App\Services\Cart\CartException;
 use App\Services\Cart\CartManager;
 use App\Services\Promotions\CouponException;
 use App\Services\Storefront\Analytics;
+use App\Support\Money;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -29,23 +31,39 @@ class CartController extends Controller
         ]);
     }
 
-    public function store(AddToCartRequest $request, Analytics $analytics): RedirectResponse
+    public function store(AddToCartRequest $request, Analytics $analytics): RedirectResponse|JsonResponse
     {
         $variant = $request->variant();
 
         try {
             $inCart = $this->cart->add($variant, $request->quantity());
         } catch (CartException $exception) {
-            return back()->with('cart_error', $exception->getMessage());
+            return $request->expectsJson()
+                ? response()->json(['message' => $exception->getMessage()], 422)
+                : back()->with('cart_error', $exception->getMessage());
         }
 
         $analytics->addToCart($variant, $request->quantity());
+        $message = "« {$variant->product->name} » a été ajouté au panier (".$variant->product->saleQuantity()->format($inCart).' au total).';
+
+        // Product cards add without leaving the page (assets/js/cart.js): the header figures and the mini-cart are
+        // refreshed from this answer.
+        if ($request->expectsJson()) {
+            $summary = $this->cart->summary();
+
+            return response()->json([
+                'message' => $message,
+                'count' => $summary->count(),
+                'total' => Money::format($summary->total()),
+                'mini_cart' => view('partials.offcanvas.cart', ['cartSummary' => $summary])->render(),
+            ]);
+        }
 
         // "Acheter maintenant" goes straight to the cart, where the order will be placed (F-015).
         $redirect = $request->boolean('buy_now') ? redirect()->route('cart.show') : back();
 
         return $redirect
-            ->with('cart_status', "« {$variant->product->name} » a été ajouté au panier (".$variant->product->saleQuantity()->format($inCart).' au total).')
+            ->with('cart_status', $message)
             // Product cards ask the next page to slide the mini-cart open (storefront.product_card.cart_action).
             ->with('cart_open', $request->input('open') === 'sidenav');
     }

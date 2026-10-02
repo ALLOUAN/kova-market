@@ -1,6 +1,6 @@
 {{-- "Nouveautés" / "Populaires" (F-011, F-012): a title, a link to the full sorted list and a row of product cards. --}}
 @if ($row['products']->isNotEmpty())
-    <div class="rbt-component-area rbt-catagories-area rbt-section-gap2" data-analytics-list="{{ json_encode(['item_list_id' => $listId, 'item_list_name' => $row['title']]) }}">
+    <div id="rbt-product-row-{{ Str::slug($listId) }}" class="rbt-component-area rbt-catagories-area rbt-section-gap2" data-analytics-list="{{ json_encode(['item_list_id' => $listId, 'item_list_name' => $row['title']]) }}">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">

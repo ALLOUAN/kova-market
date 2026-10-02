@@ -18,7 +18,7 @@
                 <a class="kova-account-bar__link kova-account-bar__link--cart" href="{{ route('cart.show') }}" aria-label="Mon panier ({{ $cartSummary->count() }})">
                     <i class="fa-regular fa-bag-shopping"></i><span>Panier</span>
                     @if ($cartSummary->count() > 0)
-                        <span class="kova-account-bar__count">{{ $cartSummary->count() }}</span>
+                        <span class="kova-account-bar__count" data-cart-count>{{ $cartSummary->count() }}</span>
                     @endif
                 </a>
                 @if ($customer)

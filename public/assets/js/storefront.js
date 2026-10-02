@@ -100,4 +100,33 @@
     });
 
     document.querySelectorAll('[data-purchase]').forEach(initPurchase);
+
+    /**
+     * Home hero banners: the theme builds the slider without autoplay; it moves on every 3 seconds, pauses while
+     * the pointer is over it and stays still for visitors who ask for reduced motion.
+     */
+    const autoplayHero = () => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+
+        document.querySelectorAll('.rbt-hero-banner-activation-1').forEach((element) => {
+            const slider = element.swiper;
+
+            if (!slider || !slider.autoplay) {
+                return;
+            }
+
+            slider.params.autoplay = { delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true };
+            slider.autoplay.start();
+            element.addEventListener('mouseenter', () => slider.autoplay.stop());
+            element.addEventListener('mouseleave', () => slider.autoplay.start());
+        });
+    };
+
+    if (document.readyState === 'complete') {
+        autoplayHero();
+    } else {
+        window.addEventListener('load', autoplayHero);
+    }
 })();

@@ -111,11 +111,11 @@
                         <a href="#" class="rbt-access-box-wrapper rbt-cart-sidenav-activation">
                             <div class="rbt-round-btn rbt-bg-static-gray">
                                 <i class="fa-regular fa-bag-shopping"></i>
-                                <span class="access-box-count rbt-shiny">{{ $cartSummary->count() }}</span>
+                                <span class="access-box-count rbt-shiny" data-cart-count>{{ $cartSummary->count() }}</span>
                             </div>
                             <div class="content p-0">
                                 <p>Total du panier</p>
-                                <span>@money($cartSummary->total())</span>
+                                <span data-cart-total>@money($cartSummary->total())</span>
                             </div>
                         </a>
                     </li>
