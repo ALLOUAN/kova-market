@@ -39,7 +39,7 @@
     @endforeach
 
     {{-- The selected variant goes to the cart; "Acheter maintenant" continues to the cart page. --}}
-    <form method="POST" action="{{ route('cart.items.store') }}" class="d-flex flex-wrap align-items-center gap-3 mt--24">
+    <form method="POST" action="{{ route('cart.items.store') }}" data-cart-form class="d-flex flex-wrap align-items-center gap-3 mt--24">
         @csrf
         <input type="hidden" name="variant_id" value="{{ $default?->id }}" data-variant-id>
         @if ($open)

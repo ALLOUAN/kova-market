@@ -35,6 +35,15 @@
             @endif
         </div>
         <div class="rbt-card-body">
+            @unless ($product->isSoldOut())
+                {{-- "+": the default variant straight to the cart, one click, whatever the options. --}}
+                <form method="POST" action="{{ route('cart.items.store') }}" data-cart-form class="kova-quick-add">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <input type="hidden" name="open" value="{{ config('storefront.product_card.cart_action') }}">
+                    <button type="submit" class="kova-quick-add__btn tooltips" data-tooltip="Ajouter au panier" data-tooltip-position="left" aria-label="Ajouter « {{ $product->name }} » au panier"><i class="fa-regular fa-plus"></i></button>
+                </form>
+            @endunless
             <x-product.color-swatches :product="$product" />
             <a href="{{ $product->category->url() }}" class="rbt-card-subtitle rbt-card-catagories-text">{{ $product->category->name }}</a>
             <{{ $heading }} class="rbt-card-title h6"><a href="{{ $product->url() }}">{{ $product->name }}</a></{{ $heading }}>

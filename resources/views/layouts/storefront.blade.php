@@ -185,6 +185,8 @@
         <script>window.kovaAnalytics = {!! json_encode([...$analytics->trackers(), 'events' => $analytics->events()], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR) !!};</script>
         <script src="{{ asset('assets/js/analytics.js') }}"></script>
     @endif
+    {{-- Add to cart without leaving the page (product cards, quick view, product page). --}}
+    <script src="{{ asset('assets/js/cart.js') }}?v={{ @filemtime(public_path('assets/js/cart.js')) }}" data-cart-url="{{ route('cart.show') }}"></script>
     @if (config('storefront.features.wishlist'))
         <script src="{{ asset('assets/js/wishlist.js') }}?v={{ @filemtime(public_path('assets/js/wishlist.js')) }}"></script>
     @endif

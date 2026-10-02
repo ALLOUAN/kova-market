@@ -36,3 +36,8 @@ Thumbs.db
 /playwright-report
 /blob-report
 /.env.e2e
+
+# Never publish archives of the project, database dumps or Word lock files (the repository is public).
+*.zip
+/storage/backups/
+~$*
