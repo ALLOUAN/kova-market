@@ -38,6 +38,10 @@ class TrackedOrderResource extends JsonResource
             // The app polls it after the customer paid on CinetPay's page (F-060).
             'payment_status' => ['code' => $this->payment_status->value, 'label' => $this->payment_status->getLabel()],
             'commune_name' => $this->commune_name,
+            // Abidjan delivery or shipping to the interior, and the steps that apply to it (no "expediee" in Abidjan).
+            'delivery_mode' => ['code' => $this->delivery_mode->value, 'label' => $this->delivery_mode->getLabel()],
+            'destination_city' => $this->destination_city,
+            'steps' => array_map(fn ($status) => ['code' => $status->value, 'label' => $status->getLabel()], $this->flow()),
             'delivery_date' => $this->delivery_date?->toDateString(),
             'courier' => $courier ? [
                 'name' => $courier->name(),

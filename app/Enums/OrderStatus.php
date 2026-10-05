@@ -6,8 +6,10 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
 /**
- * Order life cycle (F-121): Reçue → Confirmée → En préparation → Expédiée → En livraison → Livrée,
- * cancellation possible before shipping and when a delivery fails.
+ * Order life cycle (F-121), set by the delivery mode (DeliveryMode):
+ *  - Abidjan:  Reçue → Confirmée → En préparation → En livraison → Livrée;
+ *  - Interior: Reçue → Confirmée → En préparation → Expédiée → Livrée.
+ * Cancellation possible before shipping and when a delivery fails.
  */
 enum OrderStatus: string implements HasColor, HasLabel
 {
@@ -44,40 +46,45 @@ enum OrderStatus: string implements HasColor, HasLabel
     }
 
     /**
-     * Statuses reachable from this one in the normal flow.
+     * Statuses reachable from this one in the normal flow, which depends on how the order is delivered:
+     * in Abidjan the courier leaves straight from preparation ("En livraison"), towards the interior the parcel
+     * is shipped ("Expédiée") then delivered. An Abidjan order left "Expédiée" by the former flow can still leave.
      *
      * @return list<self>
      */
-    public function next(): array
+    public function next(DeliveryMode $mode = DeliveryMode::Abidjan): array
     {
+        $interior = $mode === DeliveryMode::Interior;
+
         return match ($this) {
             self::Received => [self::Confirmed, self::Cancelled],
             self::Confirmed => [self::Preparing, self::Cancelled],
-            self::Preparing => [self::Shipped, self::Cancelled],
-            self::Shipped => [self::OutForDelivery],
+            self::Preparing => [$interior ? self::Shipped : self::OutForDelivery, self::Cancelled],
+            self::Shipped => [$interior ? self::Delivered : self::OutForDelivery],
             self::OutForDelivery => [self::Delivered, self::Cancelled],
             self::Delivered, self::Cancelled => [],
         };
     }
 
     /**
-     * Step before this one in the normal flow (target of a super-admin correction).
+     * Step before this one in the normal flow of this delivery mode (target of a super-admin correction).
      */
-    public function previous(): ?self
+    public function previous(DeliveryMode $mode = DeliveryMode::Abidjan): ?self
     {
-        return match ($this) {
-            self::Confirmed => self::Received,
-            self::Preparing => self::Confirmed,
-            self::Shipped => self::Preparing,
-            self::OutForDelivery => self::Shipped,
-            self::Delivered => self::OutForDelivery,
-            self::Received, self::Cancelled => null,
-        };
+        if ($this === self::Cancelled) {
+            return null;
+        }
+
+        $flow = $mode->flow();
+        $index = array_search($this, $flow, true);
+
+        // A status outside this flow (Abidjan order "Expédiée" by the former flow) goes back to preparation.
+        return $index === false ? self::Preparing : ($flow[$index - 1] ?? null);
     }
 
-    public function canBecome(self $status): bool
+    public function canBecome(self $status, DeliveryMode $mode = DeliveryMode::Abidjan): bool
     {
-        return in_array($status, $this->next(), true);
+        return in_array($status, $this->next($mode), true);
     }
 
     public function isFinal(): bool

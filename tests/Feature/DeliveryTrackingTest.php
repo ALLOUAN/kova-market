@@ -111,7 +111,7 @@ class DeliveryTrackingTest extends TestCase
             ->assertSee('href="tel:+2250506070809"', false);
 
         // Once delivered, the courier's contact is no longer shown.
-        $this->ship($order);
+        $this->prepare($order);
         $statuses = app(OrderStatusManager::class);
         $statuses->move($order, OrderStatus::OutForDelivery, $this->courierUser);
         $statuses->move($order, OrderStatus::Delivered, $this->courierUser);
@@ -122,7 +122,7 @@ class DeliveryTrackingTest extends TestCase
     {
         $order = $this->confirmedOrder();
         app(DeliveryDispatcher::class)->assign($order, $this->courier);
-        $this->ship($order);
+        $this->prepare($order);
         $statuses = app(OrderStatusManager::class);
         $statuses->move($order, OrderStatus::OutForDelivery, $this->courierUser);
         $order->forceFill(['cash_collected' => $cash])->save();
@@ -135,7 +135,7 @@ class DeliveryTrackingTest extends TestCase
     {
         $order = $this->confirmedOrder();
         app(DeliveryDispatcher::class)->assign($order, $this->courier);
-        $this->ship($order);
+        $this->prepare($order);
         $statuses = app(OrderStatusManager::class);
         $statuses->move($order, OrderStatus::OutForDelivery, $this->courierUser);
 
@@ -157,10 +157,12 @@ class DeliveryTrackingTest extends TestCase
         return app(OrderStatusManager::class)->move($order, OrderStatus::Confirmed, $this->manager);
     }
 
-    private function ship(Order $order): void
+    /**
+     * Ready for the courier: in Abidjan the courier leaves straight from preparation (no "Expédiée" step).
+     */
+    private function prepare(Order $order): void
     {
         $statuses = app(OrderStatusManager::class);
         $statuses->move($order, OrderStatus::Preparing, $this->manager);
-        $statuses->move($order, OrderStatus::Shipped, $this->manager);
     }
 }

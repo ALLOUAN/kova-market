@@ -1018,7 +1018,8 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-thanks-pay--due > div { flex: 1 1 320px; }
 .kova-thanks-pay--cancelled { background: var(--kova-danger-bg); border-color: var(--kova-danger-bg); border-left: 4px solid var(--kova-danger); }
 .kova-thanks-pay__amount { margin: 0 0 4px; font: 700 22px/1.2 Poppins, sans-serif; color: var(--kova-navy); }
-.kova-thanks-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0; padding: 0; list-style: none; }
+/* One column per step: 4 for Abidjan, 5 when the order is shipped to the interior. */
+.kova-thanks-steps { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 12px; margin: 0; padding: 0; list-style: none; }
 .kova-thanks-steps li { position: relative; display: flex; flex-direction: column; gap: 2px; margin: 0; font-size: 14px; color: var(--kova-text-muted); }
 .kova-thanks-steps li::before { content: ""; position: absolute; top: 20px; left: 44px; right: -12px; height: 2px; background: var(--kova-border); }
 .kova-thanks-steps li:last-child::before { display: none; }
@@ -1065,7 +1066,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     .kova-thanks-items li { grid-template-columns: 52px minmax(0, 1fr); }
     .kova-thanks-items__img { width: 52px; height: 52px; }
     .kova-thanks-items__total { grid-column: 2; }
-    .kova-thanks-steps { grid-template-columns: 1fr; gap: 14px; }
+    .kova-thanks-steps { grid-auto-flow: row; grid-template-columns: 1fr; gap: 14px; }
     .kova-thanks-steps li { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 12px; padding-left: 52px; min-height: 40px; }
     .kova-thanks-steps__dot { position: absolute; left: 0; top: 0; margin: 0; }
     .kova-thanks-steps li::before { top: 40px; left: 19px; right: auto; width: 2px; height: calc(100% - 26px); }
@@ -1260,6 +1261,94 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .rbt-toolbar .rbt-round-btn:focus-visible {
     outline: 2px solid var(--kova-gold);
     outline-offset: -2px;
+}
+
+/* ------------------------------------------------------------------ Coloured panel
+   Cards laid on a plain coloured panel with the top-right corner cut, like the green panel of "Catégories
+   populaires". The cut is a triangle in the section's colour rather than a mask, so nothing overflowing the panel
+   (the details shown under a product card on hover) gets clipped. --kova-panel-cut is the colour around the panel. */
+.kova-panel {
+    --kova-panel-bg: var(--kova-navy);
+    --kova-panel-cut: var(--color-gray-light);
+    position: relative;
+    margin: 0 -30px;
+    padding: 30px;
+    border-radius: 28px;
+    background-color: var(--kova-panel-bg);
+}
+.kova-panel--navy { --kova-panel-bg: var(--kova-navy); }
+.kova-panel--green { --kova-panel-bg: var(--kova-green); }
+.kova-panel--on-white { --kova-panel-cut: #fff; }
+.kova-panel::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    width: 56px;
+    height: 56px;
+    background: var(--kova-panel-cut);
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+    z-index: 0;
+}
+.kova-panel > .row { position: relative; z-index: 1; }
+.kova-panel .rbt-product-card:not(.rbt-list-view-variation) {
+    background-color: #fff;
+    border-color: transparent;
+    border-radius: var(--kova-radius-lg);
+    box-shadow: 0 6px 16px rgb(2 23 50 / 0.12);
+}
+.kova-panel .rbt-product-card.has-hover-box-shadow:hover { box-shadow: 0 12px 30px rgb(0 0 0 / 0.35); }
+/* Spotlight card and side list ("Produits vedettes"): white boxes on the panel. */
+.kova-panel .rbt-list-view-lg,
+.kova-panel .rbt-list-card-box {
+    background-color: #fff;
+    border-color: transparent;
+    border-radius: var(--kova-radius-lg);
+    box-shadow: 0 6px 16px rgb(2 23 50 / 0.12);
+}
+
+@media (max-width: 1199px) {
+    .kova-panel { margin: 0; padding: 16px 16px 20px; border-radius: 18px; }
+    .kova-panel::before { display: none; }
+}
+
+/* ------------------------------------------------------------------ Action message window (#kovaFlashModal)
+   Messages of the last action shown in a window by assets/js/flash.js: coloured icon by type, centred text. */
+.kova-flash {
+    --kova-flash-color: var(--kova-info);
+    --kova-flash-bg: var(--kova-info-bg);
+    padding: 8px 24px 28px;
+    text-align: center;
+}
+[data-type="success"] .kova-flash { --kova-flash-color: var(--kova-success); --kova-flash-bg: var(--kova-success-bg); }
+[data-type="danger"] .kova-flash { --kova-flash-color: var(--kova-danger); --kova-flash-bg: var(--kova-danger-bg); }
+[data-type="warning"] .kova-flash { --kova-flash-color: var(--kova-warning); --kova-flash-bg: var(--kova-warning-bg); }
+.kova-flash__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    border-radius: 50%;
+    background: var(--kova-flash-bg);
+    color: var(--kova-flash-color);
+    font-size: 30px;
+}
+.kova-flash__title { margin-bottom: 8px; color: var(--kova-navy); }
+.kova-flash__message { color: var(--kova-text-body); font-size: 16px; line-height: 1.55; }
+.kova-flash__item + .kova-flash__item { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--kova-border); }
+/* A link carried by the message ("Voir le panier") becomes the main action, under the text; "OK" turns secondary. */
+.kova-flash__item > span { display: block; }
+.kova-flash__item .rbt-btn { display: flex; justify-content: center; width: 100%; margin-top: 20px; }
+.kova-flash__close { width: 100%; margin-top: 24px; }
+.kova-flash__message:has(.rbt-btn) + .kova-flash__close { margin-top: 10px; }
+.kova-flash .kova-flash__message:has(.rbt-btn) + .rbt-btn.kova-flash__close,
+.kova-flash .kova-flash__message:has(.rbt-btn) + .rbt-btn.kova-flash__close:hover {
+    background: #fff !important;
+    color: var(--kova-navy) !important;
+    border: 1px solid var(--kova-border-strong) !important;
+    box-shadow: none !important;
 }
 
 /* ------------------------------------------------------------------ Copyright bar

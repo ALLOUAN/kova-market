@@ -62,7 +62,8 @@
                             {{-- F-043: the commune gives the delivery fee. --}}
                             <form method="POST" action="{{ route('cart.commune') }}" class="mb--16">
                                 @csrf
-                                <label for="cart-commune" class="b3 mb--8 d-block">Commune de livraison</label>
+                                <label for="cart-commune" class="b3 mb--8 d-block">Destination de livraison</label>
+                                <p class="b4 mb--8">À Abidjan, votre commune. Ailleurs en Côte d’Ivoire, « Intérieur » : vous indiquerez votre ville à la commande.</p>
                                 <div class="d-flex gap-2">
                                     <select id="cart-commune" name="commune_id" class="form-select" required onchange="this.form.submit()">
                                         <option value="">Choisir votre commune</option>

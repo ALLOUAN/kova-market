@@ -134,7 +134,7 @@ class NotificationsTest extends TestCase
         // Switched off in the back-office: no WhatsApp message.
         Setting::store(['notifications.whatsapp' => '0']);
         app(OrderStatusManager::class)->move($order->fresh(), OrderStatus::Preparing, $this->manager);
-        app(OrderStatusManager::class)->move($order->fresh(), OrderStatus::Shipped, $this->manager);
+        app(OrderStatusManager::class)->move($order->fresh(), OrderStatus::OutForDelivery, $this->manager);
         $this->assertCount(2, $gateway->sent);
     }
 

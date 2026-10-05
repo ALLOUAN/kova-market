@@ -65,6 +65,7 @@ Route::post('/panier/code-promo', [CartController::class, 'applyCoupon'])->middl
 Route::get('/commande', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/commande', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
 Route::get('/commande/{order:number}/merci', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+Route::get('/commande/{order:number}/progression', [CheckoutController::class, 'progress'])->middleware('throttle:30,1')->name('checkout.progress');
 Route::get('/commande/{order:number}/recu', ReceiptController::class)->middleware('throttle:30,1')->name('orders.receipt');
 // Maintenance page as visitors see it, for the team (Administration › Maintenance).
 Route::get('/maintenance/apercu', MaintenancePreviewController::class)->middleware('auth')->name('maintenance.preview');

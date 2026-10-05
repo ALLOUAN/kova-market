@@ -36,4 +36,12 @@ class Commune extends Model
     {
         return (bool) $this->zone?->isDeliverable();
     }
+
+    /**
+     * The "Intérieur" destination: shipped by carrier, the customer gives the town.
+     */
+    public function isInterior(): bool
+    {
+        return (bool) $this->zone?->isInterior();
+    }
 }

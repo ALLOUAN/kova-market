@@ -85,8 +85,8 @@
         {{-- Result of the last cart action or other storefront form (notice). --}}
         @foreach (['cart_status' => 'success', 'notice' => 'success', 'cart_error' => 'danger', 'notice_error' => 'danger'] as $key => $type)
             @if (session($key))
-                <div class="container mt--24">
-                    <div class="alert alert-{{ $type }} d-flex justify-content-between align-items-center gap-3 mb-0" role="{{ $type === 'danger' ? 'alert' : 'status' }}">
+                <div class="container mt--24" data-popup-host>
+                    <div class="alert alert-{{ $type }} d-flex justify-content-between align-items-center gap-3 mb-0" data-popup role="{{ $type === 'danger' ? 'alert' : 'status' }}">
                         <span>{{ session($key) }}</span>
                         @if ($key === 'cart_status' && ! request()->routeIs('cart.show'))
                             <a class="rbt-btn rbt-btn-sm" href="{{ route('cart.show') }}">Voir le panier</a>
@@ -116,6 +116,7 @@
     {{-- Shopping modals triggered from product cards, the header and the side panels --}}
     @include('partials.modals.quick-view')
     @include('partials.modals.notify')
+    @include('partials.modals.flash')
     {{-- Always while a tracker is set (F-156); otherwise as chosen in Paramètres › Audience. --}}
     @if ($analytics->showsConsentBanner())
         @include('partials.overlays.cookies')
@@ -197,6 +198,7 @@
         {{-- Anti-robot widgets of the public forms (x-turnstile), F-141. --}}
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     @endif
+    <script src="{{ asset('assets/js/flash.js') }}?v={{ @filemtime(public_path('assets/js/flash.js')) }}"></script>
     @stack('scripts')
 </body>
 </html>

@@ -39,7 +39,9 @@ class OrderInfolist
                             ->url(fn (Order $record) => 'tel:'.$record->phone),
                         TextEntry::make('email')->label('E-mail')->placeholder('—'),
                         TextEntry::make('user.name')->label('Compte client')->placeholder('Commande invité'),
-                        TextEntry::make('commune_name')->label('Commune')->formatStateUsing(fn (Order $record) => "{$record->commune_name} ({$record->zone_name})"),
+                        TextEntry::make('delivery_mode')->label('Mode de livraison')->badge()
+                            ->color(fn (Order $record) => $record->isInterior() ? 'warning' : 'gray'),
+                        TextEntry::make('commune_name')->label('Destination')->formatStateUsing(fn (Order $record) => "{$record->destinationLabel()} ({$record->zone_name})"),
                         TextEntry::make('district')->label('Quartier'),
                         TextEntry::make('landmark')->label('Repère')->placeholder('—'),
                         TextEntry::make('note')->label('Note du client')->placeholder('—'),

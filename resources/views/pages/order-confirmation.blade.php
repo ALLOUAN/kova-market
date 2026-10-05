@@ -64,9 +64,9 @@
     <div class="kova-thanks-body">
         <div class="container">
             @if (session('payment_error'))
-                <div class="alert alert-danger" role="alert">{{ session('payment_error') }}</div>
+                <div class="alert alert-danger" data-popup role="alert">{{ session('payment_error') }}</div>
             @elseif (session('payment_status'))
-                <div class="alert alert-info" role="status">{{ session('payment_status') }}</div>
+                <div class="alert alert-info" data-popup role="status">{{ session('payment_status') }}</div>
             @endif
 
             <div class="row g-4">
@@ -99,33 +99,10 @@
                     @unless ($cancelled)
                         <section class="kova-thanks-card" aria-labelledby="next-steps">
                             <h2 id="next-steps" class="kova-thanks-card__title">La suite de votre commande</h2>
-                            <ol class="kova-thanks-steps">
-                                <li class="is-done">
-                                    <span class="kova-thanks-steps__dot"><i class="fa-regular fa-check"></i></span>
-                                    <strong>Commande reçue</strong>
-                                    <span>{{ $order->created_at->format('d/m à H\hi') }}</span>
-                                </li>
-                                <li @class(['is-current' => $awaitsPayment, 'is-done' => $order->payment_method->isOnline() && $paid])>
-                                    <span class="kova-thanks-steps__dot"><i class="fa-regular {{ $order->payment_method->isOnline() ? 'fa-credit-card' : 'fa-phone' }}"></i></span>
-                                    @if ($order->payment_method->isOnline())
-                                        <strong>Paiement en ligne</strong>
-                                        <span>{{ $paid ? 'Reçu' : 'En attente' }}</span>
-                                    @else
-                                        <strong>Confirmation</strong>
-                                        <span>Nous vous appelons au {{ $order->formattedPhone() }}</span>
-                                    @endif
-                                </li>
-                                <li @class(['is-current' => ! $awaitsPayment])>
-                                    <span class="kova-thanks-steps__dot"><i class="fa-regular fa-box-open"></i></span>
-                                    <strong>Préparation</strong>
-                                    <span>Vos articles sont préparés</span>
-                                </li>
-                                <li>
-                                    <span class="kova-thanks-steps__dot"><i class="fa-regular fa-truck-fast"></i></span>
-                                    <strong>Livraison</strong>
-                                    <span>{{ $order->commune_name }}{{ $delay ? ' · '.$delay : '' }}</span>
-                                </li>
-                            </ol>
+                            {{-- Ticked off as the store, the picker and the courier act; refreshed by assets/js/order-progress.js. --}}
+                            <div data-order-progress data-url="{{ route('checkout.progress', $order) }}" @if ($progressSettled) data-settled @endif aria-live="polite">
+                                @include('partials.order-progress', ['steps' => $progress])
+                            </div>
                             <p class="kova-thanks-card__note"><i class="fa-brands fa-whatsapp mr--8"></i>Vous êtes prévenu sur WhatsApp au {{ $order->formattedPhone() }} à chaque étape{{ $order->email ? ', et par e-mail au '.$order->email : '' }}.</p>
                         </section>
                     @endunless
@@ -219,4 +196,8 @@
             }).catch(() => {});
         }));
     </script>
+@endpush
+
+@push('scripts')
+    <script src="{{ asset('assets/js/order-progress.js') }}?v={{ @filemtime(public_path('assets/js/order-progress.js')) }}"></script>
 @endpush

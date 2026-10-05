@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DeliveryMode;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
@@ -18,12 +19,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 #[Fillable([
     'number', 'user_id', 'status', 'payment_method', 'payment_status', 'source',
-    'customer_name', 'phone', 'email', 'commune_id', 'commune_name', 'zone_name', 'district', 'landmark', 'note',
+    'customer_name', 'phone', 'email', 'commune_id', 'commune_name', 'zone_name', 'delivery_mode', 'destination_city', 'district', 'landmark', 'note',
     'subtotal', 'shipping_fee', 'discount', 'coupon_code', 'total', 'marketing_opt_in', 'terms_accepted_at',
 ])]
 class Order extends Model
 {
     use SoftDeletes;
+
+    /** Same default as the column: an order is delivered in Abidjan unless shipped to the interior. */
+    protected $attributes = [
+        'delivery_mode' => 'abidjan',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -34,6 +40,7 @@ class Order extends Model
     {
         return [
             'status' => OrderStatus::class,
+            'delivery_mode' => DeliveryMode::class,
             'payment_method' => PaymentMethod::class,
             'payment_status' => PaymentStatus::class,
             'subtotal' => 'integer',
@@ -128,6 +135,47 @@ class Order extends Model
     public function couponUsage(): HasOne
     {
         return $this->hasOne(CouponUsage::class);
+    }
+
+    public function isInterior(): bool
+    {
+        return $this->delivery_mode === DeliveryMode::Interior;
+    }
+
+    /**
+     * Steps of the normal flow for this order: no "Expédiée" in Abidjan, no "En livraison" towards the interior.
+     *
+     * @return list<OrderStatus>
+     */
+    public function flow(): array
+    {
+        return $this->delivery_mode->flow();
+    }
+
+    /**
+     * @return list<OrderStatus>
+     */
+    public function nextStatuses(): array
+    {
+        return $this->status->next($this->delivery_mode);
+    }
+
+    public function canBecome(OrderStatus $status): bool
+    {
+        return $this->status->canBecome($status, $this->delivery_mode);
+    }
+
+    public function previousStatus(): ?OrderStatus
+    {
+        return $this->status->previous($this->delivery_mode);
+    }
+
+    /**
+     * Where the order goes: the commune in Abidjan, "Ville (intérieur)" otherwise.
+     */
+    public function destinationLabel(): string
+    {
+        return $this->isInterior() ? "{$this->destination_city} (intérieur)" : $this->commune_name;
     }
 
     public function formattedPhone(): string

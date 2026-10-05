@@ -22,7 +22,7 @@ class NotifyOrderStatusChanged implements ShouldQueue
     public function handle(OrderStatusChanged $event): void
     {
         $order = $event->order;
-        $movingForward = in_array($event->to, $event->from->next(), true);
+        $movingForward = in_array($event->to, $event->from->next($event->order->delivery_mode), true);
 
         if ($movingForward && OrderUpdateForCustomer::concerns($event->to->value)) {
             Notification::send(OrderUpdateForCustomer::recipientOf($order), new OrderUpdateForCustomer($order, $event->to->value));

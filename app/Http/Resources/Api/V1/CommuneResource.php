@@ -20,6 +20,8 @@ class CommuneResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'deliverable' => $this->isDeliverable(),
+            // "interieur": shipped by carrier, the order then requires destination_city.
+            'delivery_mode' => $this->zone?->delivery_mode?->value ?? 'abidjan',
             'zone' => $this->zone ? [
                 'name' => $this->zone->name,
                 'fee' => $this->zone->fee,

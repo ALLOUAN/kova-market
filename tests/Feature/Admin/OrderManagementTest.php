@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\DeliveryMode;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
@@ -57,15 +58,53 @@ class OrderManagementTest extends TestCase
         $manager = User::factory()->staff(Role::Manager)->create();
         $statuses = app(OrderStatusManager::class);
 
-        foreach ([OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::Shipped, OrderStatus::OutForDelivery, OrderStatus::Delivered] as $step) {
+        // Abidjan: no "Expédiée" step, the order leaves straight from preparation.
+        $this->assertSame(DeliveryMode::Abidjan, $order->delivery_mode);
+        foreach ([OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::OutForDelivery, OrderStatus::Delivered] as $step) {
             $statuses->move($order, $step, $manager);
         }
 
         $order->refresh();
         $this->assertSame([OrderStatus::Delivered, PaymentStatus::Paid], [$order->status, $order->payment_status]);
         $this->assertSame(2, $this->product->fresh()->sold_count);
-        $this->assertSame(6, $order->statusHistory()->count());
+        $this->assertSame(5, $order->statusHistory()->count());
         $this->assertTrue($order->statusHistory()->reorder('id', 'desc')->first()->user->is($manager));
+    }
+
+    public function test_an_abidjan_order_is_never_shipped(): void
+    {
+        $order = $this->order();
+        $manager = User::factory()->staff(Role::Manager)->create();
+        $statuses = app(OrderStatusManager::class);
+        $statuses->move($order, OrderStatus::Confirmed, $manager);
+        $statuses->move($order, OrderStatus::Preparing, $manager);
+
+        $this->assertSame([OrderStatus::OutForDelivery, OrderStatus::Cancelled], $statuses->availableSteps($order, $manager));
+
+        $this->expectException(OrderStatusException::class);
+        $statuses->move($order, OrderStatus::Shipped, $manager);
+    }
+
+    public function test_an_order_for_the_interior_is_shipped_then_delivered(): void
+    {
+        $order = $this->order(interior: true);
+        $manager = User::factory()->staff(Role::Manager)->create();
+        $statuses = app(OrderStatusManager::class);
+
+        $this->assertSame([DeliveryMode::Interior, 'Bouaké', 'Bouaké'], [$order->delivery_mode, $order->destination_city, $order->commune_name]);
+
+        foreach ([OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::Shipped] as $step) {
+            $statuses->move($order, $step, $manager);
+        }
+
+        // Carried to the town: no "En livraison" by an Abidjan courier.
+        $this->assertSame([OrderStatus::Delivered], $statuses->availableSteps($order, $manager));
+        $statuses->move($order, OrderStatus::Delivered, $manager);
+
+        $this->assertSame(
+            [OrderStatus::Received, OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::Shipped, OrderStatus::Delivered],
+            $order->statusHistory()->pluck('to_status')->all(),
+        );
     }
 
     public function test_a_step_cannot_be_skipped(): void
@@ -86,8 +125,16 @@ class OrderManagementTest extends TestCase
         $statuses->move($order, OrderStatus::Confirmed, $manager);
         $this->assertSame([OrderStatus::Preparing], $statuses->availableSteps($order, $picker));
 
+        // Abidjan: once prepared, the courier takes over.
         $statuses->move($order, OrderStatus::Preparing, $picker);
-        $statuses->move($order, OrderStatus::Shipped, $picker);
+        $this->assertSame([], $statuses->availableSteps($order, $picker));
+
+        // Interior: the picker hands the parcel to the carrier.
+        $parcel = $this->order(interior: true);
+        $statuses->move($parcel, OrderStatus::Confirmed, $manager);
+        $statuses->move($parcel, OrderStatus::Preparing, $picker);
+        $statuses->move($parcel, OrderStatus::Shipped, $picker);
+        $this->assertSame(OrderStatus::Shipped, $parcel->status);
 
         $this->expectException(OrderStatusException::class);
         $statuses->move($order, OrderStatus::OutForDelivery, $picker);
@@ -118,17 +165,19 @@ class OrderManagementTest extends TestCase
         $statuses = app(OrderStatusManager::class);
         $manager = User::factory()->staff(Role::Manager)->create();
         $superAdmin = User::factory()->staff(Role::SuperAdmin)->create();
-        foreach ([OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::Shipped, OrderStatus::OutForDelivery, OrderStatus::Delivered] as $step) {
+        foreach ([OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::OutForDelivery, OrderStatus::Delivered] as $step) {
             $statuses->move($order, $step, $manager);
         }
 
         $this->assertFalse($statuses->mayRollBack($order, $manager));
 
+        // One step back in the Abidjan flow each time: delivered → on the way → preparation.
         $statuses->rollBack($order, $superAdmin, 'Livraison saisie par erreur');
-        $statuses->rollBack($order, $superAdmin, 'Toujours en tournée');
+        $this->assertSame(OrderStatus::OutForDelivery, $order->status);
+        $statuses->rollBack($order, $superAdmin, 'Le livreur n’est pas encore parti');
 
         $order->refresh();
-        $this->assertSame([OrderStatus::Shipped, PaymentStatus::Pending], [$order->status, $order->payment_status]);
+        $this->assertSame([OrderStatus::Preparing, PaymentStatus::Pending], [$order->status, $order->payment_status]);
         $this->assertSame(0, $this->product->fresh()->sold_count);
     }
 
@@ -149,15 +198,21 @@ class OrderManagementTest extends TestCase
         $this->assertSame(OrderStatus::Confirmed, $order->fresh()->status);
     }
 
-    private function order(int $quantity = 1): Order
+    /**
+     * An order delivered in Abidjan (Cocody), or shipped to Bouaké when $interior.
+     */
+    private function order(int $quantity = 1, bool $interior = false): Order
     {
-        $zone = DeliveryZone::firstOrCreate(['name' => 'Zone 1'], ['fee' => 1500, 'is_active' => true]);
-        $commune = $zone->communes()->firstOrCreate(['name' => 'Cocody']);
+        $zone = $interior
+            ? DeliveryZone::firstOrCreate(['name' => 'Intérieur du pays'], ['fee' => 5000, 'is_active' => true, 'delivery_mode' => DeliveryMode::Interior])
+            : DeliveryZone::firstOrCreate(['name' => 'Zone 1'], ['fee' => 1500, 'is_active' => true]);
+        $commune = $zone->communes()->firstOrCreate(['name' => $interior ? 'Intérieur' : 'Cocody']);
         $cart = Cart::create(['token' => fake()->uuid(), 'expires_at' => now()->addDay()]);
         $cart->items()->create(['product_variant_id' => $this->product->defaultVariant->id, 'quantity' => $quantity]);
 
         return app(PlaceOrder::class)->handle($cart, [
             'customer_name' => 'Koffi Yao', 'phone' => '+2250701020304', 'email' => null, 'commune_id' => $commune->id,
+            'destination_city' => $interior ? 'Bouaké' : null,
             'district' => 'Riviera', 'landmark' => null, 'note' => null,
             'payment_method' => PaymentMethod::CashOnDelivery->value, 'marketing_opt_in' => false,
         ]);

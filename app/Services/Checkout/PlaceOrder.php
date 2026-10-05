@@ -41,7 +41,7 @@ class PlaceOrder
     ) {}
 
     /**
-     * @param  array{customer_name: string, phone: string, email: ?string, commune_id: int, district: string, landmark: ?string, note: ?string, payment_method: string, marketing_opt_in: bool}  $details
+     * @param  array{customer_name: string, phone: string, email: ?string, commune_id: int, destination_city?: ?string, district: string, landmark: ?string, note: ?string, payment_method: string, marketing_opt_in: bool}  $details
      *
      * @throws CheckoutException
      */
@@ -53,7 +53,14 @@ class PlaceOrder
             throw new CheckoutException('La livraison n’est pas disponible pour cette commune.');
         }
 
-        $order = DB::transaction(function () use ($cart, $details, $user, $source, $commune): Order {
+        // Shipped to the interior: the town replaces the commune everywhere the destination is shown.
+        $city = $commune->isInterior() ? trim((string) ($details['destination_city'] ?? '')) : '';
+
+        if ($commune->isInterior() && $city === '') {
+            throw new CheckoutException('Indiquez la ville vers laquelle expédier votre commande.');
+        }
+
+        $order = DB::transaction(function () use ($cart, $details, $user, $source, $commune, $city): Order {
             $items = $cart->items()->with('variant.product.category', 'variant.attributeValues.attribute')->get();
 
             if ($items->isEmpty()) {
@@ -83,8 +90,10 @@ class PlaceOrder
                 'phone' => $details['phone'],
                 'email' => $details['email'] ?? null,
                 'commune_id' => $commune->getKey(),
-                'commune_name' => $commune->name,
+                'commune_name' => $city !== '' ? $city : $commune->name,
                 'zone_name' => $commune->zone->name,
+                'delivery_mode' => $commune->zone->delivery_mode,
+                'destination_city' => $city !== '' ? $city : null,
                 'district' => $details['district'],
                 'landmark' => $details['landmark'] ?? null,
                 'note' => $details['note'] ?? null,

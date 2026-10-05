@@ -167,3 +167,21 @@ attempt in `payments`, redirection URL), `synchronize` (the only place an outcom
 routes (`payments.pay`, `payments.return`, `payments.notify`); the API returns `payment.url` with the order and has
 `POST /api/v1/orders/{number}/payment`. Details and back-office side: `docs/back-office.md` › Online payment. The
 end-to-end journeys run against `tests/e2e/fake-cinetpay.js`, a stand-in for the API and its payment page.
+
+## Delivery modes: Abidjan or interior
+
+The zone of the chosen destination sets `App\Enums\DeliveryMode` (`delivery_zones.delivery_mode`), copied on the order
+(`orders.delivery_mode`):
+
+| Mode | Destination chosen | Order flow | Who delivers |
+| --- | --- | --- | --- |
+| `abidjan` | a commune of Abidjan | Reçue → Confirmée → En préparation → En livraison → Livrée (no "Expédiée") | a KOVA courier (dispatched to the couriers of the zone) |
+| `interieur` | "Intérieur" (single destination of the "Intérieur du pays" zone) + **required town** (`destination_city`) | Reçue → Confirmée → En préparation → Expédiée → Livrée | a carrier; never offered to the Abidjan couriers |
+
+- `OrderStatus::next()` / `previous()` take the mode; use `$order->nextStatuses()`, `$order->canBecome()`,
+  `$order->previousStatus()` and `$order->flow()`, never the status alone.
+- For the interior, `commune_name` holds the town, so SMS, slips and receipts name it; `destinationLabel()` gives
+  "Bouaké (intérieur)" for the back-office.
+- Every customer-facing timeline (thank-you page `CustomerProgress`, `x-order-timeline` on tracking and account, API
+  `steps`) shows only the steps of the order's flow.
+- The mode of a zone is set in the back-office (Zones de livraison); its fee and delay apply as for any zone.

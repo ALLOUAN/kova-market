@@ -58,7 +58,7 @@
             <div class="col-lg-9">
                 @foreach (['account_status' => 'success', 'account_error' => 'danger'] as $key => $type)
                     @if (session($key))
-                        <div class="alert alert-{{ $type }} mb--24" role="{{ $type === 'danger' ? 'alert' : 'status' }}">{{ session($key) }}</div>
+                        <div class="alert alert-{{ $type }} mb--24" data-popup role="{{ $type === 'danger' ? 'alert' : 'status' }}">{{ session($key) }}</div>
                     @endif
                 @endforeach
                 {{ $slot }}

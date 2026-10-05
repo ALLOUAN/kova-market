@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Orders\Tables;
 
+use App\Enums\DeliveryMode;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Models\Courier;
@@ -29,7 +30,9 @@ class OrdersTable
                     ->searchable()
                     ->description(fn (Order $record) => $record->formattedPhone()),
                 TextColumn::make('phone')->label('Téléphone')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('commune_name')->label('Commune')->description(fn (Order $record) => $record->zone_name),
+                TextColumn::make('commune_name')->label('Destination')
+                    ->formatStateUsing(fn (Order $record) => $record->destinationLabel())
+                    ->description(fn (Order $record) => $record->zone_name),
                 TextColumn::make('total')->label('Total')->formatStateUsing(fn (int $state) => Money::format($state))->sortable(),
                 TextColumn::make('payment_status')->label('Paiement')->badge(),
                 TextColumn::make('status')->label('Statut')->badge(),
@@ -44,6 +47,7 @@ class OrdersTable
                     ->query(fn (Builder $query) => $query->whereNull('courier_id')->whereIn('status', Courier::OPEN_STATUSES)),
                 SelectFilter::make('status')->label('Statut')->options(OrderStatus::class)->multiple(),
                 SelectFilter::make('payment_status')->label('Paiement')->options(PaymentStatus::class),
+                SelectFilter::make('delivery_mode')->label('Mode de livraison')->options(DeliveryMode::class),
                 SelectFilter::make('zone_name')
                     ->label('Zone')
                     ->options(fn () => Order::query()->distinct()->orderBy('zone_name')->pluck('zone_name', 'zone_name')->all()),

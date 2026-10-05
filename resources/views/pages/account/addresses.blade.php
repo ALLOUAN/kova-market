@@ -67,12 +67,21 @@
                     @foreach ($communes as $zone => $zoneCommunes)
                         <optgroup label="{{ $zone }}">
                             @foreach ($zoneCommunes as $commune)
-                                <option value="{{ $commune->id }}" @selected((int) $value('commune_id') === $commune->id)>{{ $commune->name }}</option>
+                                <option value="{{ $commune->id }}" @if ($commune->isInterior()) data-interior @endif @selected((int) $value('commune_id') === $commune->id)>{{ $commune->name }}</option>
                             @endforeach
                         </optgroup>
                     @endforeach
                 </select>
                 @error('commune_id')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
+            </div>
+            {{-- "Intérieur": the town is required (toggled by the script below, checked by the server). --}}
+            @php
+                $interiorSelected = (bool) $communes->flatten()->first(fn ($commune) => $commune->id === (int) $value('commune_id'))?->isInterior();
+            @endphp
+            <div class="col-md-4" data-city-field @unless ($interiorSelected) hidden @endunless>
+                <label class="rbt-field-label" for="city">Ville<span class="rbt-text-color-danger">*</span></label>
+                <input class="rbt-input-field" id="city" name="city" value="{{ $value('city') }}" placeholder="Bouaké, Yamoussoukro…" @if ($interiorSelected) required @endif>
+                @error('city')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
             </div>
             <div class="col-md-4">
                 <label class="rbt-field-label" for="district">Quartier<span class="rbt-text-color-danger">*</span></label>
@@ -97,3 +106,24 @@
         </form>
     </x-account-layout>
 @endsection
+
+@push('scripts')
+    <script>
+        // "Intérieur" chosen: the town of the address becomes required.
+        (() => {
+            const select = document.getElementById('commune_id');
+            const field = document.querySelector('[data-city-field]');
+            const city = document.getElementById('city');
+            if (!select || !field) {
+                return;
+            }
+            const toggle = () => {
+                const interior = !!select.selectedOptions[0]?.hasAttribute('data-interior');
+                field.hidden = !interior;
+                city.required = interior;
+            };
+            select.addEventListener('change', toggle);
+            toggle();
+        })();
+    </script>
+@endpush

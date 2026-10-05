@@ -108,7 +108,7 @@ class SaleUnitTest extends TestCase
         $this->assertSame(3750, $order->subtotal);
 
         $manager = User::factory()->staff(Role::Manager)->create();
-        foreach ([OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::Shipped, OrderStatus::OutForDelivery, OrderStatus::Delivered] as $status) {
+        foreach ([OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::OutForDelivery, OrderStatus::Delivered] as $status) {
             $order = app(OrderStatusManager::class)->move($order->fresh(), $status, $manager);
         }
 

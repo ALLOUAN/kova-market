@@ -23,6 +23,7 @@ class AddressResource extends JsonResource
             'phone' => $this->phone,
             'commune' => CommuneResource::make($this->whenLoaded('commune')),
             'commune_id' => $this->commune_id,
+            'city' => $this->city,
             'district' => $this->district,
             'landmark' => $this->landmark,
             'is_default' => $this->is_default,

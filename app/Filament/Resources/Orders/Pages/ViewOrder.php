@@ -58,7 +58,8 @@ class ViewOrder extends ViewRecord
                 ->label(fn (Order $record) => $record->courier_id ? 'Changer de livreur' : 'Confier à un livreur')
                 ->icon('heroicon-o-truck')
                 ->color('gray')
-                ->visible(fn (Order $record) => in_array($record->status, Courier::OPEN_STATUSES, true) && auth()->user()->can(Permission::ManageOrders->value))
+                // Shipped to the interior by carrier: no courier.
+                ->visible(fn (Order $record) => $record->delivery_mode->usesCouriers() && in_array($record->status, Courier::OPEN_STATUSES, true) && auth()->user()->can(Permission::ManageOrders->value))
                 ->schema(fn (Order $record) => [
                     Select::make('courier_id')
                         ->label('Livreur')
@@ -173,7 +174,7 @@ class ViewOrder extends ViewRecord
             ->label(match ($status) {
                 OrderStatus::Confirmed => 'Confirmer',
                 OrderStatus::Preparing => 'Mettre en préparation',
-                OrderStatus::Shipped => 'Marquer expédiée',
+                OrderStatus::Shipped => 'Marquer expédiée vers l’intérieur',
                 OrderStatus::OutForDelivery => 'Mettre en livraison',
                 OrderStatus::Delivered => 'Marquer livrée',
                 OrderStatus::Cancelled => 'Annuler',

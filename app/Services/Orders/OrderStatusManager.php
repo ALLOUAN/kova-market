@@ -24,14 +24,18 @@ use Illuminate\Support\Facades\DB;
  */
 class OrderStatusManager
 {
-    /** Steps an order picker may take (préparation, expédition). */
+    /** Steps an order picker may take (préparation, expédition vers l'intérieur). */
     private const PICKER_STEPS = [
         [OrderStatus::Confirmed, OrderStatus::Preparing],
         [OrderStatus::Preparing, OrderStatus::Shipped],
     ];
 
-    /** Steps a courier may take on their own deliveries: on the way, delivered, failed (F-125). */
+    /**
+     * Steps a courier may take on their own deliveries (F-125): leaving with a prepared order (Abidjan has no
+     * "Expédiée" step; an order left "Expédiée" by the former flow can still leave), delivered, failed.
+     */
     private const COURIER_STEPS = [
+        [OrderStatus::Preparing, OrderStatus::OutForDelivery],
         [OrderStatus::Shipped, OrderStatus::OutForDelivery],
         [OrderStatus::OutForDelivery, OrderStatus::Delivered],
         [OrderStatus::OutForDelivery, OrderStatus::Cancelled],
@@ -47,7 +51,7 @@ class OrderStatusManager
     public function availableSteps(Order $order, User $user): array
     {
         return array_values(array_filter(
-            $order->status->next(),
+            $order->nextStatuses(),
             fn (OrderStatus $to) => $this->mayMove($user, $order, $to),
         ));
     }
@@ -57,7 +61,7 @@ class OrderStatusManager
      */
     public function move(Order $order, OrderStatus $to, User $user, ?string $note = null): Order
     {
-        if (! $order->status->canBecome($to)) {
+        if (! $order->canBecome($to)) {
             throw new OrderStatusException("Une commande « {$order->status->getLabel()} » ne peut pas passer à « {$to->getLabel()} ».");
         }
 
@@ -97,7 +101,7 @@ class OrderStatusManager
      */
     public function mayRollBack(Order $order, User $user): bool
     {
-        return $user->hasRole(Role::SuperAdmin->value) && $order->status->previous() !== null;
+        return $user->hasRole(Role::SuperAdmin->value) && $order->previousStatus() !== null;
     }
 
     /**
@@ -115,7 +119,7 @@ class OrderStatusManager
 
         $wasDelivered = $order->status === OrderStatus::Delivered;
 
-        return $this->apply($order, $order->status->previous(), $user, "Retour en arrière : {$note}", function (Order $order) use ($wasDelivered): void {
+        return $this->apply($order, $order->previousStatus(), $user, "Retour en arrière : {$note}", function (Order $order) use ($wasDelivered): void {
             if ($wasDelivered) {
                 $this->undeliver($order);
             }

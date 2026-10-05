@@ -12,7 +12,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-6">
                     @if (session('status'))
-                        <div class="alert alert-success" role="status">{{ session('status') }}</div>
+                        <div class="alert alert-success" data-popup role="status">{{ session('status') }}</div>
                     @endif
 
                     @if (\App\Services\Security\SmsCode::available())

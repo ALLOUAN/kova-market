@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\DeliveryZones\Schemas;
 
+use App\Enums\DeliveryMode;
 use App\Models\Commune;
 use Closure;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
@@ -31,6 +33,13 @@ class DeliveryZoneForm
                             ->helperText('0 pour une livraison gratuite dans cette zone.')
                             ->requiredIf('is_active', true),
                         TextInput::make('position')->label('Ordre')->integer()->minValue(0)->default(0)->required(),
+                        Select::make('delivery_mode')
+                            ->label('Mode de livraison')
+                            ->options(DeliveryMode::class)
+                            ->default(DeliveryMode::Abidjan)
+                            ->required()
+                            ->helperText('Abidjan : remise par un livreur KOVA (pas d’étape « Expédiée »). Intérieur : expédiée par transporteur, le client indique sa ville.')
+                            ->columnSpanFull(),
                     ]),
                 Section::make('Disponibilité')
                     ->columnSpan(1)

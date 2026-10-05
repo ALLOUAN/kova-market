@@ -26,14 +26,14 @@
     <x-account-layout title="Mon compte" :heading="false">
         {{-- Fortify reports successful updates through the "status" flash. --}}
         @if (session('status') === 'account-created')
-            <div class="alert alert-success mb--24" role="status">
+            <div class="alert alert-success mb--24" data-popup role="status">
                 <strong>Bienvenue {{ $firstName }}, votre compte est créé !</strong>
                 Retrouvez ici vos commandes, vos adresses et vos informations.
             </div>
         @elseif (session('status') === 'profile-information-updated')
-            <div class="alert alert-success mb--24" role="status">Vos informations sont enregistrées.</div>
+            <div class="alert alert-success mb--24" data-popup role="status">Vos informations sont enregistrées.</div>
         @elseif (session('status') === 'password-updated')
-            <div class="alert alert-success mb--24" role="status">Votre mot de passe a été modifié.</div>
+            <div class="alert alert-success mb--24" data-popup role="status">Votre mot de passe a été modifié.</div>
         @endif
 
         {{-- Welcome: stands for the page title. --}}

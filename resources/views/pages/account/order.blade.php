@@ -41,7 +41,7 @@
                 <h2 class="h6 mb--8">Votre avis sur vos articles</h2>
                 <p class="b3 mb--16">Votre note aide les autres clients. Elle est publiée avec votre prénom et l’initiale de votre nom, après vérification.</p>
                 @if ($errors->hasAny(['rating', 'comment']))
-                    <div class="alert alert-danger mb--16" role="alert">{{ $errors->first('rating') ?: $errors->first('comment') }}</div>
+                    <div class="alert alert-danger mb--16" data-popup role="alert">{{ $errors->first('rating') ?: $errors->first('comment') }}</div>
                 @endif
                 @foreach ($order->items->whereNotNull('product_id') as $item)
                     @php($review = $reviews->get($item->getKey()))

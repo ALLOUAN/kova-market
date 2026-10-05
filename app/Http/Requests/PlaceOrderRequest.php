@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\PaymentMethod;
+use App\Models\Commune;
 use App\Rules\IvorianPhoneNumber;
 use App\Rules\PassesTurnstile;
 use App\Support\PhoneNumber;
@@ -25,6 +26,8 @@ class PlaceOrderRequest extends FormRequest
             'phone' => ['required', 'string', new IvorianPhoneNumber],
             'email' => ['nullable', 'email', 'max:255'],
             'commune_id' => ['required', 'integer', 'exists:communes,id'],
+            // "Intérieur": the parcel is shipped, the town it goes to is required.
+            'destination_city' => [Rule::requiredIf(fn () => $this->destinationIsInterior()), 'nullable', 'string', 'max:100'],
             'district' => ['required', 'string', 'max:255'],
             'landmark' => ['nullable', 'string', 'max:255'],
             'note' => ['nullable', 'string', 'max:1000'],
@@ -45,6 +48,7 @@ class PlaceOrderRequest extends FormRequest
             'customer_name' => 'nom complet',
             'phone' => 'téléphone',
             'commune_id' => 'commune',
+            'destination_city' => 'ville de destination',
             'district' => 'quartier',
             'landmark' => 'repère',
             'payment_method' => 'mode de paiement',
@@ -58,13 +62,19 @@ class PlaceOrderRequest extends FormRequest
     {
         return [
             'terms.accepted' => 'Merci d’accepter les conditions générales de vente et la politique de confidentialité.',
+            'destination_city.required' => 'Indiquez la ville vers laquelle expédier votre commande.',
         ];
+    }
+
+    private function destinationIsInterior(): bool
+    {
+        return (bool) Commune::with('zone')->find((int) $this->input('commune_id'))?->isInterior();
     }
 
     /**
      * Validated details, phone in its stored form.
      *
-     * @return array{customer_name: string, phone: string, email: ?string, commune_id: int, district: string, landmark: ?string, note: ?string, payment_method: string, marketing_opt_in: bool}
+     * @return array{customer_name: string, phone: string, email: ?string, commune_id: int, destination_city: ?string, district: string, landmark: ?string, note: ?string, payment_method: string, marketing_opt_in: bool}
      */
     public function details(): array
     {
@@ -72,6 +82,8 @@ class PlaceOrderRequest extends FormRequest
             ...$this->safe()->except(['terms', 'marketing_opt_in', 'cf-turnstile-response']),
             'phone' => PhoneNumber::normalize($this->validated('phone')),
             'commune_id' => (int) $this->validated('commune_id'),
+            // Kept only for a shipment to the interior (an Abidjan commune ignores a town sent along).
+            'destination_city' => $this->destinationIsInterior() ? trim((string) $this->validated('destination_city')) : null,
             'marketing_opt_in' => $this->boolean('marketing_opt_in'),
         ];
     }

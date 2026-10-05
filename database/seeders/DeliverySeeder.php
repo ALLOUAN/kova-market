@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\DeliveryMode;
 use App\Models\DeliveryZone;
 use Illuminate\Database\Seeder;
 
@@ -16,7 +17,8 @@ class DeliverySeeder extends Seeder
         'Zone 1' => ['delay' => 'J+1', 'communes' => ['Cocody', 'Plateau', 'Marcory', 'Treichville', 'Adjamé']],
         'Zone 2' => ['delay' => 'J+1 à J+2', 'communes' => ['Yopougon', 'Abobo', 'Koumassi', 'Port-Bouët', 'Attécoubé']],
         'Zone 3' => ['delay' => 'J+2', 'communes' => ['Bingerville', 'Anyama', 'Songon', 'Grand-Bassam']],
-        'Intérieur du pays' => ['delay' => 'J+2 à J+5', 'communes' => []],
+        // A single destination: the customer then types the town the parcel is shipped to.
+        'Intérieur du pays' => ['delay' => 'J+2 à J+5', 'communes' => ['Intérieur'], 'mode' => DeliveryMode::Interior],
     ];
 
     public function run(): void
@@ -24,6 +26,7 @@ class DeliverySeeder extends Seeder
         foreach (array_keys(self::ZONES) as $position => $name) {
             $zone = DeliveryZone::firstOrCreate(['name' => $name], [
                 'delay_label' => self::ZONES[$name]['delay'],
+                'delivery_mode' => self::ZONES[$name]['mode'] ?? DeliveryMode::Abidjan,
                 'position' => $position,
             ]);
 

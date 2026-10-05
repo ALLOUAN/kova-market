@@ -148,7 +148,7 @@ class CourierTest extends TestCase
         // Not shipped yet: the courier waits.
         $this->actingAs($awaUser)->get("/livreur/commandes/{$order->number}")->assertOk()->assertSeeText('La commande est en préparation');
 
-        $this->ship($order);
+        $this->prepare($order);
         $this->actingAs($awaUser)->get("/livreur/commandes/{$order->number}")
             ->assertSeeText('Je pars livrer')
             ->assertSee('href="tel:+2250701020304"', false)
@@ -172,7 +172,7 @@ class CourierTest extends TestCase
         [$awa, $awaUser] = $this->courier('Awa', [$this->zone1]);
         $order = $this->confirmedOrder(quantity: 2);
         app(DeliveryDispatcher::class)->assign($order, $awa);
-        $this->ship($order);
+        $this->prepare($order);
         app(OrderStatusManager::class)->move($order, OrderStatus::OutForDelivery, $awaUser);
 
         $this->actingAs($awaUser)->post("/livreur/commandes/{$order->number}/echec")->assertSessionHasErrors('reason');
@@ -190,10 +190,10 @@ class CourierTest extends TestCase
         [, $ibrahimUser] = $this->courier('Ibrahim', [$this->zone1]);
         $order = $this->confirmedOrder();
         app(DeliveryDispatcher::class)->assign($order, $awa);
-        $this->ship($order);
+        $this->prepare($order);
 
         $this->actingAs($ibrahimUser)->post("/livreur/commandes/{$order->number}/en-route")->assertNotFound();
-        $this->assertSame(OrderStatus::Shipped, $order->fresh()->status);
+        $this->assertSame(OrderStatus::Preparing, $order->fresh()->status);
     }
 
     public function test_a_suspended_courier_is_signed_out_and_their_deliveries_go_back_to_the_queue(): void
@@ -295,10 +295,12 @@ class CourierTest extends TestCase
         return app(OrderStatusManager::class)->move($order, OrderStatus::Confirmed, $this->manager);
     }
 
-    private function ship(Order $order): void
+    /**
+     * Ready for the courier: in Abidjan the courier leaves straight from preparation (no "Expédiée" step).
+     */
+    private function prepare(Order $order): void
     {
         $statuses = app(OrderStatusManager::class);
         $statuses->move($order, OrderStatus::Preparing, $this->manager);
-        $statuses->move($order, OrderStatus::Shipped, $this->manager);
     }
 }

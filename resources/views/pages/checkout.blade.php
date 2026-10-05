@@ -19,7 +19,7 @@
                 <div class="row g-5">
                     <div class="col-lg-7">
                         @if ($errors->any())
-                            <div class="alert alert-danger" role="alert">Merci de corriger les champs signalés ci-dessous.</div>
+                            <div class="alert alert-danger" data-popup role="alert">Merci de corriger les champs signalés ci-dessous.</div>
                         @endif
 
                         {{-- Guest checkout (F-050): no account needed; signing in only fills the form and keeps the order history. --}}
@@ -65,27 +65,38 @@
                                     @foreach ($addresses as $address)
                                         <option value="{{ $address->id }}" @selected($address->is_default && ! old('_token'))
                                             data-recipient="{{ $address->recipient_name }}" data-phone="{{ \App\Support\PhoneNumber::format($address->phone) }}"
-                                            data-commune="{{ $address->commune_id }}" data-district="{{ $address->district }}" data-landmark="{{ $address->landmark }}">
+                                            data-commune="{{ $address->commune_id }}" data-city="{{ $address->city }}" data-district="{{ $address->district }}" data-landmark="{{ $address->landmark }}">
                                             {{ $address->label }} — {{ $address->summary() }}
                                         </option>
                                     @endforeach
                                 </select>
                             @endif
                             <div class="row g-3">
+                                @php
+                                    $interiorSelected = (bool) $communes->flatten()->first(fn ($commune) => $commune->id === (int) $field('commune_id'))?->isInterior();
+                                @endphp
                                 <div class="col-md-6">
-                                    <label class="rbt-field-label" for="commune_id">Commune<span class="rbt-text-color-danger">*</span></label>
-                                    <select id="commune_id" name="commune_id" class="form-select" required data-commune>
+                                    <label class="rbt-field-label" for="commune_id">Destination<span class="rbt-text-color-danger">*</span></label>
+                                    <select id="commune_id" name="commune_id" class="form-select" required data-commune aria-describedby="destination-help">
                                         <option value="">Choisir votre commune</option>
                                         @foreach ($communes as $zone => $zoneCommunes)
                                             <optgroup label="{{ $zone }}">
                                                 @foreach ($zoneCommunes as $commune)
-                                                    <option value="{{ $commune->id }}" data-fee="{{ $commune->zone->fee }}" data-delay="{{ $commune->zone->delay_label }}" @selected((int) $field('commune_id') === $commune->id)>{{ $commune->name }}</option>
+                                                    <option value="{{ $commune->id }}" data-fee="{{ $commune->zone->fee }}" data-delay="{{ $commune->zone->delay_label }}" @if ($commune->isInterior()) data-interior @endif @selected((int) $field('commune_id') === $commune->id)>{{ $commune->name }}</option>
                                                 @endforeach
                                             </optgroup>
                                         @endforeach
                                     </select>
                                     @error('commune_id')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
+                                    <span class="d-block mt--4 b4" id="destination-help">À Abidjan, choisissez votre commune. Ailleurs en Côte d’Ivoire, choisissez « Intérieur ».</span>
                                     <span class="d-block mt--4 b4" data-delay-text></span>
+                                </div>
+                                {{-- Shipping to the interior: the town is required (shown by the script below, checked by the server). --}}
+                                <div class="col-md-6" data-city-field @unless ($interiorSelected) hidden @endunless>
+                                    <label class="rbt-field-label" for="destination_city">Ville de destination<span class="rbt-text-color-danger">*</span></label>
+                                    <input class="rbt-input-field" type="text" id="destination_city" name="destination_city" value="{{ $field('destination_city') }}" placeholder="Bouaké, Yamoussoukro, San-Pédro…" autocomplete="address-level2" @if ($interiorSelected) required @endif>
+                                    @error('destination_city')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
+                                    <span class="d-block mt--4 b4">Votre colis y est expédié, puis vous est remis.</span>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="rbt-field-label" for="district">Quartier<span class="rbt-text-color-danger">*</span></label>
@@ -209,9 +220,17 @@
             const threshold = @json($summary->freeShippingThreshold);
             const money = (amount) => new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount).replace(/\s/g, ' ') + ' FCFA';
             const select = document.querySelector('[data-commune]');
+            const cityField = document.querySelector('[data-city-field]');
+            const city = document.getElementById('destination_city');
 
             const render = () => {
                 const option = select.selectedOptions[0];
+
+                // "Intérieur": the town to ship to becomes required.
+                const interior = !!option && option.hasAttribute('data-interior');
+                cityField.hidden = !interior;
+                city.required = interior;
+
                 if (!option || !option.dataset.fee) {
                     document.querySelector('[data-shipping]').textContent = 'Choisissez votre commune';
                     document.querySelector('[data-total]').textContent = money(subtotal - discount);
@@ -237,6 +256,7 @@
                 document.getElementById('district').value = option.dataset.district;
                 document.getElementById('landmark').value = option.dataset.landmark || '';
                 select.value = option.dataset.commune;
+                city.value = option.dataset.city || '';
                 render();
             });
         })();

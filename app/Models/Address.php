@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Saved delivery address of a customer (F-071). Only one address per customer is the default one.
  */
-#[Fillable(['user_id', 'label', 'recipient_name', 'phone', 'commune_id', 'district', 'landmark', 'is_default'])]
+#[Fillable(['user_id', 'label', 'recipient_name', 'phone', 'commune_id', 'city', 'district', 'landmark', 'is_default'])]
 class Address extends Model
 {
     public const MAX_PER_CUSTOMER = 10;
@@ -61,6 +61,7 @@ class Address extends Model
 
     public function summary(): string
     {
-        return collect([$this->district, $this->commune?->name, $this->landmark])->filter()->implode(', ');
+        // In the interior, the town stands for the commune.
+        return collect([$this->district, $this->city ?: $this->commune?->name, $this->landmark])->filter()->implode(', ');
     }
 }

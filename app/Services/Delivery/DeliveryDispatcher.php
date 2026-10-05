@@ -2,6 +2,7 @@
 
 namespace App\Services\Delivery;
 
+use App\Enums\DeliveryMode;
 use App\Models\Courier;
 use App\Models\Order;
 use App\Models\Setting;
@@ -57,7 +58,7 @@ class DeliveryDispatcher
      */
     public function enqueue(Order $order): void
     {
-        if ($order->courier_id !== null || ! in_array($order->status, Courier::OPEN_STATUSES, true)) {
+        if ($order->courier_id !== null || ! $order->delivery_mode->usesCouriers() || ! in_array($order->status, Courier::OPEN_STATUSES, true)) {
             return;
         }
 
@@ -127,6 +128,10 @@ class DeliveryDispatcher
             throw new DispatchException('Cette commande n’est plus à livrer.');
         }
 
+        if (! $order->delivery_mode->usesCouriers()) {
+            throw new DispatchException('Cette commande est expédiée vers l’intérieur : elle ne passe pas par un livreur.');
+        }
+
         $this->give($order, $courier, $by);
         Notification::route('sms', $courier->user->phone)->notify(new DeliveryForCourier($order, DeliveryForCourier::ASSIGNED));
 
@@ -162,7 +167,8 @@ class DeliveryDispatcher
      */
     private function waiting(): Builder
     {
-        return Order::query()->whereNull('courier_id')->whereIn('status', Courier::OPEN_STATUSES);
+        // Orders shipped to the interior travel by carrier, never with the Abidjan couriers.
+        return Order::query()->whereNull('courier_id')->whereIn('status', Courier::OPEN_STATUSES)->where('delivery_mode', DeliveryMode::Abidjan);
     }
 
     /**

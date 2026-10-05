@@ -9,12 +9,15 @@
                 </div>
             </div>
         </div>
-        <div class="row row--12 mt_dec--24">
-            @foreach ($dealsOfTheDay->products as $product)
-                <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-6 col-sm-6 col-6 mt--24">
-                    <x-product.card :product="$product" :order="$loop->iteration" shadow details />
-                </div>
-            @endforeach
+        {{-- The cards sit on a night blue panel, like the green one of "Catégories populaires". --}}
+        <div class="kova-panel kova-panel--navy">
+            <div class="row row--12 mt_dec--24">
+                @foreach ($dealsOfTheDay->products as $product)
+                    <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-6 col-sm-6 col-6 mt--24">
+                        <x-product.card :product="$product" :order="$loop->iteration" shadow details />
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>
