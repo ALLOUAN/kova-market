@@ -12,6 +12,7 @@ use App\Models\Payment;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\Orders\OrderStatusManager;
+use App\Services\Storefront\MetaConversions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -225,8 +226,9 @@ class OnlinePayments
     private function markPaid(Payment $payment, PaymentState $state, string $source): Payment
     {
         $announce = false;
+        $sold = false;
 
-        DB::transaction(function () use ($payment, $state, $source, &$announce): void {
+        DB::transaction(function () use ($payment, $state, $source, &$announce, &$sold): void {
             $locked = Payment::query()->whereKey($payment->getKey())->lockForUpdate()->first();
 
             if ($locked->status === TransactionStatus::Succeeded) {
@@ -249,6 +251,7 @@ class OnlinePayments
             if ($order->payment_status === PaymentStatus::Pending) {
                 $order->update(['payment_status' => PaymentStatus::Paid]);
                 $announce = ! $order->trashed() && $order->status === OrderStatus::Received;
+                $sold = true;
             } else {
                 // Paid after the order was cancelled (e.g. past the timeout): the staff must refund it.
                 Log::warning('[CinetPay] Payment received for an order no longer awaiting it', ['order' => $order->number, 'payment' => $locked->merchant_transaction_id]);
@@ -259,6 +262,11 @@ class OnlinePayments
         // The order is now a real order: the customer and the staff hear about it (F-130), once.
         if ($announce) {
             OrderPlaced::dispatch($payment->order->refresh());
+        }
+
+        // Meta hears of the sale from the server, whether the customer comes back from CinetPay or not.
+        if ($sold) {
+            app(MetaConversions::class)->purchase($payment->order);
         }
 
         return $payment->refresh();

@@ -7,6 +7,7 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Models\User;
+use App\Services\Storefront\Analytics;
 use App\Support\PhoneNumber;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\JsonResponse;
@@ -31,6 +32,8 @@ class FortifyServiceProvider extends ServiceProvider
         {
             public function toResponse($request)
             {
+                app(Analytics::class)->signUp();
+
                 return $request->wantsJson()
                     ? new JsonResponse('', 201)
                     : redirect()->intended(route('account.show'))->with('status', 'account-created');

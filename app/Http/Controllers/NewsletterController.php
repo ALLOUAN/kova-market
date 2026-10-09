@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\NewsletterSubscriber;
 use App\Notifications\NewsletterWelcome;
+use App\Services\Storefront\Analytics;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,6 +37,7 @@ class NewsletterController extends Controller
 
         if (! $wasActive) {
             Notification::route('mail', $subscriber->email)->notify(new NewsletterWelcome($subscriber));
+            app(Analytics::class)->lead($data['source'] ?? 'footer');
         }
 
         return $this->answer($request, $wasActive
@@ -61,7 +63,7 @@ class NewsletterController extends Controller
     private function answer(Request $request, string $message): JsonResponse|RedirectResponse
     {
         return $request->expectsJson()
-            ? response()->json(['message' => $message])
+            ? response()->json(['message' => $message, 'analytics' => app(Analytics::class)->currentEvents()])
             : back()->with('newsletter_status', $message);
     }
 }

@@ -56,6 +56,7 @@
                     count.hidden = data.count === 0;
                 });
                 live.textContent = data.message;
+                if (window.kovaTrack) { window.kovaTrack(data.analytics); }
 
                 // On the favourites page, a removed product leaves the list.
                 var card = !data.added && form.closest('[data-wishlist-card]');

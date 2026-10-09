@@ -133,9 +133,23 @@ banner nor the script is output. The theme's own banner logic (localStorage only
 | Event | Sent from | Meta / TikTok name |
 | --- | --- | --- |
 | `view_item` | product page | ViewContent |
-| `add_to_cart` | page following an add to cart (session) | AddToCart |
+| `add_to_cart` | answer of the background add to cart (`window.kovaTrack`), else the next page | AddToCart |
+| `add_to_wishlist` | answer of the heart button | AddToWishlist |
+| `search` | first page of a catalogue search | Search |
 | `begin_checkout` | checkout page | InitiateCheckout |
+| `add_payment_info` | server only, when leaving for CinetPay | AddPaymentInfo |
 | `purchase` | confirmation page, once (session) | Purchase / PlaceAnOrder |
+| `generate_lead` | answer of a new newsletter sign-up | Lead / SubmitForm |
+| `sign_up` | page following the account creation | CompleteRegistration |
+| `contact` | page following the contact form; click on the store's WhatsApp (browser only) | Contact |
+
+Every event has an id. With `META_CONVERSIONS_TOKEN` set, `App\Services\Storefront\MetaConversions` also sends the
+Meta events from the server (Conversions API, queued job `SendMetaConversionEvent`) with the same id, so that Meta
+keeps one of the two. Only for visitors whose `kova_consent` cookie says `granted` (it is not encrypted, nor are
+`_fbp` / `_fbc`, so the server can read them); e-mail, phone and name are SHA-256 hashed. The sale is sent by the
+server once, with the id `purchase-{number}`: at the order for cash on delivery, at CinetPay's confirmation for
+online payments, using what was kept in `orders.tracking` when the order was placed (consent only). Set
+`META_TEST_EVENT_CODE` to see the server events in Events Manager's "Test events" tab.
 
 The trackers' origins are allowed in `config/security.php`; a new tracker needs its origins there too.
 

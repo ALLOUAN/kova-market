@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\Permission;
+use App\Filament\Catalog\Widgets\ImportCatalogOverview;
 use App\Services\Catalog\Import\CatalogImporter;
 use App\Services\Catalog\Import\ImportException;
 use BackedEnum;
@@ -46,6 +47,19 @@ class ImportCatalog extends Page
     /** @var array<string, mixed>|null */
     public ?array $report = null;
 
+    /**
+     * The header band (ImportCatalogOverview) carries the title, the steps and the figures.
+     */
+    public function getHeading(): string
+    {
+        return '';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [ImportCatalogOverview::class];
+    }
+
     public static function canAccess(): bool
     {
         return (bool) auth()->user()?->can(Permission::ManageCatalog->value);
@@ -62,6 +76,7 @@ class ImportCatalog extends Page
             ->statePath('data')
             ->components([
                 Section::make('Fichier')
+                    ->icon(Heroicon::OutlinedDocumentArrowUp)
                     ->description('Une ligne par variante (SKU). Un SKU connu met à jour sa variante et son produit ; un nouveau SKU crée le produit, ou une variante du produit de même slug. Laisser une cellule vide la vide aussi (promotion, seuil), sauf le stock : vide, il n’est pas modifié.')
                     ->schema([
                         FileUpload::make('file')
@@ -84,7 +99,7 @@ class ImportCatalog extends Page
                 ->livewireSubmitHandler('analyse')
                 ->footer([
                     Actions::make([
-                        Action::make('analyse')->label('Analyser le fichier')->submit('analyse'),
+                        Action::make('analyse')->label('Analyser le fichier')->icon('heroicon-o-magnifying-glass')->submit('analyse'),
                         Action::make('template')
                             ->label('Télécharger le modèle')
                             ->color('gray')

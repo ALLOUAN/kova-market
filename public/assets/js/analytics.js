@@ -4,9 +4,12 @@
  * The page carries window.kovaAnalytics = { ga4, meta, tiktok, currency, consent, events }. Nothing is requested
  * from Google, Meta or TikTok until the visitor clicks "Accepter" on the cookie banner; the choice is kept six
  * months in the first-party "kova_consent" cookie ("granted" or "denied") and can be changed with any
- * [data-cookie-settings] link. E-commerce events of the page (view_item, add_to_cart, begin_checkout, purchase, and on
- * the home page view_item_list and view_promotion) are sent once the trackers are loaded; clicks on home banners and
- * on the products of its selections give select_promotion and select_item (Google Analytics only).
+ * [data-cookie-settings] link. E-commerce events of the page (view_item, add_to_cart, begin_checkout, purchase, search,
+ * sign_up, contact, and on the home page view_item_list and view_promotion) are sent once the trackers are loaded;
+ * background answers (add to cart, favourites, newsletter) hand theirs to window.kovaTrack. Clicks on home banners
+ * and on the products of its selections give select_promotion and select_item (Google Analytics only), clicks on the
+ * store's WhatsApp give contact. Each event's id is given to Meta, which merges it with the copy sent by the server
+ * (Conversions API).
  */
 (function () {
     'use strict';
@@ -83,12 +86,42 @@
         (config.events || []).forEach(send);
     }
 
-    /** One e-commerce event, in each tracker's own vocabulary. */
+    /** The store's events (GA4 names) for Meta and TikTok; the same list as App\Services\Storefront\MetaConversions. */
+    var NAMES = {
+        view_item: ['ViewContent', 'ViewContent'],
+        add_to_cart: ['AddToCart', 'AddToCart'],
+        begin_checkout: ['InitiateCheckout', 'InitiateCheckout'],
+        purchase: ['Purchase', 'PlaceAnOrder'],
+        search: ['Search', 'Search'],
+        add_to_wishlist: ['AddToWishlist', 'AddToWishlist'],
+        generate_lead: ['Lead', 'SubmitForm'],
+        sign_up: ['CompleteRegistration', 'CompleteRegistration'],
+        contact: ['Contact', 'Contact']
+    };
+
+    /** Meta's parameters, as MetaConversions::customData() sends them from the server. */
+    function metaData(params) {
+        var items = params.items || [];
+        var data = { currency: params.currency, value: params.value, order_id: params.transaction_id, search_string: params.search_term, content_category: params.method };
+
+        if (items.length) {
+            data.content_type = 'product';
+            data.content_ids = items.map(function (item) { return item.item_id; });
+            data.contents = items.map(function (item) { return { id: item.item_id, quantity: item.quantity || 1, item_price: item.price }; });
+            data.num_items = items.reduce(function (sum, item) { return sum + (item.quantity || 1); }, 0);
+            if (items.length === 1) { data.content_name = items[0].item_name; }
+        }
+
+        Object.keys(data).forEach(function (key) { if (data[key] === undefined || data[key] === null) { delete data[key]; } });
+
+        return data;
+    }
+
+    /** One event, in each tracker's own vocabulary. Its id lets Meta merge it with the server's copy. */
     function send(event) {
         var params = event.params;
         var items = params.items || [];
-        var ids = items.map(function (item) { return item.item_id; });
-        var names = { view_item: ['ViewContent', 'ViewContent'], add_to_cart: ['AddToCart', 'AddToCart'], begin_checkout: ['InitiateCheckout', 'InitiateCheckout'], purchase: ['Purchase', 'PlaceAnOrder'] }[event.name];
+        var names = NAMES[event.name];
 
         if (config.ga4) {
             window.gtag('event', event.name, params);
@@ -99,18 +132,42 @@
         }
 
         if (config.meta) {
-            window.fbq('track', names[0], { content_ids: ids, content_type: 'product', value: params.value, currency: params.currency, num_items: items.length });
+            window.fbq('track', names[0], metaData(params), event.id ? { eventID: event.id } : undefined);
         }
 
         if (config.tiktok) {
             window.ttq.track(names[1], {
                 contents: items.map(function (item) { return { content_id: item.item_id, content_name: item.item_name, quantity: item.quantity, price: item.price }; }),
-                content_type: 'product',
+                content_type: items.length ? 'product' : undefined,
                 value: params.value,
-                currency: params.currency
-            });
+                currency: params.currency,
+                query: params.search_term
+            }, event.id ? { event_id: event.id } : undefined);
         }
     }
+
+    /**
+     * Events given by a background answer (add to cart, favourites, newsletter): sent at once, or kept for the
+     * moment the visitor accepts.
+     */
+    window.kovaTrack = function (events) {
+        (events || []).forEach(function (event) {
+            if (loaded) {
+                send(event);
+            } else {
+                config.events = (config.events || []).concat([event]);
+            }
+        });
+    };
+
+    /** A click to write to the store on WhatsApp ("Contact"); sharing a product on WhatsApp does not count. */
+    document.addEventListener('click', function (event) {
+        var link = loaded && event.target.closest('a[href*="wa.me/"], a[href*="api.whatsapp.com/send"]');
+
+        if (link && !/wa\.me\/\?/.test(link.getAttribute('href'))) {
+            send({ name: 'contact', id: 'contact-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10), params: { method: 'whatsapp' } });
+        }
+    });
 
     function showBanner() {
         if (banner) {

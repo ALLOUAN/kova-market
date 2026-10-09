@@ -8,6 +8,7 @@ use App\Filament\Resources\ContactMessages\ContactMessageResource;
 use App\Http\Requests\ContactRequest;
 use App\Models\ContactMessage;
 use App\Notifications\ContactMessageReceived;
+use App\Services\Storefront\Analytics;
 use App\Services\Storefront\StoreSettings;
 use App\Support\PhoneNumber;
 use App\Support\StaffRecipients;
@@ -43,7 +44,7 @@ class ContactController extends Controller
         ]);
     }
 
-    public function store(ContactRequest $request, StoreSettings $settings): RedirectResponse
+    public function store(ContactRequest $request, StoreSettings $settings, Analytics $analytics): RedirectResponse
     {
         $message = ContactMessage::create([
             ...$request->details(),
@@ -61,6 +62,8 @@ class ContactController extends Controller
             ->icon('heroicon-o-envelope')
             ->actions([Action::make('open')->label('Voir les messages')->url(ContactMessageResource::getUrl('index'))])
             ->sendToDatabase(StaffRecipients::with(Permission::ManageOrders));
+
+        $analytics->contact('formulaire');
 
         return redirect()->route('contact.show')->with('notice', 'Merci, votre message est bien envoyé. Nous vous répondons au plus vite, en général dans la journée.');
     }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Categories\Pages;
 
 use App\Filament\Resources\Categories\CategoryResource;
+use App\Filament\Resources\Categories\Widgets\CategoriesOverview;
 use App\Models\Category;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -22,9 +23,17 @@ class ListSubCategories extends ListRecords
 
     protected static ?string $breadcrumb = 'Sous-catégories';
 
-    public function getSubheading(): ?string
+    /**
+     * The header band (CategoriesOverview) carries the title, the explanation and the figures.
+     */
+    public function getHeading(): string
     {
-        return 'Toutes les sous-catégories, rangées par catégorie parente. Elles s’affichent dans le méga-menu « Boutique », le menu mobile, le panneau des catégories et sur la page de leur catégorie.';
+        return '';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [CategoriesOverview::make(['scope' => 'sub'])];
     }
 
     public function table(Table $table): Table

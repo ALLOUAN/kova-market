@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Categories\Pages;
 
 use App\Filament\Resources\Categories\CategoryResource;
+use App\Filament\Resources\Categories\Widgets\CategoriesOverview;
 use App\Models\Category;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -22,9 +23,17 @@ class ListParentCategories extends ListRecords
 
     protected static ?string $breadcrumb = 'Catégories parentes';
 
-    public function getSubheading(): ?string
+    /**
+     * The header band (CategoriesOverview) carries the title, the explanation and the figures.
+     */
+    public function getHeading(): string
     {
-        return 'Les rayons principaux de la boutique, dans l’ordre des menus. Glissez les lignes pour changer cet ordre ; ouvrez un rayon pour gérer ses sous-catégories.';
+        return '';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [CategoriesOverview::make(['scope' => 'parents'])];
     }
 
     public function table(Table $table): Table

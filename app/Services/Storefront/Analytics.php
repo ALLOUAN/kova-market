@@ -9,18 +9,23 @@ use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Services\Cart\CartLine;
 use App\Services\Cart\CartSummary;
+use Illuminate\Support\Str;
 
 /**
  * Audience measurement (F-155, F-156): Google Analytics 4, Meta and TikTok pixels, identifiers set in the store
  * settings. The page only carries the identifiers and its e-commerce events; public/assets/js/analytics.js loads
  * the trackers once the visitor accepts, never before. Pages add their events to the current request, redirects
- * hand theirs to the next page through the session.
+ * hand theirs to the next page through the session, and answers to background requests (add to cart, favourites,
+ * newsletter) carry theirs. Each event has an id, also given to its copy sent by the server to Meta
+ * (MetaConversions), so that Meta counts it once.
  */
 class Analytics
 {
     public const CONSENT_COOKIE = 'kova_consent';
 
     private const FLASH = 'analytics_events';
+
+    public function __construct(private MetaConversions $conversions) {}
 
     /**
      * @return array{ga4: ?string, meta: ?string, tiktok: ?string}
@@ -73,8 +78,10 @@ class Analytics
      */
     public function track(string $name, array $params): void
     {
+        $event = $this->event($name, $params);
+
         // Kept on the request itself, so an instance outliving a request (tests, workers) never mixes pages.
-        request()->attributes->set(self::FLASH, [...request()->attributes->get(self::FLASH, []), ['name' => $name, 'params' => $params]]);
+        request()->attributes->set(self::FLASH, [...request()->attributes->get(self::FLASH, []), $event]);
     }
 
     /**
@@ -82,21 +89,58 @@ class Analytics
      *
      * @param  array<string, mixed>  $params
      */
-    public function trackOnNextPage(string $name, array $params): void
+    public function trackOnNextPage(string $name, array $params, ?string $id = null, bool $toServer = true): void
     {
         if (! $this->enabled()) {
             return;
         }
 
-        session()->flash(self::FLASH, [...session()->get(self::FLASH, []), ['name' => $name, 'params' => $params]]);
+        session()->flash(self::FLASH, [...session()->get(self::FLASH, []), $this->event($name, $params, $id, $toServer)]);
     }
 
     /**
-     * @return list<array{name: string, params: array<string, mixed>}>
+     * Adds an event to the page, or to the next one when the action redirects, or to the answer of a background
+     * request (see currentEvents()).
+     *
+     * @param  array<string, mixed>  $params
+     */
+    public function trackAction(string $name, array $params): void
+    {
+        request()->expectsJson() ? $this->track($name, $params) : $this->trackOnNextPage($name, $params);
+    }
+
+    /**
+     * @return list<array{name: string, id: string, params: array<string, mixed>}>
      */
     public function events(): array
     {
-        return [...session()->get(self::FLASH, []), ...request()->attributes->get(self::FLASH, [])];
+        return [...session()->get(self::FLASH, []), ...$this->currentEvents()];
+    }
+
+    /**
+     * The events of this request only, for the answer of a background request (public/assets/js/analytics.js
+     * sends them with window.kovaTrack).
+     *
+     * @return list<array{name: string, id: string, params: array<string, mixed>}>
+     */
+    public function currentEvents(): array
+    {
+        return $this->enabled() ? request()->attributes->get(self::FLASH, []) : [];
+    }
+
+    /**
+     * @param  array<string, mixed>  $params
+     * @return array{name: string, id: string, params: array<string, mixed>}
+     */
+    private function event(string $name, array $params, ?string $id = null, bool $toServer = true): array
+    {
+        $id ??= (string) Str::uuid();
+
+        if ($toServer) {
+            $this->conversions->send($name, $params, $id, request());
+        }
+
+        return ['name' => $name, 'id' => $id, 'params' => $params];
     }
 
     /**
@@ -175,7 +219,64 @@ class Analytics
             return;
         }
 
-        $this->trackOnNextPage('add_to_cart', $this->value([$this->item($variant->product, $variant, $quantity)]));
+        $this->trackAction('add_to_cart', $this->value([$this->item($variant->product, $variant, $quantity)]));
+    }
+
+    public function addToWishlist(Product $product): void
+    {
+        if (! $this->enabled()) {
+            return;
+        }
+
+        $product->loadMissing('defaultVariant.attributeValues', 'brand', 'category');
+        $this->trackAction('add_to_wishlist', $this->value([$this->item($product, $product->defaultVariant, 1)]));
+    }
+
+    /**
+     * A search of the catalogue, with the number of products found.
+     */
+    public function search(string $term, int $results): void
+    {
+        $this->track('search', ['search_term' => $term, 'results' => $results]);
+    }
+
+    /**
+     * A newsletter sign-up ("Lead" for Meta).
+     */
+    public function lead(string $source): void
+    {
+        if ($this->enabled()) {
+            $this->trackAction('generate_lead', ['method' => 'newsletter-'.$source]);
+        }
+    }
+
+    /**
+     * A customer account created ("CompleteRegistration" for Meta), once signed in: the account's e-mail and phone
+     * help Meta recognise them.
+     */
+    public function signUp(): void
+    {
+        if ($this->enabled()) {
+            $this->trackOnNextPage('sign_up', ['method' => 'site']);
+        }
+    }
+
+    /**
+     * A message to the store (contact form; WhatsApp clicks are reported by the browser alone).
+     */
+    public function contact(string $method): void
+    {
+        if ($this->enabled()) {
+            $this->trackOnNextPage('contact', ['method' => $method]);
+        }
+    }
+
+    /**
+     * Leaving for CinetPay's page: known to the server only, the browser goes straight to CinetPay.
+     */
+    public function addPaymentInfo(Order $order): void
+    {
+        $this->conversions->send('add_payment_info', [...self::purchaseParams($order), 'payment_type' => 'cinetpay'], 'payment-info-'.$order->number, request());
     }
 
     public function beginCheckout(CartSummary $summary): void
@@ -187,13 +288,30 @@ class Analytics
         $this->track('begin_checkout', [...$this->value($items), 'coupon' => $summary->couponApplies() ? $summary->coupon->code : null]);
     }
 
+    /**
+     * The sale on the next page. Its server copy goes through MetaConversions::purchase(), with the same id.
+     */
     public function purchase(Order $order): void
     {
         if (! $this->enabled()) {
             return;
         }
 
-        $this->trackOnNextPage('purchase', [
+        $this->trackOnNextPage('purchase', self::purchaseParams($order), self::purchaseEventId($order), toServer: false);
+    }
+
+    /** The same for the browser and the server, so that Meta counts the sale once. */
+    public static function purchaseEventId(Order $order): string
+    {
+        return 'purchase-'.$order->number;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function purchaseParams(Order $order): array
+    {
+        return [
             'transaction_id' => $order->number,
             'currency' => config('storefront.currency'),
             'value' => $order->total,
@@ -207,7 +325,7 @@ class Analytics
                     ? ['price' => $item->line_total, 'quantity' => 1]
                     : ['price' => $item->unit_price, 'quantity' => $item->quantity]),
             ])->values()->all(),
-        ]);
+        ];
     }
 
     /**

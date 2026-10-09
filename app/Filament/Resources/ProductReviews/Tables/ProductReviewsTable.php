@@ -31,11 +31,19 @@ class ProductReviewsTable
                 TextColumn::make('rating')
                     ->label('Note')
                     ->formatStateUsing(fn (int $state) => str_repeat('★', $state).str_repeat('☆', 5 - $state))
-                    ->color('warning')
+                    ->color(fn (int $state) => $state <= 2 ? 'danger' : 'warning')
+                    ->size('lg')
                     ->sortable(),
-                TextColumn::make('comment')->label('Commentaire')->placeholder('—')->wrap()->searchable(),
+                TextColumn::make('comment')
+                    ->label('Commentaire')
+                    ->placeholder('Sans commentaire')
+                    ->limit(160)
+                    ->tooltip(fn (ProductReview $record) => mb_strlen((string) $record->comment) > 160 ? $record->comment : null)
+                    ->wrap()
+                    ->searchable(),
                 TextColumn::make('author_name')
                     ->label('Client')
+                    ->weight('semibold')
                     ->searchable()
                     ->description(fn (ProductReview $record) => $record->orderItem?->order?->number),
                 TextColumn::make('status')->label('Statut')->badge(),

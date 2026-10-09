@@ -41,6 +41,7 @@
                         message.classList.toggle('is-error', !result.ok);
                         if (result.ok) {
                             form.reset();
+                            if (window.kovaTrack) { window.kovaTrack(result.data.analytics); }
                             try { localStorage.setItem('kova_newsletter', '1'); } catch (e) {}
                         }
                     })

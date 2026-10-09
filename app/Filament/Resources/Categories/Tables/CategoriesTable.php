@@ -27,9 +27,12 @@ class CategoriesTable
                 ImageColumn::make('image')
                     ->label('')
                     ->disk('storefront')
-                    ->square(),
+                    ->imageSize(44)
+                    ->extraImgAttributes(['class' => 'kl-thumb', 'loading' => 'lazy']),
                 TextColumn::make('name')
                     ->label('Nom')
+                    ->weight('semibold')
+                    ->description(fn (Category $record) => $record->tagline)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('parent.name')
@@ -38,13 +41,26 @@ class CategoriesTable
                     ->description(fn (Category $record) => $record->parent?->parent?->name),
                 TextColumn::make('products_count')
                     ->label('Produits')
+                    ->badge()
+                    // A department holding sub-categories keeps its products in them: not empty.
+                    ->color(fn (int $state, Category $record) => $state > 0 || $record->children_count > 0 ? 'gray' : 'warning')
+                    ->formatStateUsing(fn (int $state, Category $record) => match (true) {
+                        $state > 0 => (string) $state,
+                        $record->children_count > 0 => '—',
+                        default => 'Vide',
+                    })
+                    ->alignCenter()
                     ->sortable(),
                 TextColumn::make('children_count')
                     ->label('Sous-catégories')
+                    ->alignCenter()
+                    ->formatStateUsing(fn (int $state) => $state ?: '—')
                     ->sortable(),
                 IconColumn::make('is_featured')
                     ->label('À l’accueil')
-                    ->boolean(),
+                    ->alignCenter()
+                    ->icon(fn (bool $state) => $state ? 'heroicon-s-star' : 'heroicon-o-minus')
+                    ->color(fn (bool $state) => $state ? 'warning' : 'gray'),
                 TextColumn::make('position')
                     ->label('Ordre')
                     ->sortable(),
@@ -65,6 +81,13 @@ class CategoriesTable
                 TernaryFilter::make('is_featured')->label('À l’accueil'),
             ])
             ->recordActions([
+                Action::make('storefront')
+                    ->label('Voir en boutique')
+                    ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+                    ->iconButton()
+                    ->color('gray')
+                    ->tooltip('Voir en boutique')
+                    ->url(fn (Category $record) => route('categories.show', $record), shouldOpenInNewTab: true),
                 // Third-level categories are the last level: no sub-category under them.
                 Action::make('addChild')
                     ->label('Ajouter une sous-catégorie')

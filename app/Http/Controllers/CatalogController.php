@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Services\Storefront\Analytics;
 use App\Services\Storefront\ProductListing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class CatalogController extends Controller
 {
     public function __construct(private ProductListing $listing) {}
 
-    public function index(Request $request): View|RedirectResponse
+    public function index(Request $request, Analytics $analytics): View|RedirectResponse
     {
         // The header search can be narrowed to a department: continue on that category page.
         if (filled($slug = $request->query('category')) && $category = Category::firstWhere('slug', $slug)) {
@@ -25,9 +26,15 @@ class CatalogController extends Controller
         }
 
         $query = trim((string) $request->query('q', ''));
+        $listing = $this->listing->list($request);
+
+        // A search counts once, on its first page.
+        if ($query !== '' && $listing['products']->onFirstPage()) {
+            $analytics->search($query, $listing['products']->total());
+        }
 
         return view('pages.catalog', [
-            ...$this->listing->list($request),
+            ...$listing,
             'title' => $query !== '' ? "Résultats pour « {$query} »" : 'Tous les produits',
             'breadcrumb' => [],
             'category' => null,

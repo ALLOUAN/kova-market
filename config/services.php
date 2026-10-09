@@ -73,6 +73,15 @@ return [
         'fallback_email' => env('CINETPAY_FALLBACK_EMAIL'),
     ],
 
+    // Meta Conversions API: the pixel's events also sent by the server (App\Services\Storefront\MetaConversions),
+    // once the pixel is set in the store settings and this token is given. The test code shows them in Events
+    // Manager's "Test events" tab.
+    'meta' => [
+        'conversions_token' => env('META_CONVERSIONS_TOKEN'),
+        'test_event_code' => env('META_TEST_EVENT_CODE'),
+        'graph_version' => env('META_GRAPH_VERSION', 'v23.0'),
+    ],
+
     // Cloudflare Turnstile on the public forms (F-080), active once both keys are set.
     'turnstile' => [
         'site_key' => env('TURNSTILE_SITE_KEY'),

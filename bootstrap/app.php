@@ -39,6 +39,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // outcome with CinetPay's API, so a forged call changes nothing.
         $middleware->validateCsrfTokens(except: ['paiement/cinetpay/notification', 'paiement/retour/*', 'webhooks/*']);
 
+        // Written by the browser, not by Laravel: the cookie choice (assets/js/analytics.js) and Meta's pixel cookies,
+        // read by the server for the Conversions API (App\Services\Storefront\MetaConversions).
+        $middleware->encryptCookies(except: ['kova_consent', '_fbp', '_fbc']);
+
         // Texts, images and menus edited in the back-office (F-111).
         $middleware->web(prepend: [ApplyStoreSettings::class]);
         // Maintenance switched from the back-office: after the session, so a signed-in team member keeps the site.

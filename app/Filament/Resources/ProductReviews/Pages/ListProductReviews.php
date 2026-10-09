@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ProductReviews\Pages;
 
 use App\Enums\ReviewStatus;
 use App\Filament\Resources\ProductReviews\ProductReviewResource;
+use App\Filament\Resources\ProductReviews\Widgets\ProductReviewsOverview;
 use App\Models\ProductReview;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -12,6 +13,19 @@ use Illuminate\Database\Eloquent\Builder;
 class ListProductReviews extends ListRecords
 {
     protected static string $resource = ProductReviewResource::class;
+
+    /**
+     * The header band (ProductReviewsOverview) carries the title and the figures.
+     */
+    public function getHeading(): string
+    {
+        return '';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [ProductReviewsOverview::class];
+    }
 
     public function getTabs(): array
     {

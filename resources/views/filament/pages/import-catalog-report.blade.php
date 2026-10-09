@@ -1,38 +1,53 @@
-{{-- Result of the analysis (preview) or of the import of a catalog CSV (F-104). Inline styles: the panel has no
-     custom theme, so only Filament's own CSS classes are available. --}}
-<x-filament::section :heading="$report['preview'] ? 'Analyse du fichier (rien n’est encore enregistré)' : 'Résultat de l’import'">
-    <dl style="display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1rem; margin: 0">
-        @foreach ([
-            'Lignes lues' => $report['rows'],
-            'Produits créés' => $report['products_created'],
-            'Variantes ajoutées' => $report['variants_created'],
-            'Variantes mises à jour' => $report['variants_updated'],
-            'Lignes refusées' => count($report['errors']),
-        ] as $label => $value)
-            <div>
-                <dt style="font-size: .875rem; opacity: .7">{{ $label }}</dt>
-                <dd style="font-size: 1.5rem; font-weight: 600; margin: 0">{{ $value }}</dd>
+{{-- Result of the analysis (preview) or of the import of a catalog CSV (F-104), as key figure cards (.kd-*) and the
+     refused lines in a table. --}}
+@php
+    $refused = count($report['errors']);
+    $figures = [
+        ['Lignes lues', $report['rows'], 'heroicon-o-document-text', 'navy'],
+        ['Produits créés', $report['products_created'], 'heroicon-o-sparkles', 'orange'],
+        ['Variantes ajoutées', $report['variants_created'], 'heroicon-o-plus-circle', 'green'],
+        ['Variantes mises à jour', $report['variants_updated'], 'heroicon-o-arrow-path', 'gold'],
+        ['Lignes refusées', $refused, $refused > 0 ? 'heroicon-o-exclamation-triangle' : 'heroicon-o-check-circle', $refused > 0 ? 'red' : 'green'],
+    ];
+@endphp
+<div class="kd kl ki-report">
+    <header @class(['ki-report__head', 'is-preview' => $report['preview']])>
+        <x-filament::icon :icon="$report['preview'] ? 'heroicon-o-magnifying-glass' : 'heroicon-o-check-badge'" class="ki-report__icon" />
+        <div>
+            <h2 class="ki-report__title">{{ $report['preview'] ? 'Analyse du fichier' : 'Import terminé' }}</h2>
+            <p class="ki-report__lead">
+                @if ($report['preview'])
+                    Aperçu seulement, rien n’est encore enregistré. {{ $report['imported'] }} ligne(s) prête(s) à importer{{ $refused ? ', '.$refused.' seront ignorée(s)' : '' }} : confirmez avec « Importer » en haut de la page.
+                @else
+                    {{ $report['imported'] }} ligne(s) enregistrée(s){{ $refused ? ', '.$refused.' refusée(s)' : '' }}.
+                @endif
+            </p>
+        </div>
+    </header>
+
+    <section class="kl-kpis" aria-label="Résultat">
+        @foreach ($figures as [$label, $value, $icon, $tone])
+            <div @class(['kd-kpi', 'kl-kpi--alert' => $tone === 'red'])>
+                <span class="kd-kpi__icon kd-tone-{{ $tone === 'red' ? 'orange' : $tone }} @if ($tone === 'red') kl-tone-red @endif"><x-filament::icon :icon="$icon" /></span>
+                <span class="kd-kpi__label">{{ $label }}</span>
+                <span class="kd-kpi__value">{{ $value }}</span>
             </div>
         @endforeach
-    </dl>
+    </section>
 
-    @if ($report['errors'])
-        <h3 style="margin: 1.5rem 0 .5rem; font-weight: 600">Lignes refusées{{ $report['preview'] ? ' (elles seront ignorées)' : '' }}</h3>
-        <table style="width: 100%; font-size: .875rem; border-collapse: collapse">
-            <thead>
-                <tr style="text-align: left; opacity: .7">
-                    <th style="padding: .25rem 1rem .25rem 0">Ligne</th>
-                    <th style="padding: .25rem 0">Raison</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($report['errors'] as $line => $reason)
-                    <tr style="border-top: 1px solid rgba(128, 128, 128, .25)">
-                        <td style="padding: .25rem 1rem .25rem 0; vertical-align: top">{{ $line }}</td>
-                        <td style="padding: .25rem 0">{{ $reason }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+    @if ($refused)
+        <div class="ki-errors">
+            <h3 class="ki-errors__title">Lignes refusées{{ $report['preview'] ? ' (elles seront ignorées)' : '' }}</h3>
+            <table class="ki-errors__table">
+                <thead>
+                    <tr><th>Ligne</th><th>Raison</th></tr>
+                </thead>
+                <tbody>
+                    @foreach ($report['errors'] as $line => $reason)
+                        <tr><td class="ki-errors__line">{{ $line }}</td><td>{{ $reason }}</td></tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     @endif
-</x-filament::section>
+</div>

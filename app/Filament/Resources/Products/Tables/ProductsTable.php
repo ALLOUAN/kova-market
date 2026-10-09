@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Products\Tables;
 
 use App\Models\Product;
 use App\Support\Money;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -21,30 +22,42 @@ class ProductsTable
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['category', 'brand'])
                 ->withCount(['stockAlerts as waiting_alerts_count' => fn (Builder $query) => $query->whereNull('notified_at')]))
-            ->defaultSort('updated_at', 'desc')
+            // The "Meilleures ventes" tab lists the best sellers first.
+            ->defaultSort(fn ($livewire) => ($livewire->activeTab ?? null) === 'best_sellers' ? 'sold_count' : 'updated_at', 'desc')
             ->columns([
                 ImageColumn::make('image')
                     ->label('')
                     ->disk('storefront')
-                    ->square(),
+                    ->imageSize(52)
+                    ->extraImgAttributes(['class' => 'kl-thumb', 'loading' => 'lazy']),
                 TextColumn::make('name')
                     ->label('Produit')
                     ->searchable()
                     ->sortable()
-                    ->limit(50)
-                    ->description(fn (Product $record) => $record->brand?->name),
+                    ->weight('semibold')
+                    ->limit(55)
+                    ->tooltip(fn (Product $record) => mb_strlen($record->name) > 55 ? $record->name : null)
+                    ->description(fn (Product $record) => collect([$record->category?->name, $record->brand?->name])->filter()->join(' · ') ?: null),
                 TextColumn::make('category.name')
                     ->label('Catégorie')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('price')
                     ->label('Prix')
                     ->formatStateUsing(fn ($state, Product $record) => Money::format($state).$record->saleQuantity()->priceSuffix())
-                    ->description(fn (Product $record) => $record->isOnSale() ? 'au lieu de '.Money::format($record->compare_at_price) : null)
+                    ->weight('semibold')
+                    ->description(fn (Product $record) => $record->isOnSale() ? '−'.$record->discountPercentage().' % · au lieu de '.Money::format($record->compare_at_price) : null)
+                    ->color(fn (Product $record) => $record->isOnSale() ? 'primary' : null)
                     ->sortable(),
                 TextColumn::make('stock')
                     ->label('Stock')
-                    ->formatStateUsing(fn (int $state, Product $record) => $record->saleQuantity()->format($state))
+                    ->formatStateUsing(fn (int $state, Product $record) => $record->isSoldOut() ? 'Rupture' : $record->saleQuantity()->format($state))
                     ->badge()
+                    ->icon(fn (Product $record) => match (true) {
+                        $record->isSoldOut() => 'heroicon-m-x-circle',
+                        $record->hasLimitedStock() => 'heroicon-m-exclamation-triangle',
+                        default => 'heroicon-m-check-circle',
+                    })
                     ->color(fn (Product $record) => match (true) {
                         $record->isSoldOut() => 'danger',
                         $record->hasLimitedStock() => 'warning',
@@ -62,8 +75,10 @@ class ProductsTable
                     ->sortable(),
                 TextColumn::make('sold_count')
                     ->label('Ventes')
+                    ->numeric()
+                    ->alignEnd()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 ToggleColumn::make('is_active')
                     ->label('En ligne'),
                 TextColumn::make('updated_at')
@@ -99,7 +114,17 @@ class ProductsTable
             ])
             // No delete: products leave the storefront by being switched off (soft deletes come with orders).
             ->recordActions([
-                EditAction::make(),
-            ]);
+                Action::make('storefront')
+                    ->label('Voir en boutique')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->iconButton()
+                    ->color('gray')
+                    ->url(fn (Product $record) => route('products.show', $record), shouldOpenInNewTab: true)
+                    ->visible(fn (Product $record) => $record->is_active),
+                EditAction::make()->iconButton(),
+            ])
+            ->emptyStateIcon('heroicon-o-cube')
+            ->emptyStateHeading('Aucun produit ici')
+            ->emptyStateDescription('Changez d’onglet ou de filtre, ou ajoutez un produit.');
     }
 }

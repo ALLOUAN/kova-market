@@ -14,6 +14,7 @@ use App\Services\Orders\CustomerProgress;
 use App\Services\Payments\CinetPayException;
 use App\Services\Payments\OnlinePayments;
 use App\Services\Storefront\Analytics;
+use App\Services\Storefront\MetaConversions;
 use App\Support\PhoneNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -77,7 +78,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(PlaceOrderRequest $request, PlaceOrder $placeOrder, Analytics $analytics, OnlinePayments $payments): RedirectResponse
+    public function store(PlaceOrderRequest $request, PlaceOrder $placeOrder, Analytics $analytics, MetaConversions $conversions, OnlinePayments $payments): RedirectResponse
     {
         $cart = $this->cart->current();
 
@@ -97,8 +98,15 @@ class CheckoutController extends Controller
 
         $request->session()->push(self::PLACED, $order->number);
 
+        // Kept for Meta's Conversions API, which reports the sale even if CinetPay alone confirms it (consent only).
+        if ($tracking = $conversions->context($request)) {
+            $order->forceFill(['tracking' => $tracking])->saveQuietly();
+        }
+
         // Paid online: straight to CinetPay's page; the purchase is reported once the payment is confirmed.
         if ($order->payment_method->isOnline()) {
+            $analytics->addPaymentInfo($order->load('items'));
+
             try {
                 return redirect()->away($payments->start($order)->payment_url);
             } catch (CinetPayException $exception) {
@@ -108,6 +116,7 @@ class CheckoutController extends Controller
 
         // Reported once, on the confirmation page that follows (a reload does not count it again).
         $analytics->purchase($order->load('items'));
+        $conversions->purchase($order);
 
         return redirect()->route('checkout.confirmation', $order);
     }

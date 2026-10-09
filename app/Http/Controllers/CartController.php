@@ -56,6 +56,8 @@ class CartController extends Controller
                 'count' => $summary->count(),
                 'total' => Money::format($summary->total()),
                 'mini_cart' => view('partials.offcanvas.cart', ['cartSummary' => $summary])->render(),
+                // "AddToCart" sent at once by the page (window.kovaTrack), not on the next page.
+                'analytics' => $analytics->currentEvents(),
             ]);
         }
 

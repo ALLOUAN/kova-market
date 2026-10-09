@@ -20,6 +20,7 @@ use App\Models\DeliveryZone;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\Cart\CartManager;
 use App\Services\Orders\OrderStatusManager;
@@ -178,6 +179,28 @@ class OnlinePaymentTest extends TestCase
         // Back from CinetPay: the confirmation says it.
         $this->get(route('payments.return', $payment))->assertRedirect(route('checkout.confirmation', $order));
         $this->get(route('checkout.confirmation', $order))->assertOk()->assertSeeText('Paiement reçu : votre commande est enregistrée.');
+    }
+
+    public function test_meta_hears_of_the_sale_from_cinetpay_s_notification_even_if_the_customer_never_comes_back(): void
+    {
+        Setting::store(['analytics.meta_pixel_id' => '123456789012345']);
+        config(['services.meta.conversions_token' => 'capi-token']);
+        Http::fake(['graph.facebook.com/*' => Http::response(['events_received' => 1])]);
+        $this->withUnencryptedCookie('kova_consent', 'granted');
+
+        $payment = $this->orderPaidOnline();
+        $meta = fn () => Http::recorded(fn (Request $request) => str_contains($request->url(), 'graph.facebook.com'))
+            ->map(fn (array $pair) => $pair[0]['data'][0]['event_name'].' '.$pair[0]['data'][0]['event_id'])->values()->all();
+        $number = $payment->order->number;
+        $this->assertStringStartsWith('AddToCart ', $meta()[0]);
+        $this->assertSame("AddPaymentInfo payment-info-{$number}", $meta()[1]);
+
+        $this->cinetPayStatus = [100, 'SUCCESS'];
+        $this->postJson('/paiement/cinetpay/notification', ['notify_token' => 'notify-secret-1', 'merchant_transaction_id' => $payment->merchant_transaction_id]);
+        $this->postJson('/paiement/cinetpay/notification', ['notify_token' => 'notify-secret-1', 'merchant_transaction_id' => $payment->merchant_transaction_id]);
+
+        // Sent once, from CinetPay's call, with the id the confirmation page would give the browser.
+        $this->assertSame(["Purchase purchase-{$number}"], array_values(array_filter($meta(), fn (string $event) => str_starts_with($event, 'Purchase'))));
     }
 
     public function test_a_notification_without_the_right_token_is_ignored(): void

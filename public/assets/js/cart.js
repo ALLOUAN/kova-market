@@ -73,6 +73,7 @@
                 }
 
                 refresh(result.data);
+                if (window.kovaTrack) { window.kovaTrack(result.data.analytics); }
                 var open = form.querySelector('input[name="open"]');
                 // The mini-cart shows the product just added; elsewhere (product page) a short message confirms.
                 if (open && open.value === 'sidenav') {

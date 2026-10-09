@@ -50,6 +50,7 @@ class Order extends Model
             'total' => 'integer',
             'marketing_opt_in' => 'boolean',
             'terms_accepted_at' => 'datetime',
+            'tracking' => 'array',
             'assigned_at' => 'datetime',
             'delivery_date' => 'date',
             'cash_collected' => 'integer',
