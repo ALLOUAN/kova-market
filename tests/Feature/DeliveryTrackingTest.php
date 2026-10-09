@@ -78,7 +78,7 @@ class DeliveryTrackingTest extends TestCase
         $this->assertSame(0, $settlement->due($this->courier));
         $this->assertTrue($first->fresh()->cashSettledBy->is($this->manager));
         $this->assertNotNull($second->fresh()->cash_settled_at);
-        $log = Activity::where('description', 'Encaissements reçus de Moussa Traoré')->sole();
+        $log = Activity::where('description', 'like', 'Versement de Moussa Traoré%')->sole();
         $this->assertSame(82500, $log->properties['montant']);
 
         Livewire::test(ListCouriers::class)->assertActionHidden(TestAction::make('settleCash')->table($this->courier));

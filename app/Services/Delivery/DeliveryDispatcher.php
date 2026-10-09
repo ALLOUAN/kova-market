@@ -163,6 +163,36 @@ class DeliveryDispatcher
     }
 
     /**
+     * Orders waiting for a courier, all zones: the delivery dashboard's queue.
+     *
+     * @return Builder<Order>
+     */
+    public function unassigned(): Builder
+    {
+        return $this->waiting();
+    }
+
+    /**
+     * Available couriers to give an order to, those of its zone first, each with their deliveries in progress
+     * (for the back-office's courier pickers).
+     *
+     * @return array<string, array<int, string>>
+     */
+    public function courierOptions(Order $order): array
+    {
+        $zone = $order->commune?->delivery_zone_id;
+        $couriers = Courier::query()->available()->with(['user', 'zones'])->withCount('openOrders')->get();
+        $label = fn (Courier $courier) => "{$courier->name()} ({$courier->open_orders_count} en cours)";
+
+        [$ofZone, $others] = $couriers->partition(fn (Courier $courier) => $courier->zones->contains('id', $zone));
+
+        return array_filter([
+            'Zone de la commande' => $ofZone->mapWithKeys(fn (Courier $courier) => [$courier->id => $label($courier)])->all(),
+            'Autres livreurs' => $others->mapWithKeys(fn (Courier $courier) => [$courier->id => $label($courier)])->all(),
+        ]);
+    }
+
+    /**
      * @return Builder<Order>
      */
     private function waiting(): Builder

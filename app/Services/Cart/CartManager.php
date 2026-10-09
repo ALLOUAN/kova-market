@@ -245,9 +245,10 @@ class CartManager
             }
         }
 
-        $threshold = Setting::get('delivery.free_shipping_threshold');
-        $threshold = filled($threshold) ? (int) $threshold : null;
         $commune = $cart?->commune?->isDeliverable() ? $cart->commune : null;
+        // The zone's own free-delivery threshold once a commune is chosen, else the store's general one.
+        $threshold = $commune ? $commune->zone->freeShippingThreshold() : Setting::get('delivery.free_shipping_threshold');
+        $threshold = filled($threshold) ? (int) $threshold : null;
         $free = $threshold !== null && $subtotal >= $threshold && $subtotal > 0;
         $freeByCoupon = $coupon !== null && $issue === null && $coupon->type === CouponType::FreeShipping;
 
@@ -257,12 +258,13 @@ class CartManager
             subtotal: $subtotal,
             commune: $commune,
             // No goods, no delivery: an emptied cart (after an order) keeps its commune but costs nothing.
-            shippingFee: $commune && $subtotal > 0 ? ($free || $freeByCoupon ? 0 : $commune->zone->fee) : null,
+            shippingFee: $commune && $subtotal > 0 ? ($freeByCoupon ? 0 : $commune->zone->feeFor($subtotal)) : null,
             freeShipping: $free,
             freeShippingThreshold: $threshold,
             coupon: $coupon,
             discount: $discount,
             couponIssue: $issue,
+            minimumOrder: $commune?->zone->min_order,
         );
     }
 

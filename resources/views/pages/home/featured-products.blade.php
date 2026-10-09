@@ -7,8 +7,8 @@
                 </div>
             </div>
         </div>
-        {{-- The products sit on a KOVA green panel, like "Catégories populaires" and "Offres du jour". --}}
-        <div class="kova-panel kova-panel--green kova-panel--on-white">
+        {{-- The products sit on a night blue panel, like "Offres du jour". --}}
+        <div class="kova-panel kova-panel--navy kova-panel--on-white">
             <div class="row row--12 mt_dec--24">
                 <div class="col-xxl-8 col-xl-8 col-lg-12 col-md-12 col-sm-12 col-12 mt--24">
                     <x-product.featured-card :product="$featuredProduct" />

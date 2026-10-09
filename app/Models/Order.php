@@ -10,6 +10,7 @@ use App\Support\PhoneNumber;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -52,6 +53,7 @@ class Order extends Model
             'assigned_at' => 'datetime',
             'delivery_date' => 'date',
             'cash_collected' => 'integer',
+            'cash_remitted' => 'integer',
             'cash_settled_at' => 'datetime',
         ];
     }
@@ -70,11 +72,37 @@ class Order extends Model
     }
 
     /**
+     * Courier's payments covering this order's cash (F-126), with the part of each one.
+     */
+    public function remittances(): BelongsToMany
+    {
+        return $this->belongsToMany(CourierRemittance::class)->withPivot('amount');
+    }
+
+    /**
      * Cash the courier must collect at the door (F-125): the total of an unpaid cash-on-delivery order.
      */
     public function amountToCollect(): int
     {
         return $this->payment_method === PaymentMethod::CashOnDelivery && $this->payment_status !== PaymentStatus::Paid ? $this->total : 0;
+    }
+
+    /**
+     * Route to the customer in Google Maps (courier app): landmark, district, commune.
+     */
+    public function mapsUrl(): string
+    {
+        $place = collect([$this->landmark, $this->district, $this->commune_name, 'Côte d’Ivoire'])->filter()->join(', ');
+
+        return 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($place);
+    }
+
+    /**
+     * WhatsApp conversation with the customer, opened with the courier's greeting (courier app).
+     */
+    public function whatsappUrl(): string
+    {
+        return 'https://wa.me/'.ltrim((string) $this->phone, '+').'?text='.rawurlencode('Bonjour '.$this->customer_name.', je suis le livreur '.config('storefront.name').' pour votre commande '.$this->number.'.');
     }
 
     public function getRouteKeyName(): string

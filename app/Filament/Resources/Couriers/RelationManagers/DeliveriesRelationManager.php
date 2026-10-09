@@ -40,8 +40,12 @@ class DeliveriesRelationManager extends RelationManager
                 TextColumn::make('cash_collected')
                     ->label('Encaissé')
                     ->formatStateUsing(fn (?int $state) => $state === null ? null : Money::format($state))
-                    ->description(fn (Order $record) => $record->cash_collected === null ? null
-                        : ($record->cash_settled_at ? 'Reçu le '.$record->cash_settled_at->format('d/m/Y') : 'À reverser'))
+                    ->description(fn (Order $record) => match (true) {
+                        $record->cash_collected === null => null,
+                        $record->cash_settled_at !== null => 'Reçu le '.$record->cash_settled_at->format('d/m/Y'),
+                        $record->cash_remitted > 0 => Money::format($record->cash_collected - $record->cash_remitted).' à reverser',
+                        default => 'À reverser',
+                    })
                     ->placeholder('—'),
             ])
             ->filters([

@@ -64,7 +64,7 @@ class ViewOrder extends ViewRecord
                     Select::make('courier_id')
                         ->label('Livreur')
                         ->helperText('Les livreurs de la zone de la commande sont proposés en premier.')
-                        ->options(fn () => $this->courierOptions($record))
+                        ->options(fn () => app(DeliveryDispatcher::class)->courierOptions($record))
                         ->searchable()
                         ->required(),
                 ])
@@ -194,25 +194,6 @@ class ViewOrder extends ViewRecord
                 : null),
             default => $action,
         };
-    }
-
-    /**
-     * Active couriers, those of the order's zone first.
-     *
-     * @return array<string, array<int, string>>
-     */
-    private function courierOptions(Order $order): array
-    {
-        $zone = $order->commune?->delivery_zone_id;
-        $couriers = Courier::query()->available()->with(['user', 'zones'])->withCount('openOrders')->get();
-        $label = fn (Courier $courier) => "{$courier->name()} ({$courier->open_orders_count} en cours)";
-
-        [$ofZone, $others] = $couriers->partition(fn (Courier $courier) => $courier->zones->contains('id', $zone));
-
-        return array_filter([
-            'Zone de la commande' => $ofZone->mapWithKeys(fn (Courier $courier) => [$courier->id => $label($courier)])->all(),
-            'Autres livreurs' => $others->mapWithKeys(fn (Courier $courier) => [$courier->id => $label($courier)])->all(),
-        ]);
     }
 
     private function run(callable $change): void

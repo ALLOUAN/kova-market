@@ -54,10 +54,11 @@ class AdminPanelProvider extends PanelProvider
             ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)
             ->multiFactorAuthenticationRequiredMiddlewareName(EnsureTwoFactorForSensitiveRoles::class)
             ->colors([
-                // Green of the logo ("MARKET" and the cart) at shade 600, the one buttons use.
+                // Orange of the logo ("MARKET" and the cart): #F85000 at 400; buttons use 600 (#B83A00) and hover 500 (#CC4400),
+                // both AA with white text, otherwise Filament falls back to a pale shade with dark text.
                 'primary' => array_map(Color::convertToOklch(...), [
-                    50 => '#ecf8f1', 100 => '#d2eedd', 200 => '#a6dcbc', 300 => '#6fc493', 400 => '#38a86a', 500 => '#17924f',
-                    600 => '#0e7d42', 700 => '#0b6536', 800 => '#0a502c', 900 => '#084224', 950 => '#032415',
+                    50 => '#fff4ec', 100 => '#ffe8da', 200 => '#ffcfb0', 300 => '#ffab7a', 400 => '#f85000', 500 => '#cc4400',
+                    600 => '#b83a00', 700 => '#a33400', 800 => '#852b05', 900 => '#6c250a', 950 => '#3a1002',
                 ]),
                 'gray' => Color::Slate,
             ])

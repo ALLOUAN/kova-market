@@ -12,6 +12,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Courier\AppController as CourierAppController;
 use App\Http\Controllers\Courier\AuthController as CourierAuthController;
 use App\Http\Controllers\Courier\DeliveryController;
+use App\Http\Controllers\Courier\MoneyController as CourierMoneyController;
 use App\Http\Controllers\Courier\PasswordController as CourierPasswordController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
@@ -156,5 +157,8 @@ Route::prefix('livreur')->name('courier.')->group(function () {
         Route::post('/commandes/{order:number}/en-route', [DeliveryController::class, 'start'])->name('orders.start');
         Route::post('/commandes/{order:number}/livree', [DeliveryController::class, 'deliver'])->name('orders.deliver');
         Route::post('/commandes/{order:number}/echec', [DeliveryController::class, 'fail'])->name('orders.fail');
+
+        Route::get('/encaissements', [CourierMoneyController::class, 'index'])->name('money');
+        Route::get('/versements/{remittance}/recu', [CourierMoneyController::class, 'receipt'])->name('remittances.receipt');
     });
 });

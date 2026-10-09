@@ -214,11 +214,16 @@ class PlaceOrder
         }
     }
 
+    /**
+     * The zone's fee, free from its threshold (or the store's general one); below the zone's minimum order, refused.
+     */
     private function shippingFee(Commune $commune, int $subtotal): int
     {
-        $threshold = Setting::get('delivery.free_shipping_threshold');
+        if ($missing = $commune->zone->missingForMinimum($subtotal)) {
+            throw new CheckoutException('La commande minimum pour '.$commune->name.' est de '.Money::format($commune->zone->min_order).' : ajoutez encore '.Money::format($missing).' d’articles.');
+        }
 
-        return filled($threshold) && $subtotal >= (int) $threshold ? 0 : $commune->zone->fee;
+        return $commune->zone->feeFor($subtotal);
     }
 
     /**

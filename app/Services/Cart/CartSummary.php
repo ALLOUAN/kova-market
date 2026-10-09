@@ -29,7 +29,16 @@ class CartSummary
         public readonly ?Coupon $coupon = null,
         public readonly int $discount = 0,
         public readonly ?string $couponIssue = null,
+        public readonly ?int $minimumOrder = null,
     ) {}
+
+    /**
+     * Goods still to add to reach the minimum order of the chosen zone; null when there is none or it is reached.
+     */
+    public function missingForMinimum(): ?int
+    {
+        return $this->minimumOrder !== null && $this->subtotal < $this->minimumOrder ? $this->minimumOrder - $this->subtotal : null;
+    }
 
     /**
      * Units that will actually be ordered.

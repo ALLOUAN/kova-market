@@ -10,7 +10,9 @@ use Illuminate\Console\Command;
 /**
  * Sends the shop's e-mails from a professional address of the domain (e.g. commandes@kovamarket.ci, created in the
  * LWS panel): writes the SMTP settings into .env from prompts, the password hidden. LWS's outgoing server is
- * mail.<domain>, port 465 (SSL) or 587 (STARTTLS), signed in with the full address.
+ * mail.<domain>, port 465 (SSL) or 587 (STARTTLS), signed in with the full address. Its certificate is the shared
+ * *.lwspanel.com one: when the sending fails with "Peer certificate ... did not match", give the server's own name
+ * instead (reverse DNS of mail.<domain>, e.g. mail64.lwspanel.com for kova-market.com).
  */
 #[Signature('mail:smtp')]
 #[Description('Send the e-mails from a professional address (SMTP settings in .env)')]
@@ -48,6 +50,7 @@ class ConfigureMail extends Command
         $this->callSilently('config:clear');
 
         $this->info('Envoi configuré depuis '.$address.'. Essai : php artisan mail:test votre@adresse.com');
+        $this->line('Erreur « Peer certificate … did not match » (hébergement LWS) : relancez la commande avec le nom du serveur LWS, par exemple mail64.lwspanel.com.');
 
         return self::SUCCESS;
     }

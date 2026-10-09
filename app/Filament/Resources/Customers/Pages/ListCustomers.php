@@ -3,14 +3,41 @@
 namespace App\Filament\Resources\Customers\Pages;
 
 use App\Filament\Resources\Customers\CustomerResource;
+use App\Filament\Resources\Customers\Widgets\CustomersOverview;
 use App\Models\Customer;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ListCustomers extends ListRecords
 {
     protected static string $resource = CustomerResource::class;
+
+    /**
+     * The header band (CustomersOverview) carries the title and the figures.
+     */
+    public function getHeading(): string
+    {
+        return '';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [CustomersOverview::class];
+    }
+
+    public function getTabs(): array
+    {
+        return [
+            'all' => Tab::make('Tous'),
+            'accounts' => Tab::make('Avec un compte')->modifyQueryUsing(fn (Builder $query) => $query->whereNotNull('user_id')),
+            'guests' => Tab::make('Invités')->modifyQueryUsing(fn (Builder $query) => $query->whereNull('user_id')),
+            'new' => Tab::make('Nouveaux ce mois')->modifyQueryUsing(fn (Builder $query) => $query->where('created_at', '>=', now()->startOfMonth())),
+            'loyal' => Tab::make('Fidèles')->modifyQueryUsing(fn (Builder $query) => $query->where('orders_count', '>=', 2)),
+        ];
+    }
 
     /**
      * CSV export of the customers shown (search and filters applied), recorded in the audit log (F-108).

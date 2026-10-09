@@ -26,6 +26,11 @@ class CommuneResource extends JsonResource
                 'name' => $this->zone->name,
                 'fee' => $this->zone->fee,
                 'delay' => $this->zone->delay_label,
+                // Conditions of the zone: minimum order, free delivery threshold (own or general), ISO weekdays.
+                'min_order' => $this->zone->min_order,
+                'free_shipping_threshold' => $this->zone->freeShippingThreshold(),
+                'delivery_days' => $this->zone->deliveryDays(),
+                'conditions' => $this->zone->conditionsLabel(),
             ] : null,
         ];
     }

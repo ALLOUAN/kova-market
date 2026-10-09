@@ -18,4 +18,6 @@ enum Permission: string
     case ManageSettings = 'parametres.gerer';
     case ManageStaff = 'utilisateurs.gerer';
     case ViewActivityLog = 'journal.consulter';
+    case ViewFinances = 'finances.consulter';
+    case RecordRemittances = 'finances.versements';
 }

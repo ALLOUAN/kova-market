@@ -24,6 +24,11 @@ class DeliveryZonesTable
                     ->formatStateUsing(fn (?int $state) => $state === 0 ? 'Gratuit' : Money::format($state))
                     ->placeholder('À définir'),
                 TextColumn::make('delay_label')->label('Délai')->placeholder('—'),
+                TextColumn::make('conditions')
+                    ->label('Conditions')
+                    ->state(fn (DeliveryZone $record) => $record->conditionsLabel())
+                    ->placeholder('—')
+                    ->wrap(),
                 TextColumn::make('communes.name')->label('Communes')->badge()->limitList(6)->expandableLimitedList(),
                 ToggleColumn::make('is_active')
                     ->label('Ouverte')

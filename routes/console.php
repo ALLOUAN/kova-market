@@ -30,3 +30,6 @@ Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')
 
 // Online orders left unpaid are cancelled and their stock put back on sale (F-056), after a last check with CinetPay.
 Schedule::command('payments:expire-unpaid')->everyFiveMinutes()->withoutOverlapping();
+
+// Newsletter campaigns scheduled in the back-office leave at their date; the queue then sends them in batches.
+Schedule::command('newsletter:send-scheduled')->everyMinute()->withoutOverlapping();

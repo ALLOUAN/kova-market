@@ -79,8 +79,13 @@
                                 </div>
                                 @if ($communes->isEmpty())
                                     <p class="b4 mt--8 mb-0">Les zones de livraison seront bientôt disponibles.</p>
-                                @elseif ($summary->commune?->zone->delay_label)
-                                    <p class="b4 mt--8 mb-0">Délai indicatif : {{ $summary->commune->zone->delay_label }}</p>
+                                @else
+                                    @if ($summary->commune?->zone->delay_label)
+                                        <p class="b4 mt--8 mb-0">Délai indicatif : {{ $summary->commune->zone->delay_label }}</p>
+                                    @endif
+                                    @if ($conditions = $summary->commune?->zone->conditionsLabel())
+                                        <p class="b4 mt--4 mb-0">{{ $conditions }}</p>
+                                    @endif
                                 @endif
                             </form>
 
@@ -151,7 +156,13 @@
                                 <p class="b4 mt--16 mb-0">Plus que <strong>@money($missing)</strong> d’achats pour la livraison offerte.</p>
                             @endif
 
-                            @if ($summary->count() > 0)
+                            @if ($summary->count() > 0 && ($missingMinimum = $summary->missingForMinimum()))
+                                {{-- The zone's minimum order is not reached: the order would be refused. --}}
+                                <p class="b4 mt--16 mb-0 rbt-text-color-danger" role="status">
+                                    Commande minimum pour {{ $summary->commune->name }} : <strong>@money($summary->minimumOrder)</strong>. Ajoutez encore <strong>@money($missingMinimum)</strong> d’articles.
+                                </p>
+                                <button type="button" class="rbt-btn w-100 mt--16" disabled>Commander</button>
+                            @elseif ($summary->count() > 0)
                                 <a class="rbt-btn w-100 mt--24 text-center" href="{{ route('checkout.show') }}">Commander</a>
                             @else
                                 <button type="button" class="rbt-btn w-100 mt--24" disabled>Commander</button>

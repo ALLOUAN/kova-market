@@ -282,7 +282,7 @@ class StorefrontContentTest extends TestCase
         $html = (string) (new MailMessage)->line('Votre commande est confirmée.')->action('Suivre ma commande', url('/'))->render();
 
         $this->assertStringContainsString('assets/images/logo/kova-logo.png', $html);
-        $this->assertStringContainsString('#0e7d42', $html);
+        $this->assertStringContainsString('#cc4400', $html);
         $this->assertStringNotContainsString('laravel.com/img', $html);
     }
 

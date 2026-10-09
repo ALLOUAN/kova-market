@@ -17,7 +17,7 @@
     <link rel="icon" href="{{ asset(config('storefront.favicon', 'assets/images/logo/kova-favicon.png')) }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap">
     <style>
-        :root { --navy: #021732; --navy-50: #f2f5fa; --green: #0e7d42; --green-100: #e5f3eb; --gold: #c69e3e; --gold-100: #f8f0dc; --text: #3f4a5a; --muted: #667085; --line: #e3e8ef; }
+        :root { --navy: #021732; --navy-50: #f2f5fa; --orange: #cc4400; --orange-100: #ffe8da; --gold: #c69e3e; --gold-100: #f8f0dc; --text: #3f4a5a; --muted: #667085; --line: #e3e8ef; }
         * { box-sizing: border-box; }
         body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; font: 16px/1.6 Inter, "Segoe UI", Roboto, Arial, sans-serif; color: var(--text); background: var(--navy-50); }
         header { padding: 18px 24px; background: #fff; border-bottom: 4px solid var(--gold); text-align: center; }
@@ -30,7 +30,7 @@
         .progress { margin: 0 0 24px; text-align: left; }
         .progress-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: var(--navy); }
         .bar { height: 12px; border-radius: 999px; background: var(--line); overflow: hidden; }
-        .bar span { display: block; height: 100%; border-radius: 999px; background: var(--green); }
+        .bar span { display: block; height: 100%; border-radius: 999px; background: var(--orange); }
         .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0 0 28px; padding: 0; list-style: none; }
         .facts li { padding: 10px 16px; border-radius: 10px; background: var(--navy-50); font-size: 14px; }
         .facts strong { display: block; font-size: 16px; color: var(--navy); }
@@ -39,9 +39,9 @@
         .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; border: 1px solid var(--line); color: var(--navy); background: #fff; }
         .btn:hover { border-color: var(--navy); }
-        .btn-green { background: var(--green); border-color: var(--green); color: #fff; }
-        .btn-green:hover { background: #0b6536; border-color: #0b6536; }
-        .btn:focus-visible { outline: 3px solid rgb(14 125 66 / .35); outline-offset: 2px; }
+        .btn-green { background: var(--orange); border-color: var(--orange); color: #fff; }
+        .btn-green:hover { background: #b83a00; border-color: #b83a00; }
+        .btn:focus-visible { outline: 3px solid rgb(204 68 0 / .35); outline-offset: 2px; }
         footer { padding: 16px; text-align: center; font-size: 13px; color: #fff; background: var(--navy); }
         @media (max-width: 480px) { .card { padding: 28px 20px; } h1 { font-size: 23px; } }
     </style>

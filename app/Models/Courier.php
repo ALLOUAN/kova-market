@@ -59,6 +59,14 @@ class Courier extends Model
     }
 
     /**
+     * Cash handed over to the store (F-126), cancelled payments included.
+     */
+    public function remittances(): HasMany
+    {
+        return $this->hasMany(CourierRemittance::class);
+    }
+
+    /**
      * Orders assigned to the courier and not finished yet.
      */
     public function openOrders(): HasMany

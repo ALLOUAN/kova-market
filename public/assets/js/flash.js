@@ -1,7 +1,9 @@
 /*
- * KOVA MARKET: shows the action messages of the page (".alert[data-popup]": saved, added to the cart, form errors…)
- * in the #kovaFlashModal window instead of inline. Without JavaScript they simply stay in the page.
- * After an error, closing the window brings the visitor to the first field to correct.
+ * KOVA MARKET: shows the action messages in the #kovaFlashModal window instead of inline.
+ *  - On load: the page's ".alert[data-popup]" (saved, added to the cart, form errors…). Without JavaScript they
+ *    simply stay in the page. After an error, closing the window brings the visitor to the first field to correct.
+ *  - From a script: window.kovaFlash(message, type) for the answers that come without reloading the page
+ *    (newsletter sign-up, comparator full…). type: success, danger, warning or info.
  */
 (() => {
     const TYPES = {
@@ -13,35 +15,42 @@
 
     const typeOf = (alert) => Object.keys(TYPES).find((type) => alert.classList.contains(`alert-${type}`)) || 'info';
 
-    const init = () => {
+    /**
+     * Fills the window with its messages (HTML of the page's alerts, or plain text) and opens it.
+     */
+    const open = (items, type, { focusError = false } = {}) => {
         const modal = document.getElementById('kovaFlashModal');
-        const alerts = [...document.querySelectorAll('.alert[data-popup]')].filter((alert) => !alert.closest('.modal'));
 
-        if (!modal || !alerts.length || !window.bootstrap) {
-            return;
+        if (!modal || !window.bootstrap) {
+            return false;
         }
 
-        // An error wins over any success shown with it.
-        const types = alerts.map(typeOf);
-        const type = types.includes('danger') ? 'danger' : types[0];
+        type = TYPES[type] ? type : 'info';
         const message = modal.querySelector('[data-flash-message]');
+        message.innerHTML = '';
 
-        alerts.forEach((alert) => {
+        items.forEach(({ html, text }) => {
             const item = document.createElement('div');
             item.className = 'kova-flash__item';
-            item.innerHTML = alert.innerHTML;
+            if (html !== undefined) {
+                item.innerHTML = html;
+            } else {
+                item.textContent = text;
+            }
             message.appendChild(item);
-            (alert.closest('[data-popup-host]') || alert).hidden = true;
         });
 
         modal.dataset.type = type;
         modal.querySelector('[data-flash-icon]').className = `fa-solid ${TYPES[type].icon}`;
         modal.querySelector('[data-flash-title]').textContent = TYPES[type].title;
 
-        // Never two windows at once: the newsletter invitation waits for another page.
-        document.getElementById('welcomebannerModal')?.remove();
+        // Never two windows at once: the newsletter invitation, if not on screen yet, waits for another page.
+        const invitation = document.getElementById('newsletterModal');
+        if (invitation && !invitation.classList.contains('show')) {
+            invitation.dataset.suppressed = '1';
+        }
 
-        if (type === 'danger') {
+        if (focusError && type === 'danger') {
             modal.addEventListener('hidden.bs.modal', () => {
                 // Fields flagged by Bootstrap, or the field next to the first red error text of a form.
                 // (the red "*" of required fields sits in their label: not an error).
@@ -56,12 +65,40 @@
         }
 
         const show = () => bootstrap.Modal.getOrCreateInstance(modal).show();
+        const openModal = document.querySelector('.modal.show');
 
-        // A window opened by the page (sign-in form…) goes first; the message follows once it is closed.
-        if (document.body.classList.contains('modal-open')) {
-            document.addEventListener('hidden.bs.modal', show, { once: true });
+        // Another window is open (sign-in form, newsletter invitation…): it closes first, the message follows.
+        if (openModal && openModal !== modal) {
+            openModal.addEventListener('hidden.bs.modal', show, { once: true });
+            bootstrap.Modal.getOrCreateInstance(openModal).hide();
         } else {
             show();
+        }
+
+        return true;
+    };
+
+    window.kovaFlash = (message, type = 'success') => open([{ text: message }], type);
+
+    const init = () => {
+        const alerts = [...document.querySelectorAll('.alert[data-popup]')].filter((alert) => !alert.closest('.modal'));
+
+        if (!alerts.length) {
+            return;
+        }
+
+        // An error wins over any success shown with it.
+        const types = alerts.map(typeOf);
+        const type = types.includes('danger') ? 'danger' : types[0];
+        const items = alerts.map((alert) => ({ html: alert.innerHTML }));
+
+        const opened = () => alerts.forEach((alert) => { (alert.closest('[data-popup-host]') || alert).hidden = true; });
+
+        // A window opened by the page itself on load (sign-in form…) goes first; the message follows once closed.
+        if (document.body.classList.contains('modal-open')) {
+            document.addEventListener('hidden.bs.modal', () => { if (open(items, type, { focusError: true })) { opened(); } }, { once: true });
+        } else if (open(items, type, { focusError: true })) {
+            opened();
         }
     };
 

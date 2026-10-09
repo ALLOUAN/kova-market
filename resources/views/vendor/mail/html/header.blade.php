@@ -3,7 +3,7 @@
 <tr>
 <td class="header">
 <a href="{{ $url }}" style="display: inline-block;">
-<img src="{{ asset('assets/images/logo/kova-logo.png') }}" class="logo" alt="{{ config('storefront.name', 'KOVA MARKET') }}" width="150" height="65">
+<img src="{{ asset('assets/images/logo/kova-logo.png') }}" class="logo" alt="{{ config('storefront.name', 'KOVA MARKET') }}" width="160" height="54">
 </a>
 </td>
 </tr>

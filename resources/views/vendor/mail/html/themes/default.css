@@ -1,5 +1,5 @@
 /* KOVA MARKET e-mails: Laravel's default mail theme in the colours of the logo
-   (night blue #021732, green #0E7D42 for actions, gold #C69E3E as accent). Plain colours only. */
+   (night blue #021732, orange #CC4400 for actions (the logo's orange, deepened for AA contrast), gold #C69E3E as accent). Plain colours only. */
 
 /* Base */
 
@@ -31,7 +31,7 @@ blockquote {
 }
 
 a {
-    color: #0e7d42;
+    color: #a33400;
 }
 
 a img {
@@ -248,11 +248,11 @@ img {
 .button-primary,
 .button-green,
 .button-success {
-    background-color: #0e7d42;
-    border-bottom: 10px solid #0e7d42;
-    border-left: 22px solid #0e7d42;
-    border-right: 22px solid #0e7d42;
-    border-top: 10px solid #0e7d42;
+    background-color: #cc4400;
+    border-bottom: 10px solid #cc4400;
+    border-left: 22px solid #cc4400;
+    border-right: 22px solid #cc4400;
+    border-top: 10px solid #cc4400;
 }
 
 .button-secondary {

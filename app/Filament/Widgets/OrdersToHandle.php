@@ -23,6 +23,14 @@ class OrdersToHandle extends TableWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    /**
+     * Beside the best sellers for those who see them, the whole width otherwise.
+     */
+    public function getColumnSpan(): int|string|array
+    {
+        return TopProducts::canView() ? ['md' => 2, 'xl' => 2] : 'full';
+    }
+
     protected static ?string $heading = 'Commandes à traiter';
 
     public static function canView(): bool

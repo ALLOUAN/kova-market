@@ -4,6 +4,8 @@ namespace App\Filament\Resources\Couriers\Pages;
 
 use App\Filament\Resources\Couriers\CourierActions;
 use App\Filament\Resources\Couriers\CourierResource;
+use App\Filament\Resources\Couriers\Widgets\CourierFinanceHistory;
+use App\Filament\Resources\Couriers\Widgets\CourierFinanceOverview;
 use App\Models\Courier;
 use App\Services\Delivery\CourierAccounts;
 use App\Support\PhoneNumber;
@@ -17,6 +19,19 @@ class EditCourier extends EditRecord
     public function getTitle(): string
     {
         return $this->getRecord()->name();
+    }
+
+    /**
+     * F-126: what the courier delivered, collected and handed over, and the latest movements.
+     */
+    protected function getHeaderWidgets(): array
+    {
+        return [CourierFinanceOverview::class];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [CourierFinanceHistory::class];
     }
 
     protected function getHeaderActions(): array

@@ -3,9 +3,8 @@
 @php
     use App\Enums\OrderStatus;
 
-    $place = collect([$order->district, $order->commune_name, 'Côte d’Ivoire'])->join(', ');
-    $maps = 'https://www.google.com/maps/search/?api=1&query='.rawurlencode(($order->landmark ? $order->landmark.', ' : '').$place);
-    $whatsapp = 'https://wa.me/'.ltrim($order->phone, '+').'?text='.rawurlencode('Bonjour '.$order->customer_name.', je suis le livreur '.config('storefront.name').' pour votre commande '.$order->number.'.');
+    $maps = $order->mapsUrl();
+    $whatsapp = $order->whatsappUrl();
     $toCollect = $order->amountToCollect();
 @endphp
 
@@ -100,6 +99,19 @@
                         <label for="cash_collected" style="margin-top: 0">Montant encaissé (FCFA)</label>
                         <input id="cash_collected" name="cash_collected" type="number" inputmode="numeric" min="0" value="{{ old('cash_collected', $toCollect) }}" required>
                         @error('cash_collected')<p class="error">{{ $message }}</p>@enderror
+                        {{-- Shown when the amount typed differs from the one due; the server requires it in that case. --}}
+                        <div data-cash-note @if (! $errors->has('cash_note') && (int) old('cash_collected', $toCollect) === $toCollect) hidden @endif>
+                            <label for="cash_note">Pourquoi un autre montant ?</label>
+                            <input id="cash_note" name="cash_note" type="text" maxlength="200" value="{{ old('cash_note') }}" placeholder="Ex. : le client n’avait pas la monnaie">
+                            @error('cash_note')<p class="error">{{ $message }}</p>@enderror
+                        </div>
+                        <script>
+                            (() => {
+                                const amount = document.getElementById('cash_collected');
+                                const note = document.querySelector('[data-cash-note]');
+                                amount.addEventListener('input', () => { note.hidden = Number(amount.value) === {{ $toCollect }}; });
+                            })();
+                        </script>
                     @endif
                     <button type="submit" class="btn ok" style="margin-top: 8px">Commande livrée</button>
                 </form>

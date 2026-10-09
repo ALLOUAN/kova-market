@@ -3,9 +3,18 @@
  * Loaded after the theme (style.min.css): it remaps the theme's variables to the logo's colours and evens out the
  * components. The page background stays the theme's (white, light grey sections). Plain colours only: no gradient.
  *
- *   Night blue #021732  "KOVA": identity, header bar, titles, prices, secondary buttons
- *   Green      #0E7D42  "MARKET" and the cart: buying actions (add to cart, order, pay), success
- *   Gold       #C69E3E  the logo's triangle: accent, used sparingly (discounts, current item, ratings)
+ * Colour budget, about 60 / 30 / 10: neutrals carry the page, night blue gives it structure, orange points at what
+ * to do next. One accent only, so the eye always finds the action.
+ *
+ *   Neutrals   white surfaces, #F4F6FA soft sections and panels, #E3E8EF lines, slate texts
+ *   Night blue #021732  "KOVA": identity, header and footer bands, titles, prices, secondary buttons, one dark
+ *                       moment per page (home: "Offres du jour")
+ *   Orange     #F85000  "MARKET" and the cart: THE accent. Buying actions with white text (#CC4400, AA), hover
+ *                       #B83A00, links and small text on white #A33400 (6.9:1), active states (current menu item,
+ *                       tab, step), focus ring, cart. On night blue: #FF6A1A (6.3:1). Tints #FFF4EC / #FFE8DA.
+ *   Gold       #C69E3E  the logo's triangle, rare: ratings, discount tags (navy text), thin lines under dark bands.
+ *                       Never under white text (2.5:1).
+ *   Green      #0E7D42  success only (paid, delivered, completed step, in stock, confirmation)
  */
 
 /* ------------------------------------------------------------------ Tokens */
@@ -16,10 +25,13 @@
     --kova-navy-700: #1b3560;
     --kova-navy-100: #e8edf5;
     --kova-navy-50: #f2f5fa;
-    --kova-green: #0e7d42;
-    --kova-green-700: #0b6536;
-    --kova-green-800: #0a502c;
-    --kova-green-100: #e5f3eb;
+    --kova-orange: #f85000;
+    --kova-orange-600: #cc4400;
+    --kova-orange-700: #b83a00;
+    --kova-orange-800: #a33400;
+    --kova-orange-100: #ffe8da;
+    --kova-orange-50: #fff4ec;
+    --kova-orange-on-dark: #ff6a1a;
     --kova-gold: #c69e3e;
     --kova-gold-700: #8a6a1f;
     --kova-gold-100: #f8f0dc;
@@ -31,8 +43,13 @@
     --kova-border: #e3e8ef;
     --kova-border-strong: #cfd6e0;
 
+    /* Surfaces */
+    --kova-surface: #fff;
+    --kova-surface-alt: #f4f6fa;
+
     /* States */
     --kova-success: #0e7d42;
+    --kova-success-700: #0a502c;
     --kova-success-bg: #e5f3eb;
     --kova-danger: #c0362c;
     --kova-danger-bg: #fdeceb;
@@ -47,20 +64,20 @@
     --kova-radius-lg: 12px;
     --kova-shadow-sm: 0 1px 2px rgb(2 23 50 / 0.06);
     --kova-shadow: 0 6px 20px rgb(2 23 50 / 0.08);
-    --kova-focus: 0 0 0 3px rgb(14 125 66 / 0.28);
+    --kova-focus: 0 0 0 3px rgb(204 68 0 / 0.28);
 
     --kova-font-heading: "Poppins", "Segoe UI", Arial, sans-serif;
     --kova-font-body: "Inter", "Segoe UI", Arial, sans-serif;
 
     /* Theme variables remapped to the logo (backgrounds untouched: --color-gray-light, -100, -150, brand-50/100) */
-    --color-primary: var(--kova-green);
+    --color-primary: var(--kova-orange-600);
     --color-secondary: var(--kova-navy);
     --color-heading: var(--kova-text);
     --color-body: var(--kova-text-body);
-    --color-green: var(--kova-green);
-    --color-light-green: var(--kova-green-100);
+    --color-green: var(--kova-success);
+    --color-light-green: var(--kova-success-bg);
     --color-yellow: var(--kova-gold);
-    --color-orange: var(--kova-gold-700);
+    --color-orange: var(--kova-orange-800);
     --color-extra-eight: var(--kova-gold);
     --color-extra-nine: var(--kova-navy);
     --color-extra-ten: var(--kova-navy-800);
@@ -76,7 +93,7 @@
     --color-success: var(--kova-success);
     --color-danger: var(--kova-danger);
     --color-warning: var(--kova-warning);
-    --shadow-7: 0 4px 14px rgb(14 125 66 / 0.22);
+    --shadow-7: 0 4px 14px rgb(204 68 0 / 0.22);
     --radius: var(--kova-radius);
     --radius-md: var(--kova-radius);
     --radius-12: var(--kova-radius-lg);
@@ -111,12 +128,12 @@ h4, .h4, h5, .h5, h6, .h6 { font-weight: 600; }
     color: var(--kova-text);
 }
 
-.rbt-card-title a:hover { color: var(--kova-green); }
+.rbt-card-title a:hover { color: var(--kova-orange-600); }
 
 a { transition: color 0.15s ease; }
-a:hover { color: var(--kova-green); }
+a:hover { color: var(--kova-orange-600); }
 
-/* Handwritten highlights of the theme become the heading font in green. */
+/* Handwritten highlights of the theme become the heading font in orange. */
 .rbt-text-color-primary, .rbt-font-secondary, [class*="font-secondary"] {
     font-family: var(--kova-font-heading);
 }
@@ -129,7 +146,7 @@ a:hover { color: var(--kova-green); }
 }
 
 del.price-text, .pricing-part del, .rbt-price del, .old-price {
-    color: #8a94a6 !important;
+    color: var(--kova-text-muted) !important;
     font-weight: 400;
     font-family: var(--kova-font-body);
 }
@@ -163,7 +180,7 @@ del.price-text, .pricing-part del, .rbt-price del, .old-price {
 .rbt-header-middle .mainmenu > li.active > a,
 .rbt-header-middle .rbt-header-content a:hover {
     color: #fff;
-    box-shadow: inset 0 -2px 0 var(--kova-gold);
+    box-shadow: inset 0 -2px 0 var(--kova-orange-on-dark);
 }
 
 /* Announcement strip: night blue, no picture, no gradient. */
@@ -174,7 +191,7 @@ del.price-text, .pricing-part del, .rbt-price del, .old-price {
     background-image: none !important;
 }
 
-.rbt-header-campaign a { color: var(--kova-gold); }
+.rbt-header-campaign a { color: var(--kova-orange-on-dark); }
 
 /* Logo of the KOVA identity: taller than the theme's wide logo. */
 .logo a img {
@@ -210,15 +227,15 @@ del.price-text, .pricing-part del, .rbt-price del, .old-price {
 
 /* Cart count bubble. */
 .rbt-cart-count, .rbt-header .count, .rbt-count {
-    background: var(--kova-green) !important;
+    background: var(--kova-orange-600) !important;
     color: #fff !important;
 }
 
 /* ------------------------------------------------------------------ Buttons */
-/*  Primary (buying actions)   .rbt-btn                       green
+/*  Primary (buying actions)   .rbt-btn                       orange (#CC4400)
  *  Secondary                  .rbt-btn-secondary, -black     night blue
  *  Outline / discreet         .rbt-btn-border                night-blue outline
- *  Validation                 .rbt-btn (submit)              green (same as primary)
+ *  Validation                 .rbt-btn (submit)              orange (same as primary)
  *  Delete                     .kova-btn-danger               red, outline or filled */
 .rbt-btn {
     font-family: var(--kova-font-body);
@@ -229,20 +246,20 @@ del.price-text, .pricing-part del, .rbt-price del, .old-price {
 }
 
 .rbt-btn:not(.rbt-btn-border):not(.rbt-btn-link):not(.rbt-btn-text):not(.rbt-btn-naked):not(.rbt-btn-transparent):not(.rbt-btn-gray-light):not(.rbt-bg-color-secondary):not(.rbt-btn-secondary):not(.rbt-btn-black):not(.rbt-bg-color-white):not(.kova-btn-danger) {
-    background-color: var(--kova-green);
-    border-color: var(--kova-green);
+    background-color: var(--kova-orange-600);
+    border-color: var(--kova-orange-600);
     color: #fff;
 }
 
 .rbt-btn:not(.rbt-btn-border):not(.rbt-btn-link):not(.rbt-btn-text):not(.rbt-btn-naked):not(.rbt-btn-transparent):not(.rbt-btn-gray-light):not(.rbt-bg-color-secondary):not(.rbt-btn-secondary):not(.rbt-btn-black):not(.rbt-bg-color-white):not(.kova-btn-danger):hover {
-    background-color: var(--kova-green-700);
-    border-color: var(--kova-green-700);
+    background-color: var(--kova-orange-700);
+    border-color: var(--kova-orange-700);
     color: #fff;
 }
 
 .rbt-btn:not(.rbt-btn-border):not(.rbt-btn-link):not(.rbt-btn-text):not(.rbt-btn-naked):not(.rbt-btn-transparent):not(.rbt-btn-gray-light):not(.rbt-bg-color-secondary):not(.rbt-btn-secondary):not(.rbt-btn-black):not(.rbt-bg-color-white):not(.kova-btn-danger):active {
-    background-color: var(--kova-green-800);
-    border-color: var(--kova-green-800);
+    background-color: var(--kova-orange-800);
+    border-color: var(--kova-orange-800);
 }
 
 /* Secondary: night blue. */
@@ -349,11 +366,13 @@ a:focus-visible {
 .rbt-product-card .rbt-product-category,
 .rbt-product-card .rbt-card-body .rbt-product-cat,
 .rbt-product-card .rbt-card-body > a.b4,
-.rbt-product-card .rbt-product-meta a {
+.rbt-product-card .rbt-product-meta a,
+.rbt-card-catagories-text {
     color: var(--kova-text-muted) !important;
 }
 
-/* Badges on product images: plain colours, readable. */
+/* Badges on product images: plain colours, readable, and quiet so the orange of the action stands out:
+   navy (Nouveau, Promo), soft gold (Tendance, Meilleure vente), red only for urgency (Top, stock limité). */
 .rbt-product-badge {
     font-family: var(--kova-font-body);
     font-weight: 600;
@@ -366,9 +385,9 @@ a:focus-visible {
 .rbt-product-badge-bg-primary-gradient,
 .rbt-product-badge.rbt-product-badge-bg-primary-gradient,
 .rbt-product-badge-bg-secondary-gradient,
-.rbt-product-badge.rbt-product-badge-bg-secondary-gradient { background: var(--kova-gold) !important; color: var(--kova-navy) !important; }
-.rbt-product-badge-bg-green { background: var(--kova-green) !important; color: #fff !important; }
-.rbt-product-badge-bg-yellow { background: var(--kova-gold) !important; color: var(--kova-navy) !important; }
+.rbt-product-badge.rbt-product-badge-bg-secondary-gradient,
+.rbt-product-badge-bg-yellow { background: var(--kova-gold-100) !important; color: var(--kova-navy) !important; box-shadow: inset 0 0 0 1px rgb(198 158 62 / .55); }
+.rbt-product-badge-bg-green { background: var(--kova-navy) !important; color: #fff !important; }
 .rbt-product-badge-bg-danger { background: var(--kova-danger) !important; color: #fff !important; }
 .rbt-product-badge-bg-disabled { background: #98a2b3 !important; color: #fff !important; }
 
@@ -381,7 +400,7 @@ a:focus-visible {
 
 .rbt-badge.rbt-badge-bg-green {
     background: var(--kova-success-bg) !important;
-    color: var(--kova-green-700) !important;
+    color: var(--kova-success-700) !important;
     border-color: #bfe0cc !important;
 }
 
@@ -398,9 +417,10 @@ a:focus-visible {
     border-radius: var(--kova-radius) !important;
 }
 
-/* Stock progress bar. */
+/* Stock progress bar: orange fill on a light orange rail. */
+.progress { background-color: var(--kova-orange-100) !important; }
 .progress .progress-bar,
-.rbt-progress .progress-bar { background-color: var(--kova-green) !important; }
+.rbt-progress .progress-bar { background-color: var(--kova-orange-600) !important; }
 
 /* ------------------------------------------------------------------ Forms */
 .rbt-input-field,
@@ -425,7 +445,7 @@ input[type="search"], textarea, select, .form-select, .form-control {
 
 .rbt-input-field:focus,
 input:focus, textarea:focus, select:focus, .form-select:focus, .form-control:focus {
-    border-color: var(--kova-green) !important;
+    border-color: var(--kova-orange-600) !important;
     box-shadow: var(--kova-focus) !important;
     outline: none;
 }
@@ -445,12 +465,12 @@ input::placeholder, textarea::placeholder { color: #98a2b3 !important; }
 .form-check-input:checked,
 input[type="checkbox"]:checked,
 input[type="radio"]:checked {
-    background-color: var(--kova-green);
-    border-color: var(--kova-green);
-    accent-color: var(--kova-green);
+    background-color: var(--kova-orange-600);
+    border-color: var(--kova-orange-600);
+    accent-color: var(--kova-orange-600);
 }
 
-input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-orange-600); }
 
 /* ------------------------------------------------------------------ Alerts */
 .alert {
@@ -460,7 +480,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
     font-size: 14px;
 }
 
-.alert-success { background: var(--kova-success-bg); color: var(--kova-green-800); border-color: #bfe0cc; border-left-color: var(--kova-success); }
+.alert-success { background: var(--kova-success-bg); color: var(--kova-success-700); border-color: #bfe0cc; border-left-color: var(--kova-success); }
 .alert-danger { background: var(--kova-danger-bg); color: #8a241c; border-color: #f5c2bd; border-left-color: var(--kova-danger); }
 .alert-warning { background: var(--kova-warning-bg); color: #7a4d0b; border-color: #f1d9ad; border-left-color: var(--kova-warning); }
 .alert-info { background: var(--kova-info-bg); color: #173c6e; border-color: #c6d8ef; border-left-color: var(--kova-info); }
@@ -478,11 +498,11 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
     color: var(--kova-navy);
 }
 
-.rbt-footer a:hover { color: var(--kova-green) !important; }
+.rbt-footer a:hover { color: var(--kova-orange-600) !important; }
 
 /* ------------------------------------------------------------------ Misc */
-.rbt-bg-color-primary:not(.rbt-header-middle) { background-color: var(--kova-green) !important; }
-.rbt-border-color-primary { border-color: var(--kova-green) !important; }
+.rbt-bg-color-primary:not(.rbt-header-middle) { background-color: var(--kova-orange-600) !important; }
+.rbt-border-color-primary { border-color: var(--kova-orange-600) !important; }
 
 /* Pagination and active pills. */
 .pagination .page-item.active .page-link,
@@ -494,8 +514,8 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
 }
 
 /* Scroll-to-top. */
-.rbt-progress-parent svg.rbt-back-circle path { stroke: var(--kova-green) !important; }
-.rbt-progress-parent::after { color: var(--kova-green) !important; }
+.rbt-progress-parent svg.rbt-back-circle path { stroke: var(--kova-orange-600) !important; }
+.rbt-progress-parent::after { color: var(--kova-orange-600) !important; }
 
 /* Selection. */
 ::selection { background: var(--kova-gold-100); color: var(--kova-navy); }
@@ -609,7 +629,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
     white-space: nowrap;
 }
 
-.kova-payment-label i { color: var(--kova-green); }
+.kova-payment-label i { color: var(--kova-orange-600); }
 
 /* ------------------------------------------------------------------ Sign-in / sign-up windows */
 /* Store guarantees, shown when no testimonial is published. */
@@ -638,8 +658,8 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
     align-items: center;
     justify-content: center;
     border-radius: var(--kova-radius);
-    background: var(--kova-green-100);
-    color: var(--kova-green);
+    background: var(--kova-orange-50);
+    color: var(--kova-orange-600);
 }
 
 .rbt-client-review .fa-regular.fa-star { color: #c9d3e2; }
@@ -661,7 +681,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
 .kova-rating-input label:hover,
 .kova-rating-input label:hover ~ label,
 .kova-rating-input input:checked ~ label { color: var(--kova-gold); }
-.kova-rating-input input:focus-visible + label { outline: 3px solid rgb(14 125 66 / 0.35); border-radius: 4px; }
+.kova-rating-input input:focus-visible + label { outline: 3px solid rgb(204 68 0 / 0.35); border-radius: 4px; }
 
 .kova-review-box {
     padding: 16px;
@@ -678,7 +698,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
 
 .kova-review:last-child { border-bottom: 0; }
 .kova-review .meta { font-size: 13px; color: var(--kova-text-muted); }
-.kova-review .verified { color: var(--kova-green); font-weight: 600; }
+.kova-review .verified { color: var(--kova-success); font-weight: 600; }
 
 /* ------------------------------------------------------------------ Home page guarantees */
 .kova-home-guarantees {
@@ -709,8 +729,8 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
     align-items: center;
     justify-content: center;
     border-radius: var(--kova-radius);
-    background: var(--kova-green-100);
-    color: var(--kova-green);
+    background: var(--kova-orange-50);
+    color: var(--kova-orange-600);
     font-size: 18px;
 }
 
@@ -739,11 +759,11 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
 }
 
 /* ------------------------------------------------------------------ Favourites */
-/* A favourite: filled green heart (red stays for errors in the charter). */
-.kova-wishlist-btn.is-wishlisted i { color: var(--kova-green) !important; }
+/* A favourite: filled orange heart (red stays for errors in the charter). */
+.kova-wishlist-btn.is-wishlisted i { color: var(--kova-orange-600) !important; }
 .kova-wishlist-page-btn { width: auto !important; padding: 0 20px !important; }
-.kova-wishlist-page-btn.is-wishlisted { border-color: var(--kova-green) !important; color: var(--kova-green) !important; }
-.kova-wishlist-page-btn.is-wishlisted:hover { background: var(--kova-green) !important; color: #fff !important; }
+.kova-wishlist-page-btn.is-wishlisted { border-color: var(--kova-orange-600) !important; color: var(--kova-orange-600) !important; }
+.kova-wishlist-page-btn.is-wishlisted:hover { background: var(--kova-orange-600) !important; color: #fff !important; }
 .kova-wishlist-page-btn.is-wishlisted:hover i { color: #fff !important; }
 .rbt-wishlist .access-box-count[hidden] { display: none !important; }
 
@@ -763,8 +783,8 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 .kova-pay-option:hover { border-color: var(--kova-navy-700); }
-.kova-pay-option input[type="radio"] { flex: 0 0 auto; width: 20px; height: 20px; margin: 12px 0 0; accent-color: var(--kova-green); }
-.kova-pay-option:has(input:checked) { border-color: var(--kova-green); background: var(--kova-green-100); box-shadow: 0 0 0 3px rgb(14 125 66 / 0.12); }
+.kova-pay-option input[type="radio"] { flex: 0 0 auto; width: 20px; height: 20px; margin: 12px 0 0; accent-color: var(--kova-orange-600); }
+.kova-pay-option:has(input:checked) { border-color: var(--kova-orange-600); background: var(--kova-orange-50); box-shadow: 0 0 0 3px rgb(204 68 0 / 0.12); }
 .kova-pay-option:has(input:focus-visible) { box-shadow: var(--kova-focus); }
 .kova-pay-icon {
     flex: 0 0 44px;
@@ -778,21 +798,21 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
     color: var(--kova-navy);
     font-size: 18px;
 }
-.kova-pay-option:has(input:checked) .kova-pay-icon { background: var(--kova-green); color: #fff; }
+.kova-pay-option:has(input:checked) .kova-pay-icon { background: var(--kova-orange-600); color: #fff; }
 .kova-pay-body { display: grid; gap: 4px; min-width: 0; }
 .kova-pay-body strong { font-family: var(--kova-font-heading); font-size: 16px; color: var(--kova-navy); }
 .kova-pay-body > span { font-size: 14px; color: var(--kova-text-body); line-height: 1.45; }
 .kova-pay-logos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 .kova-pay-logos img { height: 26px; width: auto; border-radius: 4px; border: 1px solid var(--kova-border); background: #fff; }
-/* The theme's radio look is not used here: the native radio, in the brand green. */
+/* The theme's radio look is not used here: the native radio, in the brand orange. */
 .kova-pay-option input[type="radio"] { opacity: 1 !important; position: static !important; appearance: auto; }
 
 /* ------------------------------------------------------------------ Comparison */
-.kova-compare-btn.is-compared i { color: var(--kova-green) !important; }
-.kova-compare-btn.is-compared { box-shadow: inset 0 0 0 2px var(--kova-green) !important; }
+.kova-compare-btn.is-compared i { color: var(--kova-orange-600) !important; }
+.kova-compare-btn.is-compared { box-shadow: inset 0 0 0 2px var(--kova-orange-600) !important; }
 .kova-compare-page-btn { width: auto !important; padding: 0 20px !important; }
-.kova-compare-page-btn.is-compared { border-color: var(--kova-green) !important; color: var(--kova-green) !important; }
-.kova-compare-page-btn.is-compared:hover { background: var(--kova-green) !important; color: #fff !important; }
+.kova-compare-page-btn.is-compared { border-color: var(--kova-orange-600) !important; color: var(--kova-orange-600) !important; }
+.kova-compare-page-btn.is-compared:hover { background: var(--kova-orange-600) !important; color: #fff !important; }
 .kova-compare-page-btn.is-compared:hover i { color: #fff !important; }
 [data-compare-count][hidden] { display: none !important; }
 
@@ -847,12 +867,12 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
     .kova-compare-table td, .kova-compare-table thead th:not(:first-child) { min-width: 160px; }
     .kova-compare-table thead img { width: 100px; height: 80px; }
 }
-.kova-compare-yes { color: var(--kova-green); font-weight: 600; }
+.kova-compare-yes { color: var(--kova-success); font-weight: 600; }
 .kova-compare-no { color: var(--kova-danger); font-weight: 600; }
 
 /* ------------------------------------------------------------------ Newsletter */
 .rbt-newsletter-area.rbt-bg-color-primary { background: var(--kova-navy) !important; border-top: 3px solid var(--kova-gold); }
-.rbt-newsletter-area .title span { color: var(--kova-gold); }
+.rbt-newsletter-area .title span { color: var(--kova-orange-on-dark); }
 .kova-hp { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }
 .kova-newsletter-message { margin: 10px 0 0; min-height: 1.4em; font-size: 14px; font-weight: 600; color: #fff; }
 .kova-newsletter-message:empty { display: none; }
@@ -863,7 +883,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
 /* Invitation window: stacked form on a white card. */
 .kova-newsletter-stacked { display: grid; gap: 12px; }
 .kova-newsletter-stacked .rbt-btn { width: 100%; }
-.rbt-welcome-banner-area .kova-newsletter-message { color: var(--kova-green-700); text-align: center; }
+.rbt-welcome-banner-area .kova-newsletter-message { color: var(--kova-success-700); text-align: center; }
 .rbt-welcome-banner-area .kova-newsletter-message.is-error { color: var(--kova-danger); }
 .rbt-welcome-banner-area .kova-newsletter-note { color: var(--kova-text-muted); text-align: center; }
 
@@ -893,18 +913,18 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--kova-green); }
 .kova-contact-cards li { margin: 0; }
 .kova-contact-card { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; height: 100%; padding: 20px; background: #fff; border: 1px solid var(--kova-border); border-radius: 12px; color: var(--kova-text); transition: box-shadow .2s, transform .2s; }
 .kova-contact-band .kova-contact-card { border-color: transparent; border-top: 4px solid var(--kova-navy-700); }
-.kova-contact-band li:nth-child(2n) .kova-contact-card { border-top-color: var(--kova-green); }
+.kova-contact-band li:nth-child(2n) .kova-contact-card { border-top-color: var(--kova-orange-600); }
 .kova-contact-band li:nth-child(3n) .kova-contact-card { border-top-color: var(--kova-gold); }
 a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transform: translateY(-2px); color: var(--kova-text); }
 .kova-contact-card__icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-bottom: 8px; border-radius: 50%; background: var(--kova-navy-50); color: var(--kova-navy); font-size: 18px; }
 .kova-contact-card__icon--navy { background: var(--kova-navy); color: #fff; }
-.kova-contact-card__icon--green { background: var(--kova-green-100); color: var(--kova-green); }
+.kova-contact-card__icon--green { background: var(--kova-orange-50); color: var(--kova-orange-600); }
 .kova-contact-card__icon--gold { background: var(--kova-gold-100); color: var(--kova-gold-700); }
-.kova-contact-card__icon--whatsapp { background: var(--kova-green); color: #fff; font-size: 22px; }
+.kova-contact-card__icon--whatsapp { background: var(--kova-success); color: #fff; font-size: 22px; }
 .kova-contact-card__label { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--kova-text-muted); }
 .kova-contact-card__value { font-size: 16px; line-height: 1.4; color: var(--kova-navy); overflow-wrap: anywhere; }
-.kova-contact-card__action { margin-top: auto; padding-top: 8px; font-size: 14px; font-weight: 600; color: var(--kova-green); }
-.kova-contact-form { padding: 32px; background: #fff; border: 1px solid var(--kova-border); border-top: 4px solid var(--kova-green); border-radius: 12px; box-shadow: 0 4px 16px rgba(2, 23, 50, .05); }
+.kova-contact-card__action { margin-top: auto; padding-top: 8px; font-size: 14px; font-weight: 600; color: var(--kova-orange-600); }
+.kova-contact-form { padding: 32px; background: #fff; border: 1px solid var(--kova-border); border-top: 4px solid var(--kova-orange-600); border-radius: 12px; box-shadow: 0 4px 16px rgba(2, 23, 50, .05); }
 .kova-contact-form__submit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--kova-border); }
 .kova-contact-form__submit p { color: var(--kova-text-muted); }
 .kova-contact-side { padding: 22px 24px; margin-bottom: 16px; background: #fff; border: 1px solid var(--kova-border); border-radius: 12px; color: var(--kova-text-body); }
@@ -918,8 +938,8 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-contact-links li { margin: 0; }
 .kova-contact-links li + li { border-top: 1px solid var(--kova-border); }
 .kova-contact-links a { display: flex; align-items: center; gap: 10px; padding: 10px 0; font-weight: 500; color: var(--kova-navy); }
-.kova-contact-links a:hover { color: var(--kova-green); }
-.kova-contact-links i { width: 18px; color: var(--kova-green); }
+.kova-contact-links a:hover { color: var(--kova-orange-600); }
+.kova-contact-links i { width: 18px; color: var(--kova-orange-600); }
 @media (max-width: 575px) {
     .kova-contact-band { padding: 32px 0 40px; }
     .kova-contact-main { padding: 40px 0 48px; }
@@ -934,7 +954,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-maintenance-bar { padding: 8px 16px; background: var(--kova-danger); color: #fff; font-size: 14px; font-weight: 500; text-align: center; }
 
 /* ------------------------------------------------------------------ Category without image: its icon */
-.kova-category-icon { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--kova-green-100); color: var(--kova-green); font-size: 26px; }
+.kova-category-icon { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--kova-orange-50); color: var(--kova-orange-600); font-size: 26px; }
 .kova-category-icon--lg { width: 110px; height: 110px; font-size: 44px; }
 
 /* ------------------------------------------------------------------ Sale units: price per kg, weight choice */
@@ -942,7 +962,8 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-quantity-select { height: 50px; padding-right: 36px; font-weight: 500; }
 
 /* ------------------------------------------------------------------ Mon Marché showcase */
-.kova-menu-highlight > a { color: var(--kova-gold) !important; font-weight: 600; }
+.kova-menu-highlight > a { color: var(--kova-orange-600) !important; font-weight: 600; }
+.rbt-header-middle.rbt-bg-color-primary .kova-menu-highlight > a { color: var(--kova-orange-on-dark) !important; }
 .kova-menu-highlight > a:hover { color: #fff !important; }
 .kova-market-hero { padding: 36px 0 56px; background-color: var(--kova-navy); background-size: cover; background-position: center; border-bottom: 4px solid var(--kova-gold); color: #fff; position: relative; }
 .kova-market-hero--image::before { content: ""; position: absolute; inset: 0; background: rgb(2 23 50 / .72); }
@@ -950,7 +971,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-market-hero__trail { margin-bottom: 28px; font-size: 14px; color: rgb(255 255 255 / .75); }
 .kova-market-hero__trail a { color: #fff; }
 .kova-market-hero__content { max-width: 720px; }
-.kova-market-hero__icon { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; margin-bottom: 16px; border-radius: 50%; background: var(--kova-gold); color: var(--kova-navy); font-size: 28px; }
+.kova-market-hero__icon { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; margin-bottom: 16px; border-radius: 50%; background: var(--kova-orange-on-dark); color: var(--kova-navy); font-size: 28px; }
 .kova-market-hero h1 { margin: 0 0 12px; color: #fff; font-size: 44px; }
 .kova-market-hero p { margin: 0 0 24px; font-size: 18px; color: rgb(255 255 255 / .88); }
 .kova-market-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -960,17 +981,17 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-market-rayons__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 0; padding: 16px; list-style: none; background: #fff; border: 1px solid var(--kova-border); border-radius: 14px; box-shadow: 0 10px 28px rgb(2 23 50 / .08); }
 .kova-market-rayons__list li { margin: 0; }
 .kova-market-rayon { display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; padding: 14px 8px; border-radius: 10px; text-align: center; color: var(--kova-navy); transition: background .2s; }
-.kova-market-rayon:hover { background: var(--kova-green-100); color: var(--kova-green-800); }
-.kova-market-rayon__icon { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: var(--kova-green-100); color: var(--kova-green); font-size: 24px; overflow: hidden; }
+.kova-market-rayon:hover { background: var(--kova-orange-50); color: var(--kova-orange-800); }
+.kova-market-rayon__icon { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: var(--kova-orange-50); color: var(--kova-orange-600); font-size: 24px; overflow: hidden; }
 .kova-market-rayon__icon img { width: 100%; height: 100%; object-fit: cover; }
 .kova-market-rayon__name { font-size: 14px; font-weight: 600; line-height: 1.3; }
 .kova-market-body { padding: 48px 0 72px; }
 .kova-market-row + .kova-market-row { margin-top: 56px; }
 .kova-market-row__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 2px solid var(--kova-border); }
-.kova-market-row__head h2 i { color: var(--kova-green); }
+.kova-market-row__head h2 i { color: var(--kova-orange-600); }
 .kova-market-row__subs { margin: 6px 0 0; font-size: 14px; color: var(--kova-text-muted); }
 .kova-market-row__subs a { color: var(--kova-text-body); }
-.kova-market-row__subs a:hover, .kova-market-row__all:hover { color: var(--kova-green); }
+.kova-market-row__subs a:hover, .kova-market-row__all:hover { color: var(--kova-orange-600); }
 .kova-market-row__all { font-weight: 600; color: var(--kova-navy); white-space: nowrap; }
 .kova-market-empty { max-width: 520px; margin: 24px auto 0; text-align: center; }
 .kova-market-empty .kova-category-icon { margin-bottom: 16px; }
@@ -983,18 +1004,18 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 }
 
 /* ------------------------------------------------------------------ Checkout: ordering without an account */
-.kova-guest-note { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; background: var(--kova-green-100); border: 1px solid var(--kova-green-100); border-left: 4px solid var(--kova-green); border-radius: 10px; color: var(--kova-text-body); font-size: 15px; }
-.kova-guest-note__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kova-green); color: #fff; font-size: 18px; }
-.kova-guest-note__title { margin: 0 0 2px; font-weight: 600; color: var(--kova-green-800); }
-.kova-guest-note a { color: var(--kova-green-800); font-weight: 600; text-decoration: underline; }
+.kova-guest-note { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; background: var(--kova-orange-50); border: 1px solid var(--kova-orange-100); border-left: 4px solid var(--kova-orange-600); border-radius: 10px; color: var(--kova-text-body); font-size: 15px; }
+.kova-guest-note__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kova-orange-600); color: #fff; font-size: 18px; }
+.kova-guest-note__title { margin: 0 0 2px; font-weight: 600; color: var(--kova-orange-800); }
+.kova-guest-note a { color: var(--kova-orange-800); font-weight: 600; text-decoration: underline; }
 
 /* ------------------------------------------------------------------ Order confirmation ("merci") */
 .kova-thanks-hero { padding: 32px 0 40px; background: var(--kova-navy); border-bottom: 4px solid var(--kova-gold); color: #fff; }
 .kova-thanks-hero__trail { margin-bottom: 24px; font-size: 14px; color: rgb(255 255 255 / .75); }
 .kova-thanks-hero__trail a { color: #fff; }
 .kova-thanks-hero__main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 20px 24px; align-items: center; }
-.kova-thanks-hero__icon { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: var(--kova-green); color: #fff; font-size: 32px; }
-.kova-thanks-hero--pending .kova-thanks-hero__icon { background: var(--kova-gold); color: var(--kova-navy); }
+.kova-thanks-hero__icon { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: var(--kova-success); color: #fff; font-size: 32px; }
+.kova-thanks-hero--pending .kova-thanks-hero__icon { background: var(--kova-orange-on-dark); color: var(--kova-navy); }
 .kova-thanks-hero--cancelled .kova-thanks-hero__icon { background: var(--kova-danger); }
 .kova-thanks-hero h1 { margin: 0 0 6px; color: #fff; font-size: 34px; line-height: 1.2; }
 .kova-thanks-hero__text p { margin: 0; font-size: 16px; color: rgb(255 255 255 / .85); max-width: 560px; }
@@ -1010,10 +1031,10 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-thanks-body { padding: 40px 0 72px; background: var(--kova-navy-50); }
 .kova-thanks-card { padding: 22px 24px; margin-bottom: 20px; background: #fff; border: 1px solid var(--kova-border); border-radius: 12px; }
 .kova-thanks-card__title { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; font-size: 18px; color: var(--kova-navy); }
-.kova-thanks-card__title i { color: var(--kova-green); font-size: 16px; }
+.kova-thanks-card__title i { color: var(--kova-orange-600); font-size: 16px; }
 .kova-thanks-card__note { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--kova-border); font-size: 14px; color: var(--kova-text-muted); }
 .kova-thanks-pay { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
-.kova-thanks-pay--paid { background: var(--kova-green-100); border-color: var(--kova-green-100); border-left: 4px solid var(--kova-green); color: var(--kova-green-800); }
+.kova-thanks-pay--paid { background: var(--kova-success-bg); border-color: var(--kova-success-bg); border-left: 4px solid var(--kova-success); color: var(--kova-success-700); }
 .kova-thanks-pay--due { background: var(--kova-warning-bg); border-color: var(--kova-warning-bg); border-left: 4px solid var(--kova-warning); }
 .kova-thanks-pay--due > div { flex: 1 1 320px; }
 .kova-thanks-pay--cancelled { background: var(--kova-danger-bg); border-color: var(--kova-danger-bg); border-left: 4px solid var(--kova-danger); }
@@ -1023,11 +1044,11 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-thanks-steps li { position: relative; display: flex; flex-direction: column; gap: 2px; margin: 0; font-size: 14px; color: var(--kova-text-muted); }
 .kova-thanks-steps li::before { content: ""; position: absolute; top: 20px; left: 44px; right: -12px; height: 2px; background: var(--kova-border); }
 .kova-thanks-steps li:last-child::before { display: none; }
-.kova-thanks-steps li.is-done::before { background: var(--kova-green); }
+.kova-thanks-steps li.is-done::before { background: var(--kova-success); }
 .kova-thanks-steps strong { color: var(--kova-text); font-size: 15px; }
 .kova-thanks-steps__dot { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-bottom: 8px; border-radius: 50%; background: var(--kova-navy-50); border: 2px solid var(--kova-border); color: var(--kova-text-muted); }
-.kova-thanks-steps .is-done .kova-thanks-steps__dot { background: var(--kova-green); border-color: var(--kova-green); color: #fff; }
-.kova-thanks-steps .is-current .kova-thanks-steps__dot { background: #fff; border-color: var(--kova-gold); color: var(--kova-gold-700); box-shadow: 0 0 0 4px var(--kova-gold-100); }
+.kova-thanks-steps .is-done .kova-thanks-steps__dot { background: var(--kova-success); border-color: var(--kova-success); color: #fff; }
+.kova-thanks-steps .is-current .kova-thanks-steps__dot { background: #fff; border-color: var(--kova-orange-600); color: var(--kova-orange-800); box-shadow: 0 0 0 4px var(--kova-orange-100); }
 .kova-thanks-items { margin: 0; padding: 0; list-style: none; }
 .kova-thanks-items li { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 14px; align-items: center; margin: 0; padding: 12px 0; border-bottom: 1px solid var(--kova-border); }
 .kova-thanks-items li:first-child { padding-top: 0; }
@@ -1044,12 +1065,12 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-thanks-totals .is-total dt, .kova-thanks-totals .is-total dd { color: var(--kova-navy); font-weight: 700; }
 .kova-thanks-side { position: sticky; top: 100px; }
 .kova-thanks-amount { margin: 8px 0 4px; font-weight: 700; font-size: 16px; color: var(--kova-warning); }
-.kova-thanks-amount.is-paid { color: var(--kova-green); }
+.kova-thanks-amount.is-paid { color: var(--kova-success); }
 .kova-thanks-muted { color: var(--kova-text-muted); font-size: 14px; }
 .kova-thanks-actions { display: grid; gap: 10px; }
 .kova-thanks-actions .rbt-btn { width: 100%; justify-content: center; }
-.kova-thanks-link { font-weight: 600; color: var(--kova-green); text-align: center; }
-.kova-thanks-link:hover { color: var(--kova-green-800); }
+.kova-thanks-link { font-weight: 600; color: var(--kova-orange-600); text-align: center; }
+.kova-thanks-link:hover { color: var(--kova-orange-800); }
 .kova-thanks-account { background: var(--kova-gold-100); border-color: var(--kova-gold-100); }
 .kova-thanks-account p { font-size: 14px; }
 .kova-thanks-help { margin: 0; padding: 0 4px; font-size: 14px; color: var(--kova-text-muted); }
@@ -1077,7 +1098,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 /* ------------------------------------------------------------------ Order tracking (/suivi) and the shared order timeline */
 .kova-track-hero { padding: 32px 0 72px; background: var(--kova-navy); border-bottom: 4px solid var(--kova-gold); color: #fff; }
 .kova-track-hero__title { display: flex; gap: 20px; align-items: center; }
-.kova-track-hero__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--kova-gold); color: var(--kova-navy); font-size: 28px; }
+.kova-track-hero__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--kova-orange-on-dark); color: var(--kova-navy); font-size: 28px; }
 .kova-track-hero h1 { margin: 0 0 6px; color: #fff; font-size: 34px; }
 .kova-track-hero p { margin: 0; max-width: 620px; font-size: 16px; color: rgb(255 255 255 / .85); }
 .kova-track-body { padding: 0 0 72px; background: var(--kova-navy-50); }
@@ -1091,38 +1112,38 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-track-notfound__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #fff; color: var(--kova-warning); }
 .kova-track-notfound__title { margin: 0 0 2px; font-weight: 700; color: var(--kova-text); }
 .kova-track-result { padding: 26px 28px; margin-bottom: 24px; background: #fff; border: 1px solid var(--kova-border); border-top: 4px solid var(--kova-gold); border-radius: 14px; }
-.kova-track-result--delivered { border-top-color: var(--kova-green); }
+.kova-track-result--delivered { border-top-color: var(--kova-success); }
 .kova-track-result--cancelled { border-top-color: var(--kova-danger); }
 .kova-track-result__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 24px; }
 .kova-track-result__head h2 { margin: 0 0 2px; font-size: 22px; color: var(--kova-navy); }
 .kova-track-result__head p { margin: 0; font-size: 14px; color: var(--kova-text-muted); }
-.kova-track-status { padding: 6px 14px; border-radius: 999px; background: var(--kova-gold-100); color: var(--kova-gold-700); font-size: 14px; font-weight: 700; }
-.kova-track-result--delivered .kova-track-status { background: var(--kova-green-100); color: var(--kova-green-800); }
+.kova-track-status { padding: 6px 14px; border-radius: 999px; background: var(--kova-orange-50); color: var(--kova-orange-800); font-size: 14px; font-weight: 700; }
+.kova-track-result--delivered .kova-track-status { background: var(--kova-success-bg); color: var(--kova-success-700); }
 .kova-track-result--cancelled .kova-track-status { background: var(--kova-danger-bg); color: var(--kova-danger); }
 .kova-track-facts { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 22px 0 0; padding: 16px 0 0; list-style: none; border-top: 1px solid var(--kova-border); font-size: 15px; color: var(--kova-text-body); }
 .kova-track-facts li { margin: 0; }
-.kova-track-facts i { margin-right: 8px; color: var(--kova-green); }
+.kova-track-facts i { margin-right: 8px; color: var(--kova-orange-600); }
 .kova-track-help { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .kova-track-help > div { display: flex; gap: 12px; align-items: flex-start; padding: 18px; background: #fff; border: 1px solid var(--kova-border); border-radius: 12px; }
-.kova-track-help__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kova-green-100); color: var(--kova-green); }
+.kova-track-help__icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kova-orange-50); color: var(--kova-orange-600); }
 .kova-track-help p { margin: 0; font-size: 14px; color: var(--kova-text-muted); }
 .kova-track-help strong { display: block; margin-bottom: 2px; font-size: 15px; color: var(--kova-text); }
-.kova-track-help a { color: var(--kova-green); font-weight: 600; }
+.kova-track-help a { color: var(--kova-orange-600); font-weight: 600; }
 
 .kova-timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 0; padding: 0; list-style: none; }
 .kova-timeline li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; margin: 0; text-align: center; font-size: 13px; color: var(--kova-text-muted); }
 .kova-timeline li::before { content: ""; position: absolute; top: 21px; left: calc(50% + 24px); right: calc(-50% + 24px); height: 3px; border-radius: 2px; background: var(--kova-border); }
 .kova-timeline li:last-child::before { display: none; }
-.kova-timeline li.is-done::before { background: var(--kova-green); }
+.kova-timeline li.is-done::before { background: var(--kova-success); }
 .kova-timeline__dot { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-bottom: 8px; border-radius: 50%; background: var(--kova-navy-50); border: 2px solid var(--kova-border); color: var(--kova-text-muted); font-size: 16px; }
-.kova-timeline .is-done .kova-timeline__dot { background: var(--kova-green); border-color: var(--kova-green); color: #fff; }
-.kova-timeline .is-current .kova-timeline__dot { background: #fff; border-color: var(--kova-gold); color: var(--kova-gold-700); box-shadow: 0 0 0 5px var(--kova-gold-100); }
+.kova-timeline .is-done .kova-timeline__dot { background: var(--kova-success); border-color: var(--kova-success); color: #fff; }
+.kova-timeline .is-current .kova-timeline__dot { background: #fff; border-color: var(--kova-orange-600); color: var(--kova-orange-800); box-shadow: 0 0 0 5px var(--kova-orange-100); }
 .kova-timeline__label { font-size: 14px; font-weight: 600; color: var(--kova-text-body); }
 .kova-timeline .is-current .kova-timeline__label { color: var(--kova-navy); }
 .kova-timeline__date { font-size: 12px; }
 .kova-timeline-cancelled { display: flex; gap: 10px; align-items: center; padding: 14px 16px; background: var(--kova-danger-bg); border-radius: 10px; color: var(--kova-danger); font-weight: 600; }
 .kova-delivery-card { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 22px; padding: 14px 16px; background: var(--kova-navy-50); border-radius: 12px; }
-.kova-delivery-card__avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: #fff; color: var(--kova-green); font-size: 22px; overflow: hidden; }
+.kova-delivery-card__avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: #fff; color: var(--kova-orange-600); font-size: 22px; overflow: hidden; }
 .kova-delivery-card__avatar img { width: 100%; height: 100%; object-fit: cover; }
 .kova-delivery-card__text { flex: 1 1 200px; }
 .kova-delivery-card__date { margin: 0 0 2px; font-weight: 700; color: var(--kova-navy); }
@@ -1155,10 +1176,10 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-timeline--vertical .kova-timeline__label { flex-basis: 100%; }
 
 /* ------------------------------------------------------------------ Active menu
-   The page being shown is marked in every menu: gold underline in the header bars, green text in the dropdowns,
+   The page being shown is marked in every menu: orange underline in the header bars, orange text in the dropdowns,
    mega menus, mobile menu and footer, filled button in the mobile toolbar. */
 .rbt-header-middle .mainmenu > li.active > a { color: #fff !important; font-weight: 600; }
-.rbt-header-middle.rbt-bg-color-primary .rbt-mainmenu-nav .mainmenu > li.kova-menu-highlight.active > a { color: var(--kova-gold) !important; }
+.rbt-header-middle.rbt-bg-color-primary .rbt-mainmenu-nav .mainmenu > li.kova-menu-highlight.active > a { color: var(--kova-orange-on-dark) !important; }
 /* The theme turns the chevron of an active item as if its menu were open: only on hover here. */
 .rbt-mainmenu-nav .mainmenu > li.active:not(:hover) > a i { transform: none !important; margin-top: 0 !important; }
 
@@ -1166,13 +1187,13 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .rbt-header-common-sticky-activation .mainmenu > li.active > a:hover {
     color: var(--kova-navy) !important;
     font-weight: 600;
-    box-shadow: inset 0 -2px 0 var(--kova-gold);
+    box-shadow: inset 0 -2px 0 var(--kova-orange-600);
 }
 .rbt-header-common-sticky-activation .mainmenu > li.active > a::after { opacity: 0; visibility: hidden; }
 
 .mainmenu .submenu li.active > a,
 .mega-menu-item li.active > a {
-    color: var(--kova-green) !important;
+    color: var(--kova-orange-600) !important;
     font-weight: 600;
 }
 .mainmenu .submenu li.active > a::before,
@@ -1183,17 +1204,17 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     height: 6px;
     margin-right: 8px;
     border-radius: 50%;
-    background: var(--kova-gold);
+    background: var(--kova-orange-600);
     vertical-align: middle;
 }
-.rbt-megamenu-tab .nav-link.is-current { font-weight: 600; box-shadow: inset 3px 0 0 var(--kova-gold); }
+.rbt-megamenu-tab .nav-link.is-current { font-weight: 600; box-shadow: inset 3px 0 0 var(--kova-orange-600); }
 
 /* Mobile menu (off-canvas): no hover bar, the colour carries it. */
-.popup-mobile-menu .mainmenu > li.active > a { color: var(--kova-green) !important; font-weight: 600; }
+.popup-mobile-menu .mainmenu > li.active > a { color: var(--kova-orange-600) !important; font-weight: 600; }
 
 .rbt-footer .ft-link a.is-active,
 .copyright-link a.is-active {
-    color: var(--kova-green) !important;
+    color: var(--kova-orange-600) !important;
     font-weight: 600;
 }
 
@@ -1201,7 +1222,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .rbt-round-btn.is-active i { color: #fff !important; }
 
 /* ------------------------------------------------------------------ Mobile toolbar
-   Night blue bar (KOVA identity), off-white icons and labels, gold for the current page and the counters. */
+   Night blue bar (KOVA identity), off-white icons and labels, the logo orange for the current page and the counters. */
 .rbt-toolbar {
     background-color: var(--kova-navy);
     box-shadow: 0 -6px 20px rgb(2 23 50 / 0.18);
@@ -1228,13 +1249,13 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     color: #fff;
 }
 
-/* Current page: gold icon, white label and a short gold bar on top (instead of the generic filled button). */
+/* Current page: orange icon, white label and a short orange bar on top (instead of the generic filled button). */
 .rbt-toolbar .rbt-round-btn.is-active {
     background: transparent !important;
     color: #fff !important;
 }
 .rbt-toolbar .rbt-round-btn.is-active i {
-    color: var(--kova-gold) !important;
+    color: var(--kova-orange-on-dark) !important;
     transform: translateY(-1px);
 }
 .rbt-toolbar .rbt-round-btn.is-active .rbt-toolbar-label { font-weight: 600; }
@@ -1247,24 +1268,24 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     height: 3px;
     margin-left: -14px;
     border-radius: 0 0 3px 3px;
-    background: var(--kova-gold);
+    background: var(--kova-orange-on-dark);
 }
 
-/* Counters (favourites, compare): gold pill outlined with the bar colour. */
+/* Counters (favourites, compare): orange pill outlined with the bar colour. */
 .rbt-toolbar .rbt-quick-access > li .rbt-round-btn .access-box-count {
-    background: var(--kova-gold);
+    background: var(--kova-orange-on-dark);
     color: var(--kova-navy);
     font-weight: 700;
     box-shadow: 0 0 0 2px var(--kova-navy);
 }
 
 .rbt-toolbar .rbt-round-btn:focus-visible {
-    outline: 2px solid var(--kova-gold);
+    outline: 2px solid var(--kova-orange-on-dark);
     outline-offset: -2px;
 }
 
 /* ------------------------------------------------------------------ Coloured panel
-   Cards laid on a plain coloured panel with the top-right corner cut, like the green panel of "Catégories
+   Cards laid on a plain coloured panel with the top-right corner cut, like the orange panel of "Catégories
    populaires". The cut is a triangle in the section's colour rather than a mask, so nothing overflowing the panel
    (the details shown under a product card on hover) gets clipped. --kova-panel-cut is the colour around the panel. */
 .kova-panel {
@@ -1277,7 +1298,23 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     background-color: var(--kova-panel-bg);
 }
 .kova-panel--navy { --kova-panel-bg: var(--kova-navy); }
-.kova-panel--green { --kova-panel-bg: var(--kova-green); }
+.kova-panel--orange, .kova-panel--green { --kova-panel-bg: var(--kova-orange-600); }
+/* Dark panels carry the fine diagonal lines of the guarantees bar, so a large area of colour does not look flat. */
+.kova-panel--navy, .kova-panel--orange, .kova-panel--green {
+    background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / .05) 0 1px, transparent 1px 14px);
+}
+/* Gold panel: the logo's triangle as a champagne tint, gold lines, a gold edge. */
+.kova-panel--gold {
+    --kova-panel-bg: #f6ecd3;
+    background-image: repeating-linear-gradient(135deg, rgb(198 158 62 / .12) 0 1px, transparent 1px 14px);
+    box-shadow: inset 0 0 0 1px rgb(198 158 62 / .35);
+}
+.kova-panel--gold .rbt-product-card:not(.rbt-list-view-variation) { box-shadow: 0 6px 16px rgb(138 106 31 / .14); }
+/* Soft panel: blue-grey surface, the cards lifted by a light shadow only. */
+.kova-panel--soft { --kova-panel-bg: var(--kova-surface-alt); }
+.kova-panel--soft .rbt-product-card:not(.rbt-list-view-variation),
+.kova-panel--soft .rbt-list-view-lg,
+.kova-panel--soft .rbt-list-card-box { box-shadow: 0 4px 14px rgb(2 23 50 / .07); }
 .kova-panel--on-white { --kova-panel-cut: #fff; }
 .kova-panel::before {
     content: "";
@@ -1352,8 +1389,8 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 }
 
 /* ------------------------------------------------------------------ Copyright bar
-   Night blue band closing the page (like the mobile toolbar): off-white text, gold store name and hovers,
-   a thin gold line on top. The payment tiles keep their white background so the operators' logos stay readable. */
+   Night blue band closing the page (like the mobile toolbar): off-white text, white store name, orange hovers,
+   a thin gold line on top (the logo's triangle). The payment tiles keep their white background so the operators' logos stay readable. */
 .copyright-area {
     background-color: var(--kova-navy);
     border-top: 3px solid var(--kova-gold);
@@ -1366,26 +1403,27 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     transition: color 0.2s ease;
 }
 .copyright-area .rbt-link-hover a.rbt-text-color-heading {
-    color: var(--kova-gold) !important;
+    color: #fff !important;
+    font-weight: 600;
 }
 .copyright-area .copyright-link.rbt-link-hover a:hover,
 .copyright-area .copyright-link .btn-link:hover,
 .copyright-area .rbt-link-hover a.rbt-text-color-heading:hover {
-    color: var(--kova-gold) !important;
+    color: var(--kova-orange-on-dark) !important;
     text-decoration: underline;
     text-underline-offset: 3px;
 }
-.copyright-area .copyright-link a.is-active { color: var(--kova-gold) !important; }
+.copyright-area .copyright-link a.is-active { color: var(--kova-orange-on-dark) !important; }
 
 .copyright-area .payment-img-link li a { border-color: transparent; }
 .copyright-area .payment-img-link li a:hover {
-    border-color: var(--kova-gold);
-    box-shadow: 0 0 0 1px var(--kova-gold);
+    border-color: var(--kova-orange-on-dark);
+    box-shadow: 0 0 0 1px var(--kova-orange-on-dark);
 }
 
 .copyright-area a:focus-visible,
 .copyright-area .btn-link:focus-visible {
-    outline: 2px solid var(--kova-gold);
+    outline: 2px solid var(--kova-orange-on-dark);
     outline-offset: 2px;
 }
 
@@ -1403,8 +1441,8 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-account-bar__area { padding-left: 16px; border-left: 1px solid var(--kova-border); color: var(--kova-navy); font-weight: 600; font-size: 15px; letter-spacing: .02em; }
 .kova-account-bar__actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
 .kova-account-bar__link { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; color: var(--kova-text-body); font-size: 15px; font-weight: 500; }
-.kova-account-bar__link:hover { background: var(--kova-success-bg); color: var(--kova-green); }
-.kova-account-bar__count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--kova-gold); color: #fff; font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; }
+.kova-account-bar__link:hover { background: var(--kova-orange-50); color: var(--kova-orange-800); }
+.kova-account-bar__count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--kova-orange-600); color: #fff; font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; }
 .kova-account-bar__user { display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; margin-left: 6px; border-left: 1px solid var(--kova-border); color: var(--kova-navy); font-weight: 600; font-size: 15px; }
 .kova-account-bar__avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--kova-navy); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
 
@@ -1424,7 +1462,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-account__heading { margin-bottom: 24px; }
 .kova-account__trail { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--kova-text-muted); margin-bottom: 6px; }
 .kova-account__trail a { color: var(--kova-text-muted); }
-.kova-account__trail a:hover { color: var(--kova-green); }
+.kova-account__trail a:hover { color: var(--kova-orange-600); }
 .kova-account__trail i { font-size: 10px; }
 .kova-account__title { font-size: 28px; margin: 0; color: var(--kova-navy); }
 
@@ -1440,7 +1478,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-account-nav__link i { width: 18px; text-align: center; color: var(--kova-text-muted); }
 .kova-account-nav__link:hover { background: #f3f5f8; color: var(--kova-navy); }
 .kova-account-nav__link.is-active { background: #eef1f6; color: var(--kova-navy); font-weight: 600; }
-.kova-account-nav__link.is-active::before { content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 3px; background: var(--kova-gold); }
+.kova-account-nav__link.is-active::before { content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 3px; background: var(--kova-orange-600); }
 .kova-account-nav__link.is-active i { color: var(--kova-navy); }
 .kova-account-nav__sep { margin-top: 6px !important; padding-top: 6px; border-top: 1px solid var(--kova-border); }
 .kova-account-nav__link--quiet { color: var(--kova-text-muted); }
@@ -1450,11 +1488,11 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-dash-hero { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 30px; margin-bottom: 20px; border-radius: 16px; background: var(--kova-navy); color: #fff; position: relative; overflow: hidden; }
 .kova-dash-hero::after { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; border: 28px solid rgb(198 158 62 / .14); pointer-events: none; }
 .kova-dash-hero > * { position: relative; z-index: 1; }
-.kova-dash-hero__eyebrow { margin: 0 0 4px; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--kova-gold); }
+.kova-dash-hero__eyebrow { margin: 0 0 4px; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--kova-orange-on-dark); }
 .kova-dash-hero__title { margin: 0 0 6px; font-size: 30px; color: #fff; }
 .kova-dash-hero__text { margin: 0; max-width: 520px; color: rgb(255 255 255 / .78); font-size: 15px; }
 .kova-dash-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.rbt-btn.kova-dash-hero__primary { background: var(--kova-gold) !important; color: #fff !important; border-color: var(--kova-gold) !important; }
+.rbt-btn.kova-dash-hero__primary { background: var(--kova-orange-600) !important; color: #fff !important; border-color: var(--kova-orange-600) !important; }
 .rbt-btn.kova-dash-hero__primary:hover { background: #b38b2f !important; }
 .kova-dash-hero__secondary { display: inline-flex; align-items: center; padding: 10px 16px; border-radius: 8px; border: 1px solid rgb(255 255 255 / .35); color: #fff; font-size: 15px; font-weight: 500; }
 .kova-dash-hero__secondary:hover { background: rgb(255 255 255 / .1); color: #fff; }
@@ -1462,7 +1500,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-dash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 20px; }
 .kova-dash-stat { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 14px; align-items: center; padding: 16px 18px; background: #fff; border: 1px solid var(--kova-border); border-radius: 14px; transition: border-color .2s, transform .2s; }
 .kova-dash-stat:hover { border-color: var(--kova-border-strong); transform: translateY(-2px); }
-.kova-dash-stat__icon { grid-row: span 2; width: 44px; height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; background: var(--kova-success-bg); color: var(--kova-green); }
+.kova-dash-stat__icon { grid-row: span 2; width: 44px; height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; background: var(--kova-orange-50); color: var(--kova-orange-600); }
 .kova-dash-stat__icon--gold { background: #f8f1e2; color: #a07c26; }
 .kova-dash-stat__icon--navy { background: #e8edf5; color: var(--kova-navy); }
 .kova-dash-stat__icon--rose { background: #fdecef; color: #c0364f; }
@@ -1470,13 +1508,13 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-dash-stat__label { font-size: 14px; color: var(--kova-text-muted); }
 
 .kova-dash-callout { display: flex; gap: 16px; padding: 18px 20px; margin-bottom: 20px; border-radius: 14px; background: #fbf6ea; border: 1px solid #ecdcb4; }
-.kova-dash-callout__icon { flex: none; width: 42px; height: 42px; border-radius: 50%; background: var(--kova-gold); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+.kova-dash-callout__icon { flex: none; width: 42px; height: 42px; border-radius: 50%; background: var(--kova-orange-600); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
 .kova-dash-callout__body { flex: 1; min-width: 0; }
 
 .kova-dash-card { background: #fff; border: 1px solid var(--kova-border); border-radius: 14px; padding: 22px 24px; }
 .kova-dash-card__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .kova-dash-card__title { margin: 0; font-size: 18px; color: var(--kova-navy); }
-.kova-dash-card__more { font-size: 14px; font-weight: 600; color: var(--kova-green); }
+.kova-dash-card__more { font-size: 14px; font-weight: 600; color: var(--kova-orange-600); }
 .kova-dash-card__more i { font-size: 12px; margin-left: 4px; transition: transform .2s; }
 .kova-dash-card__more:hover i { transform: translateX(3px); }
 
@@ -1495,7 +1533,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-pill--warning { background: #fdf3e1; color: #a5650a; }
 .kova-pill--info { background: #e6f0fb; color: #1d5fa8; }
 .kova-pill--primary { background: #e8edf5; color: var(--kova-navy); }
-.kova-pill--success { background: var(--kova-success-bg); color: var(--kova-green); }
+.kova-pill--success { background: var(--kova-success-bg); color: var(--kova-success); }
 .kova-pill--danger { background: var(--kova-danger-bg); color: var(--kova-danger); }
 
 .kova-dash-empty { text-align: center; padding: 26px 10px 10px; }
@@ -1507,15 +1545,15 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-dash-address__line { margin: 0 0 2px; font-size: 14px; color: var(--kova-text-body); }
 .kova-dash-help { background: linear-gradient(180deg, #fff 0%, #f6faf7 100%); }
 .kova-dash-help__link { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--kova-border); font-size: 15px; font-weight: 500; color: var(--kova-navy); }
-.kova-dash-help__link i { color: var(--kova-green); width: 18px; text-align: center; }
-.kova-dash-help__link:hover { color: var(--kova-green); }
+.kova-dash-help__link i { color: var(--kova-orange-600); width: 18px; text-align: center; }
+.kova-dash-help__link:hover { color: var(--kova-orange-600); }
 
 .kova-dash-tabs { gap: 4px; margin-bottom: 22px; border-bottom: 1px solid var(--kova-border); flex-wrap: nowrap; overflow-x: auto; }
 .kova-dash-tabs .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; margin-bottom: -1px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; color: var(--kova-text-muted); font-size: 15px; font-weight: 500; white-space: nowrap; }
 .kova-dash-tabs .nav-link:hover { color: var(--kova-navy); }
-.kova-dash-tabs .nav-link.active { color: var(--kova-navy); font-weight: 600; border-bottom-color: var(--kova-gold); }
+.kova-dash-tabs .nav-link.active { color: var(--kova-navy); font-weight: 600; border-bottom-color: var(--kova-orange-600); }
 .kova-dash-note { display: flex; gap: 8px; align-items: baseline; margin: 0; font-size: 13px; color: var(--kova-text-muted); }
-.kova-dash-note i { color: var(--kova-green); }
+.kova-dash-note i { color: var(--kova-orange-600); }
 .kova-dash-option { padding: 16px 18px; border: 1px solid var(--kova-border); border-radius: 12px; background: #fafbfc; }
 .kova-dash-danger { padding: 14px 18px; border: 1px solid #f3cfcb; border-radius: 12px; background: #fffafa; }
 .kova-dash-danger summary { cursor: pointer; font-weight: 600; color: var(--kova-danger); }
@@ -1541,7 +1579,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-account-line__inner > span { color: #fff; font-weight: 500; }
 .kova-account-line nav { display: flex; flex-wrap: wrap; gap: 6px 18px; }
 .kova-account-line a { color: rgb(255 255 255 / .75); }
-.kova-account-line a:hover { color: var(--kova-gold); }
+.kova-account-line a:hover { color: var(--kova-orange-on-dark); }
 .kova-account { padding-bottom: 48px; }
 @media (max-width: 1199px) {
     /* Room for the mobile toolbar fixed at the bottom. */
@@ -1555,13 +1593,13 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-account-bar__link:hover { box-shadow: 0 4px 12px rgb(2 23 50 / .12); }
 
 .kova-account-bar__link--shop { background: var(--kova-navy); border-color: var(--kova-navy); color: #fff; }
-.kova-account-bar__link--shop i { background: var(--kova-gold); color: #fff; }
+.kova-account-bar__link--shop i { background: var(--kova-navy); color: #fff; }
 .kova-account-bar__link--shop:hover { background: #0a2a52; border-color: #0a2a52; color: #fff; }
 
 .kova-account-bar__link--cart { background: #fbf6ea; border-color: #ecdcb4; }
-.kova-account-bar__link--cart i { background: var(--kova-gold); color: #fff; }
-.kova-account-bar__link--cart:hover { background: var(--kova-gold); border-color: var(--kova-gold); color: #fff; }
-.kova-account-bar__link--cart:hover i { background: #fff; color: var(--kova-gold); }
+.kova-account-bar__link--cart i { background: var(--kova-orange-600); color: #fff; }
+.kova-account-bar__link--cart:hover { background: var(--kova-orange-600); border-color: var(--kova-orange-600); color: #fff; }
+.kova-account-bar__link--cart:hover i { background: #fff; color: var(--kova-orange-600); }
 .kova-account-bar__link--cart .kova-account-bar__count { background: var(--kova-navy); }
 
 .kova-account-bar__link--logout:hover { background: var(--kova-danger-bg); border-color: #f3cfcb; color: var(--kova-danger); }
@@ -1580,7 +1618,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-account-nav { padding: 0; overflow: hidden; box-shadow: 0 6px 18px rgb(2 23 50 / .05); }
 .kova-account-nav__profile { margin: 0; padding: 20px 18px; border: 0; background: var(--kova-navy); position: relative; overflow: hidden; }
 .kova-account-nav__profile::after { content: ""; position: absolute; right: -36px; bottom: -46px; width: 120px; height: 120px; border-radius: 50%; border: 16px solid rgb(198 158 62 / .18); }
-.kova-account-nav__avatar { position: relative; z-index: 1; background: var(--kova-gold); color: #fff; box-shadow: 0 0 0 3px rgb(255 255 255 / .9); }
+.kova-account-nav__avatar { position: relative; z-index: 1; background: var(--kova-orange-600); color: #fff; box-shadow: 0 0 0 3px rgb(255 255 255 / .9); }
 .kova-account-nav__who { position: relative; z-index: 1; }
 .kova-account-nav__who strong { color: #fff; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
 .kova-account-nav__who span { color: rgb(255 255 255 / .7); margin-top: 2px; }
@@ -1588,7 +1626,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 
 .kova-account-nav__link { gap: 12px; padding: 7px 10px 7px 7px; margin-bottom: 2px; border-radius: 11px; transition: background .2s, color .2s; }
 .kova-account-nav__link i { flex: none; width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; background: #eef1f6; color: var(--kova-navy); transition: background .2s, color .2s; }
-.kova-account-nav__link--green i { background: var(--kova-success-bg); color: var(--kova-green); }
+.kova-account-nav__link--green i { background: var(--kova-orange-50); color: var(--kova-orange-600); }
 .kova-account-nav__link--gold i { background: #f8f1e2; color: #a07c26; }
 .kova-account-nav__link--blue i { background: #e6f0fb; color: #1d5fa8; }
 .kova-account-nav__link--rose i { background: #fdecef; color: #c0364f; }
@@ -1596,7 +1634,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 
 .kova-account-nav__link.is-active { background: var(--kova-navy); color: #fff; box-shadow: 0 6px 14px rgb(2 23 50 / .18); }
 .kova-account-nav__link.is-active::before { display: none; }
-.kova-account-nav__link.is-active i { background: var(--kova-gold); color: #fff; }
+.kova-account-nav__link.is-active i { background: var(--kova-orange-600); color: #fff; }
 
 .kova-account-nav__sep { margin: 8px 0 0 !important; padding-top: 8px; }
 .kova-account-nav__link--quiet i { background: #f4f6f9; color: var(--kova-text-muted); }
@@ -1634,11 +1672,11 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-home-guarantees i {
     border-radius: 50%;
     background: rgb(255 255 255 / .08);
-    color: var(--kova-gold);
-    box-shadow: inset 0 0 0 1.5px rgb(198 158 62 / .7);
+    color: var(--kova-orange-on-dark);
+    box-shadow: inset 0 0 0 1.5px rgb(255 106 26 / .55);
     transition: background .25s, color .25s, transform .25s;
 }
-.kova-home-guarantees li:hover i { background: var(--kova-gold); color: #fff; transform: translateY(-2px); }
+.kova-home-guarantees li:hover i { background: var(--kova-orange-600); color: #fff; transform: translateY(-2px); }
 .kova-home-guarantees strong { color: #fff; }
 .kova-home-guarantees span span { color: rgb(255 255 255 / .72); }
 
@@ -1650,24 +1688,26 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     .kova-home-guarantees li::before { display: none; }
 }
 
-/* Home "Catégories populaires": the cards sit on a plain KOVA green panel (no gradient), keeping the theme's cut
-   corner shape on wide screens. */
+/* Home "Catégories populaires": white cards on a soft blue-grey panel (calm first impression under the hero),
+   keeping the theme's cut corner shape on wide screens. */
 .rbt-catagories-section-bg-one.rbt-curved-style-box {
     background-image: none !important;
-    background-color: var(--kova-green) !important;
+    background-color: var(--kova-surface-alt) !important;
 }
-.rbt-catagories-section-bg-one .rbt-cat-box-7 { border-color: transparent; box-shadow: 0 6px 16px rgb(2 23 50 / .12); }
+.rbt-catagories-section-bg-one .rbt-cat-box-7 { border-color: transparent; box-shadow: 0 4px 14px rgb(2 23 50 / .07); }
+.rbt-catagories-section-bg-one .rbt-cat-box-7:hover { box-shadow: 0 10px 24px rgb(2 23 50 / .12); }
 @media (max-width: 1199px) {
     .rbt-catagories-section-bg-one.rbt-curved-style-box { padding: 16px 16px 20px !important; border-radius: 18px; }
 }
 
-/* Home "best deals" selection: the whole block (title, countdown, products) on one plain KOVA gold panel, no
-   gradient; the theme's tab outline is dropped so nothing white or green shows around it. */
+/* Home "best deals" selection: the whole block (title, countdown, products) on one soft orange panel (the warm moment
+   of the page), no gradient; the theme's tab outline is dropped so nothing white or orange shows around it. */
 #rbt-product-block-02 .rbt-fshape-box-outline-style {
     margin-top: 48px;
     padding: 28px 28px 32px;
     border-radius: 24px;
-    background: var(--kova-gold);
+    background: var(--kova-orange-50);
+    border: 1px solid var(--kova-orange-100);
 }
 #rbt-product-block-02 .rbt-fshape-box-outline-style > .row { padding-top: 0 !important; margin-top: 0 !important; }
 #rbt-product-block-02 .rbt-fshape-box-outline-style .rbt-component-section-title {
@@ -1691,7 +1731,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     border: 0 !important;
     padding: 0 !important;
 }
-#rbt-product-block-02 .rbt-fshape-box .rbt-product-card { box-shadow: 0 8px 18px rgb(2 23 50 / .16); border-radius: 14px; }
+#rbt-product-block-02 .rbt-fshape-box .rbt-product-card { box-shadow: 0 6px 16px rgb(163 52 0 / .08); border-radius: 14px; }
 #rbt-product-block-02 .rbt-fshape-box > .text-center .rbt-btn {
     background: var(--kova-navy) !important;
     border-color: var(--kova-navy) !important;
@@ -1768,7 +1808,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     height: 3px;
     margin-top: 10px;
     border-radius: 3px;
-    background: var(--kova-gold);
+    background: var(--kova-orange-on-dark);
 }
 #rbt-product-block-03 .rbt-fshape-box {
     margin: 0 !important;
@@ -1794,27 +1834,17 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     #rbt-product-block-03 .rbt-fshape-box-outline-style { padding: 20px 14px 24px; border-radius: 18px; }
 }
 
-/* Home "Populaires" row: a plain KOVA green panel (no gradient), white title, white "Tout voir" turning gold,
-   white cards of equal height. */
-#rbt-product-row-popular > .container {
-    padding: 28px 28px 32px;
-    border-radius: 24px;
-    background: var(--kova-green);
-}
+/* Home "Populaires" row: no panel, white space between the coloured moments around it; navy title, orange
+   "Tout voir", cards of equal height. */
 #rbt-product-row-popular .rbt-component-section-title .rbt-title,
-#rbt-product-row-popular .rbt-component-section-title .rbt-title span { color: #fff !important; }
-#rbt-product-row-popular .rbt-component-section-title .rbt-btn-link { color: #fff !important; }
-#rbt-product-row-popular .rbt-component-section-title .rbt-btn-link:hover { color: var(--kova-gold) !important; }
-#rbt-product-row-popular .rbt-component-section-title .rbt-btn-link::after { background: var(--kova-gold) !important; }
-#rbt-product-row-popular .rbt-product-card { height: 100%; border-radius: 14px; background: #fff; box-shadow: 0 8px 18px rgb(2 23 50 / .16); }
-#rbt-product-row-popular .rbt-product-card > .inner { border: 0 !important; box-shadow: none !important; }
-
-@media (max-width: 767px) {
-    #rbt-product-row-popular > .container { padding: 20px 14px 24px; border-radius: 18px; width: calc(100% - 24px); }
-}
+#rbt-product-row-popular .rbt-component-section-title .rbt-title span { color: var(--kova-navy) !important; }
+#rbt-product-row-popular .rbt-component-section-title .rbt-btn-link { color: var(--kova-orange-800) !important; }
+#rbt-product-row-popular .rbt-component-section-title .rbt-btn-link:hover { color: var(--kova-navy) !important; }
+#rbt-product-row-popular .rbt-component-section-title .rbt-btn-link::after { background: var(--kova-orange-600) !important; }
+#rbt-product-row-popular .rbt-product-card { height: 100%; }
 
 /* Header shortcuts (service, account, compare, favourites, cart): grouped in one light rounded bar, each item a
-   pill lit white on hover, the icons in the brand colours (phone green, account navy, cart gold). */
+   pill lit white on hover, quiet night-blue icons on a soft disc, the cart alone in orange (the action that matters). */
 @media (min-width: 992px) {
     .rbt-header-middle-one .header-right .rbt-quick-access {
         display: flex;
@@ -1858,13 +1888,13 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     .rbt-header-middle-one .header-right .rbt-round-btn i { color: inherit !important; }
     /* The theme paints its grey disc with ::after behind the icon: that layer carries the colour here. */
     .rbt-header-middle-one .header-right .rbt-round-btn::after { background: #fff !important; opacity: 1 !important; transform: scale(1) !important; }
-    .rbt-header-middle-one .header-right .rbt-access-box:first-child .rbt-round-btn::after { background: var(--kova-green) !important; }
-    .rbt-header-middle-one .header-right .rbt-access-box:nth-child(2) .rbt-round-btn::after { background: var(--kova-navy) !important; }
-    .rbt-header-middle-one .header-right .rbt-mini-cart .rbt-round-btn::after { background: var(--kova-gold) !important; }
+    .rbt-header-middle-one .header-right .rbt-access-box:first-child .rbt-round-btn::after { background: var(--kova-navy-100) !important; }
+    .rbt-header-middle-one .header-right .rbt-access-box:nth-child(2) .rbt-round-btn::after { background: var(--kova-navy-100) !important; }
+    .rbt-header-middle-one .header-right .rbt-mini-cart .rbt-round-btn::after { background: var(--kova-orange-600) !important; }
     .rbt-header-middle-one .header-right .rbt-access-box .content p { white-space: nowrap; }
-    .rbt-header-middle-one .header-right .rbt-access-box:first-child .rbt-round-btn { background: var(--kova-green) !important; color: #fff !important; }
-    .rbt-header-middle-one .header-right .rbt-access-box:nth-child(2) .rbt-round-btn { background: var(--kova-navy) !important; color: #fff !important; }
-    .rbt-header-middle-one .header-right .rbt-mini-cart .rbt-round-btn { background: var(--kova-gold) !important; color: #fff !important; }
+    .rbt-header-middle-one .header-right .rbt-access-box:first-child .rbt-round-btn { background: var(--kova-navy-100) !important; color: var(--kova-navy) !important; }
+    .rbt-header-middle-one .header-right .rbt-access-box:nth-child(2) .rbt-round-btn { background: var(--kova-navy-100) !important; color: var(--kova-navy) !important; }
+    .rbt-header-middle-one .header-right .rbt-mini-cart .rbt-round-btn { background: var(--kova-orange-600) !important; color: #fff !important; }
     .rbt-header-middle-one .header-right .rbt-access-box .content p { margin: 0; font-size: 12px; line-height: 1.2; color: var(--kova-text-muted) !important; }
     .rbt-header-middle-one .header-right .rbt-access-box .content span { font-size: 14px; font-weight: 700; line-height: 1.3; color: var(--kova-navy) !important; white-space: nowrap; }
     .rbt-header-middle-one .header-right .access-box-count { background: var(--kova-navy) !important; color: #fff !important; }
@@ -1877,8 +1907,8 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     .rbt-header-middle-one .header-right .rbt-mini-cart .rbt-access-box-wrapper { padding: 4px; }
 }
 
-/* Mega menus ("Boutique", "Mon Marché", "Pages"): column titles underlined in gold, each link a soft pill that
-   turns green and slides a little on hover, with a gold dash appearing in front. */
+/* Mega menus ("Boutique", "Mon Marché", "Pages"): column titles underlined in orange, each link a soft pill that
+   turns orange and slides a little on hover, with an orange dash appearing in front. */
 .rbt-megamenu .single-mega-item .rbt-short-title {
     position: relative;
     display: inline-block;
@@ -1894,7 +1924,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     width: 32px;
     height: 3px;
     border-radius: 3px;
-    background: var(--kova-gold);
+    background: var(--kova-orange-600);
 }
 .rbt-megamenu .mega-menu-item li { margin: 0 0 2px; }
 .rbt-megamenu .mega-menu-item li a {
@@ -1911,15 +1941,15 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     height: 2px;
     margin-right: 0;
     border-radius: 2px;
-    background: var(--kova-gold);
+    background: var(--kova-orange-600);
     transition: width .2s, margin .2s;
 }
 .rbt-megamenu .mega-menu-item li a:hover {
-    background: var(--kova-success-bg);
-    color: var(--kova-green) !important;
+    background: var(--kova-orange-50);
+    color: var(--kova-orange-800) !important;
 }
 .rbt-megamenu .mega-menu-item li a:hover::before { width: 12px; margin-right: 8px; }
-/* The current category keeps its marker (gold dot from the active menu rules). */
+/* The current category keeps its marker (orange dot from the active menu rules). */
 .rbt-megamenu .mega-menu-item li.active > a::before { width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; }
 /* Badges ("SHOP", "Nouveau") stay right after their link text. */
 .rbt-megamenu .mega-menu-item li a { justify-content: flex-start; flex-wrap: wrap; gap: 4px 8px; }
@@ -1935,7 +1965,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     padding: 6px 12px;
     border: 0;
     border-radius: 999px;
-    background: var(--kova-green);
+    background: var(--kova-orange-600);
     color: #fff !important;
     font-size: 13px;
     font-weight: 600;
@@ -1948,7 +1978,7 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-card-cart-btn--quiet { background: #eef1f6; color: var(--kova-navy) !important; }
 .kova-card-cart-btn--quiet:hover { background: var(--kova-navy); color: #fff !important; }
 
-/* "+" quick add on the grid cards: a round green button at the top right of the card body, navy on hover. */
+/* "+" quick add on the grid cards: a round orange button at the top right of the card body, navy on hover. */
 .rbt-product-card .rbt-card-body { position: relative; }
 .kova-quick-add { position: absolute; top: 12px; right: 12px; z-index: 3; margin: 0; }
 .kova-quick-add__btn {
@@ -1960,10 +1990,10 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: var(--kova-green);
+    background: var(--kova-orange-600);
     color: #fff;
     font-size: 16px;
-    box-shadow: 0 6px 14px rgb(14 125 66 / .35);
+    box-shadow: 0 6px 14px rgb(204 68 0 / .35);
     cursor: pointer;
     transition: background .2s, transform .2s, box-shadow .2s;
 }
@@ -2005,8 +2035,61 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-cart-toast.is-visible { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
 .kova-cart-toast i { color: #5fd08f; font-size: 18px; }
 .kova-cart-toast.is-error i { color: #ff8a80; }
-.kova-cart-toast a { flex: none; margin-left: 4px; padding: 4px 12px; border-radius: 999px; background: var(--kova-gold); color: #fff !important; font-weight: 600; white-space: nowrap; }
+.kova-cart-toast a { flex: none; margin-left: 4px; padding: 4px 12px; border-radius: 999px; background: var(--kova-orange-600); color: #fff !important; font-weight: 600; white-space: nowrap; }
 .kova-cart-toast a:hover { background: #fff; color: var(--kova-navy) !important; }
 .kova-quick-add__btn.is-loading i, .kova-card-cart-btn.is-loading i { animation: kova-spin .8s linear infinite; }
 @keyframes kova-spin { to { transform: rotate(360deg); } }
 @media (max-width: 1199px) { .kova-cart-toast { bottom: 84px; } }
+
+/* ------------------------------------------------------------------ Home rhythm
+   Two white sections in a row would stack their paddings (120 px of nothing): the second one starts right under
+   the first, the background change marks the other boundaries. */
+:is(#rbt-product-block-02, #rbt-product-row-new-arrivals, #rbt-product-row-popular, #rbt-product-block-04)
+    + :is(#rbt-product-block-02, #rbt-product-row-new-arrivals, #rbt-product-row-popular, #rbt-product-block-04) {
+    padding-top: 0 !important;
+}
+
+/* Home banners' button: the theme's round "magnetic" button stays a circle (the global button radius squared it). */
+.rbt-btn.rbt-btn-round {
+    width: 104px;
+    height: 104px;
+    min-width: 104px;
+    padding: 12px;
+    border-radius: 50% !important;
+    font-size: 12px;
+    line-height: 1.25;
+    letter-spacing: .04em;
+    box-shadow: 0 10px 24px rgb(204 68 0 / .28);
+}
+.rbt-btn.rbt-btn-round i { font-size: 14px; }
+@media (max-width: 767px) {
+    .rbt-btn.rbt-btn-round { width: 84px; height: 84px; min-width: 84px; font-size: 11px; }
+}
+
+/* "Nouvel appareil" banner: the picture kept inside its left part so it never covers the title. */
+@media (min-width: 1200px) {
+    .rbt-product-banner-style-one .rbt-product-banner-img { left: 40px; max-width: 380px; }
+    .rbt-product-banner-style-one .rbt-product-banner-img img { max-height: 200px; width: auto; object-fit: contain; }
+}
+
+/* Phones: two cards per row leave ~150 px for the card button, so "Ajouter au panier" stays on one line in a
+   smaller type instead of breaking in two; the banners' round button keeps "MAINTENANT" inside its circle. */
+@media (max-width: 575px) {
+    .rbt-product-card .prd-btn-grp .rbt-btn.rbt-btn-sm {
+        padding: 8px 6px !important;
+        font-size: 12.5px !important;
+        line-height: 1.3 !important;
+        white-space: nowrap;
+        letter-spacing: 0;
+    }
+    .rbt-product-card .prd-btn-grp .rbt-btn.rbt-btn-sm i { margin-right: 4px; }
+    .rbt-btn.rbt-btn-round { width: 92px; height: 92px; min-width: 92px; padding: 8px; font-size: 10px; letter-spacing: 0; }
+}
+
+/* Phones: the countdown over a small card image ("Jours", "Heures"...) fits four narrow boxes without overlap. */
+@media (max-width: 575px) {
+    .rbt-product-card .rbt-countdown-one .countdown { gap: 3px !important; }
+    .rbt-product-card .rbt-countdown-one .countdown .countdown-container { width: 34px !important; min-width: 0 !important; padding: 4px 1px !important; margin: 0 !important; }
+    .rbt-product-card .rbt-countdown-one .countdown .countdown-container .countdown-value { font-size: 13px !important; line-height: 1.1 !important; }
+    .rbt-product-card .rbt-countdown-one .countdown .countdown-container .countdown-heading { font-size: 8.5px !important; line-height: 1.2 !important; letter-spacing: 0; }
+}

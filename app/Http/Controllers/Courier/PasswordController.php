@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Courier;
 
 use App\Http\Controllers\Controller;
+use App\Services\Storefront\StoreSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
@@ -15,7 +16,14 @@ class PasswordController extends Controller
 {
     public function edit(Request $request): View
     {
-        return view('courier.password', ['mustChange' => $request->user()->must_change_password]);
+        $user = $request->user();
+
+        return view('courier.password', [
+            'mustChange' => $user->must_change_password,
+            'courier' => $user->courier->load('zones'),
+            'contact' => app(StoreSettings::class)->contact(),
+            'storeWhatsapp' => app(StoreSettings::class)->whatsappUrl('Bonjour, je suis le livreur '.$user->name.'.'),
+        ]);
     }
 
     public function update(Request $request): RedirectResponse

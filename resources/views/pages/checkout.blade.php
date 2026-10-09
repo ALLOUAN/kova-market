@@ -82,7 +82,7 @@
                                         @foreach ($communes as $zone => $zoneCommunes)
                                             <optgroup label="{{ $zone }}">
                                                 @foreach ($zoneCommunes as $commune)
-                                                    <option value="{{ $commune->id }}" data-fee="{{ $commune->zone->fee }}" data-delay="{{ $commune->zone->delay_label }}" @if ($commune->isInterior()) data-interior @endif @selected((int) $field('commune_id') === $commune->id)>{{ $commune->name }}</option>
+                                                    <option value="{{ $commune->id }}" data-fee="{{ $commune->zone->fee }}" data-delay="{{ $commune->zone->delay_label }}" data-threshold="{{ $commune->zone->freeShippingThreshold() }}" data-minimum="{{ $commune->zone->min_order }}" data-conditions="{{ $commune->zone->conditionsLabel() }}" @if ($commune->isInterior()) data-interior @endif @selected((int) $field('commune_id') === $commune->id)>{{ $commune->name }}</option>
                                                 @endforeach
                                             </optgroup>
                                         @endforeach
@@ -90,6 +90,7 @@
                                     @error('commune_id')<span class="d-block mt--4 b4 rbt-text-color-danger">{{ $message }}</span>@enderror
                                     <span class="d-block mt--4 b4" id="destination-help">À Abidjan, choisissez votre commune. Ailleurs en Côte d’Ivoire, choisissez « Intérieur ».</span>
                                     <span class="d-block mt--4 b4" data-delay-text></span>
+                                    <span class="d-block mt--4 b4 rbt-text-color-danger" data-minimum-text role="status"></span>
                                 </div>
                                 {{-- Shipping to the interior: the town is required (shown by the script below, checked by the server). --}}
                                 <div class="col-md-6" data-city-field @unless ($interiorSelected) hidden @endunless>
@@ -217,7 +218,8 @@
             const subtotal = {{ $summary->subtotal }};
             const discount = {{ $summary->discount }};
             const freeShippingCoupon = @json($summary->hasFreeShippingCoupon());
-            const threshold = @json($summary->freeShippingThreshold);
+            // Each zone may have its own free-delivery threshold and minimum order (data-threshold, data-minimum).
+            const generalThreshold = @json($summary->freeShippingThreshold);
             const money = (amount) => new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount).replace(/\s/g, ' ') + ' FCFA';
             const select = document.querySelector('[data-commune]');
             const cityField = document.querySelector('[data-city-field]');
@@ -231,16 +233,27 @@
                 cityField.hidden = !interior;
                 city.required = interior;
 
+                const minimumText = document.querySelector('[data-minimum-text]');
+
                 if (!option || !option.dataset.fee) {
                     document.querySelector('[data-shipping]').textContent = 'Choisissez votre commune';
                     document.querySelector('[data-total]').textContent = money(subtotal - discount);
                     document.querySelector('[data-delay-text]').textContent = '';
+                    minimumText.textContent = '';
                     return;
                 }
+                const threshold = option.dataset.threshold ? Number(option.dataset.threshold) : generalThreshold;
                 const fee = freeShippingCoupon || (threshold !== null && subtotal >= threshold) ? 0 : Number(option.dataset.fee);
                 document.querySelector('[data-shipping]').textContent = fee === 0 ? 'Offerte' : money(fee);
                 document.querySelector('[data-total]').textContent = money(subtotal - discount + fee);
-                document.querySelector('[data-delay-text]').textContent = option.dataset.delay ? 'Délai indicatif : ' + option.dataset.delay : '';
+                document.querySelector('[data-delay-text]').textContent = [
+                    option.dataset.delay ? 'Délai indicatif : ' + option.dataset.delay : '',
+                    option.dataset.conditions || '',
+                ].filter(Boolean).join(' · ');
+                const minimum = option.dataset.minimum ? Number(option.dataset.minimum) : 0;
+                minimumText.textContent = subtotal < minimum
+                    ? 'Commande minimum pour cette zone : ' + money(minimum) + '. Ajoutez encore ' + money(minimum - subtotal) + ' d’articles.'
+                    : '';
             };
 
             select.addEventListener('change', render);

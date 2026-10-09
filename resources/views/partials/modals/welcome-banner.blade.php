@@ -37,8 +37,8 @@
             element.addEventListener('hidden.bs.modal', function () { try { localStorage.setItem(KEY, 'dismissed'); } catch (e) {} });
 
             setTimeout(function () {
-                // Not over another window already open.
-                if (document.querySelector('.modal.show')) { return; }
+                // Not over another window already open, nor after a message of the page (assets/js/flash.js).
+                if (document.querySelector('.modal.show') || element.dataset.suppressed) { return; }
                 bootstrap.Modal.getOrCreateInstance(element).show();
             }, {{ max(3, (int) ($newsletter['popup_delay'] ?? 15)) * 1000 }});
         })();

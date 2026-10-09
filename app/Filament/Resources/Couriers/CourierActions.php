@@ -2,12 +2,20 @@
 
 namespace App\Filament\Resources\Couriers;
 
+use App\Enums\Permission;
+use App\Enums\RemittanceMethod;
 use App\Models\Courier;
 use App\Services\Delivery\CashSettlement;
 use App\Services\Delivery\CourierAccounts;
+use App\Services\Delivery\RemittanceException;
 use App\Support\Money;
 use Filament\Actions\Action;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Carbon;
 
 /**
  * Account actions on a courier, from the list and from the courier page (F-122).
@@ -15,22 +23,60 @@ use Filament\Notifications\Notification;
 class CourierActions
 {
     /**
-     * F-126: the courier hands over the cash collected; all their delivered orders not settled yet are marked.
+     * F-126: the courier hands over cash collected, all of it or part of it; the payment covers their oldest orders
+     * first. The amount proposed is everything they owe.
      */
     public static function settleCash(): Action
     {
+        $due = fn (Courier $record): int => app(CashSettlement::class)->due($record);
+
         return Action::make('settleCash')
-            ->label('Encaissements reçus')
+            ->label('Enregistrer un versement')
             ->icon('heroicon-o-banknotes')
             ->color('warning')
-            ->requiresConfirmation()
-            ->modalHeading(fn (Courier $record) => "Recevoir l’argent de {$record->name()}")
-            ->modalDescription(fn (Courier $record) => 'Confirmez avoir reçu '.Money::format(app(CashSettlement::class)->due($record)).' pour '.CashSettlement::pendingOrders($record)->count().' livraison(s) payée(s) à la livraison.')
+            ->modalHeading(fn (Courier $record) => "Versement de {$record->name()}")
+            ->modalDescription(fn (Courier $record) => 'Il doit encore '.Money::format($due($record)).'. Un versement partiel couvre ses commandes les plus anciennes, le reste reste dû.')
+            ->modalSubmitActionLabel('Enregistrer le versement')
             // The list and the courier page load "cash_due" with the record.
-            ->visible(fn (Courier $record) => (int) ($record->cash_due ?? app(CashSettlement::class)->due($record)) > 0)
-            ->action(function (Courier $record): void {
-                $amount = app(CashSettlement::class)->settle($record, auth()->user());
-                Notification::make()->title(Money::format($amount).' reçus de '.$record->name())->success()->send();
+            ->visible(fn (Courier $record) => (int) ($record->cash_due ?? $due($record)) > 0
+                && (auth()->user()?->can(Permission::RecordRemittances->value) ?? false))
+            ->schema(fn (Courier $record) => [
+                TextInput::make('amount')
+                    ->label('Montant reçu')
+                    ->suffix('FCFA')
+                    ->integer()
+                    ->required()
+                    ->minValue(1)
+                    ->maxValue($due($record))
+                    ->default($due($record)),
+                Select::make('method')->label('Mode')->options(RemittanceMethod::class)->default(RemittanceMethod::Cash->value)->required(),
+                DateTimePicker::make('received_at')->label('Reçu le')->default(now())->seconds(false)->required(),
+                TextInput::make('reference')->label('Référence')->placeholder('N° de transaction Mobile Money ou de virement')->maxLength(100),
+                Textarea::make('note')->label('Note')->rows(2)->maxLength(255),
+            ])
+            ->action(function (Courier $record, array $data, Action $action): void {
+                try {
+                    $remittance = app(CashSettlement::class)->record(
+                        $record,
+                        (int) $data['amount'],
+                        $data['method'] instanceof RemittanceMethod ? $data['method'] : RemittanceMethod::from($data['method']),
+                        auth()->user(),
+                        filled($data['received_at'] ?? null) ? Carbon::parse($data['received_at']) : null,
+                        $data['reference'] ?? null,
+                        $data['note'] ?? null,
+                    );
+                } catch (RemittanceException $exception) {
+                    Notification::make()->title($exception->getMessage())->danger()->send();
+                    $action->halt();
+
+                    return;
+                }
+
+                Notification::make()
+                    ->title(Money::format($remittance->amount).' reçus de '.$record->name())
+                    ->body($remittance->balance_after > 0 ? 'Reste à reverser : '.Money::format($remittance->balance_after) : 'Tout est reversé.')
+                    ->success()
+                    ->send();
             });
     }
 

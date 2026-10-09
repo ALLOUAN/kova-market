@@ -54,8 +54,9 @@
             .finally(function () { button.disabled = false; });
     }
 
-    // A full list is said plainly next to the bar, no browser alert.
+    // A full list is said in the message window (assets/js/flash.js), else plainly next to the bar; no browser alert.
     function showNotice(message) {
+        if (window.kovaFlash && window.kovaFlash(message, 'warning')) { return; }
         var bar = document.querySelector('[data-compare-bar]');
         if (!bar) { return; }
         var notice = document.createElement('p');

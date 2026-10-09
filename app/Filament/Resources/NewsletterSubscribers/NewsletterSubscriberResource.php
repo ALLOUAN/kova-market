@@ -14,8 +14,8 @@ use Filament\Tables\Table;
 use UnitEnum;
 
 /**
- * Newsletter sign-ups (footer, invitation window): the list to export into the e-mailing tool, unsubscribes kept as
- * proof. Addresses are never typed in by hand: the consent comes from the person.
+ * Newsletter sign-ups (footer, invitation window): the audience of the e-mail campaigns (NewsletterCampaignResource),
+ * unsubscribes kept as proof. Addresses are never typed in by hand: the consent comes from the person.
  */
 class NewsletterSubscriberResource extends Resource
 {

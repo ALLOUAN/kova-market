@@ -52,6 +52,7 @@ enum Role: string
             self::Manager => [
                 Permission::ViewCatalog, Permission::ManageCatalog, Permission::ManagePromotions, Permission::ManageContent,
                 Permission::ManageDelivery, Permission::ViewOrders, Permission::ManageOrders,
+                Permission::ViewFinances, Permission::RecordRemittances,
             ],
             self::Picker => [Permission::ViewCatalog, Permission::ViewOrders, Permission::PrepareOrders],
             self::Courier => [],

@@ -7,10 +7,11 @@ use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Enums\Role;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Widgets\DashboardOverview;
 use App\Filament\Widgets\OrdersByStatusChart;
 use App\Filament\Widgets\OrdersToHandle;
 use App\Filament\Widgets\RevenueChart;
-use App\Filament\Widgets\SalesOverview;
+use App\Filament\Widgets\TopProducts;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\Orders\SalesFigures;
@@ -60,9 +61,13 @@ class DashboardTest extends TestCase
 
         $this->get(Dashboard::getUrl())->assertOk()->assertSeeText('Tableau de bord')->assertSeeText('Ajouter un produit')->assertSeeText('Voir la boutique');
 
-        Livewire::test(SalesOverview::class)
+        Livewire::test(DashboardOverview::class)
+            ->assertSeeText('Bonjour Awa')
             ->assertSeeText("30\u{00A0}000\u{00A0}FCFA")
-            ->assertSeeText("Hier : 10\u{00A0}000\u{00A0}FCFA · +200 %");
+            ->assertSeeText("Hier : 10\u{00A0}000\u{00A0}FCFA · +200 %")
+            ->assertSeeText('À faire maintenant')
+            ->assertSeeText('2 commandes à traiter');
+        Livewire::test(TopProducts::class)->assertSeeText('Meilleures ventes');
         Livewire::test(RevenueChart::class)->assertSeeText('Chiffre d’affaires');
         Livewire::test(OrdersByStatusChart::class)->assertOk();
         Livewire::test(OrdersToHandle::class)->assertCanSeeTableRecords(Order::all());
@@ -73,9 +78,9 @@ class DashboardTest extends TestCase
         $this->actingAs(User::factory()->staff(Role::Picker)->create());
 
         $this->assertTrue(OrdersToHandle::canView());
-        $this->assertFalse(SalesOverview::canView());
+        $this->assertFalse(TopProducts::canView());
         $this->assertFalse(RevenueChart::canView());
-        $this->get(Dashboard::getUrl())->assertOk()->assertDontSeeText('Ajouter un produit');
+        $this->get(Dashboard::getUrl())->assertOk()->assertDontSeeText('Ajouter un produit')->assertDontSeeText('Chiffre d’affaires du jour')->assertSeeText('À faire maintenant');
     }
 
     /**

@@ -16,6 +16,14 @@ class ListPayments extends ListRecords
 {
     protected static string $resource = PaymentResource::class;
 
+    /**
+     * The header band (PaymentsOverview) carries the title and the figures.
+     */
+    public function getHeading(): string
+    {
+        return '';
+    }
+
     protected function getHeaderWidgets(): array
     {
         return [PaymentsOverview::class];

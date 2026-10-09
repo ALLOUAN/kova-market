@@ -12,13 +12,18 @@
         <div class="icon"><i class="fa-regular fa-envelope" aria-hidden="true"></i></div>
     @endif
 </form>
-<p class="kova-newsletter-message" data-newsletter-message role="status" aria-live="polite">{{ $status }}</p>
+{{-- Answers open in the message window (assets/js/flash.js); this line only serves when that window cannot open. --}}
+@if ($status)
+    <div class="alert alert-success kova-newsletter-alert" data-popup role="status">{{ $status }}</div>
+@endif
+<p class="kova-newsletter-message" data-newsletter-message role="status" aria-live="polite"></p>
 <p class="kova-newsletter-note">Quelques e-mails par mois au plus. Désinscription en un clic.</p>
 
 @once
     @push('scripts')
         <script>
-            // Newsletter forms answer in place; without JavaScript the plain POST redirects back with the same message.
+            // Newsletter forms answer in the message window without reloading; without JavaScript the plain POST
+            // redirects back with the same message (shown in the window on load).
             document.addEventListener('submit', function (event) {
                 var form = event.target.closest('[data-newsletter-form]');
                 if (!form) { return; }
@@ -31,14 +36,20 @@
                     .then(function (result) {
                         var text = result.data.message || '';
                         if (!result.ok && result.data.errors) { text = Object.values(result.data.errors)[0][0]; }
-                        message.textContent = text;
+                        var shown = window.kovaFlash && window.kovaFlash(text, result.ok ? 'success' : 'danger');
+                        message.textContent = shown ? '' : text;
                         message.classList.toggle('is-error', !result.ok);
                         if (result.ok) {
                             form.reset();
                             try { localStorage.setItem('kova_newsletter', '1'); } catch (e) {}
                         }
                     })
-                    .catch(function () { message.textContent = 'L’inscription n’a pas pu aboutir. Réessayez dans un instant.'; message.classList.add('is-error'); })
+                    .catch(function () {
+                        var text = 'L’inscription n’a pas pu aboutir. Réessayez dans un instant.';
+                        var shown = window.kovaFlash && window.kovaFlash(text, 'danger');
+                        message.textContent = shown ? '' : text;
+                        message.classList.add('is-error');
+                    })
                     .finally(function () { button.disabled = false; });
             });
         </script>

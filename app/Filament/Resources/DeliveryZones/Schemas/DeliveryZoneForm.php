@@ -4,7 +4,11 @@ namespace App\Filament\Resources\DeliveryZones\Schemas;
 
 use App\Enums\DeliveryMode;
 use App\Models\Commune;
+use App\Models\DeliveryZone;
+use App\Models\Setting;
+use App\Support\Money;
 use Closure;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -47,6 +51,31 @@ class DeliveryZoneForm
                         Toggle::make('is_active')
                             ->label('Livraison ouverte')
                             ->helperText('Fermée : les communes de la zone ne sont plus proposées au panier.'),
+                    ]),
+                // Shown to the customer in the cart and at checkout; the minimum and the threshold are applied there.
+                Section::make('Conditions particulières')
+                    ->description('Toutes facultatives. Le client les voit au panier et à la commande.')
+                    ->columnSpan(3)
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('min_order')
+                            ->label('Commande minimum')
+                            ->integer()
+                            ->minValue(0)
+                            ->suffix('FCFA')
+                            ->helperText('Montant d’articles en dessous duquel la commande est refusée pour cette zone. Vide : aucun minimum.'),
+                        TextInput::make('free_shipping_threshold')
+                            ->label('Livraison offerte dès')
+                            ->integer()
+                            ->minValue(0)
+                            ->suffix('FCFA')
+                            ->helperText(fn () => 'Vide : le seuil général de la boutique s’applique ('.(filled($general = Setting::get('delivery.free_shipping_threshold')) ? Money::format((int) $general) : 'aucun').', Paramètres › Livraison).'),
+                        CheckboxList::make('delivery_days')
+                            ->label('Jours de livraison')
+                            ->options(array_map('ucfirst', DeliveryZone::DAYS))
+                            ->columns(['default' => 2, 'sm' => 4, 'lg' => 7])
+                            ->helperText('Aucun jour coché : livraison tous les jours.')
+                            ->columnSpanFull(),
                     ]),
                 Section::make('Communes et villes desservies')
                     ->columnSpan(3)

@@ -185,3 +185,90 @@ The zone of the chosen destination sets `App\Enums\DeliveryMode` (`delivery_zone
 - Every customer-facing timeline (thank-you page `CustomerProgress`, `x-order-timeline` on tracking and account, API
   `steps`) shows only the steps of the order's flow.
 - The mode of a zone is set in the back-office (Zones de livraison); its fee and delay apply as for any zone.
+
+## Couriers' cash and remittances
+
+Cash collected on delivery (`orders.cash_collected`) is handed over to the store in one or several payments
+(`App\Models\CourierRemittance`, back-office: Livreurs › a courier › Versements). Rules, all in
+`App\Services\Delivery\CashSettlement`:
+
+- **Owed** by a courier = cash of their delivered orders − what was already handed over (`orders.cash_remitted`).
+- A payment (`record()`) may be partial; it covers the **oldest orders first** (`courier_remittance_order` keeps the
+  part of each order) and can never exceed what is owed. An order is settled (`cash_settled_at`) once all its cash
+  is in. `balance_after` keeps what was still owed right after the payment.
+- A payment is **never deleted**: `cancel()` marks it cancelled with its reason and its orders owe their part again.
+- Each payment has a PDF receipt (`RemittanceReceipt`, number `VER-000012`) to sign by both sides.
+- When a courier types another amount than the one due, a reason is required (`orders.cash_note`) and the staff
+  allowed to record payments get a back-office alert.
+- `CourierFinances` gives the figures of the courier page (deliveries counted on their delivery date, payments on
+  the day received) and the history of movements.
+- Permissions: `finances.consulter` (see the figures, payments, history) and `finances.versements` (record or
+  cancel a payment); managers and super-admins have both, pickers and couriers neither.
+
+## Finance dashboard
+
+Back-office › Ventes › Finances (`App\Filament\Pages\Finances`, permission `finances.consulter`). Every figure comes
+from `App\Services\Finance\FinanceReport`; the CSV export gives the same ones. Periods (`FinancePeriod`): today,
+this week, this month, this year or chosen dates, compared with the same length just before.
+
+- **Sales and revenue**: as on the dashboard (`SalesFigures::sales()`): orders placed in the period, not cancelled,
+  not an online order still unpaid. Revenue = order totals, split into products and delivery fees.
+- **Online takings**: CinetPay payments received in the period, minus the refunds made in the period.
+- **Takings on delivery**: cash collected at the deliveries made in the period (date of the "Livrée" step).
+- **Couriers**: payments received in the period; "argent encore chez les livreurs" and "reste dû" are today's balance.
+- No courier commission: the platform pays none for now, delivery fees are the store's revenue.
+
+The orders list also sums the orders shown (products, fees, total), filters by payment method, offers period
+shortcuts and exports the orders shown (CSV).
+
+## Delivery zone conditions
+
+Optional, set per zone in the back-office (Zones de livraison › Conditions particulières), rules in
+`App\Models\DeliveryZone`:
+
+- `min_order`: below this amount of goods the cart shows what is missing and disables "Commander", `/commande`
+  sends back to the cart, and `PlaceOrder` refuses the order (`missingForMinimum()`).
+- `free_shipping_threshold`: free delivery from this amount of goods; empty, the store's general threshold
+  (Paramètres) applies (`freeShippingThreshold()`, `feeFor()`), used by the cart, the checkout script and `PlaceOrder`.
+- `delivery_days`: ISO weekdays the zone is delivered (none or all seven: every day), shown with the other
+  conditions (`conditionsLabel()`) in the cart, at checkout and in the API (`/api/v1/communes`, `/api/v1/cart`).
+
+## Courier app: "Mes encaissements"
+
+`/livreur/encaissements` (`Courier\MoneyController`): what the courier owes today, their deliveries, cash collected
+and payments over today / this week / this month (`CourierFinances`), their payments with the PDF receipt
+(`/livreur/versements/{id}/recu`, 404 for another courier's) and the history. No earnings: no commission for now.
+
+## Delivery dashboard
+
+Back-office › Livraison › Tableau de bord (`App\Filament\Pages\DeliveryDashboard`, permission `livraison.gerer`),
+refreshed every 30 seconds; the menu badge counts the orders to assign. Figures from `DeliveryBoard`:
+
+- a header band (date, live state, shortcuts), four large figures (to assign, on the way, delivered today with the
+  7-day success ring, cash with couriers) and chips (to prepare, interior in transit, failures, available couriers);
+- `DispatchQueue` (`app/Filament/Delivery/Widgets`, not on the main dashboard): orders without courier, oldest
+  first, "Attribuer" with the couriers of the zone first (`DeliveryDispatcher::courierOptions()`);
+- "À surveiller": orders without courier for more than `WAITING_ALERT_HOURS` (2 h), on the way for more than
+  `ON_THE_WAY_ALERT_HOURS` (3 h), open Abidjan zones without any available courier;
+- each courier's day (in progress, delivered, failed, cash owed) and each zone's activity and coverage.
+
+Times are those of the order's last status change (status history).
+
+## Newsletter campaigns
+
+Back-office › Promotions › Campagnes e-mail (`NewsletterCampaignResource`, permission `promotions.gerer`). A campaign
+(subject, preview line, optional JPEG/PNG cover, rich content, optional button) is a draft until sent or scheduled;
+`App\Services\Newsletter\CampaignSender` does the rest:
+
+- **Test**: `sendTest()` sends it to one address, subject prefixed "[TEST]" and a banner in the message.
+- **Launch** (`launch()`, or `newsletter:send-scheduled` every minute for scheduled ones): the active subscribers are
+  frozen as `newsletter_campaign_recipients`, then `SendNewsletterCampaignBatch` jobs send 50 e-mails each through
+  the queue. A recipient is sent once (retries skip handled rows); someone unsubscribed meanwhile is skipped.
+- **Stop** (`stop()`): the e-mails not sent yet are skipped, the campaign is "Annulée".
+- **E-mail** (`NewsletterCampaignMail`, `mail.newsletter-campaign`): the store's mail theme, unsubscribe link in the
+  text and in the `List-Unsubscribe` header.
+
+The e-mails leave when the queue runs: on the hosting the scheduler empties it every minute. Locally, set
+`QUEUE_CONNECTION=sync` so that they leave at once without a worker (the campaign is sent during "Envoyer
+maintenant"); `demarrer-local.bat` also runs `schedule:work` for scheduled campaigns. With `MAIL_MAILER=log`
+they are written to `storage/logs/laravel.log` instead of being sent.

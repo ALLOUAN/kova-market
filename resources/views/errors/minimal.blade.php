@@ -9,7 +9,7 @@
     <title>@yield('title') · {{ config('storefront.name', 'KOVA MARKET') }}</title>
     <link rel="icon" href="{{ asset(config('storefront.favicon', 'assets/images/logo/kova-favicon.png')) }}">
     <style>
-        :root { --navy: #021732; --green: #0e7d42; --gold: #c69e3e; --text: #3f4a5a; --line: #e3e8ef; }
+        :root { --navy: #021732; --orange: #cc4400; --gold: #c69e3e; --text: #3f4a5a; --line: #e3e8ef; }
         * { box-sizing: border-box; }
         body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; font: 16px/1.55 "Segoe UI", Roboto, Arial, sans-serif; color: var(--text); background: #fff; }
         header { padding: 18px 24px; border-bottom: 3px solid var(--gold); }
@@ -18,9 +18,9 @@
         .code { font-size: 56px; font-weight: 700; color: var(--gold); line-height: 1; margin: 0 0 12px; }
         h1 { font-size: 24px; color: var(--navy); margin: 0 0 12px; }
         p { max-width: 460px; margin: 0 auto 28px; }
-        a.btn { display: inline-block; padding: 12px 24px; border-radius: 8px; background: var(--green); color: #fff; font-weight: 600; text-decoration: none; }
-        a.btn:hover { background: #0b6536; }
-        a.btn:focus-visible { outline: 3px solid rgb(14 125 66 / 0.35); outline-offset: 2px; }
+        a.btn { display: inline-block; padding: 12px 24px; border-radius: 8px; background: var(--orange); color: #fff; font-weight: 600; text-decoration: none; }
+        a.btn:hover { background: #b83a00; }
+        a.btn:focus-visible { outline: 3px solid rgb(204 68 0 / 0.35); outline-offset: 2px; }
         footer { padding: 16px; text-align: center; font-size: 13px; color: #667085; border-top: 1px solid var(--line); }
     </style>
 </head>

@@ -51,7 +51,12 @@ class OrderInfolist
                             ->belowContent(fn (Order $record) => $record->courier ? $record->courier->formattedPhone().' · depuis le '.$record->assigned_at?->format('d/m/Y H:i') : null),
                         TextEntry::make('cash_collected')
                             ->label('Encaissé par le livreur')
-                            ->formatStateUsing(fn (Order $record) => Money::format($record->cash_collected).($record->cash_settled_at ? ' — reversé le '.$record->cash_settled_at->format('d/m/Y') : ' — à reverser'))
+                            ->formatStateUsing(fn (Order $record) => Money::format($record->cash_collected).match (true) {
+                                $record->cash_settled_at !== null => ' — reversé le '.$record->cash_settled_at->format('d/m/Y'),
+                                $record->cash_remitted > 0 => ' — '.Money::format($record->cash_remitted).' reversés, '.Money::format($record->cash_collected - $record->cash_remitted).' à reverser',
+                                default => ' — à reverser',
+                            })
+                            ->belowContent(fn (Order $record) => $record->cash_note ? "Montant différent du dû : {$record->cash_note}" : null)
                             ->visible(fn (Order $record) => $record->cash_collected !== null),
                     ]),
                 Section::make('Articles')

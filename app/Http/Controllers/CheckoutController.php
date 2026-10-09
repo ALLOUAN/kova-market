@@ -48,6 +48,11 @@ class CheckoutController extends Controller
             return redirect()->route('cart.show')->with('cart_error', "Le code promo {$summary->coupon->code} ne s’applique plus : retirez-le ou complétez votre panier pour commander.");
         }
 
+        // Below the minimum order of the chosen zone the order would be refused: the cart says how much is missing.
+        if ($summary->missingForMinimum()) {
+            return redirect()->route('cart.show');
+        }
+
         $analytics->beginCheckout($summary);
 
         $user = $request->user();

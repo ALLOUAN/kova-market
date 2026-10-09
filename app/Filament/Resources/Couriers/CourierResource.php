@@ -9,9 +9,11 @@ use App\Filament\Resources\Couriers\Pages\CreateCourier;
 use App\Filament\Resources\Couriers\Pages\EditCourier;
 use App\Filament\Resources\Couriers\Pages\ListCouriers;
 use App\Filament\Resources\Couriers\RelationManagers\DeliveriesRelationManager;
+use App\Filament\Resources\Couriers\RelationManagers\RemittancesRelationManager;
 use App\Filament\Resources\Couriers\Schemas\CourierForm;
 use App\Filament\Resources\Couriers\Tables\CouriersTable;
 use App\Models\Courier;
+use App\Models\Order;
 use App\Services\Delivery\CashSettlement;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -53,7 +55,12 @@ class CourierResource extends Resource
                 'orders as delivered_count' => fn (Builder $query) => $query->where('status', OrderStatus::Delivered),
                 'orders as failed_count' => fn (Builder $query) => $query->where('status', OrderStatus::Cancelled),
             ])
-            ->withSum(['orders as cash_due' => fn (Builder $query) => CashSettlement::pending($query)], 'cash_collected');
+            // Cash still with the courier: delivered orders minus what was already handed over (partial payments too).
+            ->addSelect(['cash_due' => Order::query()
+                ->selectRaw(CashSettlement::owedSql())
+                ->whereColumn('orders.courier_id', 'couriers.id')
+                ->tap(fn (Builder $query) => CashSettlement::pending($query)),
+            ]);
     }
 
     public static function form(Schema $schema): Schema
@@ -70,6 +77,7 @@ class CourierResource extends Resource
     {
         return [
             DeliveriesRelationManager::class,
+            RemittancesRelationManager::class,
         ];
     }
 

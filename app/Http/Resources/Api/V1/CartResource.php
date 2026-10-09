@@ -56,6 +56,8 @@ class CartResource extends JsonResource
             'shipping_fee' => $summary->shippingFee,
             'free_shipping' => $summary->freeShipping || $summary->hasFreeShippingCoupon(),
             'missing_for_free_shipping' => $summary->missingForFreeShipping(),
+            'minimum_order' => $summary->minimumOrder,
+            'missing_for_minimum' => $summary->missingForMinimum(),
             'total' => $summary->total(),
         ];
     }
