@@ -2,9 +2,19 @@
 
 namespace App\Providers\Filament;
 
+use App\Enums\Permission;
 use App\Filament\Auth\AppAuthentication;
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\DeliveryDashboard;
+use App\Filament\Pages\Finances;
+use App\Filament\Pages\Maintenance;
+use App\Filament\Pages\Settings;
+use App\Filament\Resources\NewsletterCampaigns\NewsletterCampaignResource;
+use App\Filament\Resources\Orders\OrderResource;
+use App\Filament\Resources\Products\ProductResource;
 use App\Http\Middleware\EnsureTwoFactorForSensitiveRoles;
+use App\Services\Orders\SalesFigures;
+use Filament\Actions\Action;
 use Filament\Forms\Components\OneTimeCodeInput;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -13,6 +23,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -27,10 +38,10 @@ class AdminPanelProvider extends PanelProvider
     {
         parent::register();
 
-        // Local testing aid: show the current code of the local test secret on every 6-digit code field.
+        // Local testing aid: show the current code of the local test secret (.env) on every 6-digit code field.
         if ($this->app->isLocal()) {
             OneTimeCodeInput::configureUsing(fn (OneTimeCodeInput $input) => $input
-                ->hint(fn () => 'Code de test (local) : '.app(AppAuthentication::class)->getCurrentTestCode())
+                ->hint(fn () => ($code = app(AppAuthentication::class)->getCurrentTestCode()) ? 'Code de test (local) : '.$code : null)
                 ->hintColor('warning'));
         }
     }
@@ -63,6 +74,7 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::Slate,
             ])
             // Back-office alerts (new and cancelled orders), refreshed every 30 seconds.
+            ->userMenuItems(self::quickActions())
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<link rel="stylesheet" href="'.e(asset('assets/admin/kova-admin.css').'?v='.@filemtime(public_path('assets/admin/kova-admin.css'))).'">')
@@ -85,5 +97,66 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /**
+     * Shortcuts of the user menu (avatar, top right), in two groups under "Profil": everyday work, then the store's
+     * settings. Each one shows only to those allowed to open it.
+     *
+     * @return list<array<string, Action>>
+     */
+    private static function quickActions(): array
+    {
+        $can = fn (Permission $permission): bool => (bool) auth()->user()?->can($permission->value);
+
+        return [
+            [
+                'storefront' => Action::make('storefront')
+                    ->label('Voir la boutique')
+                    ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+                    ->url(fn (): string => route('home'), shouldOpenInNewTab: true),
+                'orders' => Action::make('orders')
+                    ->label('Commandes à traiter')
+                    ->icon(Heroicon::OutlinedShoppingBag)
+                    ->badge(fn (): ?int => app(SalesFigures::class)->toHandle() ?: null)
+                    ->badgeColor('warning')
+                    ->url(fn (): string => OrderResource::getUrl('index', ['tab' => 'to_handle']))
+                    ->visible(fn (): bool => $can(Permission::ViewOrders)),
+                'product' => Action::make('product')
+                    ->label('Ajouter un produit')
+                    ->icon(Heroicon::OutlinedPlus)
+                    ->url(fn (): string => ProductResource::getUrl('create'))
+                    ->visible(fn (): bool => $can(Permission::ManageCatalog)),
+                'delivery' => Action::make('delivery')
+                    ->label('Livraisons')
+                    ->icon(Heroicon::OutlinedTruck)
+                    ->url(fn (): string => DeliveryDashboard::getUrl())
+                    ->visible(fn (): bool => DeliveryDashboard::canAccess()),
+                'finances' => Action::make('finances')
+                    ->label('Finances')
+                    ->icon(Heroicon::OutlinedChartBarSquare)
+                    ->url(fn (): string => Finances::getUrl())
+                    ->visible(fn (): bool => Finances::canAccess()),
+                'campaign' => Action::make('campaign')
+                    ->label('Nouvelle campagne e-mail')
+                    ->icon(Heroicon::OutlinedMegaphone)
+                    ->url(fn (): string => NewsletterCampaignResource::getUrl('create'))
+                    ->visible(fn (): bool => $can(Permission::ManagePromotions)),
+            ],
+            [
+                'settings' => Action::make('settings')
+                    ->label('Paramètres de la boutique')
+                    ->icon(Heroicon::OutlinedCog6Tooth)
+                    ->url(fn (): string => Settings::getUrl())
+                    ->visible(fn (): bool => Settings::canAccess()),
+                'maintenance' => Action::make('maintenance')
+                    ->label('Maintenance')
+                    ->icon(Heroicon::OutlinedWrenchScrewdriver)
+                    ->badge(fn (): ?string => Maintenance::getNavigationBadge())
+                    ->badgeColor('danger')
+                    ->url(fn (): string => Maintenance::getUrl())
+                    ->visible(fn (): bool => Maintenance::canAccess()),
+            ],
+        ];
     }
 }

@@ -25,7 +25,9 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'admin-kovamarket@mail.com',
+            // Local demo only (never seeded in production).
+            'password' => '123456789',
         ])->assignRole(Role::SuperAdmin->value);
 
         $this->call([CatalogSeeder::class, BannerSeeder::class, DemoDeliveryFeesSeeder::class, DemoCouponsSeeder::class, DemoStaffSeeder::class]);

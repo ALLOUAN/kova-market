@@ -16,8 +16,9 @@ return [
 
     /*
     | Local machines only (APP_ENV=local): two-factor secret given to every account set up locally,
-    | whose current code is displayed on the screens asking for it. Never used in other environments.
+    | whose current code is displayed on the screens asking for it. Read from the local .env only, never
+    | written here; without it, local accounts get random secrets like everywhere else.
     */
-    'local_two_factor_secret' => env('ADMIN_LOCAL_TWO_FACTOR_SECRET', 'JBSWY3DPEHPK3PXP'),
+    'local_two_factor_secret' => env('ADMIN_LOCAL_TWO_FACTOR_SECRET'),
 
 ];

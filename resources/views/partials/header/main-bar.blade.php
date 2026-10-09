@@ -60,15 +60,49 @@
                     </li>
                     <li class="rbt-access-box rbt-scroll-trigger fade_in animation-order-3 rbt-access-box-has-bg-hover d-none d-lg-flex">
                         @auth
-                            <a href="{{ route('account.show') }}" class="rbt-access-box-wrapper">
-                                <div class="rbt-round-btn rbt-bg-static-gray">
-                                    <i class="fa-regular fa-user"></i>
+                            {{-- "Mon compte" opens the customer area; hovering or tabbing into it shows the shortcuts. --}}
+                            @php
+                                $accountUser = auth()->user();
+                                $ordersUnderway = $accountUser->orders()->whereNotIn('status', [\App\Enums\OrderStatus::Delivered, \App\Enums\OrderStatus::Cancelled])->count();
+                            @endphp
+                            <div class="kova-account-menu">
+                                <a href="{{ route('account.show') }}" class="rbt-access-box-wrapper" aria-haspopup="true">
+                                    <div class="rbt-round-btn rbt-bg-static-gray">
+                                        <i class="fa-regular fa-user"></i>
+                                    </div>
+                                    <div class="content">
+                                        <p>Bonjour, {{ Str::before($accountUser->name, ' ') }}</p>
+                                        <span>Mon compte <i class="fa-regular fa-chevron-down kova-account-menu__caret" aria-hidden="true"></i></span>
+                                    </div>
+                                </a>
+                                <div class="kova-account-menu__panel">
+                                    <div class="kova-account-menu__head">
+                                        <span class="kova-account-menu__avatar" aria-hidden="true">{{ Str::upper(Str::substr($accountUser->name, 0, 1)) }}</span>
+                                        <span>
+                                            <strong>{{ $accountUser->name }}</strong>
+                                            <small>{{ $accountUser->email ?: \App\Support\PhoneNumber::format((string) $accountUser->phone) }}</small>
+                                        </span>
+                                    </div>
+                                    <nav class="kova-account-menu__links" aria-label="Mon compte">
+                                        <a href="{{ route('account.show') }}"><i class="fa-regular fa-gauge"></i>Tableau de bord</a>
+                                        <a href="{{ route('account.orders') }}"><i class="fa-regular fa-box"></i>Mes commandes
+                                            @if ($ordersUnderway > 0)<span class="kova-account-menu__count" title="En cours">{{ $ordersUnderway }}</span>@endif
+                                        </a>
+                                        <a href="{{ route('account.tracking') }}"><i class="fa-regular fa-truck-fast"></i>Suivre une livraison</a>
+                                        @if (config('storefront.features.wishlist'))
+                                            <a href="{{ route('account.wishlist') }}"><i class="fa-regular fa-heart"></i>Mes favoris
+                                                @if ($wishlistCount > 0)<span class="kova-account-menu__count">{{ $wishlistCount }}</span>@endif
+                                            </a>
+                                        @endif
+                                        <a href="{{ route('account.addresses.index') }}"><i class="fa-regular fa-location-dot"></i>Mes adresses</a>
+                                        <a href="{{ route('cart.show') }}"><i class="fa-regular fa-bag-shopping"></i>Mon panier</a>
+                                    </nav>
+                                    @if ($accountUser->canAccessPanel(\Filament\Facades\Filament::getPanel('admin')))
+                                        <a class="kova-account-menu__admin" href="{{ \Filament\Facades\Filament::getPanel('admin')->getUrl() }}"><i class="fa-regular fa-screwdriver-wrench"></i>Administration</a>
+                                    @endif
+                                    <a class="kova-account-menu__logout" href="#" data-logout><i class="fa-regular fa-right-from-bracket"></i>Se déconnecter</a>
                                 </div>
-                                <div class="content">
-                                    <p>Bonjour, {{ Str::before(auth()->user()->name, ' ') }}</p>
-                                    <span>Mon compte</span>
-                                </div>
-                            </a>
+                            </div>
                         @else
                             <a href="#!" class="rbt-access-box-wrapper" data-bs-toggle="modal" data-bs-target="#signinModal">
                                 <div class="rbt-round-btn rbt-bg-static-gray">

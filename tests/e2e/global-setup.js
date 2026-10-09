@@ -17,7 +17,7 @@ export default async function globalSetup() {
 
     artisan('migrate:fresh', '--seed', '--force');
     artisan('tinker', '--execute', [
-        "App\\Models\\User::where('email', 'test@example.com')->firstOrFail()->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');",
+        "App\\Models\\User::where('email', 'admin-kovamarket@mail.com')->firstOrFail()->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');",
         "App\\Models\\Setting::store(['analytics.ga4_id' => 'G-E2ETEST01', 'analytics.meta_pixel_id' => '123456789012345', 'analytics.tiktok_pixel_id' => 'CE2ETEST000000']);",
     ].join(' '));
 

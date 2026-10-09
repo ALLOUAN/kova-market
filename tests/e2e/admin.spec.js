@@ -3,8 +3,8 @@ import { ADMIN_TOTP_SECRET, totp } from './support.js';
 
 test('le super-admin se connecte avec sa double authentification et voit le catalogue', async ({ page }) => {
     await page.goto('/admin/login');
-    await page.getByRole('textbox', { name: /Adresse e-mail/ }).fill('test@example.com');
-    await page.getByRole('textbox', { name: /Mot de passe/ }).fill('password');
+    await page.getByRole('textbox', { name: /Adresse e-mail/ }).fill('admin-kovamarket@mail.com');
+    await page.getByRole('textbox', { name: /Mot de passe/ }).fill('123456789');
     await page.getByRole('button', { name: 'Connexion' }).click();
 
     // Second step: the code of the authenticator app.

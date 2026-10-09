@@ -41,8 +41,8 @@ test('le client paie en ligne et revient sur sa commande confirmée', async ({ p
     // The back-office's payments space shows it, with CinetPay's journal.
     const number = page.url().match(/KM-\d{6}-\d{4}/)[0];
     await page.goto('/admin/login');
-    await page.getByRole('textbox', { name: /Adresse e-mail/ }).fill('test@example.com');
-    await page.getByRole('textbox', { name: /Mot de passe/ }).fill('password');
+    await page.getByRole('textbox', { name: /Adresse e-mail/ }).fill('admin-kovamarket@mail.com');
+    await page.getByRole('textbox', { name: /Mot de passe/ }).fill('123456789');
     await page.getByRole('button', { name: 'Connexion' }).click();
     const code = page.getByRole('textbox').first();
     await expect(code).toBeVisible();

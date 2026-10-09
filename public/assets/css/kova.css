@@ -2093,3 +2093,46 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
     .rbt-product-card .rbt-countdown-one .countdown .countdown-container .countdown-value { font-size: 13px !important; line-height: 1.1 !important; }
     .rbt-product-card .rbt-countdown-one .countdown .countdown-container .countdown-heading { font-size: 8.5px !important; line-height: 1.2 !important; letter-spacing: 0; }
 }
+
+/* ======================================================================= Header "Mon compte" menu
+   Hover or keyboard focus on "Mon compte" opens the customer's shortcuts; a click still opens the customer area. */
+.kova-account-menu { position: relative; display: flex; align-items: center; }
+.kova-account-menu__caret { margin-left: 4px; font-size: 10px; transition: transform 0.15s; }
+.kova-account-menu:hover .kova-account-menu__caret,
+.kova-account-menu:focus-within .kova-account-menu__caret { transform: rotate(180deg); }
+.kova-account-menu__panel {
+    position: absolute; top: calc(100% + 10px); right: 0; z-index: 1000; width: 270px; padding: 8px;
+    background: var(--kova-surface); border: 1px solid var(--kova-border); border-radius: 14px;
+    box-shadow: 0 12px 32px rgb(2 23 50 / 0.16);
+    opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+/* Bridge over the gap, so the pointer can travel from "Mon compte" to the panel. */
+.kova-account-menu__panel::before { content: ""; position: absolute; left: 0; right: 0; top: -12px; height: 12px; }
+.kova-account-menu:hover .kova-account-menu__panel,
+.kova-account-menu:focus-within .kova-account-menu__panel { opacity: 1; visibility: visible; transform: none; }
+.kova-account-menu__head { display: flex; align-items: center; gap: 10px; padding: 8px 10px 12px; margin-bottom: 6px; border-bottom: 1px solid var(--kova-border); }
+.kova-account-menu__head strong { display: block; font-size: 14px; color: var(--kova-text); line-height: 1.3; }
+.kova-account-menu__head small { display: block; font-size: 12px; color: var(--kova-text-muted); overflow-wrap: anywhere; }
+.kova-account-menu__avatar {
+    flex: none; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%; background: var(--kova-navy); color: #fff; font-weight: 700; box-shadow: 0 0 0 2px var(--kova-gold);
+}
+.kova-account-menu__links { display: grid; }
+.kova-account-menu__panel a {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px;
+    font-size: 14px; font-weight: 500; color: var(--kova-text-body); text-decoration: none;
+}
+.kova-account-menu__panel a i { width: 18px; text-align: center; color: var(--kova-text-muted); }
+.kova-account-menu__panel a:hover,
+.kova-account-menu__panel a:focus-visible { background: var(--kova-surface-alt); color: var(--kova-navy); }
+.kova-account-menu__panel a:hover i { color: var(--kova-orange); }
+.kova-account-menu__count {
+    margin-left: auto; min-width: 22px; padding: 1px 7px; border-radius: 999px; text-align: center;
+    background: var(--kova-orange); color: #fff; font-size: 12px; font-weight: 700;
+}
+.kova-account-menu__admin { margin-top: 6px; border-top: 1px solid var(--kova-border); border-radius: 0 0 9px 9px; padding-top: 12px !important; }
+.kova-account-menu__panel .kova-account-menu__admin { color: var(--kova-navy); font-weight: 600; }
+.kova-account-menu__panel .kova-account-menu__logout { color: var(--kova-danger); }
+.kova-account-menu__panel .kova-account-menu__logout i { color: var(--kova-danger); }
+.kova-account-menu__panel .kova-account-menu__logout:hover { background: var(--kova-danger-bg); color: var(--kova-danger); }
+.kova-account-menu__links + .kova-account-menu__logout { margin-top: 6px; border-top: 1px solid var(--kova-border); border-radius: 0 0 9px 9px; padding-top: 12px !important; }
