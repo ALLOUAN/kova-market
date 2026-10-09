@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -31,6 +32,9 @@ class MonMarcheCategoriesTest extends TestCase
 
     public function test_the_storefront_shows_it_in_the_menus_and_on_its_page(): void
     {
+        // The menus show the categories holding products.
+        Product::factory()->for(Category::where('slug', 'legumes-frais')->firstOrFail())->create();
+
         $this->get('/')->assertOk()->assertSeeText('Mon Marché')->assertSeeText('Fruits et légumes')->assertSee('fa-regular fa-basket-shopping', false);
 
         $this->get('/categorie/mon-marche')->assertOk()->assertSeeText('Mon Marché')->assertSeeText('Boissons');

@@ -73,7 +73,7 @@ class Market
      */
     public function menuTree(): \Illuminate\Database\Eloquent\Collection
     {
-        return once(fn () => $this->category()?->children()->with('children')->get() ?? new \Illuminate\Database\Eloquent\Collection);
+        return once(fn () => app(CatalogService::class)->withProducts($this->category()?->children()->with('children')->get() ?? new \Illuminate\Database\Eloquent\Collection));
     }
 
     public function showInMenu(): bool

@@ -28,6 +28,9 @@ class MetaConversions
         'generate_lead' => 'Lead',
         'sign_up' => 'CompleteRegistration',
         'contact' => 'Contact',
+        // Custom event, server only: the sale really made (cash collected or online payment kept), unlike "Purchase"
+        // sent at the order. Campaigns can be measured, or optimised, on it.
+        'order_delivered' => 'CommandeLivree',
     ];
 
     public function enabled(): bool
@@ -84,10 +87,25 @@ class MetaConversions
             return;
         }
 
+        $this->dispatchForOrder('purchase', $order, Analytics::purchaseEventId($order));
+    }
+
+    /**
+     * The order handed to the customer: the sale that counts, net of cancelled cash-on-delivery orders.
+     */
+    public function delivered(Order $order): void
+    {
+        if ($this->enabled() && ! empty($order->tracking)) {
+            $this->dispatchForOrder('order_delivered', $order, 'delivered-'.$order->number);
+        }
+    }
+
+    private function dispatchForOrder(string $event, Order $order, string $eventId): void
+    {
         $order->loadMissing('items', 'user');
         [$first, $last] = array_pad(explode(' ', trim((string) $order->customer_name), 2), 2, null);
 
-        $this->dispatch('purchase', Analytics::purchaseParams($order), Analytics::purchaseEventId($order), $order->tracking, [
+        $this->dispatch($event, Analytics::purchaseParams($order), $eventId, $order->tracking, [
             ...$this->person($order->user),
             'em' => $order->email ?: $order->user?->email,
             'ph' => $order->phone,

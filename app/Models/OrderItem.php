@@ -7,6 +7,7 @@ use App\Support\SaleQuantity;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Order line: name, variant, SKU and price copied at order time (F-054); a pack line also keeps its contents
@@ -49,6 +50,12 @@ class OrderItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /** The customer's review of this line, once given. */
+    public function review(): HasOne
+    {
+        return $this->hasOne(ProductReview::class);
     }
 
     /** The unit frozen on the line: the product may be sold otherwise later, the order must still read right. */

@@ -106,6 +106,9 @@ class ListHeadersTest extends TestCase
         Livewire::test(ListProducts::class, ['activeTab' => 'sold_out'])->assertCanSeeTableRecords([$soldOut])->assertCanNotSeeTableRecords([$inStock, $offline]);
         Livewire::test(ListProducts::class, ['activeTab' => 'offline'])->assertCanSeeTableRecords([$offline])->assertCanNotSeeTableRecords([$inStock, $soldOut]);
         Livewire::test(ListProducts::class, ['activeTab' => 'best_sellers'])->assertCanSeeTableRecords([$soldOut, $inStock], inOrder: true)->assertCanNotSeeTableRecords([$offline]);
+
+        $inStock->update(['description' => 'Son puissant, étanche.']);
+        Livewire::test(ListProducts::class, ['activeTab' => 'no_description'])->assertCanSeeTableRecords([$soldOut])->assertCanNotSeeTableRecords([$inStock]);
     }
 
     public function test_the_catalogue_lists_have_their_header_band_and_tabs(): void

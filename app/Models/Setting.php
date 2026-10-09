@@ -23,18 +23,27 @@ class Setting extends Model
 
     protected static function booted(): void
     {
-        static::saved(fn () => Cache::forget(self::CACHE_KEY));
-        static::deleted(fn () => Cache::forget(self::CACHE_KEY));
+        static::saved(fn () => self::forgetCache());
+        static::deleted(fn () => self::forgetCache());
     }
 
     /**
-     * All non-empty settings, cached until one changes.
+     * For changes made without model events (a mass delete or update).
+     */
+    public static function forgetCache(): void
+    {
+        Cache::memo()->forget(self::CACHE_KEY);
+    }
+
+    /**
+     * All non-empty settings, cached until one changes. Memoized for the request or job: a page reads settings a few
+     * hundred times, and each read of the database cache store would otherwise be a query.
      *
      * @return array<string, string>
      */
     public static function values(): array
     {
-        return Cache::rememberForever(
+        return Cache::memo()->rememberForever(
             self::CACHE_KEY,
             fn () => static::query()->whereNotNull('value')->where('value', '!=', '')->pluck('value', 'key')->all(),
         );

@@ -51,6 +51,7 @@ class Order extends Model
             'marketing_opt_in' => 'boolean',
             'terms_accepted_at' => 'datetime',
             'tracking' => 'array',
+            'review_invited_at' => 'datetime',
             'assigned_at' => 'datetime',
             'delivery_date' => 'date',
             'cash_collected' => 'integer',

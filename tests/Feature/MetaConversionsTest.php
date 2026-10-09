@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Enums\OrderStatus;
+use App\Events\OrderStatusChanged;
 use App\Models\Cart;
 use App\Models\Commune;
 use App\Models\DeliveryZone;
@@ -101,6 +103,40 @@ class MetaConversionsTest extends TestCase
         $this->assertSame([hash('sha256', 'koffi@example.ci')], $server[0]['user_data']['em']);
         $this->assertSame([hash('sha256', 'koffi')], $server[0]['user_data']['fn']);
         $this->assertStringNotContainsString('0701020304', json_encode($server[0]));
+    }
+
+    public function test_a_delivered_order_is_reported_as_commande_livree(): void
+    {
+        $this->withUnencryptedCookie('kova_consent', 'granted');
+        $this->post('/panier/articles', ['product_id' => $this->product->id, 'quantity' => 1]);
+        $this->withCookie(CartManager::COOKIE, Cart::sole()->token);
+        $this->post('/commande', [
+            'customer_name' => 'Koffi Yao', 'phone' => '0701020304', 'commune_id' => $this->commune->id,
+            'district' => 'Riviera 2', 'payment_method' => 'paiement_livraison', 'terms' => '1',
+        ]);
+        $order = Order::sole();
+
+        OrderStatusChanged::dispatch($order, OrderStatus::OutForDelivery, OrderStatus::Delivered);
+
+        $delivered = $this->metaEvents('CommandeLivree');
+        $this->assertCount(1, $delivered);
+        $this->assertSame(["delivered-{$order->number}", 46500], [$delivered[0]['event_id'], $delivered[0]['custom_data']['value']]);
+    }
+
+    public function test_the_catalogue_feed_lists_online_variants_with_the_ids_the_pixel_reports(): void
+    {
+        Product::factory()->create(['name' => 'Radio hors ligne', 'is_active' => false]);
+        $soldOut = Product::factory()->create(['name' => 'Casque épuisé', 'stock' => 0]);
+
+        $response = $this->get('/flux/meta.csv')->assertOk()->assertHeader('X-Robots-Tag', 'noindex');
+        $rows = array_map('str_getcsv', explode("\n", trim($response->getContent())));
+        $lines = collect(array_slice($rows, 1))->map(fn (array $row) => array_combine($rows[0], $row))->keyBy('id');
+
+        $this->assertSame(2, $lines->count());
+        $speaker = $lines[$this->product->defaultVariant->sku];
+        $this->assertSame(['Enceinte', 'in stock', '45000 XOF', route('products.show', $this->product)], [$speaker['title'], $speaker['availability'], $speaker['price'], $speaker['link']]);
+        $this->assertNotSame('', $speaker['description']);
+        $this->assertSame('out of stock', $lines[$soldOut->defaultVariant->sku]['availability']);
     }
 
     public function test_an_order_placed_without_consent_keeps_nothing_for_meta(): void

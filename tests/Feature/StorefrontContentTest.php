@@ -221,9 +221,9 @@ class StorefrontContentTest extends TestCase
     public function test_the_shop_mega_menu_promo_uses_the_back_office_image_and_button(): void
     {
         $promo = ['label' => 'À partir du', 'highlight' => '11 décembre', 'title' => 'Jusqu’à -40 %', 'subtitle' => 'Sur toutes les marques'];
-        Category::factory()->create(['name' => 'Montres', 'position' => 1, 'promo' => [...$promo, 'menu_image' => 'uploads/categories/fond-montres.webp', 'button' => 'Découvrir les montres']]);
+        Product::factory()->for(Category::factory()->create(['name' => 'Montres', 'position' => 1, 'promo' => [...$promo, 'menu_image' => 'uploads/categories/fond-montres.webp', 'button' => 'Découvrir les montres']]))->create();
         // Nothing chosen: the theme's background and "Voir la collection".
-        Category::factory()->create(['name' => 'Audio', 'position' => 2, 'promo' => $promo]);
+        Product::factory()->for(Category::factory()->create(['name' => 'Audio', 'position' => 2, 'promo' => $promo]))->create();
 
         $response = $this->get('/')
             ->assertSee("background-image: url('".asset('uploads/categories/fond-montres.webp')."')", false)

@@ -48,6 +48,8 @@ class MarketPageTest extends TestCase
 
     public function test_the_menus_lead_to_the_showcase(): void
     {
+        Product::factory()->for(Category::where('slug', 'legumes-frais')->firstOrFail())->create();
+
         // Like "Boutique": a chevron opening the market's categories (tabs) and their sub-categories.
         $this->get('/')->assertOk()
             ->assertSee('class="with-rbt-megamenu has-menu-child-item position-static kova-menu-highlight"', false)

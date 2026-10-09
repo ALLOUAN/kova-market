@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\Permission;
+use App\Filament\Settings\Widgets\MenusOverview;
 use App\Models\Setting;
 use App\Services\Storefront\ConfigOverrides;
 use App\Support\MenuLinks;
@@ -41,6 +42,19 @@ class Menus extends Page
 
     /** @var array<string, mixed> */
     public ?array $data = [];
+
+    /**
+     * The header band (MenusOverview) carries the title and the size of each menu.
+     */
+    public function getHeading(): string
+    {
+        return '';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [MenusOverview::class];
+    }
 
     public static function canAccess(): bool
     {
@@ -96,6 +110,7 @@ class Menus extends Page
                 ->modalDescription('Les menus reviennent à ceux livrés avec le site ; vos modifications sont perdues.')
                 ->action(function (): void {
                     Setting::whereIn('key', ConfigOverrides::MENUS)->delete();
+                    Setting::forgetCache();
                     activity()->causedBy(auth()->user())->log('Menus du site rétablis');
                     Notification::make()->title('Menus rétablis')->success()->send();
                     $this->redirect(static::getUrl());

@@ -22,8 +22,8 @@ class ProductsTable
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['category', 'brand'])
                 ->withCount(['stockAlerts as waiting_alerts_count' => fn (Builder $query) => $query->whereNull('notified_at')]))
-            // The "Meilleures ventes" tab lists the best sellers first.
-            ->defaultSort(fn ($livewire) => ($livewire->activeTab ?? null) === 'best_sellers' ? 'sold_count' : 'updated_at', 'desc')
+            // The "Meilleures ventes" and "Sans description" tabs list the best sellers first.
+            ->defaultSort(fn ($livewire) => in_array($livewire->activeTab ?? null, ['best_sellers', 'no_description'], true) ? 'sold_count' : 'updated_at', 'desc')
             ->columns([
                 ImageColumn::make('image')
                     ->label('')

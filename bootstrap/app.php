@@ -64,8 +64,12 @@ return Application::configure(basePath: dirname(__DIR__))
             ? SlugRedirector::respond($request, $exception->getPrevious())
             : null);
 
-        // Business refusals (stock, commune, promo code...) reach API clients as 422 with their message;
-        // the storefront controllers catch them to show the message on the page.
+        // Business refusals (stock, commune, promo code...) are answers to the customer, not faults: never logged nor
+        // sent to Sentry, where they would bury real errors.
+        $exceptions->dontReport([CartException::class, CheckoutException::class, CouponException::class]);
+
+        // They reach API clients as 422 with their message; the storefront controllers catch them to show the
+        // message on the page.
         $exceptions->render(fn (CartException|CheckoutException|CouponException $exception, Request $request) => $request->is('api/*')
             ? response()->json(['message' => $exception->getMessage()], 422)
             : null);

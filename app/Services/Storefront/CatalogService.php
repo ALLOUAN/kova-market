@@ -5,6 +5,7 @@ namespace App\Services\Storefront;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\Product;
 use App\Models\Promotion;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
@@ -23,7 +24,27 @@ class CatalogService
      */
     public function categoryTree(): EloquentCollection
     {
-        return once(fn () => Category::roots()->with('children.children')->get());
+        return once(fn () => $this->withProducts(Category::roots()->with('children.children')->get()));
+    }
+
+    /**
+     * Keeps the categories holding an online product, themselves or below: menus never lead to an empty page, and
+     * the header stays light. An empty category still opens by its address.
+     *
+     * @param  EloquentCollection<int, Category>  $categories
+     * @return EloquentCollection<int, Category>
+     */
+    public function withProducts(EloquentCollection $categories): EloquentCollection
+    {
+        $stocked = once(fn () => Product::query()->active()->distinct()->pluck('category_id')->flip());
+
+        return $categories->filter(function (Category $category) use ($stocked): bool {
+            if ($category->relationLoaded('children')) {
+                $category->setRelation('children', $this->withProducts($category->children));
+            }
+
+            return $stocked->has($category->getKey()) || ($category->relationLoaded('children') && $category->children->isNotEmpty());
+        })->values();
     }
 
     /**

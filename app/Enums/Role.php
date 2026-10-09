@@ -39,7 +39,8 @@ enum Role: string
      */
     public static function requiringTwoFactor(): array
     {
-        return [self::SuperAdmin, self::Manager];
+        // Every back-office role: a picker's account also reaches customers' names, phones and addresses.
+        return [self::SuperAdmin, self::Manager, self::Picker];
     }
 
     /**

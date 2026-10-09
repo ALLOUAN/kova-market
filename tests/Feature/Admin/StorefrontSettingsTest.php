@@ -11,7 +11,9 @@ use App\Models\User;
 use App\Support\MenuLinks;
 use Database\Seeders\ContentSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Cache\Events\CacheHit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -96,6 +98,22 @@ class StorefrontSettingsTest extends TestCase
         $this->actingAs(User::factory()->staff(Role::Manager)->create());
         Livewire::test(Menus::class)->callAction('reset');
         $this->assertSame(0, Setting::whereIn('key', ['menu.help', 'menu.legal'])->count());
+
+        // The cached settings forget them at once, so the site shows the original menus again.
+        $this->assertArrayNotHasKey('menu.help', Setting::values());
+    }
+
+    public function test_settings_are_read_from_the_cache_once_per_request(): void
+    {
+        Setting::store(['contact.phone' => '+225 07 00 00 00 00']);
+        $reads = 0;
+        Event::listen(CacheHit::class, function (CacheHit $event) use (&$reads) {
+            $reads += $event->key === 'settings' ? 1 : 0;
+        });
+
+        $this->get('/')->assertOk();
+
+        $this->assertLessThanOrEqual(1, $reads);
     }
 
     public function test_a_custom_address_must_be_a_web_address_or_a_path(): void

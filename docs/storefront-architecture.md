@@ -151,6 +151,14 @@ server once, with the id `purchase-{number}`: at the order for cash on delivery,
 online payments, using what was kept in `orders.tracking` when the order was placed (consent only). Set
 `META_TEST_EVENT_CODE` to see the server events in Events Manager's "Test events" tab.
 
+A delivered order also sends the custom server event `CommandeLivree` (id `delivered-{number}`): the sales really
+made, net of cancelled cash-on-delivery orders. `/flux/meta.csv` (`App\Services\Storefront\MetaCatalogFeed`, cached
+one hour) is the product feed to give Meta's Commerce Manager: one line per online variant, its `id` being the SKU the
+events report, for catalogue ads and retargeting.
+
+Two days after the delivery, `reviews:invite` (daily at 10:00) e-mails customers with an account an invitation to
+review their products (`ReviewInvitation`), once per order (`orders.review_invited_at`).
+
 The trackers' origins are allowed in `config/security.php`; a new tracker needs its origins there too.
 
 ## End-to-end tests

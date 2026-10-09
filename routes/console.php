@@ -33,3 +33,6 @@ Schedule::command('payments:expire-unpaid')->everyFiveMinutes()->withoutOverlapp
 
 // Newsletter campaigns scheduled in the back-office leave at their date; the queue then sends them in batches.
 Schedule::command('newsletter:send-scheduled')->everyMinute()->withoutOverlapping();
+
+// Two days after the delivery, customers with an account are invited to review their products, once per order.
+Schedule::command('reviews:invite')->dailyAt('10:00')->withoutOverlapping();

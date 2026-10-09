@@ -46,12 +46,12 @@ class AdminAccessTest extends TestCase
         $this->actingAs($manager)->get(ProductResource::getUrl('index'))->assertRedirectContains('multi-factor-authentication');
     }
 
-    public function test_pickers_are_not_forced_into_two_factor_authentication(): void
+    public function test_pickers_must_set_up_two_factor_authentication_too(): void
     {
         $picker = User::factory()->create();
         $picker->assignRole(Role::Picker->value);
 
-        $this->actingAs($picker)->get(ProductResource::getUrl('index'))->assertOk();
+        $this->actingAs($picker)->get(ProductResource::getUrl('index'))->assertRedirectContains('multi-factor-authentication');
     }
 
     /**

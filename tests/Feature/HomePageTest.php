@@ -163,13 +163,32 @@ class HomePageTest extends TestCase
     public function test_category_tree_feeds_the_menus_and_featured_departments_the_home_grid(): void
     {
         $featured = Category::factory()->featured()->create(['name' => 'Cameras Department']);
-        Category::factory()->create(['name' => 'Action Cams', 'parent_id' => $featured->id]);
-        Category::factory()->create(['name' => 'Hidden Department']);
+        Product::factory()->for(Category::factory()->create(['name' => 'Action Cams', 'parent_id' => $featured->id]))->create();
+        Product::factory()->for(Category::factory()->create(['name' => 'Hidden Department']))->create();
 
         $response = $this->get('/')->assertOk()->assertSeeText('Action Cams');
 
         $this->assertSame(1, substr_count($response->getContent(), 'rbt-cat-box-7'));
         $response->assertSeeText('Hidden Department');
+    }
+
+    public function test_menus_leave_out_the_categories_without_online_products(): void
+    {
+        $department = Category::factory()->featured()->create(['name' => 'Rayon Audio']);
+        Product::factory()->for(Category::factory()->create(['name' => 'Casques', 'parent_id' => $department->id]))->create();
+        Category::factory()->create(['name' => 'Enceintes vides', 'parent_id' => $department->id]);
+        Category::factory()->featured()->create(['name' => 'Rayon vide']);
+        Product::factory()->for(Category::factory()->create(['name' => 'Rayon hors ligne']))->create(['is_active' => false]);
+
+        $this->get('/')->assertOk()
+            ->assertSeeText('Rayon Audio')
+            ->assertSeeText('Casques')
+            ->assertDontSeeText('Enceintes vides')
+            ->assertDontSeeText('Rayon vide')
+            ->assertDontSeeText('Rayon hors ligne');
+
+        // An empty category still opens by its address.
+        $this->get(route('categories.show', Category::where('name', 'Rayon vide')->first()))->assertOk();
     }
 
     public function test_brand_cards_count_only_active_products(): void

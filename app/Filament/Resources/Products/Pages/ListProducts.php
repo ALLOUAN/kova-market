@@ -33,6 +33,7 @@ class ListProducts extends ListRecords
     public function getTabs(): array
     {
         $lowStock = fn (Builder $query) => $query->lowStock(config('storefront.product_card.limited_stock_threshold'));
+        $noDescription = fn (Builder $query) => $query->where(fn (Builder $query) => $query->whereNull('description')->orWhere('description', ''));
 
         return [
             'all' => Tab::make('Tous'),
@@ -43,6 +44,9 @@ class ListProducts extends ListRecords
             'low_stock' => Tab::make('Stock bas')->modifyQueryUsing($lowStock)
                 ->badge(fn () => $lowStock(Product::query())->count() ?: null)->badgeColor('warning'),
             'on_sale' => Tab::make('En promotion')->modifyQueryUsing(fn (Builder $query) => $query->whereColumn('compare_at_price', '>', 'price')),
+            // Product pages with nothing to read: worth writing, best sellers first.
+            'no_description' => Tab::make('Sans description')->modifyQueryUsing($noDescription)
+                ->badge(fn () => $noDescription(Product::query()->where('is_active', true))->count() ?: null)->badgeColor('gray'),
             'best_sellers' => Tab::make('Meilleures ventes')->modifyQueryUsing(fn (Builder $query) => $query->where('sold_count', '>', 0)->reorder('sold_count', 'desc')),
         ];
     }

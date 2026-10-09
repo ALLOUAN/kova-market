@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Storefront\MetaCatalogFeed;
 use App\Services\Storefront\SitemapGenerator;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * robots.txt and sitemap.xml (F-154). Only production opens the store to search engines: a preproduction copy asks
@@ -29,5 +31,16 @@ class SeoController extends Controller
     public function sitemap(SitemapGenerator $sitemap): Response
     {
         return response($sitemap->current(), 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+    }
+
+    /**
+     * Product feed of Meta's catalogue, rebuilt at most once an hour (Meta fetches it once a day).
+     */
+    public function metaFeed(MetaCatalogFeed $feed): Response
+    {
+        return response(Cache::remember('feeds.meta', now()->addHour(), fn () => $feed->csv()), 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'X-Robots-Tag' => 'noindex',
+        ]);
     }
 }

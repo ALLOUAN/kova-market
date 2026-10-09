@@ -10,7 +10,8 @@ use Illuminate\Http\Request;
 
 /**
  * Filament's "two-factor required" gate, applied only to the roles that must use it (F-100):
- * super-admins and managers are sent to the set-up page until an authenticator app is configured.
+ * every back-office account (super-admins, managers, pickers) is sent to the set-up page until an authenticator app
+ * is configured.
  */
 class EnsureTwoFactorForSensitiveRoles extends EnsureMultiFactorAuthenticationIsEnabled
 {
