@@ -14,8 +14,9 @@
     --kova-on-navy-muted: rgb(255 255 255 / 0.55);
 }
 
-/* Page background: a light, slightly blue grey that goes with the night blue. */
-.fi-body:not(.dark) {
+/* Page background: a light, slightly blue grey that goes with the night blue. Light theme only: Filament puts the
+   "dark" class on <html>, not on <body>, so the condition must be read on the root. */
+html:not(.dark) .fi-body {
     background-color: #f4f6fa;
 }
 
@@ -178,7 +179,7 @@
     color: var(--kova-navy);
 }
 .fi-wi-stats-overview-stat-label-ctn { gap: 0.6rem; }
-.fi-body:not(.dark) .fi-wi-stats-overview-stat-value { color: var(--kova-navy); }
+html:not(.dark) .fi-wi-stats-overview-stat-value { color: var(--kova-navy); }
 .dark .fi-wi-stats-overview-stat-label-ctn > .fi-icon { background: rgb(255 255 255 / 0.08); color: var(--kova-gold-light); }
 
 /* Orders to handle: the number set like a reference. */
