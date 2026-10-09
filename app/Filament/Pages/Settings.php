@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\Permission;
+use App\Filament\Settings\Widgets\SettingsOverview;
 use App\Filament\Support\StorefrontImage;
 use App\Models\Category;
 use App\Models\Setting;
@@ -55,9 +56,17 @@ class Settings extends Page
 
     protected static ?string $title = 'Paramètres de la boutique';
 
-    public function getSubheading(): ?string
+    /**
+     * The header band (SettingsOverview) carries the title, the explanation and what is set up or missing.
+     */
+    public function getHeading(): string
     {
-        return 'Réglages classés par onglet. Le bouton « Enregistrer », en bas, enregistre les changements de tous les onglets en une fois.';
+        return '';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [SettingsOverview::class];
     }
 
     protected static ?int $navigationSort = 1;

@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\Permission;
+use App\Filament\Settings\Widgets\MaintenanceOverview;
 use App\Models\Setting;
 use App\Services\Storefront\Maintenance as MaintenanceMode;
 use BackedEnum;
@@ -11,14 +12,12 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Slider;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -61,9 +60,17 @@ class Maintenance extends Page
         return 'danger';
     }
 
-    public function getSubheading(): ?string
+    /**
+     * The header band (MaintenanceOverview) carries the title, the state and the summary figures.
+     */
+    public function getHeading(): string
     {
-        return 'Contrôlez l’accès au site pour les visiteurs. Votre équipe connectée au back-office continue de voir le site normalement.';
+        return '';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [MaintenanceOverview::class];
     }
 
     public function mount(): void
@@ -142,20 +149,6 @@ class Maintenance extends Page
                     ? 'Les visiteurs voient la page de maintenance'.($maintenance->startedAt() ? ' depuis le '.$maintenance->startedAt()->format('d/m/Y à H\hi') : '').'. Le back-office, l’application livreur et les paiements en ligne continuent de fonctionner.'
                     : 'Tous les visiteurs ont accès au site normalement.')
                 ->actions([$this->toggleAction(), $this->previewAction()]),
-
-            Section::make('Résumé')
-                ->icon(Heroicon::OutlinedChartBar)
-                ->schema([
-                    Grid::make(['default' => 2, 'lg' => 5])->schema([
-                        TextEntry::make('summary_status')->label('Statut')
-                            ->state($on ? 'En maintenance' : 'En ligne')->badge()->color($on ? 'danger' : 'success'),
-                        TextEntry::make('summary_progress')->label('Progression')->state($maintenance->progress().' %'),
-                        TextEntry::make('summary_duration')->label('Durée estimée')->state($maintenance->durationLabel()),
-                        TextEntry::make('summary_back')->label('Retour prévu')
-                            ->state($on && $maintenance->expectedBackAt() ? $maintenance->expectedBackAt()->format('d/m à H\hi') : '—'),
-                        TextEntry::make('summary_ips')->label('IP autorisées')->state((string) count($maintenance->allowedIps())),
-                    ]),
-                ]),
 
             Form::make([EmbeddedSchema::make('form')])
                 ->id('form')

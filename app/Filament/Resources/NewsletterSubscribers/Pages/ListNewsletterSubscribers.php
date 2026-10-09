@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\NewsletterSubscribers\Pages;
 
 use App\Filament\Resources\NewsletterSubscribers\NewsletterSubscriberResource;
+use App\Filament\Resources\NewsletterSubscribers\Widgets\NewsletterSubscribersOverview;
 use App\Models\NewsletterSubscriber;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
@@ -16,9 +17,17 @@ class ListNewsletterSubscribers extends ListRecords
 
     protected static ?string $title = 'Newsletter';
 
-    public function getSubheading(): ?string
+    /**
+     * The header band (NewsletterSubscribersOverview) carries the title and the figures.
+     */
+    public function getHeading(): string
     {
-        return 'Exportez les abonnés actifs pour les importer dans votre outil d’e-mailing (Brevo, Mailchimp…). Chaque e-mail envoyé doit contenir un lien de désinscription ; désinscrivez ici les adresses qui vous le demandent.';
+        return '';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [NewsletterSubscribersOverview::class];
     }
 
     protected function getHeaderActions(): array
