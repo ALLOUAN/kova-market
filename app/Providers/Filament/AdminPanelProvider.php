@@ -15,6 +15,7 @@ use App\Filament\Resources\Products\ProductResource;
 use App\Http\Middleware\EnsureTwoFactorForSensitiveRoles;
 use App\Services\Orders\SalesFigures;
 use Filament\Actions\Action;
+use Filament\Auth\MultiFactor\Pages\SetUpRequiredMultiFactorAuthentication;
 use Filament\Forms\Components\OneTimeCodeInput;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -78,6 +79,10 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<link rel="stylesheet" href="'.e(asset('assets/admin/kova-admin.css').'?v='.@filemtime(public_path('assets/admin/kova-admin.css'))).'">')
+            // Sign-in and required two-factor set-up: the brand shapes behind the card, the help and the steps in it.
+            ->renderHook(PanelsRenderHook::SIMPLE_LAYOUT_START, fn () => view('filament.auth.login-shapes'), scopes: [Login::class, SetUpRequiredMultiFactorAuthentication::class])
+            ->renderHook(PanelsRenderHook::SIMPLE_PAGE_END, fn () => view('filament.auth.mfa-steps'), scopes: SetUpRequiredMultiFactorAuthentication::class)
+            ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => view('filament.auth.login-help'), scopes: Login::class)
             ->navigationGroups(['Ventes', 'Catalogue', 'Promotions', 'Livraison', 'Contenus', 'Administration'])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

@@ -5,6 +5,7 @@ namespace App\Filament\Pages\Auth;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Notifications\Notification;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
@@ -17,6 +18,16 @@ class Login extends BaseLogin
     public const MAX_FAILURES = 5;
 
     public const LOCKOUT_SECONDS = 15 * 60;
+
+    public function getHeading(): string|Htmlable|null
+    {
+        return filled($this->userUndertakingMultiFactorAuthentication) ? parent::getHeading() : 'Espace de gestion';
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        return filled($this->userUndertakingMultiFactorAuthentication) ? parent::getSubheading() : 'Connectez-vous pour gérer la boutique KOVA MARKET.';
+    }
 
     public function authenticate(): ?LoginResponse
     {

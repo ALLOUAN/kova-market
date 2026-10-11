@@ -3,6 +3,7 @@
 namespace App\Filament\Auth;
 
 use Filament\Auth\MultiFactor\App\AppAuthentication as BaseAppAuthentication;
+use SensitiveParameter;
 
 /**
  * Authenticator-app two-factor provider. On a local machine with ADMIN_LOCAL_TWO_FACTOR_SECRET set, every account
@@ -14,6 +15,27 @@ class AppAuthentication extends BaseAppAuthentication
     public function generateSecret(): string
     {
         return self::localTestSecret() ?? parent::generateSecret();
+    }
+
+    /**
+     * The QR code to scan. The QR library already returns a "data:" URI, and Filament wraps it in another one when
+     * the imagick extension is missing (shared hosting, most local machines): the image then stays blank. The inner
+     * URI is kept in that case.
+     */
+    public function generateQrCodeDataUri(#[SensitiveParameter] string $secret): string
+    {
+        $uri = parent::generateQrCodeDataUri($secret);
+        $prefix = 'data:image/svg+xml;base64,';
+
+        if (str_starts_with($uri, $prefix)) {
+            $inner = base64_decode(substr($uri, strlen($prefix)), true);
+
+            if (is_string($inner) && str_starts_with($inner, 'data:')) {
+                return $inner;
+            }
+        }
+
+        return $uri;
     }
 
     public function getCurrentTestCode(): ?string

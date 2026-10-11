@@ -23,10 +23,9 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        User::factory()->create([
+        // Local demo only (never seeded in production). Created once: a later "db:seed" keeps its password.
+        User::firstOrCreate(['email' => 'admin-kovamarket@mail.com'], [
             'name' => 'Test User',
-            'email' => 'admin-kovamarket@mail.com',
-            // Local demo only (never seeded in production).
             'password' => '123456789',
         ])->assignRole(Role::SuperAdmin->value);
 

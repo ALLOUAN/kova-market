@@ -23,6 +23,13 @@ class CatalogSeeder extends Seeder
      */
     public function run(): void
     {
+        // The demo catalog goes into an empty shop only: a later "db:seed" leaves the products in place.
+        if (Product::query()->exists()) {
+            $this->command?->info('Catalogue déjà présent : catalogue de démonstration ignoré.');
+
+            return;
+        }
+
         $data = require database_path('seeders/data/catalog.php');
 
         $categories = $this->seedCategories($data['categories']);

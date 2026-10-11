@@ -13,6 +13,13 @@ class BannerSeeder extends Seeder
 {
     public function run(): void
     {
+        // Once only: banners edited in the back-office are kept by a later "db:seed".
+        if (Banner::query()->exists()) {
+            $this->command?->info('Bannières déjà présentes : ignorées.');
+
+            return;
+        }
+
         foreach (config('homepage.hero') as $position => $slide) {
             Banner::create([...$slide, 'placement' => BannerPlacement::Hero, 'position' => $position]);
         }

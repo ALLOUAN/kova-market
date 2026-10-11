@@ -15,10 +15,13 @@ class DemoDeliveryFeesSeeder extends Seeder
 
     public function run(): void
     {
+        // Only zones still without a fee, and the threshold only when not set: fees chosen in the back-office stay.
         foreach (self::DEMO_FEES as $zone => $fee) {
-            DeliveryZone::where('name', $zone)->update(['fee' => $fee, 'is_active' => true]);
+            DeliveryZone::where('name', $zone)->where(fn ($query) => $query->whereNull('fee')->orWhere('fee', 0))->update(['fee' => $fee, 'is_active' => true]);
         }
 
-        Setting::store(['delivery.free_shipping_threshold' => 100000]);
+        if (Setting::get('delivery.free_shipping_threshold') === null) {
+            Setting::store(['delivery.free_shipping_threshold' => 100000]);
+        }
     }
 }
