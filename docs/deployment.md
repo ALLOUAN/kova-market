@@ -5,8 +5,8 @@ directory with its own database and domain:
 
 | Environment | `APP_ENV` | Directory (example) | Domain (example) |
 | --- | --- | --- | --- |
-| Production | `production` | `~/kova` | `kovamarket.ci` |
-| Preproduction | `staging` | `~/kova-preprod` | `preprod.kovamarket.ci` |
+| Production | `production` | `~/kova` | `kova-market.com` |
+| Preproduction | `staging` | `~/kova-preprod` | `preprod.kova-market.com` |
 
 Shared hosting runs no permanent process: no Redis, no Horizon, no Supervisor. Queued notifications stay in the
 `database` queue and the scheduler (host cron, every minute) empties it with `queue:work --stop-when-empty`.
@@ -66,7 +66,7 @@ On Meta's side, by KOVA MARKET (business verification takes Meta a few days or m
    Paramètres › Commandes), in French, with the same name, category and text; wait for "Active".
 3. developers.facebook.com: an app of type Business with the WhatsApp product; a system user with a permanent token
    (permission `whatsapp_business_messaging`); note the phone number ID and the app secret.
-4. Webhook: callback `https://kovamarket.ci/webhooks/whatsapp`, a verify token of your choice, field `messages`.
+4. Webhook: callback `https://www.kova-market.com/webhooks/whatsapp`, a verify token of your choice, field `messages`.
 
 On the server (`shared/.env`): `WHATSAPP_DRIVER=cloud`, `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`,
 `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`. Paramètres › Commandes then shows "Connecté à Meta". Refused
@@ -84,14 +84,14 @@ Twilio carries the WhatsApp messages instead of a direct Meta connection; the ke
    `{{2}}`…, category Utility, Authentication for `kova_code`), submit them to WhatsApp and wait for "Approved".
    Copy each Content SID (`HX…`) into Paramètres › Commandes › Modèles de messages WhatsApp. A template without a
    SID is sent as plain text, which WhatsApp only delivers within 24 h of the customer's last message.
-4. Status callback: nothing to set, each message carries `https://kovamarket.ci/webhooks/twilio/whatsapp`; failed
+4. Status callback: nothing to set, each message carries `https://www.kova-market.com/webhooks/twilio/whatsapp`; failed
    and undelivered messages are logged in `whatsapp.log` with Twilio's error code (signature checked).
 
 On the server (`shared/.env`): `WHATSAPP_DRIVER=twilio`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`,
 `TWILIO_WHATSAPP_FROM` — `php artisan whatsapp:twilio` asks for them (hidden input) and writes them — (the sandbox or the registered number, e.g. `+17372508034`). Paramètres › Commandes then shows "Connecté à Twilio"; `php artisan whatsapp:test 07XXXXXXXX` sends a test message right away.
 
 E-mail: a transactional sender (SMTP of the host, Brevo, Mailgun…) in `MAIL_*`, and the domain's SPF, DKIM and DMARC
-records, or the messages end up in spam. Once the address exists (LWS panel › E-mails, e.g. `commandes@kovamarket.ci`), `php artisan mail:smtp` writes its settings (`mail.kovamarket.ci`, port 465) and `php artisan mail:test <address>` checks the sending.
+records, or the messages end up in spam. Once the address exists (LWS panel › E-mails, e.g. `commandes@kova-market.com`), `php artisan mail:smtp` writes its settings (`mail.kova-market.com`, port 465) and `php artisan mail:test <address>` checks the sending.
 
 ## Monitoring (F-172)
 
@@ -99,7 +99,7 @@ records, or the messages end up in spam. Once the address exists (LWS panel › 
   preproduction). No personal data is sent.
 - **Scheduler**: the queue worker reports to the Sentry cron monitor `file-attente`; Sentry alerts when the host's
   cron stops (orders would then wait for their SMS).
-- **Availability**: add `https://kovamarket.ci/up` to an external uptime monitor (UptimeRobot, Better Stack…, free
+- **Availability**: add `https://www.kova-market.com/up` to an external uptime monitor (UptimeRobot, Better Stack…, free
   plans suffice), alert by e-mail and SMS.
 - **Logs**: `~/kova/shared/storage/logs/laravel.log`.
 

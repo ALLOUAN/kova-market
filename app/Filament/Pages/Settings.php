@@ -72,7 +72,7 @@ class Settings extends Page
     protected static ?int $navigationSort = 1;
 
     /** Audience measurement identifiers (F-155), read by App\Services\Storefront\Analytics. */
-    private const ANALYTICS_FIELDS = ['ga4_id', 'meta_pixel_id', 'tiktok_pixel_id', 'search_console_token'];
+    private const ANALYTICS_FIELDS = ['ga4_id', 'meta_pixel_id', 'tiktok_pixel_id', 'search_console_token', 'bing_token'];
 
     /** Icons offered for the home page guarantees (Font Awesome names). */
     private const GUARANTEE_ICONS = [
@@ -514,6 +514,11 @@ class Settings extends Page
                                             ->helperText('Le contenu de la balise « google-site-verification » proposée par Google.')
                                             ->regex('/^[A-Za-z0-9_-]{10,100}$/')
                                             ->maxLength(100),
+                                        TextInput::make('analytics.bing_token')
+                                            ->label('Bing Webmaster Tools (code de validation)')
+                                            ->helperText('Le contenu de la balise « msvalidate.01 » proposée par Bing (vaut aussi pour Yahoo, DuckDuckGo et Ecosia).')
+                                            ->regex('/^[A-Fa-f0-9]{20,64}$/')
+                                            ->maxLength(64),
                                     ]),
                             ]),
                     ]),

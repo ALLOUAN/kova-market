@@ -31,6 +31,9 @@
     @if ($searchConsoleToken = $analytics->searchConsoleToken())
         <meta name="google-site-verification" content="{{ $searchConsoleToken }}">
     @endif
+    @if ($bingToken = $analytics->bingToken())
+        <meta name="msvalidate.01" content="{{ $bingToken }}">
+    @endif
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -66,6 +66,12 @@ class Analytics
         return (string) (Setting::get("cookies.{$key}") ?: self::BANNER_TEXTS[$key]);
     }
 
+    /** Bing Webmaster Tools ownership code (Paramètres › Audience): the "msvalidate.01" tag. */
+    public function bingToken(): ?string
+    {
+        return Setting::get('analytics.bing_token') ?: null;
+    }
+
     public function searchConsoleToken(): ?string
     {
         return Setting::get('analytics.search_console_token') ?: null;

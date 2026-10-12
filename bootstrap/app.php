@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ApplyStoreSettings;
+use App\Http\Middleware\CanonicalHost;
 use App\Http\Middleware\EnsureCourier;
 use App\Http\Middleware\MaintenanceMode;
 use App\Http\Middleware\ProtectPreproduction;
@@ -48,6 +49,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Maintenance switched from the back-office: after the session, so a signed-in team member keeps the site.
         $middleware->web(append: [MaintenanceMode::class]);
         $middleware->prepend(ProtectPreproduction::class);
+        // Production: one address for the search engines (https + the host of APP_URL), 301 from the others.
+        $middleware->prepend(CanonicalHost::class);
 
         $middleware->alias(['courier' => EnsureCourier::class, 'api.guard' => UseApiGuard::class]);
     })

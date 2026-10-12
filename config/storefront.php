@@ -38,7 +38,7 @@ return [
         'toll_free' => env('STORE_TOLL_FREE', '+225 07 00 00 00 00'),
         // WhatsApp number used for the floating button and pre-filled messages (F-081).
         'whatsapp' => env('STORE_WHATSAPP', ''),
-        'email' => env('STORE_EMAIL', 'contact@kovamarket.ci'),
+        'email' => env('STORE_EMAIL', 'contact@kova-market.com'),
         'address' => env('STORE_ADDRESS', 'Abidjan, Côte d’Ivoire'),
         'opening_hours' => 'Lun - Sam : 08h00 - 19h00',
     ],

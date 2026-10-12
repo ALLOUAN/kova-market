@@ -8,7 +8,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 /**
- * Sends the shop's e-mails from a professional address of the domain (e.g. commandes@kovamarket.ci, created in the
+ * Sends the shop's e-mails from a professional address of the domain (e.g. commandes@kova-market.com, created in the
  * LWS panel): writes the SMTP settings into .env from prompts, the password hidden. LWS's outgoing server is
  * mail.<domain>, port 465 (SSL) or 587 (STARTTLS), signed in with the full address. Its certificate is the shared
  * *.lwspanel.com one: when the sending fails with "Peer certificate ... did not match", give the server's own name
