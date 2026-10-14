@@ -38,7 +38,7 @@
                             </div>
                             <div class="rbt-image-portion">
                                 <a href="{{ $banner['url'] }}">
-                                    <img class="rbt-scroll-trigger zoom_in animation-order-4" src="{{ asset($banner['image']) }}" alt="{{ $banner['highlight'] }}">
+                                    <x-banner-images :banner="$banner" class="rbt-scroll-trigger zoom_in animation-order-4" />
                                 </a>
                             </div>
                         </div>

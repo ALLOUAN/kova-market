@@ -48,6 +48,19 @@ class BannerForm
                             ->label('Image')
                             ->required()
                             ->columnSpanFull(),
+                        // Further images, shown in turn after the main one; not for the main carousel, which already
+                        // turns from one banner to the next.
+                        StorefrontImage::make('images', 'banners',
+                            fn (Get $get) => BannerPlacement::tryFrom((string) $get('placement'))?->imageSize(),
+                            'elles défilent après l’image principale, toutes les 4 secondes',
+                        )
+                            ->label('Images supplémentaires (défilement)')
+                            ->multiple()
+                            ->reorderable()
+                            ->appendFiles()
+                            ->maxFiles(6)
+                            ->visible(fn (Get $get): bool => filled($get('placement')) && $get('placement') !== BannerPlacement::Hero->value)
+                            ->columnSpanFull(),
                     ]),
                 Section::make('Diffusion')
                     ->columnSpan(1)

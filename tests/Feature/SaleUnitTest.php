@@ -46,7 +46,7 @@ class SaleUnitTest extends TestCase
         $this->withCookie(CartManager::COOKIE, Cart::sole()->token);
         $item = Cart::sole()->items()->sole();
 
-        $this->patch("/panier/articles/{$item->id}", ['quantity' => 1800])->assertSessionHas('cart_status', 'Quantité ajustée à 1,75 kg : ce produit se vend par 0,25 kg.');
+        $this->patch("/panier/articles/{$item->public_id}", ['quantity' => 1800])->assertSessionHas('cart_status', 'Quantité ajustée à 1,75 kg : ce produit se vend par 0,25 kg.');
         $this->assertSame(1750, $item->fresh()->quantity);
 
         $summary = app(CartManager::class)->summary();

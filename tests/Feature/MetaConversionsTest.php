@@ -160,10 +160,10 @@ class MetaConversionsTest extends TestCase
         $this->assertSame(['enceinte', 1], [$search['params']['search_term'], $search['params']['results']]);
         $this->assertNotContains('search', array_column($this->events($this->get('/boutique?q=enceinte&page=2')), 'name'));
 
-        $wishlist = $this->postJson("/favoris/{$this->product->id}")->assertOk()->json('analytics.0');
+        $wishlist = $this->postJson(route('wishlist.toggle', $this->product))->assertOk()->json('analytics.0');
         $this->assertSame(['add_to_wishlist', 45000], [$wishlist['name'], $wishlist['params']['value']]);
         // Removing it from the favourites reports nothing.
-        $this->assertSame([], $this->postJson("/favoris/{$this->product->id}")->json('analytics'));
+        $this->assertSame([], $this->postJson(route('wishlist.toggle', $this->product))->json('analytics'));
 
         $lead = $this->postJson('/newsletter', ['email' => 'awa@example.ci'])->assertOk()->json('analytics.0');
         $this->assertSame('generate_lead', $lead['name']);

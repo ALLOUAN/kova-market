@@ -21,4 +21,10 @@ return [
     */
     'local_two_factor_secret' => env('ADMIN_LOCAL_TWO_FACTOR_SECRET'),
 
+    /*
+    | Password of the demo super-admin created by "db:seed" (never in production). Set in the local .env;
+    | the repository is public, so a real password never goes here.
+    */
+    'demo_password' => env('ADMIN_DEMO_PASSWORD') ?: 'password',
+
 ];

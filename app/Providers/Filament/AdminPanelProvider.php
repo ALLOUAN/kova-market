@@ -13,8 +13,10 @@ use App\Filament\Resources\NewsletterCampaigns\NewsletterCampaignResource;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\Products\ProductResource;
 use App\Http\Middleware\EnsureTwoFactorForSensitiveRoles;
+use App\Notifications\AdminLoginCode;
 use App\Services\Orders\SalesFigures;
 use Filament\Actions\Action;
+use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 use Filament\Auth\MultiFactor\Pages\SetUpRequiredMultiFactorAuthentication;
 use Filament\Forms\Components\OneTimeCodeInput;
 use Filament\Http\Middleware\Authenticate;
@@ -39,10 +41,23 @@ class AdminPanelProvider extends PanelProvider
     {
         parent::register();
 
-        // Local testing aid: show the current code of the local test secret (.env) on every 6-digit code field.
+        // Local testing aid: show the current code of the local test secret (.env) on the authenticator-app code fields
+        // only; the fields of a code sent by e-mail (recognised by their labels) expect the code of the e-mail.
         if ($this->app->isLocal()) {
             OneTimeCodeInput::configureUsing(fn (OneTimeCodeInput $input) => $input
-                ->hint(fn () => ($code = app(AppAuthentication::class)->getCurrentTestCode()) ? 'Code de test (local) : '.$code : null)
+                ->hint(function (OneTimeCodeInput $component): ?string {
+                    $emailCodeLabels = array_map(fn (string $key): string => __("filament-panels::auth/multi-factor/email/{$key}.code.label"), [
+                        'provider.login_form', 'actions/set-up.modal.form', 'actions/disable.modal.form',
+                    ]);
+
+                    if (in_array($component->getLabel(), $emailCodeLabels, true)) {
+                        return null;
+                    }
+
+                    $code = app(AppAuthentication::class)->getCurrentTestCode();
+
+                    return $code ? 'Code de test (local) : '.$code : null;
+                })
                 ->hintColor('warning'));
         }
     }
@@ -63,7 +78,11 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             // Authenticator-app codes, mandatory for super-admins and managers (F-100). The requirement is
             // switched on for the panel; the middleware narrows it down to those roles.
-            ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)
+            ->multiFactorAuthentication([
+                AppAuthentication::make()->recoverable(),
+                // Or the 6-digit code sent to the account's e-mail, at once and valid 10 minutes.
+                EmailAuthentication::make()->codeNotification(AdminLoginCode::class)->codeExpiryMinutes(10),
+            ], isRequired: true)
             ->multiFactorAuthenticationRequiredMiddlewareName(EnsureTwoFactorForSensitiveRoles::class)
             ->colors([
                 // Orange of the logo ("MARKET" and the cart): #F85000 at 400; buttons use 600 (#B83A00) and hover 500 (#CC4400),

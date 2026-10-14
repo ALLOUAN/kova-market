@@ -1,7 +1,7 @@
 @extends('layouts.storefront')
 
 {{-- The whole browser and Google title of the home page, set in Paramètres de la boutique. --}}
-@section('document_title', config('storefront.home_title') ?: config('storefront.name').' - Boutique en ligne à Abidjan')
+@section('document_title', config('storefront.home_title') ?: config('storefront.name').' | Achat en ligne à Abidjan, livraison en Côte d’Ivoire')
 
 @push('meta')
     <x-json-ld :data="app(\App\Services\Storefront\StructuredData::class)->organization()" />

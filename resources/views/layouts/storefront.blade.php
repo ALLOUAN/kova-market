@@ -13,6 +13,7 @@
     <title>{!! $documentTitle !!}</title>
     <meta name="robots" content="@yield('robots', 'index, follow')">
     <meta name="description" content="@yield('description', config('storefront.description'))">
+    <meta name="keywords" content="@yield('keywords', config('storefront.keywords'))">
     {{-- Canonical address and link previews (F-152, F-153); pages override the defaults with sections. --}}
     <link rel="canonical" href="@yield('canonical', url()->current())">
     <meta property="og:site_name" content="{{ config('storefront.name') }}">
@@ -157,7 +158,8 @@
         'vendor/isotope.pkgd.min.js', 'vendor/imageloaded.js', 'vendor/jquery.waypoints.min.js', 'plugins/color-swatches.js',
         'vendor/bootstrap-datepicker.min.js', 'main.min.js', 'storefront.js',
     ] as $script)
-        <script src="{{ asset('assets/js/'.$script) }}"></script>
+        {{-- Versioned like the store's own files: a changed script reaches visitors despite the browser cache. --}}
+        <script src="{{ asset('assets/js/'.$script) }}?v={{ @filemtime(public_path('assets/js/'.$script)) }}"></script>
     @endforeach
     <script>
         // A failed sign-in / sign-up comes back as a full page: reopen the form so its error messages are seen.

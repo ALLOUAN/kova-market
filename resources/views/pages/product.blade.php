@@ -16,6 +16,7 @@
 @section('title', $product->meta_title ?: $product->name)
 @section('whatsapp_message', 'Bonjour, je suis intéressé(e) par « '.$product->name.' » ('.Money::format($product->price).$product->saleQuantity()->priceSuffix().') : '.$product->url())
 @section('description', $description)
+@section('keywords', \App\Support\SeoText::productKeywords($product))
 {{-- Link previews on WhatsApp, Facebook… (F-037, F-153) --}}
 @section('canonical', $product->url())
 @section('og_type', 'product')
@@ -77,6 +78,8 @@
                         </div>
                     @endif
                     <x-product.bundle-contents :product="$product" />
+
+                    <x-product.order-protection :product="$product" />
 
                     <div class="mt--24">
                         <x-product.perks :product="$product" />

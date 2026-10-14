@@ -75,6 +75,15 @@ class AdministrationTest extends TestCase
             ->fillForm(['placement' => BannerPlacement::Hero->value])
             ->assertSeeText('1296 × 908 px');
 
+        // Further images that scroll by: every placement but the main carousel, which already turns.
+        Livewire::test(CreateBanner::class)
+            ->fillForm(['placement' => BannerPlacement::BestDeals->value])
+            ->assertSeeText('Images supplémentaires (défilement)')
+            ->fillForm(['placement' => BannerPlacement::Closing->value])
+            ->assertSeeText('Images supplémentaires (défilement)')
+            ->fillForm(['placement' => BannerPlacement::Hero->value])
+            ->assertDontSeeText('Images supplémentaires (défilement)');
+
         $this->get(Settings::getUrl())->assertSeeText('1487 × 334 px')->assertSeeText('1320 × 140 px');
 
         $banner = Banner::create(['placement' => BannerPlacement::Hero, 'image' => 'assets/images/product-banner/product-banner-img-21.webp', 'is_visible' => true, 'position' => 0]);

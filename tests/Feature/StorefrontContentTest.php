@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\Promotion;
 use App\Models\Setting;
 use App\Models\Testimonial;
+use App\Services\Storefront\HomePageService;
 use App\Support\Money;
 use Database\Seeders\ContentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -43,6 +44,30 @@ class StorefrontContentTest extends TestCase
             ->assertSee('Je<br>découvre', false)
             // No button text: the default one.
             ->assertSee('Acheter<br>maintenant', false);
+    }
+
+    public function test_the_end_of_page_banner_shows_its_images_in_turn(): void
+    {
+        $banner = Banner::create(['placement' => BannerPlacement::Closing, 'image' => 'uploads/banners/montre-1.webp', 'images' => ['uploads/banners/montre-2.webp', 'uploads/banners/montre-3.webp'], 'title' => 'Rentrée']);
+
+        $this->get('/')->assertOk()
+            ->assertSee('data-banner-slides', false)
+            ->assertSeeInOrder([asset('uploads/banners/montre-1.webp'), asset('uploads/banners/montre-2.webp'), asset('uploads/banners/montre-3.webp')], false);
+
+        // A single image: no slideshow.
+        $banner->update(['images' => []]);
+        $this->get('/')->assertOk()->assertDontSee('data-banner-slides', false)->assertSee(asset('uploads/banners/montre-1.webp'), false);
+    }
+
+    public function test_the_best_deals_banner_also_shows_its_images_in_turn(): void
+    {
+        // The section shows with the products of its selection.
+        ProductCollection::create(['name' => 'Les meilleures offres du jour', 'slug' => HomePageService::BEST_DEALS])->products()->attach(Product::factory()->create());
+        Banner::create(['placement' => BannerPlacement::BestDeals, 'image' => 'uploads/banners/montres-1.webp', 'images' => ['uploads/banners/montres-2.webp'], 'title' => 'Offres chocs']);
+
+        $this->get('/')->assertOk()
+            ->assertSee('data-banner-slides', false)
+            ->assertSeeInOrder([asset('uploads/banners/montres-1.webp'), asset('uploads/banners/montres-2.webp')], false);
     }
 
     public function test_hidden_scheduled_and_expired_banners_are_not_shown(): void
@@ -176,7 +201,7 @@ class StorefrontContentTest extends TestCase
     public function test_the_home_page_shows_the_guarantees_and_its_own_title(): void
     {
         $this->get('/')
-            ->assertSee('<title>'.config('storefront.name').' - Boutique en ligne à Abidjan</title>', false)
+            ->assertSee('<title>'.config('storefront.name').' | Achat en ligne à Abidjan, livraison en Côte d’Ivoire</title>', false)
             ->assertSeeText('Livraison rapide')
             ->assertSeeText('Paiement à la livraison');
 

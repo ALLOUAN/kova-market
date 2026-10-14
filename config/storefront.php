@@ -18,7 +18,23 @@ return [
 
     'name' => env('STORE_NAME', 'KOVA MARKET'),
 
-    'description' => 'KOVA MARKET, votre boutique en ligne à Abidjan : produits de qualité, paiement Mobile Money et livraison dans votre commune.',
+    'description' => 'KOVA MARKET, boutique en ligne à Abidjan : prix en FCFA, paiement à la livraison ou Mobile Money (Orange, MTN, Moov, Wave), livraison en Côte d’Ivoire.',
+
+    /*
+    | Words searched in Côte d'Ivoire (meta keywords of every page; product and category pages add their own).
+    | Editable in Paramètres de la boutique › Accueil.
+    */
+    'keywords' => implode(', ', [
+        'kova market', 'kova market côte d’ivoire', 'kova market abidjan',
+        'boutique en ligne côte d’ivoire', 'marketplace côte d’ivoire', 'site e-commerce ivoirien', 'achat en ligne côte d’ivoire',
+        'vente en ligne abidjan', 'e-commerce abidjan',
+        'paiement à la livraison abidjan', 'paiement orange money', 'paiement mtn mobile money', 'paiement moov money', 'paiement wave',
+        'livraison à domicile abidjan', 'livraison express abidjan', 'livraison partout en côte d’ivoire', 'livraison gratuite abidjan',
+        'livraison cocody', 'livraison yopougon', 'livraison marcory', 'livraison plateau', 'livraison abobo', 'livraison koumassi',
+        'livraison bouaké', 'livraison yamoussoukro', 'livraison san-pédro', 'livraison daloa',
+        'prix en fcfa', 'bonnes affaires abidjan', 'promotion abidjan', 'produits pas chers côte d’ivoire', 'soldes côte d’ivoire',
+        'boutique en ligne fiable côte d’ivoire', 'achat sécurisé côte d’ivoire', 'service client abidjan', 'garantie et retour',
+    ]),
 
     'about' => 'Boutique en ligne basée à Abidjan. Commandez en quelques clics, payez par Mobile Money ou à la livraison.',
 

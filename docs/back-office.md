@@ -13,7 +13,7 @@ php artisan app:create-super-admin   # asks for name, e-mail and a 12+ character
 On first login, super-admins and managers must set up an authenticator app (Google Authenticator, Microsoft
 Authenticator…) and keep their recovery codes. A super-admin can reset a lost two-factor set-up from **Équipe**.
 
-Locally, `php artisan migrate:fresh --seed` creates `admin-kovamarket@mail.com` / `123456789` as super-admin (two-factor set-up
+Locally, `php artisan migrate:fresh --seed` creates `admin-kovamarket@kova-market.com` as super-admin, with the password `ADMIN_DEMO_PASSWORD` of the `.env` (`password` if unset) (two-factor set-up
 is requested at first login) plus the demo catalog and banners.
 
 ## Roles

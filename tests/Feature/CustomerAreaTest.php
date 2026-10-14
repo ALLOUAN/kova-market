@@ -69,7 +69,7 @@ class CustomerAreaTest extends TestCase
         $this->assertSame(['Bureau'], $this->customer->addresses()->where('is_default', true)->pluck('label')->all());
         $this->assertSame('+2250701020304', Address::first()->phone);
 
-        $this->delete('/compte/adresses/'.Address::firstWhere('label', 'Bureau')->id);
+        $this->delete('/compte/adresses/'.Address::firstWhere('label', 'Bureau')->public_id);
         $this->assertTrue(Address::sole()->is_default);
     }
 
@@ -78,8 +78,8 @@ class CustomerAreaTest extends TestCase
         $other = Address::create(['user_id' => User::factory()->create()->id, 'label' => 'X', 'recipient_name' => 'X', 'phone' => '0501020304', 'district' => 'X']);
 
         $this->actingAs($this->customer);
-        $this->get("/compte/adresses/{$other->id}/modifier")->assertNotFound();
-        $this->delete("/compte/adresses/{$other->id}")->assertNotFound();
+        $this->get("/compte/adresses/{$other->public_id}/modifier")->assertNotFound();
+        $this->delete("/compte/adresses/{$other->public_id}")->assertNotFound();
         $this->assertModelExists($other);
     }
 

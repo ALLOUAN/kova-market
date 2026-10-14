@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPublicId;
 use App\Support\PhoneNumber;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['user_id', 'label', 'recipient_name', 'phone', 'commune_id', 'city', 'district', 'landmark', 'is_default'])]
 class Address extends Model
 {
+    use HasPublicId;
+
     public const MAX_PER_CUSTOMER = 10;
 
     protected static function booted(): void

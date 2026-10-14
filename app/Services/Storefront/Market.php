@@ -67,13 +67,14 @@ class Market
     }
 
     /**
-     * The market's categories with their sub-categories, for the "Mon Marché" mega menu (same layout as "Boutique").
+     * The market's categories with their sub-categories, for the "Mon Marché" mega menu (same layout as "Boutique"):
+     * all of them, holding online products yet or not, so that the rayon is shown in full while it fills up.
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, Category>
      */
     public function menuTree(): \Illuminate\Database\Eloquent\Collection
     {
-        return once(fn () => app(CatalogService::class)->withProducts($this->category()?->children()->with('children')->get() ?? new \Illuminate\Database\Eloquent\Collection));
+        return once(fn () => $this->category()?->children()->with('children')->get() ?? new \Illuminate\Database\Eloquent\Collection);
     }
 
     public function showInMenu(): bool

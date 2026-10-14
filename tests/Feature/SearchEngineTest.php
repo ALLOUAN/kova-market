@@ -27,6 +27,17 @@ class SearchEngineTest extends TestCase
         $this->post('http://kova-market.com/webhooks/whatsapp')->assertStatus(403);
     }
 
+    public function test_behind_the_hosts_front_server_an_https_visit_is_served_without_redirect_loop(): void
+    {
+        config(['app.url' => 'https://www.kova-market.com']);
+        $this->app->detectEnvironment(fn () => 'production');
+        $forwarded = ['X-Forwarded-Proto' => 'https', 'X-Forwarded-Host' => 'www.kova-market.com', 'X-Forwarded-Port' => '443'];
+
+        // The front server handles https and passes the visit on in plain http, saying so in X-Forwarded-*.
+        $this->withHeaders($forwarded)->get('http://www.kova-market.com/faq')->assertOk();
+        $this->withHeaders([...$forwarded, 'X-Forwarded-Proto' => 'http'])->get('http://www.kova-market.com/faq')->assertRedirect('https://www.kova-market.com/faq');
+    }
+
     public function test_outside_production_the_site_stays_hidden_and_is_not_redirected(): void
     {
         $this->get('http://kova-market.com/robots.txt')->assertOk()->assertSee('Disallow: /', false);

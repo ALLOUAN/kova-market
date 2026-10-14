@@ -41,7 +41,7 @@ class ActiveMenuTest extends TestCase
         $all = preg_quote(route('shop.index'), '~');
 
         $this->assertMatchesRegularExpression('~<li class="active">\s*<a href="'.$news.'"\s+aria-current="page"\s*>~', $html);
-        $this->assertDoesNotMatchRegularExpression('~<li class="active">\s*<a href="'.$all.'"~', $html);
+        $this->assertDoesNotMatchRegularExpression('~<li class="active">\s*<a href="'.$all.'"\s*>\s*Tous les produits~', $html);
         $this->assertStringContainsString('class="rbt-round-btn has-rbt-md-fsize is-active"', $html);
     }
 

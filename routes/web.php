@@ -54,8 +54,8 @@ Route::post('/alertes-stock', [StockAlertController::class, 'store'])->middlewar
 Route::get('/panier', [CartController::class, 'show'])->name('cart.show');
 Route::middleware('throttle:60,1')->group(function () {
     Route::post('/panier/articles', [CartController::class, 'store'])->name('cart.items.store');
-    Route::patch('/panier/articles/{item}', [CartController::class, 'update'])->whereNumber('item')->name('cart.items.update');
-    Route::delete('/panier/articles/{item}', [CartController::class, 'destroy'])->whereNumber('item')->name('cart.items.destroy');
+    Route::patch('/panier/articles/{item}', [CartController::class, 'update'])->whereUlid('item')->name('cart.items.update');
+    Route::delete('/panier/articles/{item}', [CartController::class, 'destroy'])->whereUlid('item')->name('cart.items.destroy');
     Route::post('/panier/commune', [CartController::class, 'commune'])->name('cart.commune');
     Route::delete('/panier/code-promo', [CartController::class, 'removeCoupon'])->name('cart.coupon.destroy');
 });
@@ -120,11 +120,11 @@ Route::middleware('auth')->prefix('compte')->name('account.')->group(function ()
 
 // Favourites ("Mes favoris"), for visitors and customers.
 Route::get('/favoris', [WishlistController::class, 'index'])->name('wishlist.index');
-Route::post('/favoris/{product:id}', [WishlistController::class, 'toggle'])->middleware('throttle:60,1')->name('wishlist.toggle');
+Route::post('/favoris/{product:slug}', [WishlistController::class, 'toggle'])->middleware('throttle:60,1')->name('wishlist.toggle');
 
 // Product comparison (up to 4 products, kept for the visit).
 Route::get('/comparer', [CompareController::class, 'index'])->name('compare.index');
-Route::post('/comparer/{product:id}', [CompareController::class, 'toggle'])->middleware('throttle:60,1')->name('compare.toggle');
+Route::post('/comparer/{product:slug}', [CompareController::class, 'toggle'])->middleware('throttle:60,1')->name('compare.toggle');
 Route::delete('/comparer', [CompareController::class, 'clear'])->name('compare.clear');
 
 // Newsletter: sign-up, then one-click unsubscribe from every e-mail (confirmed on the page).

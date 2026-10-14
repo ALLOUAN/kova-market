@@ -33,7 +33,7 @@
                                         @endif
                                     </div>
                                     @if ($line->available)
-                                        <form method="POST" action="{{ route('cart.items.update', $line->item->id) }}" class="d-flex align-items-center gap-2">
+                                        <form method="POST" action="{{ route('cart.items.update', $line->item) }}" class="d-flex align-items-center gap-2">
                                             @csrf
                                             @method('PATCH')
                                             <label class="visually-hidden" for="quantity-{{ $line->item->id }}">Quantité de {{ $line->product->name }}</label>
@@ -44,7 +44,7 @@
                                         </form>
                                     @endif
                                     <p class="mb-0 rbt-text-bold text-end" style="min-width: 110px">@money($line->total())</p>
-                                    <form method="POST" action="{{ route('cart.items.destroy', $line->item->id) }}">
+                                    <form method="POST" action="{{ route('cart.items.destroy', $line->item) }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="rbt-round-btn" aria-label="Retirer {{ $line->product->name }}"><i class="fa-solid fa-xmark"></i></button>

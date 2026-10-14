@@ -135,6 +135,14 @@ class CartManager
         return $this->current()?->items()->whereKey($itemId)->first();
     }
 
+    /**
+     * A line of the current cart by the public id the site's addresses use (the API keeps the numeric id).
+     */
+    public function findItemByPublicId(string $publicId): ?CartItem
+    {
+        return $this->current()?->items()->where('public_id', $publicId)->first();
+    }
+
     public function chooseCommune(Commune $commune): void
     {
         if (! $commune->isDeliverable()) {

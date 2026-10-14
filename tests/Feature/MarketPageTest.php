@@ -46,6 +46,14 @@ class MarketPageTest extends TestCase
         $this->get('/categorie/mon-marche?vente=poids')->assertOk()->assertSeeText('Tomates fraîches')->assertDontSeeText('Riz parfumé 5 kg');
     }
 
+    public function test_the_market_menu_lists_its_categories_even_before_they_hold_products(): void
+    {
+        $this->get('/')->assertOk()
+            ->assertSee('id="rbt-megamenu_tab1-market"', false)
+            ->assertSee('href="'.route('categories.show', 'fruits-et-legumes').'"', false)
+            ->assertSee('href="'.route('categories.show', 'legumes-frais').'"', false);
+    }
+
     public function test_the_menus_lead_to_the_showcase(): void
     {
         Product::factory()->for(Category::where('slug', 'legumes-frais')->firstOrFail())->create();

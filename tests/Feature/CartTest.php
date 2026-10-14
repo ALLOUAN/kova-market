@@ -40,7 +40,7 @@ class CartTest extends TestCase
             ->assertSessionHas('cart_status', fn (string $message) => str_contains($message, '(3 au total)'));
 
         $item = Cart::sole()->items()->sole();
-        $this->patch("/panier/articles/{$item->id}", ['quantity' => 9])->assertSessionHas('cart_status', 'Quantité ramenée à 3 : c’est le stock disponible.');
+        $this->patch("/panier/articles/{$item->public_id}", ['quantity' => 9])->assertSessionHas('cart_status', 'Quantité ramenée à 3 : c’est le stock disponible.');
         $this->assertSame(3, $item->fresh()->quantity);
     }
 
@@ -84,8 +84,8 @@ class CartTest extends TestCase
         $other = Cart::create(['token' => fake()->uuid(), 'expires_at' => now()->addDay()]);
         $item = $other->items()->create(['product_variant_id' => Product::factory()->create()->defaultVariant->id, 'quantity' => 1]);
 
-        $this->patch("/panier/articles/{$item->id}", ['quantity' => 3])->assertNotFound();
-        $this->delete("/panier/articles/{$item->id}")->assertNotFound();
+        $this->patch("/panier/articles/{$item->public_id}", ['quantity' => 3])->assertNotFound();
+        $this->delete("/panier/articles/{$item->public_id}")->assertNotFound();
         $this->assertSame(1, $item->fresh()->quantity);
     }
 

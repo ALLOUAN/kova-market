@@ -20,7 +20,7 @@
                         </li>
                     @endif
 
-                    <li class="rbt-access-box">
+                    <li class="rbt-access-box kova-toolbar-home">
                         <a @class(['rbt-common-search-trigger-active rbt-round-btn has-rbt-md-fsize rbt-modern-close-btn', 'is-active' => request()->routeIs('home')]) href="{{ route('home') }}">
                             <i class="fa-regular fa-house search-icon"></i>
                             <div class="modern-close-wrapper"></div>

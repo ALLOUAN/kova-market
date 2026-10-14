@@ -24,9 +24,9 @@ class DatabaseSeeder extends Seeder
         }
 
         // Local demo only (never seeded in production). Created once: a later "db:seed" keeps its password.
-        User::firstOrCreate(['email' => 'admin-kovamarket@mail.com'], [
+        User::firstOrCreate(['email' => 'admin-kovamarket@kova-market.com'], [
             'name' => 'Test User',
-            'password' => '123456789',
+            'password' => config('admin.demo_password'),
         ])->assignRole(Role::SuperAdmin->value);
 
         $this->call([CatalogSeeder::class, BannerSeeder::class, DemoDeliveryFeesSeeder::class, DemoCouponsSeeder::class, DemoStaffSeeder::class]);

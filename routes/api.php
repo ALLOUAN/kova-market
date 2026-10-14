@@ -55,8 +55,8 @@ Route::prefix('v1')->name('api.v1.')->middleware(['api.guard', 'throttle:api'])-
 
         Route::get('/account/addresses', [AddressController::class, 'index'])->name('account.addresses.index');
         Route::post('/account/addresses', [AddressController::class, 'store'])->name('account.addresses.store');
-        Route::put('/account/addresses/{address}', [AddressController::class, 'update'])->name('account.addresses.update');
-        Route::post('/account/addresses/{address}/default', [AddressController::class, 'makeDefault'])->name('account.addresses.default');
-        Route::delete('/account/addresses/{address}', [AddressController::class, 'destroy'])->name('account.addresses.destroy');
+        Route::put('/account/addresses/{address:id}', [AddressController::class, 'update'])->name('account.addresses.update');
+        Route::post('/account/addresses/{address:id}/default', [AddressController::class, 'makeDefault'])->name('account.addresses.default');
+        Route::delete('/account/addresses/{address:id}', [AddressController::class, 'destroy'])->name('account.addresses.destroy');
     });
 });

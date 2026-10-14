@@ -10,6 +10,8 @@ use App\Support\PhoneNumber;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
+use Filament\Auth\MultiFactor\Email\Concerns\InteractsWithEmailAuthentication;
+use Filament\Auth\MultiFactor\Email\Contracts\HasEmailAuthentication;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -37,10 +39,10 @@ use Spatie\Permission\Traits\HasRoles;
     'password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes',
     'app_authentication_secret', 'app_authentication_recovery_codes',
 ])]
-class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasEmailAuthentication
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, LogsActivity, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, HasRoles, InteractsWithEmailAuthentication, LogsActivity, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
     /**
      * A changed password, e-mail or phone is reported to the former e-mail and phone (F-147), whatever the way it

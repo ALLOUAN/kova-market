@@ -51,7 +51,7 @@ class StorefrontSettingsTest extends TestCase
         auth()->logout();
         $this->get('/')
             ->assertOk()
-            ->assertSee('<title>Kova Shop - Boutique en ligne à Abidjan</title>', false)
+            ->assertSee('<title>Kova Shop | Achat en ligne à Abidjan, livraison en Côte d’Ivoire</title>', false)
             ->assertSeeText('Votre boutique de quartier, en ligne.')
             ->assertSeeText('Livraison offerte ce week-end')
             ->assertSee('href="'.e(route('shop.index', ['q' => 'Enceintes'])).'"', false)
@@ -62,7 +62,7 @@ class StorefrontSettingsTest extends TestCase
     {
         Setting::store(['announcements.trending' => null, 'identity.name' => '']);
 
-        $this->get('/')->assertOk()->assertSee('<title>'.config('storefront.name').' - Boutique en ligne à Abidjan</title>', false);
+        $this->get('/')->assertOk()->assertSee('<title>'.config('storefront.name').' | Achat en ligne à Abidjan, livraison en Côte d’Ivoire</title>', false);
     }
 
     public function test_the_low_stock_threshold_follows_the_setting(): void

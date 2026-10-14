@@ -70,10 +70,10 @@ class CartController extends Controller
             ->with('cart_open', $request->input('open') === 'sidenav');
     }
 
-    public function update(Request $request, int $item): RedirectResponse
+    public function update(Request $request, string $item): RedirectResponse
     {
         $data = $request->validate(['quantity' => ['required', 'integer', 'min:0', 'max:'.CartManager::MAX_QUANTITY]]);
-        $line = $this->cart->findItem($item) ?? abort(404);
+        $line = $this->cart->findItemByPublicId($item) ?? abort(404);
 
         $kept = $this->cart->update($line, (int) $data['quantity']);
         $rules = $line->variant->product->saleQuantity();
@@ -87,9 +87,9 @@ class CartController extends Controller
         });
     }
 
-    public function destroy(int $item): RedirectResponse
+    public function destroy(string $item): RedirectResponse
     {
-        $this->cart->remove($this->cart->findItem($item) ?? abort(404));
+        $this->cart->remove($this->cart->findItemByPublicId($item) ?? abort(404));
 
         return redirect()->route('cart.show')->with('cart_status', 'L’article a été retiré du panier.');
     }

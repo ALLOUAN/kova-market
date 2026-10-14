@@ -40,7 +40,7 @@
                                     @endif
                                 </div>
                                 <div class="close-btn">
-                                    <form method="POST" action="{{ route('cart.items.destroy', $line->item->id) }}">
+                                    <form method="POST" action="{{ route('cart.items.destroy', $line->item) }}">
                                         @csrf
                                         @method('DELETE')
                                         <button class="rbt-round-btn" type="submit" aria-label="Retirer {{ $line->product->name }}"><i class="fa-solid fa-xmark"></i></button>

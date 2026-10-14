@@ -18,7 +18,10 @@
         @foreach ($mainMenu as $item)
             @switch($item['type'] ?? 'link')
                 @case('categories')
-                    @if ($mobile)
+                    {{-- No category holds an online product yet: a plain link, never an empty menu. --}}
+                    @if ($categoryTree->isEmpty())
+                        <li @class(['active' => $item['active']])><a href="{{ route('shop.index') }}">{{ $item['label'] }}</a></li>
+                    @elseif ($mobile)
                         <li @class(['has-dropdown position-relative', 'active' => $item['active']])>
                             <a href="#!">{{ $item['label'] }} <i class="fa-regular fa-chevron-down"></i></a>
                             <ul class="submenu">
@@ -41,7 +44,12 @@
                         $market = app(\App\Services\Storefront\Market::class);
                         $marketTree = $market->menuTree();
                     @endphp
-                    @if ($mobile)
+                    {{-- The market has no category at all: a plain link to its page, never an empty menu. --}}
+                    @if ($marketTree->isEmpty())
+                        <li @class(['kova-menu-highlight', 'active' => $item['active']])>
+                            <a href="{{ $item['href'] }}" @if (request()->routeIs('market.show')) aria-current="page" @endif><i class="{{ $item['icon'] }} mr--4"></i>{{ $item['label'] }}</a>
+                        </li>
+                    @elseif ($mobile)
                         <li @class(['has-dropdown position-relative kova-menu-highlight', 'active' => $item['active']])>
                             <a href="#!"><i class="{{ $item['icon'] }} mr--4"></i>{{ $item['label'] }} <i class="fa-regular fa-chevron-down"></i></a>
                             <ul class="submenu">

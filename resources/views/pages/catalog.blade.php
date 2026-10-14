@@ -17,6 +17,9 @@
     (bool) $brand => \App\Support\SeoText::listing($brand, $products->total()),
     default => \App\Support\SeoText::shop($products->total()),
 })
+@if ($category || $brand)
+    @section('keywords', \App\Support\SeoText::listingKeywords($category ?: $brand))
+@endif
 {{-- One indexed address per list and page (F-152): searches and filtered lists are followed but not indexed. --}}
 @section('canonical', $products->currentPage() > 1 ? url()->current().'?page='.$products->currentPage() : url()->current())
 @if ($filters['q'] !== '' || $activeFilters)

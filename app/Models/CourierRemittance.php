@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RemittanceMethod;
+use App\Models\Concerns\HasPublicId;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 #[Fillable(['courier_id', 'amount', 'balance_after', 'method', 'reference', 'received_at', 'received_by', 'note'])]
 class CourierRemittance extends Model
 {
+    use HasPublicId;
+
     /**
      * Get the attributes that should be cast.
      *

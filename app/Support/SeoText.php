@@ -52,6 +52,44 @@ final class SeoText
         return self::fit('Tous les produits de '.config('storefront.name').($count > 0 ? " : {$count} références" : '').', à Abidjan. '.self::PROMISE);
     }
 
+    /**
+     * Meta keywords of a product page: what people type to find it in Abidjan ("<produit> prix abidjan", "acheter
+     * <produit> abidjan"…), its brand and category, then the store's own words.
+     */
+    public static function productKeywords(Product $product): string
+    {
+        $name = Str::lower($product->name);
+
+        return self::keywords([
+            $name, "{$name} prix abidjan", "{$name} pas cher abidjan", "acheter {$name} abidjan", "{$name} côte d’ivoire",
+            $product->brand?->name, $product->category?->name,
+        ]);
+    }
+
+    /** Meta keywords of a category or brand list. */
+    public static function listingKeywords(Category|Brand $subject): string
+    {
+        $name = Str::lower($subject->name);
+
+        return self::keywords([$name, "{$name} abidjan", "{$name} côte d’ivoire", "acheter {$name} en ligne", "{$name} pas cher"]);
+    }
+
+    /**
+     * The page's own words first, then the store's (Paramètres de la boutique), without repeats.
+     *
+     * @param  array<int, string|null>  $own
+     */
+    private static function keywords(array $own): string
+    {
+        $store = array_map('trim', explode(',', (string) config('storefront.keywords')));
+
+        return collect([...$own, ...$store])
+            ->map(fn (?string $word) => Str::lower(trim((string) $word)))
+            ->filter()
+            ->unique()
+            ->implode(', ');
+    }
+
     private static function withBrand(Product $product): string
     {
         $brand = $product->brand?->name;

@@ -1222,66 +1222,118 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .rbt-round-btn.is-active i { color: #fff !important; }
 
 /* ------------------------------------------------------------------ Mobile toolbar
-   Night blue bar (KOVA identity), off-white icons and labels, the logo orange for the current page and the counters. */
+   A floating night-blue glass bar with rounded corners, lifted off the screen edge. The current page gets a soft
+   orange pill behind its icon; "Accueil" sits in the middle as a raised orange disc. */
 .rbt-toolbar {
-    background-color: var(--kova-navy);
-    box-shadow: 0 -6px 20px rgb(2 23 50 / 0.18);
-    padding-bottom: env(safe-area-inset-bottom);
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+    padding: 0 12px calc(10px + env(safe-area-inset-bottom));
+    pointer-events: none;
 }
+.rbt-toolbar .rbt-quick-access {
+    position: relative;
+    height: 64px;
+    padding: 6px;
+    gap: 2px;
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgb(10 36 72 / 0.94), rgb(2 23 50 / 0.97));
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    box-shadow: 0 14px 34px rgb(2 23 50 / 0.32), 0 2px 6px rgb(2 23 50 / 0.18), inset 0 1px 0 rgb(255 255 255 / 0.07);
+    pointer-events: auto;
+}
+.rbt-toolbar .rbt-quick-access > li { position: relative; height: 100%; }
 .rbt-toolbar .rbt-quick-access > li .rbt-round-btn {
     position: relative;
+    gap: 3px;
+    line-height: 1;
+    border-radius: 16px;
     background: transparent;
-    color: rgb(255 255 255 / 0.78);
-    transition: color 0.2s ease;
+    color: rgb(255 255 255 / 0.62);
+    transition: color 0.25s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
 }
+.rbt-toolbar .rbt-quick-access > li .rbt-round-btn::after { display: none; }
+.rbt-toolbar .rbt-quick-access > li .rbt-round-btn:active { transform: scale(0.94); }
 .rbt-toolbar .rbt-quick-access > li .rbt-round-btn i {
-    color: rgb(255 255 255 / 0.78);
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 28px;
+    border-radius: 999px;
+    color: rgb(255 255 255 / 0.62);
     font-size: 18px;
-    transition: color 0.2s ease, transform 0.2s ease;
+    line-height: 1;
+    transition: color 0.25s ease, background-color 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .rbt-toolbar .rbt-quick-access > li .rbt-round-btn .rbt-toolbar-label {
     color: inherit;
+    font-size: 11px;
     font-weight: 500;
-    letter-spacing: 0.01em;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
 }
 .rbt-toolbar .rbt-quick-access > li:hover .rbt-round-btn,
-.rbt-toolbar .rbt-quick-access > li:hover .rbt-round-btn i {
-    color: #fff;
-}
+.rbt-toolbar .rbt-quick-access > li:hover .rbt-round-btn i { color: #fff; }
 
-/* Current page: orange icon, white label and a short orange bar on top (instead of the generic filled button). */
-.rbt-toolbar .rbt-round-btn.is-active {
-    background: transparent !important;
-    color: #fff !important;
-}
+/* Current page: orange icon on a soft orange pill, white label. */
+.rbt-toolbar .rbt-round-btn.is-active { background: transparent !important; color: #fff !important; }
 .rbt-toolbar .rbt-round-btn.is-active i {
     color: var(--kova-orange-on-dark) !important;
+    background: rgb(255 106 26 / 0.16);
     transform: translateY(-1px);
 }
 .rbt-toolbar .rbt-round-btn.is-active .rbt-toolbar-label { font-weight: 600; }
-.rbt-toolbar .rbt-round-btn.is-active::before {
-    content: "";
+
+/* "Accueil": a raised orange disc set into the bar, ringed with the page colour. */
+.rbt-toolbar .rbt-quick-access > li.kova-toolbar-home .rbt-round-btn { justify-content: flex-end; padding-bottom: 4px; }
+.rbt-toolbar .rbt-quick-access > li.kova-toolbar-home .rbt-round-btn i {
     position: absolute;
-    top: -5px;
+    top: -24px;
     left: 50%;
-    width: 28px;
-    height: 3px;
-    margin-left: -14px;
-    border-radius: 0 0 3px 3px;
-    background: var(--kova-orange-on-dark);
+    width: 52px;
+    height: 52px;
+    margin-left: -26px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #ff7a2e, var(--kova-orange) 55%, var(--kova-orange-600));
+    color: #fff !important;
+    font-size: 20px;
+    box-shadow: 0 0 0 5px var(--color-white, #fff), 0 10px 22px rgb(248 80 0 / 0.42);
 }
+.rbt-toolbar .rbt-quick-access > li.kova-toolbar-home .rbt-round-btn.is-active i {
+    background: linear-gradient(145deg, #ff7a2e, var(--kova-orange) 55%, var(--kova-orange-600));
+    transform: translateY(-2px) scale(1.04);
+}
+.rbt-toolbar .rbt-quick-access > li.kova-toolbar-home .rbt-round-btn:active i { transform: scale(0.92); }
 
 /* Counters (favourites, compare): orange pill outlined with the bar colour. */
 .rbt-toolbar .rbt-quick-access > li .rbt-round-btn .access-box-count {
+    top: 2px;
+    left: calc(50% + 6px);
+    min-width: 17px;
+    width: auto;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 999px;
     background: var(--kova-orange-on-dark);
-    color: var(--kova-navy);
+    color: #fff;
+    font-size: 10px;
     font-weight: 700;
+    line-height: 17px;
     box-shadow: 0 0 0 2px var(--kova-navy);
 }
 
 .rbt-toolbar .rbt-round-btn:focus-visible {
     outline: 2px solid var(--kova-orange-on-dark);
     outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rbt-toolbar .rbt-quick-access > li .rbt-round-btn,
+    .rbt-toolbar .rbt-quick-access > li .rbt-round-btn i { transition: none; }
 }
 
 /* ------------------------------------------------------------------ Coloured panel
@@ -1431,6 +1483,10 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .rbt-progress-parent {
     background-color: #fff;
     box-shadow: 0 4px 14px rgb(2 23 50 / 0.18);
+}
+/* Clear of the floating mobile toolbar and its raised "Accueil" disc. */
+@media (max-width: 1199px) {
+    .rbt-progress-parent { right: 16px; bottom: calc(100px + env(safe-area-inset-bottom)); }
 }
 
 /* ------------------------------------------------------------------ Customer area bar
@@ -1640,35 +1696,33 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-account-nav__link--quiet i { background: #f4f6f9; color: var(--kova-text-muted); }
 .kova-account-nav__link--quiet:hover i { background: var(--kova-danger); color: #fff; }
 
-/* Home guarantees: a plain navy band (no gradient) with a fine diagonal weave, a gold line on top, white text,
-   icons in gold-ringed chips, thin separators between the items. */
+/* Home guarantees: one card per guarantee, side by side with a gap. Each card is plain navy (no gradient) with a fine
+   diagonal weave, a gold line on top, white text and an icon in an orange-ringed chip. */
 .kova-home-guarantees {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    gap: 16px;
+}
+.kova-home-guarantees li {
     position: relative;
     overflow: hidden;
-    padding: 26px 28px;
-    border: 0;
-    border-radius: 18px;
+    padding: 22px 20px;
+    border-radius: 16px;
     background-color: var(--kova-navy);
     background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / .04) 0 1px, transparent 1px 14px);
-    box-shadow: 0 14px 32px rgb(2 23 50 / .18);
+    box-shadow: 0 12px 28px rgb(2 23 50 / .16);
+    transition: transform .25s, box-shadow .25s;
 }
-.kova-home-guarantees::before {
+.kova-home-guarantees li::before {
     content: "";
     position: absolute;
     inset: 0 0 auto;
     height: 3px;
     background: var(--kova-gold);
 }
-.kova-home-guarantees li { position: relative; }
-.kova-home-guarantees li + li::before {
-    content: "";
-    position: absolute;
-    left: -12px;
-    top: 8px;
-    bottom: 8px;
-    width: 1px;
-    background: rgb(255 255 255 / .14);
-}
+.kova-home-guarantees li:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgb(2 23 50 / .22); }
 .kova-home-guarantees i {
     border-radius: 50%;
     background: rgb(255 255 255 / .08);
@@ -1680,12 +1734,31 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-home-guarantees strong { color: #fff; }
 .kova-home-guarantees span span { color: rgb(255 255 255 / .72); }
 
-@media (max-width: 991px) {
-    .kova-home-guarantees li:nth-child(odd)::before { display: none; }
+/* Phones: the four cards on one row, icons only; the texts stay for screen readers. */
+@media (max-width: 767px) {
+    .kova-home-guarantees {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        padding: 0;
+    }
+    .kova-home-guarantees li {
+        justify-content: center;
+        padding: 16px 8px;
+        border-radius: 14px;
+    }
+    .kova-home-guarantees li:hover { transform: none; }
+    .kova-home-guarantees li > span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
 }
-@media (max-width: 479px) {
-    .kova-home-guarantees { padding: 20px 18px; }
-    .kova-home-guarantees li::before { display: none; }
+@media (prefers-reduced-motion: reduce) {
+    .kova-home-guarantees li, .kova-home-guarantees li:hover { transition: none; transform: none; }
 }
 
 /* Home "Catégories populaires": white cards on a soft blue-grey panel (calm first impression under the hero),
@@ -2136,3 +2209,129 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 .kova-account-menu__panel .kova-account-menu__logout i { color: var(--kova-danger); }
 .kova-account-menu__panel .kova-account-menu__logout:hover { background: var(--kova-danger-bg); color: var(--kova-danger); }
 .kova-account-menu__links + .kova-account-menu__logout { margin-top: 6px; border-top: 1px solid var(--kova-border); border-radius: 0 0 9px 9px; padding-top: 12px !important; }
+
+/* Banner with several images ([data-banner-slides], assets/js/storefront.js): the images are stacked in the same
+   place and cross-fade, the active one on top. */
+.kova-banner-slides { display: grid; }
+.kova-banner-slides__img {
+    grid-area: 1 / 1;
+    width: 100%;
+    opacity: 0;
+    transition: opacity .9s ease;
+}
+.kova-banner-slides__img.is-active { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+    .kova-banner-slides__img { transition: none; }
+}
+
+/* Stock left on product cards (x-product.stock-progress): red when the stock is low. */
+.rbt-prd-qty-area.is-limited .prd-qty-txt,
+.rbt-prd-qty-area.is-limited .prd-qty-txt strong { color: var(--kova-danger); }
+.rbt-prd-qty-area.is-limited .progress .progress-bar { background-color: var(--kova-danger) !important; }
+
+/* Product page "Commande protégée" (x-product.order-protection): a card with a night-blue head (gold line, shield
+   badge) leading to the returns page, one line per guarantee with an icon in a soft tinted chip, payment brands in
+   small white tags, a green WhatsApp button. */
+.kova-protection {
+    margin-top: 24px;
+    overflow: hidden;
+    border: 1px solid var(--kova-border);
+    border-radius: 16px;
+    background: var(--kova-surface);
+    box-shadow: 0 8px 24px rgb(2 23 50 / .06);
+}
+.kova-protection__head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background-color: var(--kova-navy);
+    background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / .04) 0 1px, transparent 1px 14px);
+    border-bottom: 3px solid var(--kova-gold);
+    color: #fff;
+    text-decoration: none;
+}
+.kova-protection__badge {
+    flex: none;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgb(255 255 255 / .08);
+    box-shadow: inset 0 0 0 1.5px rgb(198 158 62 / .7);
+    color: var(--kova-gold);
+    font-size: 19px;
+}
+.kova-protection__heading { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.kova-protection__eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--kova-gold); }
+.kova-protection__title { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.3; color: #fff; }
+.kova-protection__arrow { flex: none; color: rgb(255 255 255 / .7); transition: transform .2s, color .2s; }
+.kova-protection__head:hover .kova-protection__arrow, .kova-protection__head:focus-visible .kova-protection__arrow { color: #fff; transform: translateX(3px); }
+
+.kova-protection__list { list-style: none; margin: 0; padding: 6px 18px; display: grid; }
+.kova-protection__list li { display: flex; gap: 14px; margin: 0; padding: 14px 0; }
+.kova-protection__list li + li { border-top: 1px dashed var(--kova-border); }
+.kova-protection__icon {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 15px;
+}
+.kova-protection__icon--green { background: var(--kova-success-bg); color: var(--kova-success); }
+.kova-protection__icon--orange { background: var(--kova-orange-50); color: var(--kova-orange-600); }
+.kova-protection__icon--gold { background: #fbf4e3; color: #8a6a1f; }
+.kova-protection__icon--navy { background: #e8edf5; color: var(--kova-navy); }
+.kova-protection__label { margin: 1px 0 3px; font-size: 14px; font-weight: 700; color: var(--kova-text); }
+.kova-protection__brands { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 6px; }
+.kova-protection__brands img,
+.kova-protection__brands i {
+    height: 26px;
+    padding: 3px 6px;
+    border: 1px solid var(--kova-border);
+    border-radius: 6px;
+    background: #fff;
+}
+.kova-protection__brands img { width: 44px; object-fit: contain; }
+.kova-protection__brands i { display: inline-flex; align-items: center; font-size: 18px; color: var(--kova-navy); }
+.kova-protection__text { margin: 0; font-size: 13px; line-height: 1.55; color: var(--kova-text-muted); }
+
+.kova-protection__chat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 4px 18px 0;
+    padding: 12px 16px;
+    border-radius: 999px;
+    background: #25d366;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 6px 16px rgb(37 211 102 / .28);
+    transition: background .2s, transform .2s;
+}
+.kova-protection__chat i { font-size: 19px; }
+.kova-protection__chat:hover, .kova-protection__chat:focus-visible { background: #1ebe5a; color: #fff; transform: translateY(-1px); }
+.kova-protection__note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 14px 0 0;
+    padding: 12px 18px;
+    background: var(--kova-surface-alt);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--kova-text-muted);
+}
+.kova-protection__note i { margin-top: 2px; color: var(--kova-success); }
+@media (prefers-reduced-motion: reduce) {
+    .kova-protection__arrow, .kova-protection__chat { transition: none; }
+}

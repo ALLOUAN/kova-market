@@ -129,4 +129,54 @@
     } else {
         window.addEventListener('load', autoplayHero);
     }
+
+    /**
+     * Colour swatches of the product cards: the card shows the colour's own picture. The theme (main.min.js) marks
+     * the swatch active but looks for the image as a direct child of the card, which our cards wrap: the picture is
+     * swapped here, src and srcset (the two sizes the browser actually follows), or the srcset removed when the
+     * colour has no smaller copy.
+     */
+    document.addEventListener('click', (event) => {
+        const swatch = event.target.closest('.product-switcher-activation li a[data-src]');
+        const image = swatch?.closest('.rbt-card')?.querySelector('.rbt-card-img .rbt-prd-img');
+
+        if (!image) {
+            return;
+        }
+
+        image.src = swatch.dataset.src;
+
+        if (swatch.dataset.srcset) {
+            image.srcset = swatch.dataset.srcset;
+        } else {
+            image.removeAttribute('srcset');
+        }
+    });
+
+    /**
+     * Banners with several images ([data-banner-slides]): one image after the other, every 4 seconds, cross-faded;
+     * paused while the pointer is over it or the tab is hidden, still for visitors who ask for reduced motion.
+     */
+    document.querySelectorAll('[data-banner-slides]').forEach((slides) => {
+        const images = [...slides.querySelectorAll('.kova-banner-slides__img')];
+
+        if (images.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+
+        let current = 0;
+        let paused = false;
+        slides.addEventListener('mouseenter', () => { paused = true; });
+        slides.addEventListener('mouseleave', () => { paused = false; });
+
+        window.setInterval(() => {
+            if (paused || document.hidden) {
+                return;
+            }
+
+            images[current].classList.remove('is-active');
+            current = (current + 1) % images.length;
+            images[current].classList.add('is-active');
+        }, 4000);
+    });
 })();

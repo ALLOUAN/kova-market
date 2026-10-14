@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\DeliveryZone;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Services\Storefront\SitemapGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -74,6 +75,22 @@ class SeoTest extends TestCase
             ->assertSee('<meta property="og:type" content="product">', false)
             ->assertSee('<meta property="og:image" content="'.asset($product->image).'">', false)
             ->assertSee('<meta name="twitter:card" content="summary_large_image">', false);
+    }
+
+    public function test_pages_carry_their_own_keywords_then_the_stores(): void
+    {
+        config(['storefront.keywords' => 'Achat en ligne Abidjan, Livraison Abidjan']);
+        $category = Category::factory()->create(['name' => 'Audio', 'slug' => 'audio']);
+        Product::factory()->for($category)->create(['name' => 'Casque JBL', 'slug' => 'casque-jbl']);
+
+        $this->get('/produit/casque-jbl')->assertOk()
+            ->assertSee('<meta name="keywords" content="casque jbl, casque jbl prix abidjan,', false)
+            ->assertSee('audio, achat en ligne abidjan, livraison abidjan">', false);
+        $this->get('/categorie/audio')->assertOk()->assertSee('<meta name="keywords" content="audio, audio abidjan,', false);
+        $this->get('/')->assertOk()->assertSee('<meta name="keywords" content="Achat en ligne Abidjan, Livraison Abidjan">', false);
+
+        Setting::store(['identity.keywords' => 'Boutique Cocody']);
+        $this->get('/')->assertOk()->assertSee('<meta name="keywords" content="Boutique Cocody">', false);
     }
 
     public function test_variants_at_different_prices_make_an_aggregate_offer_and_sold_out_products_say_so(): void

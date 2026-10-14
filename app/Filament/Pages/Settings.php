@@ -139,6 +139,7 @@ class Settings extends Page
                 'logo' => config('storefront.logo'),
                 'favicon' => config('storefront.favicon'),
                 'home_title' => config('storefront.home_title'),
+                'keywords' => config('storefront.keywords'),
             ],
             'newsletter' => [
                 'footer' => (bool) config('storefront.features.newsletter'),
@@ -230,9 +231,14 @@ class Settings extends Page
                                     ->schema([
                                         TextInput::make('identity.home_title')
                                             ->label('Titre de la page d’accueil')
-                                            ->placeholder(config('storefront.name').' - Boutique en ligne à Abidjan')
-                                            ->helperText('Vide : le nom de la boutique suivi de « Boutique en ligne à Abidjan ». 60 à 70 caractères au plus pour être lu en entier dans Google.')
+                                            ->placeholder(config('storefront.name').' | Achat en ligne à Abidjan, livraison en Côte d’Ivoire')
+                                            ->helperText('Vide : le nom de la boutique suivi de « Achat en ligne à Abidjan, livraison en Côte d’Ivoire ». 60 à 70 caractères au plus pour être lu en entier dans Google.')
                                             ->maxLength(70),
+                                        Textarea::make('identity.keywords')
+                                            ->label('Mots-clés (référencement)')
+                                            ->rows(4)
+                                            ->helperText('Séparés par des virgules. Repris sur toutes les pages ; chaque produit et chaque catégorie y ajoute aussi son propre nom. Google n’en tient pas compte, Bing un peu : le titre et la description comptent bien plus.')
+                                            ->maxLength(2000),
                                     ]),
                                 Section::make('Bandeau de garanties')
                                     ->description('Affiché sous le carrousel : ce qui rassure avant d’acheter (livraison, paiement, service client…).')
@@ -557,6 +563,7 @@ class Settings extends Page
             'identity.logo' => $state['identity']['logo'] ?? null,
             'identity.favicon' => $state['identity']['favicon'] ?? null,
             'identity.home_title' => $state['identity']['home_title'] ?? null,
+            'identity.keywords' => $state['identity']['keywords'] ?? null,
             'newsletter.footer' => ($state['newsletter']['footer'] ?? false) ? '1' : '0',
             'newsletter.popup' => ($state['newsletter']['popup'] ?? false) ? '1' : '0',
             ...collect(ConfigOverrides::NEWSLETTER_TEXTS)->mapWithKeys(fn (string $field) => ["newsletter.{$field}" => $state['newsletter'][$field] ?? null])->all(),

@@ -15,7 +15,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * Home page banner (F-010). Displayed while visible and within its optional date window.
  */
 #[Fillable([
-    'placement', 'product_id', 'image', 'subtitle', 'highlight', 'title', 'tagline', 'badge', 'price', 'compare_at_price',
+    'placement', 'product_id', 'image', 'images', 'subtitle', 'highlight', 'title', 'tagline', 'badge', 'price', 'compare_at_price',
     'url', 'button_label', 'position', 'starts_at', 'ends_at', 'is_visible',
 ])]
 class Banner extends Model
@@ -38,6 +38,7 @@ class Banner extends Model
     {
         return [
             'placement' => BannerPlacement::class,
+            'images' => 'array',
             'price' => 'integer',
             'compare_at_price' => 'integer',
             'starts_at' => 'datetime',
@@ -76,6 +77,8 @@ class Banner extends Model
             ...$this->only(['id', 'image', 'subtitle', 'highlight', 'title', 'tagline', 'badge', 'price', 'compare_at_price', 'url']),
             'placement' => $this->placement->value,
             'button' => filled($this->button_label) ? $this->button_label : self::DEFAULT_BUTTON,
+            // Every image shown in turn, the main one first.
+            'images' => array_values(array_unique(array_filter([$this->image, ...($this->images ?? [])]))),
         ];
 
         // A promoted product on sale gives the current price, the crossed-out one and the discount, and its page

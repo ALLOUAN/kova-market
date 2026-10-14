@@ -20,6 +20,7 @@ class ConfigOverrides
         'identity.about' => 'storefront.about',
         'identity.favicon' => 'storefront.favicon',
         'identity.home_title' => 'storefront.home_title',
+        'identity.keywords' => 'storefront.keywords',
         'footer.banner' => 'storefront.footer_banner',
         'product_card.shipping_delay' => 'storefront.shipping.delay',
     ];

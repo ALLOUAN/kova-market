@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\SaleUnit;
+use App\Models\Concerns\HasPublicId;
 use App\Support\SaleQuantity;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 ])]
 class OrderItem extends Model
 {
+    use HasPublicId;
+
     /**
      * Get the attributes that should be cast.
      *

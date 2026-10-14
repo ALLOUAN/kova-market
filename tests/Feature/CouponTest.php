@@ -127,7 +127,7 @@ class CouponTest extends TestCase
         $this->applyCoupon('GROS');
         $this->get('/panier')->assertSeeText('Remise (GROS)');
 
-        $this->patch('/panier/articles/'.Cart::sole()->items()->sole()->id, ['quantity' => 1]);
+        $this->patch('/panier/articles/'.Cart::sole()->items()->sole()->public_id, ['quantity' => 1]);
 
         $this->get('/panier')->assertDontSeeText('Remise (GROS)')->assertSeeText('Ce code promo demande un minimum d’achat');
         $this->get('/commande')->assertRedirect('/panier');
