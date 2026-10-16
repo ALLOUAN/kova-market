@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Role;
+use App\Enums\SupportTicketStatus;
 use App\Notifications\AccountSecurityAlert;
 use App\Services\Account\AccountEraser;
 use App\Support\PhoneNumber;
@@ -204,6 +205,22 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class)->latest('id');
+    }
+
+    /**
+     * Assistance requests, the latest conversation first.
+     */
+    public function supportTickets(): HasMany
+    {
+        return $this->hasMany(SupportTicket::class)->latest('last_message_at')->latest('id');
+    }
+
+    /**
+     * The request still waiting for the team's answer: while there is one, no new request can be opened.
+     */
+    public function pendingSupportTicket(): ?SupportTicket
+    {
+        return $this->supportTickets()->where('status', SupportTicketStatus::Open)->first();
     }
 
     public function requiresTwoFactor(): bool

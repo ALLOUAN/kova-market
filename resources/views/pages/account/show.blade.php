@@ -155,6 +155,7 @@
                 <section class="kova-dash-card kova-dash-help">
                     <h2 class="kova-dash-card__title mb--8">Besoin d’aide ?</h2>
                     <p class="kova-dash-address__line mb--16">Une question sur une commande, une livraison ou un paiement ?</p>
+                    <a class="kova-dash-help__link" href="{{ route('account.support.create') }}"><i class="fa-regular fa-headset"></i>Envoyer une demande à l’équipe</a>
                     <a class="kova-dash-help__link" href="{{ route('faq') }}"><i class="fa-regular fa-circle-question"></i>Questions fréquentes</a>
                     <a class="kova-dash-help__link" href="{{ route('contact.show') }}"><i class="fa-regular fa-headset"></i>Nous contacter</a>
                 </section>

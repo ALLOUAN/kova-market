@@ -902,3 +902,109 @@ a.kd-chip:hover { box-shadow: inset 0 0 0 1px var(--kd-orange); }
 .dark .kova-mfa-steps { border-top-color: rgb(255 255 255 / .1); }
 .dark .kova-mfa-steps__title, .dark .kova-mfa-steps li strong { color: #fff; }
 .dark .fi-simple-layout:has(.kova-mfa-steps) .fi-section { background: rgb(248 80 0 / .08) !important; border-color: rgb(248 80 0 / .3) !important; }
+
+/* Assistance request conversation (filament/support-tickets/thread): the customer left, the team right. */
+.kova-thread { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.kova-thread__message { align-self: flex-start; max-width: 85%; }
+.kova-thread__message.is-staff { align-self: flex-end; }
+.kova-thread__who { display: flex; gap: 8px; align-items: baseline; margin: 0 0 4px; font-size: 0.75rem; font-weight: 600; color: #0f1d33; }
+.kova-thread__message.is-staff .kova-thread__who { justify-content: flex-end; }
+.kova-thread__who time { font-weight: 400; color: #667085; }
+.kova-thread__body { padding: 10px 14px; border-radius: 14px 14px 14px 4px; background: #f2f5fa; border: 1px solid rgb(2 23 50 / 0.08); color: #0f1d33; font-size: 0.875rem; line-height: 1.55; overflow-wrap: anywhere; }
+.kova-thread__message.is-staff .kova-thread__body { border-radius: 14px 14px 4px 14px; background: #021732; border-color: #021732; color: #fff; }
+.dark .kova-thread__who { color: #fff; }
+.dark .kova-thread__who time { color: #98a2b3; }
+.dark .kova-thread__body { background: rgb(255 255 255 / 0.06); border-color: rgb(255 255 255 / 0.1); color: #f2f5fa; }
+.dark .kova-thread__message.is-staff .kova-thread__body { background: #cc4400; border-color: #cc4400; }
+.kova-thread__files { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+.kova-thread__message.is-staff .kova-thread__files { justify-content: flex-end; }
+.kova-thread__file { display: inline-flex; align-items: center; gap: 6px; max-width: 220px; padding: 6px 10px; border: 1px solid rgb(2 23 50 / 0.12); border-radius: 10px; background: #fff; color: #021732; font-size: 0.8125rem; font-weight: 500; }
+.kova-thread__file span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kova-thread__file-icon { width: 18px; height: 18px; flex: none; color: #c0362c; }
+.kova-thread__file.is-image { padding: 3px; }
+.kova-thread__file.is-image img { display: block; width: 110px; height: 110px; object-fit: cover; border-radius: 7px; }
+.kova-thread__file:hover { border-color: #cc4400; }
+.dark .kova-thread__file { background: rgb(255 255 255 / 0.06); border-color: rgb(255 255 255 / 0.12); color: #f2f5fa; }
+
+/* ------------------------------------------------------------ Livraison › Messagerie livreurs (CourierChat)
+   WhatsApp Web layout: the couriers on the left, the conversation on the beige doodle background on the right
+   (the courier in white on the left, the team in green on the right, ✓✓ blue once read). On a phone, the list or
+   the conversation. */
+.kcc { display: grid; grid-template-columns: 340px 1fr; height: calc(100vh - 150px); min-height: 520px; overflow: hidden; border: 1px solid rgb(2 23 50 / 0.1); border-radius: 16px; background: #fff; box-shadow: 0 1px 2px rgb(2 23 50 / 0.06); }
+.kcc-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.kcc-icon { width: 20px; height: 20px; }
+
+.kcc-list { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid rgb(2 23 50 / 0.08); }
+.kcc-list__head { padding: 18px 18px 12px; background: #021732; color: #fff; }
+.kcc-list__title { margin: 0; font-size: 1.125rem; font-weight: 700; }
+.kcc-list__lead { margin: 2px 0 0; font-size: 0.8125rem; color: rgb(255 255 255 / 0.7); }
+.kcc-list__items { flex: 1; margin: 0; padding: 0; list-style: none; overflow-y: auto; }
+.kcc-list__empty { padding: 24px 18px; color: #667085; font-size: 0.875rem; }
+.kcc-contact { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 0; border-bottom: 1px solid rgb(2 23 50 / 0.06); background: transparent; text-align: left; cursor: pointer; }
+.kcc-contact:hover { background: #f5f6f6; }
+.kcc-contact.is-active { background: #f0f2f5; }
+.kcc-contact__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.kcc-contact__row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.kcc-contact__row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9375rem; color: #111b21; }
+.kcc-contact__row time { flex: none; font-size: 0.75rem; color: #667781; }
+.kcc-contact.is-unread time { color: #1fa855; font-weight: 600; }
+.kcc-contact__last { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8125rem; color: #667781; }
+.kcc-contact.is-unread .kcc-contact__last { color: #111b21; font-weight: 600; }
+.kcc-badge { flex: none; min-width: 20px; height: 20px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: #25d366; color: #fff; font-size: 0.75rem; font-weight: 700; }
+.kcc-avatar { flex: none; width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #dfe5e7; color: #021732; font-weight: 700; font-size: 0.875rem; }
+
+.kcc-chat { position: relative; display: flex; flex-direction: column; min-height: 0; background-color: #efeae2; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23ded5c5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 22h22a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6H28l-7 6v-6h-3a6 6 0 0 1-6-6V28a6 6 0 0 1 6-6z'/%3E%3Cpath d='M112 30c-4-7-14-5-14 3 0 7 14 14 14 14s14-7 14-14c0-8-10-10-14-3z'/%3E%3Cpath d='M70 76l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z'/%3E%3Crect x='112' y='92' width='26' height='22' rx='3'/%3E%3Cpath d='M112 100h26M125 92v8'/%3E%3Cpath d='M24 112a10 10 0 1 0 20 0a10 10 0 1 0-20 0M31 110h.01M37 110h.01M30 116q4 4 8 0'/%3E%3Cpath d='M86 132q6-8 12 0t12 0'/%3E%3Ccircle cx='140' cy='60' r='3'/%3E%3Ccircle cx='60' cy='140' r='2.5'/%3E%3Ccircle cx='58' cy='26' r='2'/%3E%3C/g%3E%3C/svg%3E"); background-size: 160px 160px; }
+.kcc-chat__head { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: #f0f2f5; border-bottom: 1px solid rgb(2 23 50 / 0.08); }
+.kcc-chat__who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.kcc-chat__who strong { font-size: 0.9375rem; color: #111b21; }
+.kcc-chat__who span { font-size: 0.8125rem; color: #667781; }
+.kcc-chat__call, .kcc-back { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: transparent; color: #54656f; cursor: pointer; }
+.kcc-chat__call:hover, .kcc-back:hover { background: rgb(11 20 26 / 0.06); }
+.kcc-back { display: none; }
+
+.kcc-thread { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 18px 6%; }
+.kcc-msg { position: relative; align-self: flex-start; max-width: 65%; padding: 6px 9px 8px 10px; border-radius: 10px; border-top-left-radius: 0; background: #fff; color: #111b21; font-size: 0.9375rem; line-height: 1.4; box-shadow: 0 1px 1px rgb(11 20 26 / 0.13); }
+.kcc-msg::before { content: ""; position: absolute; top: 0; left: -8px; border-style: solid; border-color: #fff #fff transparent transparent; border-width: 0 8px 10px 0; }
+.kcc-msg--mine { align-self: flex-end; background: #d9fdd3; border-top-left-radius: 10px; border-top-right-radius: 0; }
+.kcc-msg--mine::before { left: auto; right: -8px; border-color: #d9fdd3 transparent transparent #d9fdd3; border-width: 0 0 10px 8px; }
+.kcc-msg__author { margin: 0 0 2px; font-size: 0.75rem; font-weight: 700; color: #0a7d5d; }
+.kcc-msg__text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.kcc-msg__meta { float: right; display: inline-flex; align-items: center; gap: 3px; margin: 6px 0 -4px 10px; font-size: 0.6875rem; color: #667781; }
+.kcc-ticks { width: 16px; height: 11px; color: #8696a0; }
+.kcc-ticks.is-read { color: #53bdeb; }
+.kcc-empty { align-self: center; max-width: 380px; margin: auto 0; padding: 12px 16px; border-radius: 10px; background: #ffeecd; color: #54656f; font-size: 0.875rem; text-align: center; }
+
+.kcc-composer { display: flex; align-items: flex-end; gap: 8px; padding: 10px 16px; background: #f0f2f5; }
+.kcc-composer textarea { flex: 1; min-height: 44px; max-height: 140px; padding: 11px 16px; border: 0; border-radius: 22px; background: #fff; color: #111b21; font-size: 0.9375rem; line-height: 1.4; resize: none; }
+.kcc-composer textarea:focus { outline: 2px solid #25d366; }
+.kcc-send { flex: none; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: #00a884; color: #fff; cursor: pointer; }
+.kcc-send:disabled { opacity: 0.6; }
+.kcc-error { margin: 0; padding: 0 16px 10px; background: #f0f2f5; color: #c0362c; font-size: 0.8125rem; }
+
+.kcc-welcome { margin: auto; max-width: 360px; padding: 24px; text-align: center; color: #54656f; }
+.kcc-welcome__icon { width: 56px; height: 56px; margin: 0 auto 12px; color: #00a884; }
+.kcc-welcome h2 { margin: 0 0 6px; font-size: 1.25rem; font-weight: 600; color: #111b21; }
+.kcc-welcome p { margin: 0; font-size: 0.875rem; }
+
+@media (max-width: 860px) {
+    .kcc { grid-template-columns: 1fr; height: calc(100vh - 120px); }
+    .kcc-list.has-selection { display: none; }
+    .kcc-list:not(.has-selection) + .kcc-chat { display: none; }
+    .kcc-back { display: inline-flex; }
+    .kcc-msg { max-width: 85%; }
+}
+
+.dark .kcc { border-color: rgb(255 255 255 / 0.1); background: #111b21; }
+.dark .kcc-list { border-right-color: rgb(255 255 255 / 0.08); }
+.dark .kcc-contact { border-bottom-color: rgb(255 255 255 / 0.06); }
+.dark .kcc-contact:hover, .dark .kcc-contact.is-active { background: #202c33; }
+.dark .kcc-contact__row strong, .dark .kcc-contact.is-unread .kcc-contact__last { color: #e9edef; }
+.dark .kcc-chat { background-color: #0b141a; background-image: none; }
+.dark .kcc-chat__head, .dark .kcc-composer, .dark .kcc-error { background: #202c33; border-color: rgb(255 255 255 / 0.06); }
+.dark .kcc-chat__who strong, .dark .kcc-welcome h2 { color: #e9edef; }
+.dark .kcc-msg { background: #202c33; color: #e9edef; }
+.dark .kcc-msg::before { border-color: #202c33 #202c33 transparent transparent; }
+.dark .kcc-msg--mine { background: #005c4b; }
+.dark .kcc-msg--mine::before { border-color: #005c4b transparent transparent #005c4b; }
+.dark .kcc-msg__meta { color: rgb(233 237 239 / 0.6); }
+.dark .kcc-composer textarea { background: #2a3942; color: #e9edef; }

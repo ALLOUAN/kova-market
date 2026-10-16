@@ -2335,3 +2335,248 @@ a.kova-contact-card:hover { box-shadow: 0 10px 24px rgba(0, 0, 0, .25); transfor
 @media (prefers-reduced-motion: reduce) {
     .kova-protection__arrow, .kova-protection__chat { transition: none; }
 }
+
+/* ------------------------------------------------------------------ Assistance (customer area)
+   Requests to the team: an intro band, the list, the conversation as bubbles (the team's on the left, the
+   customer's on the right) and the floating "Besoin d'aide ?" button, bottom left, clear of the back-to-top button
+   and the mobile toolbar. */
+.kova-account-nav__link--teal i { background: #e3f4f2; color: #0f766e; }
+.kova-account-nav__badge {
+    margin-left: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: var(--kova-orange-600);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+}
+
+.kova-ticket-intro {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 20px 22px;
+    border-radius: 14px;
+    background: linear-gradient(120deg, var(--kova-navy) 0%, var(--kova-navy-700) 100%);
+    color: rgb(255 255 255 / 0.82);
+}
+.kova-ticket-intro .kova-dash-card__title { color: #fff; }
+.kova-ticket-intro__icon {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgb(255 106 26 / 0.16);
+    color: var(--kova-orange-on-dark);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+.kova-ticket-intro__text { flex: 1; min-width: 0; font-size: 14px; }
+.kova-ticket-intro__action { flex: none; }
+
+.kova-ticket-unread { position: relative; background: var(--kova-orange-50) !important; color: var(--kova-orange-600) !important; }
+.kova-ticket-unread::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--kova-orange-600);
+    box-shadow: 0 0 0 2px #fff;
+}
+
+.kova-ticket-status {
+    flex: none;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.kova-ticket-status--ouvert { background: var(--kova-warning-bg); color: var(--kova-warning); }
+.kova-ticket-status--repondu { background: var(--kova-success-bg); color: var(--kova-success); }
+.kova-ticket-status--ferme { background: #eef1f6; color: var(--kova-text-muted); }
+
+.kova-ticket-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--kova-border);
+    font-size: 13px;
+    color: var(--kova-text-muted);
+}
+.kova-ticket-meta a { color: var(--kova-navy); font-weight: 600; }
+
+.kova-ticket-thread { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.kova-ticket-message { align-self: flex-end; max-width: 82%; margin: 0; }
+.kova-ticket-message--staff { align-self: flex-start; }
+.kova-ticket-message__who {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--kova-navy);
+}
+.kova-ticket-message--staff .kova-ticket-message__who { justify-content: flex-start; }
+.kova-ticket-message__who i { color: var(--kova-orange-600); }
+.kova-ticket-message__who time { font-weight: 400; color: var(--kova-text-muted); }
+.kova-ticket-message__body {
+    padding: 12px 16px;
+    border-radius: 16px 16px 4px 16px;
+    background: var(--kova-navy);
+    color: #fff;
+    font-size: 15px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+.kova-ticket-message--staff .kova-ticket-message__body {
+    border-radius: 16px 16px 16px 4px;
+    background: #f3f5f8;
+    border: 1px solid var(--kova-border);
+    color: var(--kova-text);
+}
+
+.kova-ticket-close {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--kova-success);
+    font-size: 14px;
+    font-weight: 600;
+}
+.kova-ticket-close:hover { text-decoration: underline; }
+
+.kova-assist-fab {
+    position: fixed;
+    left: 24px;
+    bottom: 24px;
+    z-index: 340;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px 12px 14px;
+    border-radius: 999px;
+    background: var(--kova-navy);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 10px 26px rgb(2 23 50 / 0.28);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.kova-assist-fab:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 14px 30px rgb(2 23 50 / 0.34); }
+.kova-assist-fab i {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--kova-orange);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+.kova-assist-fab__dot {
+    position: absolute;
+    top: 6px;
+    left: 38px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ffd166;
+    box-shadow: 0 0 0 2px var(--kova-navy);
+}
+.kova-assist-fab:focus-visible { outline: 3px solid var(--kova-orange-on-dark); outline-offset: 3px; }
+
+@media (max-width: 1199px) {
+    .kova-assist-fab { left: 16px; bottom: calc(100px + env(safe-area-inset-bottom)); padding: 7px; }
+    .kova-assist-fab__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .kova-assist-fab i { width: 40px; height: 40px; font-size: 18px; }
+    .kova-assist-fab__dot { top: 4px; left: 36px; }
+}
+@media (max-width: 575px) {
+    .kova-ticket-intro { flex-wrap: wrap; }
+    .kova-ticket-intro__action { width: 100%; text-align: center; }
+    .kova-ticket-message { max-width: 92%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .kova-assist-fab { transition: none; }
+}
+
+/* Message fields of the assistance pages: the warm beige of a WhatsApp chat with a light doodle pattern
+   (our own drawing: bubbles, hearts, stars, parcels). */
+textarea.kova-wa-input {
+    min-height: 150px;
+    padding: 14px 16px !important;
+    border-color: #d9d2c5 !important;
+    border-radius: 12px !important;
+    background-color: #efeae2 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23ded5c5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 22h22a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6H28l-7 6v-6h-3a6 6 0 0 1-6-6V28a6 6 0 0 1 6-6z'/%3E%3Cpath d='M112 30c-4-7-14-5-14 3 0 7 14 14 14 14s14-7 14-14c0-8-10-10-14-3z'/%3E%3Cpath d='M70 76l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z'/%3E%3Crect x='112' y='92' width='26' height='22' rx='3'/%3E%3Cpath d='M112 100h26M125 92v8'/%3E%3Cpath d='M24 112a10 10 0 1 0 20 0a10 10 0 1 0-20 0M31 110h.01M37 110h.01M30 116q4 4 8 0'/%3E%3Cpath d='M86 132q6-8 12 0t12 0'/%3E%3Ccircle cx='140' cy='60' r='3'/%3E%3Ccircle cx='60' cy='140' r='2.5'/%3E%3Ccircle cx='58' cy='26' r='2'/%3E%3C/g%3E%3C/svg%3E") !important;
+    background-size: 160px 160px;
+    line-height: 1.6;
+    resize: vertical;
+}
+textarea.kova-wa-input:focus { border-color: #25d366 !important; box-shadow: 0 0 0 3px rgb(37 211 102 / 0.2) !important; }
+textarea.kova-wa-input::placeholder { color: #8a8170 !important; }
+
+/* Files of the assistance messages: the "Joindre des fichiers" button with the names chosen, then the files in the
+   conversation (pictures as thumbnails, PDF as a labelled chip). */
+.kova-attach { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 10px; }
+.kova-attach__button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px dashed #b9b09f;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--kova-navy);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.kova-attach__button:hover { border-color: #25d366; background: #f3fbf6; }
+.kova-attach__button:focus-within { outline: 3px solid rgb(37 211 102 / 0.35); outline-offset: 2px; }
+.kova-attach__button i { color: #128c7e; }
+.kova-attach__button input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.kova-attach__hint { font-size: 12px; color: var(--kova-text-muted); }
+.kova-attach__list { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.kova-attach__list:empty { display: none; }
+.kova-attach__file { padding: 4px 10px; border-radius: 999px; background: #e7f6ec; color: #0a502c; font-size: 12px; font-weight: 500; }
+.kova-attach__file.is-invalid { background: var(--kova-danger-bg); color: var(--kova-danger); }
+
+.kova-ticket-files { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+.kova-ticket-message--staff .kova-ticket-files { justify-content: flex-start; }
+.kova-ticket-file {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 240px;
+    padding: 8px 12px;
+    border: 1px solid var(--kova-border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--kova-navy);
+    font-size: 13px;
+    font-weight: 500;
+}
+.kova-ticket-file span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kova-ticket-file i { color: #c0362c; font-size: 18px; }
+.kova-ticket-file.is-image { padding: 3px; }
+.kova-ticket-file.is-image img { display: block; width: 120px; height: 120px; object-fit: cover; border-radius: 9px; }
+.kova-ticket-file:hover { border-color: var(--kova-orange-600); }

@@ -67,6 +67,14 @@ class Courier extends Model
     }
 
     /**
+     * The chat with the back-office (courier area › Messages).
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(CourierMessage::class);
+    }
+
+    /**
      * Orders assigned to the courier and not finished yet.
      */
     public function openOrders(): HasMany

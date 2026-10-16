@@ -95,6 +95,7 @@
                                             </a>
                                         @endif
                                         <a href="{{ route('account.addresses.index') }}"><i class="fa-regular fa-location-dot"></i>Mes adresses</a>
+                                        <a href="{{ route('account.support.index') }}"><i class="fa-regular fa-headset"></i>Assistance</a>
                                         <a href="{{ route('cart.show') }}"><i class="fa-regular fa-bag-shopping"></i>Mon panier</a>
                                     </nav>
                                     @if ($accountUser->canAccessPanel(\Filament\Facades\Filament::getPanel('admin')))

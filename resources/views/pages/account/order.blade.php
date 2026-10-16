@@ -10,6 +10,7 @@
                 <h2 class="h6 mb--16">Suivi</h2>
                 <x-order-timeline :order="$order" vertical />
                 <x-order-delivery :order="$order" />
+                <a class="rbt-btn rbt-btn-sm rbt-btn-border mt--16" href="{{ route('account.support.create', ['commande' => $order->number]) }}"><i class="fa-regular fa-headset mr--8"></i>Un problème avec cette commande ?</a>
             </div>
             <div class="col-md-7">
                 <h2 class="h6 mb--16">Articles</h2>

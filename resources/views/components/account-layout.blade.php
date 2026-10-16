@@ -9,7 +9,10 @@
         'account.orders' => ['Mes commandes', 'fa-bag-shopping', 'account.orders*', 'green'],
         'account.tracking' => ['Suivi de mes commandes', 'fa-truck-fast', 'account.tracking', 'gold'],
         'account.addresses.index' => ['Mes adresses', 'fa-location-dot', 'account.addresses.*', 'blue'],
+        'account.support.index' => ['Assistance', 'fa-headset', 'account.support.*', 'teal'],
     ];
+    // Answers from the team not read yet.
+    $unreadSupport = $customer?->supportTickets()->where('unread_by_customer', true)->count() ?? 0;
 @endphp
 
 <div class="kova-account">
@@ -44,6 +47,9 @@
                                 <li>
                                     <a @class(['kova-account-nav__link', 'kova-account-nav__link--'.$tone, 'is-active' => request()->routeIs($pattern)]) href="{{ route($route) }}" @if (request()->routeIs($pattern)) aria-current="page" @endif>
                                         <i class="fa-regular {{ $icon }}"></i>{{ $label }}
+                                        @if ($route === 'account.support.index' && $unreadSupport > 0)
+                                            <span class="kova-account-nav__badge" title="Nouvelles réponses">{{ $unreadSupport }}<span class="visually-hidden"> {{ Str::plural('nouvelle réponse', $unreadSupport) }}</span></span>
+                                        @endif
                                     </a>
                                 </li>
                             @endforeach
@@ -65,4 +71,13 @@
             </div>
         </div>
     </div>
+
+    {{-- The assistant button: a request to the team from any page of the customer area. --}}
+    @unless (request()->routeIs('account.support.*'))
+        <a class="kova-assist-fab" href="{{ $unreadSupport > 0 ? route('account.support.index') : route('account.support.create') }}" aria-label="{{ $unreadSupport > 0 ? 'Assistance : vous avez une nouvelle réponse' : 'Assistance : envoyer une demande à notre équipe' }}">
+            <i class="fa-regular fa-headset" aria-hidden="true"></i>
+            <span class="kova-assist-fab__label">Besoin d’aide ?</span>
+            @if ($unreadSupport > 0)<span class="kova-assist-fab__dot" aria-hidden="true"></span>@endif
+        </a>
+    @endunless
 </div>

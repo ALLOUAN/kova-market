@@ -235,7 +235,12 @@
         .ca-rule.is-ok { color: var(--ok); font-weight: 600; }
         .ca-rule[hidden] { display: none; }
         .ca-help__actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+
+        .tabbar__icon { position: relative; display: inline-flex; }
+        .tabbar__badge { position: absolute; top: -6px; right: -10px; min-width: 18px; height: 18px; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: #25d366; color: #fff; font-size: 11px; font-weight: 800; box-shadow: 0 0 0 2px #fff; }
+        .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     </style>
+    @yield('head')
 </head>
 <body @hasSection('bare') class="auth" @endif>
     @hasSection('bare')
@@ -270,13 +275,21 @@
     {{-- Bottom tab bar of the main screens (thumb reach): deliveries, money, account. --}}
     @hasSection('tab')
         <nav class="tabbar" aria-label="Navigation">
+            {{-- Messages from the team not read yet, on the "Messages" tab. --}}
+            @php($unreadMessages = auth()->user()?->courier?->messages()->unreadByCourier()->count() ?? 0)
             @foreach ([
                 'home' => [route('courier.home'), 'list', 'Livraisons'],
+                'messages' => [route('courier.messages'), 'chat', 'Messages'],
                 'money' => [route('courier.money'), 'wallet', 'Encaissements'],
                 'account' => [route('courier.password.edit'), 'user', 'Compte'],
             ] as $key => [$url, $icon, $label])
                 <a href="{{ $url }}" @class(['tabbar__item', 'is-active' => trim($__env->yieldContent('tab')) === $key]) @if (trim($__env->yieldContent('tab')) === $key) aria-current="page" @endif>
-                    @include('courier.partials.icon', ['name' => $icon])
+                    <span class="tabbar__icon">
+                        @include('courier.partials.icon', ['name' => $icon])
+                        @if ($key === 'messages' && $unreadMessages > 0)
+                            <span class="tabbar__badge">{{ $unreadMessages }}<span class="visually-hidden"> non lu{{ $unreadMessages > 1 ? 's' : '' }}</span></span>
+                        @endif
+                    </span>
                     <span>{{ $label }}</span>
                 </a>
             @endforeach

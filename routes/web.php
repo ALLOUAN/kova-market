@@ -4,6 +4,7 @@ use App\Http\Controllers\Account\AccountController;
 use App\Http\Controllers\Account\AddressController;
 use App\Http\Controllers\Account\PasswordResetController;
 use App\Http\Controllers\Account\ReviewController;
+use App\Http\Controllers\Account\SupportTicketController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Courier\AppController as CourierAppController;
 use App\Http\Controllers\Courier\AuthController as CourierAuthController;
 use App\Http\Controllers\Courier\DeliveryController;
+use App\Http\Controllers\Courier\MessageController as CourierMessageController;
 use App\Http\Controllers\Courier\MoneyController as CourierMoneyController;
 use App\Http\Controllers\Courier\PasswordController as CourierPasswordController;
 use App\Http\Controllers\FaqController;
@@ -93,13 +95,11 @@ Route::middleware('guest')->group(function () {
     Route::get('/mot-de-passe-oublie/code', [PasswordResetController::class, 'editWithCode'])->name('password.code');
     Route::post('/mot-de-passe-oublie/code', [PasswordResetController::class, 'updateWithCode'])->middleware('throttle:10,1')->name('password.code.update');
     Route::get('/reinitialiser-mot-de-passe/{token}', [PasswordResetController::class, 'editWithToken'])->name('password.reset');
-    Route::post('/reinitialiser-mot-de-passe', [PasswordResetController::class, 'updateWithToken'])->middleware('throttle:10,1')->name('password.reset.update');
-});
+    Route::post('/reinitialiser-mot-de-passe', [PasswordResetController::class, 'updateWithToken'])->middleware('throttle:10,1')->name('password.reset.update');});
 
 // Customer area (F-070 to F-075).
 Route::middleware('auth')->prefix('compte')->name('account.')->group(function () {
-    Route::get('/', [AccountController::class, 'show'])->name('show');
-    Route::get('/commandes', [AccountController::class, 'orders'])->name('orders');
+    Route::get('/', [AccountController::class, 'show'])->name('show');    Route::get('/commandes', [AccountController::class, 'orders'])->name('orders');
     Route::get('/suivi', [AccountController::class, 'tracking'])->name('tracking');
     Route::get('/favoris', [AccountController::class, 'wishlist'])->name('wishlist');
     Route::get('/commandes/{order:number}', [AccountController::class, 'order'])->name('orders.show');
@@ -116,6 +116,15 @@ Route::middleware('auth')->prefix('compte')->name('account.')->group(function ()
     Route::put('/adresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
     Route::post('/adresses/{address}/defaut', [AddressController::class, 'makeDefault'])->name('addresses.default');
     Route::delete('/adresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+
+    // Assistance: requests to the team, each a conversation.
+    Route::get('/assistance', [SupportTicketController::class, 'index'])->name('support.index');
+    Route::get('/assistance/nouvelle', [SupportTicketController::class, 'create'])->name('support.create');
+    Route::post('/assistance', [SupportTicketController::class, 'store'])->middleware('throttle:5,1')->name('support.store');
+    Route::get('/assistance/{ticket}', [SupportTicketController::class, 'show'])->whereUlid('ticket')->name('support.show');
+    Route::post('/assistance/{ticket}/messages', [SupportTicketController::class, 'reply'])->whereUlid('ticket')->middleware('throttle:10,1')->name('support.reply');
+    Route::post('/assistance/{ticket}/fermer', [SupportTicketController::class, 'close'])->whereUlid('ticket')->name('support.close');
+    Route::get('/assistance/{ticket}/fichiers/{message}/{index}', [SupportTicketController::class, 'attachment'])->whereUlid(['ticket', 'message'])->whereNumber('index')->name('support.attachment');
 });
 
 // Favourites ("Mes favoris"), for visitors and customers.
@@ -161,5 +170,10 @@ Route::prefix('livreur')->name('courier.')->group(function () {
 
         Route::get('/encaissements', [CourierMoneyController::class, 'index'])->name('money');
         Route::get('/versements/{remittance}/recu', [CourierMoneyController::class, 'receipt'])->name('remittances.receipt');
+
+        // Chat with the back-office.
+        Route::get('/messages', [CourierMessageController::class, 'index'])->name('messages');
+        Route::post('/messages', [CourierMessageController::class, 'store'])->middleware('throttle:30,1')->name('messages.store');
+        Route::get('/messages/nouveaux', [CourierMessageController::class, 'poll'])->middleware('throttle:60,1')->name('messages.poll');
     });
 });
