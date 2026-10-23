@@ -21,7 +21,7 @@ return [
         'order_placed' => [
             'name' => 'kova_commande_recue',
             'category' => 'UTILITY',
-            'body' => 'Bonjour {{1}}, nous avons bien reçu votre commande {{2}} d’un montant de {{3}}. Nous vous contactons pour organiser la livraison. Votre reçu : {{4}} Merci, l’équipe KOVA MARKET.',
+            'body' => "Bonjour {{1}} 👋\n\nMerci pour votre commande chez KOVA MARKET ! 🛍️\n🧾 Commande : {{2}}\n💰 Montant : {{3}}\n\nNotre équipe la prépare et vous contacte très vite pour organiser la livraison.\nVotre reçu : {{4}}\n\nÀ très bientôt,\nL’équipe KOVA MARKET",
             'example' => ['Awa', 'KM-261001-0001', '45 000 FCFA', 'https://www.kova-market.com/commande/KM-261001-0001/recu'],
         ],
 

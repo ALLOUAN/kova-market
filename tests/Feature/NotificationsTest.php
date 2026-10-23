@@ -123,7 +123,7 @@ class NotificationsTest extends TestCase
         [$phone, $message] = $gateway->sent[0];
         $this->assertSame(['+2250701020304', 'kova_commande_recue'], [$phone, $message->name()]);
         $this->assertSame('Koffi', $message->parameters[0]);
-        $this->assertStringContainsString("votre commande {$order->number} d’un montant de 45\u{00A0}000\u{00A0}FCFA", $message->text());
+        $this->assertStringContainsString("Commande : {$order->number}\n💰 Montant : 45\u{00A0}000\u{00A0}FCFA", $message->text());
         $this->assertStringContainsString("/commande/{$order->number}/recu?signature=", $message->parameters[3]);
 
         // The following steps use "kova_suivi_commande" with the step in words.
