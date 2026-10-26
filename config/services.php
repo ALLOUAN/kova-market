@@ -67,7 +67,8 @@ return [
     'cinetpay' => [
         'api_key' => env('CINETPAY_API_KEY'),
         'api_password' => env('CINETPAY_API_PASSWORD'),
-        'base_url' => env('CINETPAY_BASE_URL', 'https://api.cinetpay.co'),
+        // The current CinetPay platform (sk_test_… / sk_live_… keys). api.cinetpay.co answers INVALID_CREDENTIALS to them.
+        'base_url' => env('CINETPAY_BASE_URL', 'https://api.cinetpay.net'),
         'currency' => env('CINETPAY_CURRENCY', 'XOF'),
         // CinetPay requires a valid e-mail; used for customers who ordered without one (else the store's contact e-mail).
         'fallback_email' => env('CINETPAY_FALLBACK_EMAIL'),

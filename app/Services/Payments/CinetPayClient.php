@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -129,7 +130,7 @@ class CinetPayClient
 
         try {
             /** @var Response $response */
-            $response = Http::timeout(30)->acceptJson()->withToken($this->token())->{$method}($this->url($path), $payload);
+            $response = $this->http()->withToken($this->token())->{$method}($this->url($path), $payload);
         } catch (CinetPayException $exception) {
             throw $exception;
         } catch (Throwable $exception) {
@@ -153,7 +154,7 @@ class CinetPayClient
         }
 
         try {
-            $body = Http::timeout(30)->acceptJson()->post($this->url('/v1/oauth/login'), [
+            $body = $this->http()->post($this->url('/v1/oauth/login'), [
                 'api_key' => config('services.cinetpay.api_key'),
                 'api_password' => config('services.cinetpay.api_password'),
             ])->json() ?? [];
@@ -172,6 +173,15 @@ class CinetPayClient
         Cache::put($this->tokenKey(), $body['access_token'], self::TOKEN_TTL);
 
         return $body['access_token'];
+    }
+
+    /**
+     * Calls over IPv4 only: CinetPay accepts the addresses of its IP whitelist, and a server or office line that also
+     * has an IPv6 address would otherwise be refused ("NOT_ALLOWED", code 2011) whenever the call left over IPv6.
+     */
+    private function http(): PendingRequest
+    {
+        return Http::timeout(30)->acceptJson()->withOptions(['force_ip_resolve' => 'v4']);
     }
 
     private function forgetToken(): void

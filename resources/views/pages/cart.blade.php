@@ -53,6 +53,9 @@
                             @endforeach
                         </ul>
                         <a class="d-inline-block mt--24" href="{{ route('shop.index') }}"><i class="fa-regular fa-arrow-left mr--4"></i> Continuer mes achats</a>
+
+                        {{-- Under the items on a computer; on a phone, after the summary (below) so "Commander" stays close. --}}
+                        <x-product.order-protection class="kova-protection--wide d-none d-lg-block" id-suffix="cart-wide" />
                     </div>
 
                     <aside class="col-lg-4">
@@ -168,6 +171,8 @@
                                 <button type="button" class="rbt-btn w-100 mt--24" disabled>Commander</button>
                             @endif
                         </div>
+
+                        <x-product.order-protection class="d-lg-none" />
                     </aside>
                 </div>
             @endif

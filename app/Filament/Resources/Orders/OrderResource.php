@@ -16,11 +16,13 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
 
 /**
- * Orders (F-106): list, search, details, status changes and order slip. Orders are never created,
- * edited or deleted by hand.
+ * Orders (F-106): list, search, details, status changes and order slip. Orders are never created or edited by
+ * hand; only cancelled ones can be deleted, into the trash (soft delete) they can be restored from.
  */
 class OrderResource extends Resource
 {
@@ -53,6 +55,14 @@ class OrderResource extends Resource
     public static function canCreate(): bool
     {
         return false;
+    }
+
+    /**
+     * Deleted orders stay reachable from the list's "Corbeille" filter, to be restored.
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 
     /**

@@ -1008,3 +1008,37 @@ a.kd-chip:hover { box-shadow: inset 0 0 0 1px var(--kd-orange); }
 .dark .kcc-msg--mine::before { border-color: #005c4b transparent transparent #005c4b; }
 .dark .kcc-msg__meta { color: rgb(233 237 239 / 0.6); }
 .dark .kcc-composer textarea { background: #2a3942; color: #e9edef; }
+
+/* Ventes › Commandes: handled orders stand out, delivered in green, cancelled greyed (OrdersTable::recordClasses). */
+.kova-order-row--delivered > td { background-color: rgb(14 125 66 / 0.16); }
+.kova-order-row--delivered > td:first-child { box-shadow: inset 6px 0 0 #0e7d42; }
+.kova-order-row--cancelled > td { background-color: rgb(102 112 133 / 0.08); color: #667085; }
+.kova-order-row--cancelled > td:first-child { box-shadow: inset 4px 0 0 #98a2b3; }
+.kova-order-row--cancelled .fi-ta-text-item-label { opacity: 0.75; }
+.dark .kova-order-row--delivered > td { background-color: rgb(76 195 138 / 0.2); }
+.dark .kova-order-row--delivered > td:first-child { box-shadow: inset 6px 0 0 #4cc38a; }
+.dark .kova-order-row--cancelled > td { background-color: rgb(255 255 255 / 0.04); color: #98a2b3; }
+
+/* Contenus › Bouton WhatsApp: the live preview (filament/pages/whatsapp-button-preview), a fake browser. */
+.kwp { position: sticky; top: 80px; }
+.kwp-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.875rem; }
+.kwp-tabs { display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #eef1f6; }
+.kwp-tabs button { padding: 5px 12px; border: 0; border-radius: 8px; background: transparent; color: #475467; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+.kwp-tabs button.is-active { background: #fff; color: #021732; box-shadow: 0 1px 3px rgb(2 23 50 / 0.12); }
+.kwp-browser { overflow: hidden; margin: 0 auto; border: 1px solid rgb(2 23 50 / 0.12); border-radius: 12px; background: #fff; box-shadow: 0 8px 24px rgb(2 23 50 / 0.08); transition: max-width 0.25s ease; }
+.kwp-browser.is-mobile { max-width: 320px; }
+.kwp-bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: #f2f4f7; border-bottom: 1px solid rgb(2 23 50 / 0.08); }
+.kwp-bar > span { width: 9px; height: 9px; border-radius: 50%; background: #d0d5dd; }
+.kwp-url { flex: 1; margin-left: 8px; padding: 3px 10px; border-radius: 6px; background: #fff; color: #667085; font-size: 0.75rem; }
+.kwp-page { position: relative; min-height: 470px; padding: 16px; }
+.kwp-sk { height: 60px; margin-bottom: 12px; border-radius: 6px; background: #eef1f6; }
+.kwp-row { display: flex; gap: 8px; }
+.kwp-row .kwp-sk { flex: 1; }
+.kwp-off { position: absolute; left: 16px; right: 16px; bottom: 16px; margin: 0; padding: 10px 12px; border-radius: 8px; background: #fdf3e2; color: #a86b12; font-size: 0.8125rem; text-align: center; }
+.kwp-actions { display: flex; gap: 8px; margin-top: 12px; }
+.kwp-link { flex: 1; padding: 8px 12px; border: 1px solid rgb(2 23 50 / 0.15); border-radius: 8px; color: #021732; font-size: 0.8125rem; font-weight: 600; text-align: center; }
+.kwp-link:hover { background: #f2f4f7; }
+.dark .kwp-tabs { background: rgb(255 255 255 / 0.08); }
+.dark .kwp-tabs button { color: #d0d5dd; }
+.dark .kwp-tabs button.is-active { background: rgb(255 255 255 / 0.15); color: #fff; }
+.dark .kwp-link { color: #f2f4f7; border-color: rgb(255 255 255 / 0.15); }

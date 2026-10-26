@@ -1,0 +1,143 @@
+/* Floating WhatsApp button and its chat window (components/whatsapp-widget), on the storefront and in the
+   back-office preview. Bottom left or right; on phones, above the mobile toolbar. */
+.wa-widget { position: fixed; bottom: 24px; z-index: 990; font-family: inherit; }
+.wa-widget a, .wa-widget a:hover { text-decoration: none; }
+.wa-widget.wa-left { left: 24px; }
+.wa-widget.wa-right { right: 24px; }
+
+.wa-fab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #25d366;
+    color: #fff;
+    font-size: 30px;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.22);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.wa-fab:hover, .wa-fab:focus-visible { color: #fff; background: #1ebe5a; transform: scale(1.05); }
+.wa-fab:focus-visible { outline: 3px solid rgb(37 211 102 / 0.45); outline-offset: 3px; }
+.wa-fab .wa-svg { width: 30px; height: 30px; }
+.wa-ic-close { display: none; font-size: 30px; line-height: 1; }
+.wa-widget.is-open .wa-ic-open { display: none; }
+.wa-widget.is-open .wa-ic-close { display: block; }
+.wa-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background: #ff3b30;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+    box-shadow: 0 0 0 2px #fff;
+}
+.wa-widget.is-open .wa-badge, .wa-widget.is-seen .wa-badge { display: none; }
+
+.wa-card {
+    position: absolute;
+    bottom: 74px;
+    width: 330px;
+    max-width: calc(100vw - 32px);
+    overflow: hidden;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 16px 40px rgb(11 20 26 / 0.25);
+    animation: wa-in 0.25s ease;
+}
+.wa-left .wa-card { left: 0; }
+.wa-right .wa-card { right: 0; }
+.wa-card[hidden] { display: none; }
+@keyframes wa-in { from { opacity: 0; transform: translateY(10px); } }
+
+.wa-head { display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 16px; background: #075e54; color: #fff; }
+.wa-avatar { flex: none; width: 44px; height: 44px; overflow: hidden; border-radius: 50%; background: #fff; }
+.wa-avatar img { width: 100%; height: 100%; object-fit: contain; }
+.wa-who { flex: 1; min-width: 0; }
+.wa-name { font-size: 15px; font-weight: 700; line-height: 1.3; }
+.wa-status { font-size: 12px; opacity: 0.85; }
+.wa-x { flex: none; width: 30px; height: 30px; border: 0; border-radius: 50%; background: transparent; color: #fff; font-size: 24px; line-height: 1; cursor: pointer; }
+.wa-x:hover { background: rgb(255 255 255 / 0.15); }
+
+.wa-body {
+    padding: 18px 16px;
+    background-color: #efeae2;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23ded5c5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 22h22a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6H28l-7 6v-6h-3a6 6 0 0 1-6-6V28a6 6 0 0 1 6-6z'/%3E%3Cpath d='M112 30c-4-7-14-5-14 3 0 7 14 14 14 14s14-7 14-14c0-8-10-10-14-3z'/%3E%3Cpath d='M70 76l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z'/%3E%3Crect x='112' y='92' width='26' height='22' rx='3'/%3E%3Cpath d='M112 100h26M125 92v8'/%3E%3Ccircle cx='140' cy='60' r='3'/%3E%3Ccircle cx='60' cy='140' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 160px 160px;
+}
+.wa-bubble {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: 88%;
+    padding: 8px 10px 6px;
+    border-radius: 0 10px 10px 10px;
+    background: #fff;
+    color: #111b21;
+    font-size: 14px;
+    line-height: 1.45;
+    box-shadow: 0 1px 1px rgb(11 20 26 / 0.13);
+}
+.wa-bubble::before { content: ""; position: absolute; top: 0; left: -8px; border-style: solid; border-width: 0 8px 10px 0; border-color: #fff #fff transparent transparent; }
+.wa-agent { font-size: 13px; font-weight: 700; color: #128c7e; }
+.wa-time { align-self: flex-end; font-size: 11px; color: #667781; }
+
+.wa-foot { padding: 14px 16px 12px; text-align: center; }
+.wa-start {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 999px;
+    background: #25d366;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+}
+.wa-start:hover, .wa-start:focus-visible { color: #fff; background: #1ebe5a; }
+.wa-start .wa-svg { width: 20px; height: 20px; }
+.wa-foot small { display: block; margin-top: 8px; font-size: 12px; color: #667781; }
+
+/* Phones: above the mobile toolbar, smaller. */
+@media (max-width: 1199px) {
+    .wa-widget { bottom: calc(100px + env(safe-area-inset-bottom)); }
+    .wa-widget.wa-left { left: 16px; }
+    .wa-widget.wa-right { right: 16px; }
+    .wa-fab { width: 52px; height: 52px; font-size: 28px; }
+    .wa-card { bottom: 66px; }
+}
+@media (min-width: 1200px) { .wa-no-desktop { display: none; } }
+@media (max-width: 1199px) { .wa-no-mobile { display: none; } }
+
+/* Keep clear of the other floating buttons: back-to-top (right), "Besoin d'aide ?" of the customer area (left). */
+@media (min-width: 1200px) {
+    body:has(.wa-widget.wa-right:not(.is-preview)) .rbt-progress-parent { bottom: 100px; }
+    body:has(.wa-widget.wa-left:not(.is-preview)) .kova-assist-fab { bottom: 100px; }
+}
+@media (max-width: 1199px) {
+    body:has(.wa-widget.wa-right:not(.is-preview)) .rbt-progress-parent { bottom: calc(166px + env(safe-area-inset-bottom)); }
+    body:has(.wa-widget.wa-left:not(.is-preview)) .kova-assist-fab { bottom: calc(166px + env(safe-area-inset-bottom)); }
+}
+
+/* Back-office preview: inside the fake browser, not fixed to the screen. */
+.wa-widget.is-preview { position: absolute; bottom: 16px; }
+.wa-widget.is-preview.wa-left { left: 16px; }
+.wa-widget.is-preview.wa-right { right: 16px; }
+.wa-widget.is-preview .wa-card { max-width: 300px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .wa-card { animation: none; }
+    .wa-fab { transition: none; }
+}
+@media (max-width: 1199px) { .wa-fab .wa-svg { width: 26px; height: 26px; } }

@@ -1,22 +1,25 @@
-@props(['product'])
+@props(['product' => null, 'idSuffix' => null])
 
 {{--
-    "Commande protégée" on the product page: what the store actually guarantees, nothing more. Secure online payment
-    (only while CinetPay is set up), payment on delivery, the product's own return window when it has one, order
-    tracking, and a WhatsApp conversation about this product. The returns page gives the details.
+    "Commande protégée" on the product page and the cart: what the store actually guarantees, nothing more. Secure
+    online payment (only while CinetPay is set up), payment on delivery, the product's own return window when it has
+    one (product page), order tracking, and a WhatsApp conversation (about this product, or about the order to come
+    from the cart). The returns page gives the details. "kova-protection--wide" sets the guarantees side by side;
+    "idSuffix" keeps the title id unique when the block appears twice on a page.
 --}}
 @php
     $onlinePayment = app(\App\Services\Payments\OnlinePayments::class)->isAvailable();
     $whatsapp = app(\App\Services\Storefront\StoreSettings::class)->whatsappUrl(
-        'Bonjour, j’ai une question sur « '.$product->name.' » : '.$product->url(),
+        $product ? 'Bonjour, j’ai une question sur « '.$product->name.' » : '.$product->url() : 'Bonjour, j’ai une question sur ma commande.',
     );
+    $titleId = 'kova-protection-title-'.($idSuffix ?? $product?->id ?? 'cart');
 @endphp
-<section class="kova-protection" aria-labelledby="kova-protection-title-{{ $product->id }}">
+<section {{ $attributes->class('kova-protection') }} aria-labelledby="{{ $titleId }}">
     <a class="kova-protection__head" href="{{ route('pages.show', 'retours-et-remboursements') }}">
         <span class="kova-protection__badge" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
         <span class="kova-protection__heading">
             <span class="kova-protection__eyebrow">Achetez en toute confiance</span>
-            <h2 class="kova-protection__title" id="kova-protection-title-{{ $product->id }}">Commande protégée {{ config('storefront.name') }}</h2>
+            <h2 class="kova-protection__title" id="{{ $titleId }}">Commande protégée {{ config('storefront.name') }}</h2>
         </span>
         <i class="fa-regular fa-chevron-right kova-protection__arrow" aria-hidden="true"></i>
     </a>
@@ -47,7 +50,7 @@
                 <p class="kova-protection__text">Vous payez en recevant votre colis, après l’avoir vu.</p>
             </div>
         </li>
-        @if ($product->return_days)
+        @if ($product?->return_days)
             <li>
                 <i class="fa-solid fa-rotate-left kova-protection__icon kova-protection__icon--gold" aria-hidden="true"></i>
                 <div>

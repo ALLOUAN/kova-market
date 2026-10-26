@@ -1,25 +1,52 @@
-{{-- Floating WhatsApp button (F-081) on every page, the message typed in advance by the page
-     (@section('whatsapp_message')): product viewed, order summary… Bottom left, above the mobile toolbar,
-     so it never covers a buy button nor the back-to-top button. Hidden while no WhatsApp number is set. --}}
+{{-- Floating WhatsApp button (F-081) and its chat window, set up in Contenus › Bouton WhatsApp
+     (App\Services\Storefront\WhatsAppWidget). The message is the page's own when it has one
+     (@section('whatsapp_message'): product viewed, order summary…), else the one set in the back-office. --}}
 @php
-    $whatsappUrl = app(\App\Services\Storefront\StoreSettings::class)->whatsappUrl(
-        // @section() escapes its inline value for HTML: back to plain text for the message.
-        trim(html_entity_decode($__env->yieldContent('whatsapp_message'), ENT_QUOTES | ENT_HTML5)) ?: 'Bonjour '.config('storefront.name').', j’ai une question.'
-    );
+    $whatsappWidget = app(\App\Services\Storefront\WhatsAppWidget::class);
 @endphp
 
-@if ($whatsappUrl)
-    <a href="{{ $whatsappUrl }}" class="kova-whatsapp-button" target="_blank" rel="noopener" aria-label="Nous écrire sur WhatsApp">
-        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
-    </a>
-    <style>
-        .kova-whatsapp-button {
-            position: fixed; left: 16px; bottom: 88px; z-index: 990;
-            display: flex; align-items: center; justify-content: center;
-            width: 52px; height: 52px; border-radius: 50%;
-            background: #25d366; color: #fff; font-size: 28px; box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
-        }
-        .kova-whatsapp-button:hover, .kova-whatsapp-button:focus { color: #fff; background: #1ebe5a; }
-        @media (min-width: 1200px) { .kova-whatsapp-button { bottom: 24px; } }
-    </style>
+@if ($whatsappWidget->shownOn(request()))
+    @php
+        $whatsappSettings = $whatsappWidget->settings();
+        // @section() escapes its inline value for HTML: back to plain text for the message.
+        $whatsappUrl = $whatsappWidget->url(
+            trim(html_entity_decode($__env->yieldContent('whatsapp_message'), ENT_QUOTES | ENT_HTML5)) ?: null,
+            url()->current(),
+        );
+    @endphp
+    <link rel="stylesheet" href="{{ asset('assets/css/whatsapp-widget.css') }}?v={{ @filemtime(public_path('assets/css/whatsapp-widget.css')) }}">
+    <x-whatsapp-widget :settings="$whatsappSettings" :url="$whatsappUrl" :avatar="asset(config('storefront.favicon'))" />
+
+    @if ($whatsappSettings['greeting_enabled'])
+        <script>
+            (() => {
+                const widget = document.querySelector('[data-wa-widget]');
+                const card = widget.querySelector('[data-wa-card]');
+                const toggle = widget.querySelector('[data-wa-toggle]');
+                const seenKey = 'kova-wa-seen';
+                const remember = () => { try { sessionStorage.setItem(seenKey, '1'); } catch {} };
+                const seen = () => { try { return sessionStorage.getItem(seenKey) === '1'; } catch { return false; } };
+
+                const setOpen = (open) => {
+                    card.hidden = !open;
+                    widget.classList.toggle('is-open', open);
+                    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    if (open) { widget.classList.add('is-seen'); remember(); }
+                };
+
+                // The round button opens the window; the window's own button goes to WhatsApp.
+                toggle.addEventListener('click', (event) => { event.preventDefault(); setOpen(card.hidden); });
+                widget.querySelector('[data-wa-close]').addEventListener('click', () => setOpen(false));
+                document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !card.hidden) setOpen(false); });
+
+                // Opens by itself once per visit, on a computer only: on a phone the red dot is enough.
+                const delay = Number(widget.dataset.delay);
+                if (seen()) {
+                    widget.classList.add('is-seen');
+                } else if (delay > 0 && window.matchMedia('(min-width: 1200px)').matches) {
+                    setTimeout(() => { if (card.hidden && !seen()) setOpen(true); }, delay * 1000);
+                }
+            })();
+        </script>
+    @endif
 @endif

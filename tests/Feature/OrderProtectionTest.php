@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Cart;
 use App\Models\Product;
+use App\Services\Cart\CartManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -36,5 +38,19 @@ class OrderProtectionTest extends TestCase
             ->assertSeeText('7 jours pour changer d’avis')
             ->assertSeeText('Discuter avec nous')
             ->assertSee('https://wa.me/2250506070809', false);
+    }
+
+    public function test_the_cart_states_the_same_guarantees_without_a_product_s_return_window(): void
+    {
+        config(['storefront.contact.whatsapp' => '2250506070809']);
+        $product = Product::factory()->create(['stock' => 5, 'return_days' => 7]);
+        $this->post('/panier/articles', ['variant_id' => $product->defaultVariant->id, 'quantity' => 1]);
+        $this->withCookie(CartManager::COOKIE, Cart::sole()->token);
+
+        $this->get('/panier')->assertOk()
+            ->assertSeeText('Commande protégée')
+            ->assertSeeText('Paiement à la livraison')
+            ->assertDontSeeText('jours pour changer d’avis')
+            ->assertSee('https://wa.me/2250506070809?text='.rawurlencode('Bonjour, j’ai une question sur ma commande.'), false);
     }
 }

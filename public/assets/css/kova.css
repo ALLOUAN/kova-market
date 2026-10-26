@@ -2580,3 +2580,12 @@ textarea.kova-wa-input::placeholder { color: #8a8170 !important; }
 .kova-ticket-file.is-image { padding: 3px; }
 .kova-ticket-file.is-image img { display: block; width: 120px; height: 120px; object-fit: cover; border-radius: 9px; }
 .kova-ticket-file:hover { border-color: var(--kova-orange-600); }
+
+/* "Commande protégée" under the cart items (computer): the guarantees side by side, separated by a thin line. */
+.kova-protection--wide { margin-top: 32px; }
+.kova-protection--wide .kova-protection__list { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 24px; padding: 8px 22px; }
+.kova-protection--wide .kova-protection__list li { padding: 16px 0; }
+.kova-protection--wide .kova-protection__list li + li { border-top: 0; }
+@media (min-width: 992px) {
+    .kova-protection--wide .kova-protection__list li + li { border-left: 1px dashed var(--kova-border); padding-left: 24px; margin-left: -12px; }
+}

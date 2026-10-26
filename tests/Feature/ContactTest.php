@@ -104,11 +104,13 @@ class ContactTest extends TestCase
     {
         Product::factory()->create(['name' => 'Casque Bose', 'slug' => 'casque-bose', 'price' => 45000]);
 
-        $this->get('/')->assertDontSee('kova-whatsapp-button', false);
+        $this->get('/')->assertDontSee('data-wa-widget', false);
 
         Setting::store(['contact.whatsapp' => '2250700000000']);
 
-        $this->get('/')->assertSee('https://wa.me/2250700000000?text='.rawurlencode('Bonjour KOVA MARKET, j’ai une question.'), false);
+        // The page's address is added to the message ("Ajouter le lien de la page consultée", on by default)…
+        $this->get('/')->assertSee('https://wa.me/2250700000000?text='.rawurlencode("Bonjour KOVA MARKET, j’ai une question.\n".url('/')), false);
+        // …but not twice when the page's own message already has it.
         $this->get('/produit/casque-bose')->assertSee(
             'https://wa.me/2250700000000?text='.rawurlencode("Bonjour, je suis intéressé(e) par « Casque Bose » (45\u{00A0}000\u{00A0}FCFA) : ".route('products.show', 'casque-bose')),
             false,

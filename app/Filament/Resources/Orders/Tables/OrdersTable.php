@@ -6,20 +6,26 @@ use App\Enums\DeliveryMode;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Courier;
 use App\Models\Order;
 use App\Services\Finance\FinancePeriod;
 use App\Support\Money;
+use Filament\Actions\BulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +70,21 @@ class OrdersTable
                 TextColumn::make('courier.user.name')->label('Livreur')->placeholder('—')->toggleable(),
             ])
             ->filters([
+                // Handled: delivered or cancelled, nothing left to do on them.
+                TernaryFilter::make('handled')
+                    ->label('Traitement')
+                    ->placeholder('Toutes')
+                    ->trueLabel('Traitées (livrées ou annulées)')
+                    ->falseLabel('À traiter (en cours)')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereIn('status', [OrderStatus::Delivered, OrderStatus::Cancelled]),
+                        false: fn (Builder $query) => $query->whereNotIn('status', [OrderStatus::Delivered, OrderStatus::Cancelled]),
+                    ),
+                TrashedFilter::make()
+                    ->label('Corbeille')
+                    ->placeholder('Sans les supprimées')
+                    ->trueLabel('Avec les supprimées')
+                    ->falseLabel('Supprimées seulement'),
                 SelectFilter::make('courier_id')
                     ->label('Livreur')
                     ->relationship('courier.user', 'name'),
@@ -111,6 +132,59 @@ class OrdersTable
             ->recordActions([
                 ViewAction::make()->label('Ouvrir'),
             ])
+            ->toolbarActions([
+                self::deleteSelected(),
+                self::restoreSelected(),
+            ])
+            // Handled orders stand out: delivered in green, cancelled greyed (styles in kova-admin.css).
+            ->recordClasses(fn (Order $record) => match ($record->status) {
+                OrderStatus::Delivered => 'kova-order-row kova-order-row--delivered',
+                OrderStatus::Cancelled => 'kova-order-row kova-order-row--cancelled',
+                default => null,
+            })
             ->emptyStateHeading('Aucune commande');
+    }
+
+    /**
+     * "Supprimer la sélection": cancelled orders only, moved to the trash (soft delete, "Restaurer" brings them back).
+     * Delivered or ongoing orders stay: they carry the takings, the stock and the couriers' cash.
+     */
+    private static function deleteSelected(): BulkAction
+    {
+        return BulkAction::make('deleteSelected')
+            ->label('Supprimer la sélection')
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->visible(fn () => OrderResource::canDeleteAny())
+            ->requiresConfirmation()
+            ->modalHeading('Supprimer les commandes sélectionnées ?')
+            ->modalDescription('Seules les commandes annulées sont supprimées ; elles vont dans la corbeille (filtre « Corbeille ») et peuvent être restaurées. Les commandes livrées ou en cours ne sont pas touchées.')
+            ->modalSubmitActionLabel('Supprimer')
+            ->action(function (Collection $records): void {
+                [$cancelled, $kept] = $records->partition(fn (Order $order) => $order->status === OrderStatus::Cancelled && ! $order->trashed());
+                $cancelled->each(fn (Order $order) => $order->delete());
+
+                $notification = Notification::make()->title($cancelled->count().' commande(s) supprimée(s)');
+                $kept->isEmpty()
+                    ? $notification->success()
+                    : $notification->warning()->body($kept->count().' commande(s) non annulée(s) laissée(s) en place : annulez une commande avant de la supprimer.');
+                $notification->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
+    private static function restoreSelected(): BulkAction
+    {
+        return BulkAction::make('restoreSelected')
+            ->label('Restaurer la sélection')
+            ->icon('heroicon-o-arrow-uturn-left')
+            ->color('gray')
+            ->visible(fn () => OrderResource::canDeleteAny())
+            ->action(function (Collection $records): void {
+                $trashed = $records->filter(fn (Order $order) => $order->trashed());
+                $trashed->each(fn (Order $order) => $order->restore());
+                Notification::make()->title($trashed->count().' commande(s) restaurée(s)')->success()->send();
+            })
+            ->deselectRecordsAfterCompletion();
     }
 }
